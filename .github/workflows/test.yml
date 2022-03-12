@@ -26,7 +26,7 @@ jobs:
         run: tox -- --cov=src --cov-report=xml
       - name: fix code coverage paths
         run: |
-          sed -i 's/\/home\/runner\/work\/2021-2-MeasureSoftGram-Core\/2021-2-MeasureSoftGram-Core\//\/github\/workspace\//g' coverage.xml
+          sed -i 's/\/home\/runner\/work\/2021-2-MeasureSoftGram-Service\/2021-2-MeasureSoftGram-Service\//\/github\/workspace\//g' coverage.xml
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -41,5 +41,5 @@ jobs:
           fail_ci_if_error: true
           files: ./coverage.xml
           flags: unittests
-          name: 2021-2-MeasureSoftGram-Core
+          name: 2021-2-MeasureSoftGram-Service
           verbose: true
