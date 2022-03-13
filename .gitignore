@@ -6,7 +6,10 @@ __pycache__
 
 # Coverage
 .coverage
+coverage.xml
+**/.coverage
 Coverage
+junit.xml
 
 # Tox
 .tox
