@@ -1,4 +1,15 @@
-# Como contribuir
+# Guia de Contribuição
+
+## Como contribuir
+
+Para contribruir com o projeto o processo é bem simples:
+
+1. Crie sua issue descrevendo a feature ou o problema a ser resolvido.
+2. [Crie sua branch](#crie-branches) para trabalhar, ou faça um fork do projeto, caso seja um desenvolvedor externo.
+3. Faça commits frequentes.
+4. [Faça um PR](#crie-pull-request) com o trabalho feito.
+
+Lembre-se sempre de utilizar o [Padrão Github](https://fga-eps-mds.github.io/2021-2-MeasureSoftGram-Doc/docs/contribute/github_standards).
 
 ## Primeiramente
 
