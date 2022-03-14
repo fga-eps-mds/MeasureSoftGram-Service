@@ -25,4 +25,4 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: measuresoftgram/core:${{ github.ref_name }}
+          tags: measuresoftgram/service:${{ github.ref_name }}
