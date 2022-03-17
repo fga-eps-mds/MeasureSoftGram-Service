@@ -8,3 +8,9 @@ services:
       - ./src:/code/src
       - ./server.py:/code/server.py
     restart: on-failure
+    networks:
+      - measuresoftgram
+  
+networks:
+  measuresoftgram:
+    external: true
