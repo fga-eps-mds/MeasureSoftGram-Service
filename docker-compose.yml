@@ -10,7 +10,34 @@ services:
     restart: on-failure
     networks:
       - measuresoftgram
-  
+    depends_on:
+      - mongo   
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: measuresoftgram
+    volumes:
+      - db_data:/data/db
+    logging:
+      driver: none
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongo
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+
+volumes:
+  db_data:
+
 networks:
   measuresoftgram:
     external: true
