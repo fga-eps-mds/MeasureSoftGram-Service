@@ -8,8 +8,10 @@ services:
       - ./src:/code/src
       - ./server.py:/code/server.py
     restart: on-failure
+    networks:
+      - measuresoftgram
     depends_on:
-      - mongo
+      - mongo   
   mongo:
     image: mongo
     restart: always
@@ -35,3 +37,7 @@ services:
 
 volumes:
   db_data:
+
+networks:
+  measuresoftgram:
+    external: true
