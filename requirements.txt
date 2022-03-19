@@ -2,4 +2,5 @@ flask
 flask-restful
 pytest
 pytest-cov
+requests
 flask-mongoengine
