@@ -1,6 +1,5 @@
 from flask_restful import Resource
-from flask import jsonify
-from src.util.constants import *
+from src.util.constants import CORE_URL
 import requests
 
 
