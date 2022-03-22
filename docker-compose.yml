@@ -2,6 +2,7 @@ version: "3.8"
 services:
   web:
     build: .
+    container_name: measuresoftgram-service
     ports:
       - "5000:5000"
     volumes:
@@ -11,8 +12,9 @@ services:
     networks:
       - measuresoftgram
     depends_on:
-      - mongo   
+      - mongo
   mongo:
+    container_name: measuresoftgram-db
     image: mongo
     restart: always
     environment:

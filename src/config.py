@@ -1,7 +1,7 @@
 import os
 
 MONGO_SETTINGS = {
-    "host": "mongo",
+    "host": "measuresoftgram-db",
     "port": 27017,
     "db": os.getenv("DB_NAME", "measuresoftgram"),
     "username": os.getenv("DB_USER", "root"),
