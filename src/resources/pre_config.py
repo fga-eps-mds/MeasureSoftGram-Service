@@ -13,4 +13,4 @@ class SelectedPreConfig(Resource):
 
         pre_config.save()
 
-        return jsonify(pre_config.to_json())
+        return pre_config.to_json(), 201
