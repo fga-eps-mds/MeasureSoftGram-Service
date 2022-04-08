@@ -2,12 +2,14 @@ import json
 from urllib import response
 from flask import jsonify
 
-data = ["maintanability"]
+user_characteristics = ["maintanability"]
+
+data = {"characteristics": user_characteristics, "name": "pre_config_name"}
 
 
 def test_preconfig(client):
     response = client.post(
-        "/selected-pre-config",
+        "/pre-configs",
         json=data,
     )
     assert response.status_code == 201
