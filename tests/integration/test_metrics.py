@@ -2,7 +2,7 @@
 def test_pre_config_metric_post(client):
 
     dict = {
-        "pre_config_id": "fi2n5wkfsh8",
+        "pre_config_id": "507f1f77bcf86cd799439011",
         "comment_lines_density": 0.2,
         "complexity": 0.5,
         "coverage": 0.2,
@@ -19,6 +19,7 @@ def test_pre_config_metric_post(client):
 
     response = client.post("/pre-config-metrics", json=dict)
     assert response.status_code == 200
+    assert response.json == 404
 
 
 def test_wrong_path(client):
@@ -43,7 +44,7 @@ def test_wrong_path(client):
     assert response.status_code == 404
 
 
-def test_wrong_file_post(client):
+def test_invalid_id_post(client):
 
     dict = {
         "pre_config_id": "fi2ng9248",
@@ -61,5 +62,6 @@ def test_wrong_file_post(client):
         "tests": 0.3
     }
 
-    response = client.post("/pre-config-metrics", data=dict)
-    assert response.status_code == 400
+    response = client.post("/pre-config-metrics", json=dict)
+    assert response.json == 404
+    assert response.status_code == 200
