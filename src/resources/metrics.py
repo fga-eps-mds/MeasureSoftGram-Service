@@ -12,11 +12,11 @@ class PreConfigMetrics(Resource):
         pre_config_id = data["pre_config_id"]
 
         try:
-            if PreConfig.objects.with_id(pre_config_id) == None:
+            if PreConfig.objects.with_id(pre_config_id) is None:
                 return 404
             else:
                 data.pop("pre_config_id", None)
                 Metrics(metrics_list=data).save()
                 return 201
-        except Exception as InvalidQueryError:
+        except Exception:
             return 404
