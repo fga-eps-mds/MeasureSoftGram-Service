@@ -9,12 +9,13 @@ class PreConfigMetrics(Resource):
 
         data = request.get_json(force=True)
 
-        pre_config_id = data["pre_config_id"]
+        pre_configuration_id = data["pre_config_id"]
 
         try:
-            if PreConfig.objects.with_id(pre_config_id) is None:
+            if PreConfig.objects.with_id(pre_configuration_id) is None:
                 return 404
             else:
+                Metrics(pre_config_id=data["pre_config_id"]).save()
                 data.pop("pre_config_id", None)
                 Metrics(metrics_list=data).save()
                 return 201
