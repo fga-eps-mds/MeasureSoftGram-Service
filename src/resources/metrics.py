@@ -1,8 +1,7 @@
 from flask_restful import Resource
 from src.model.metric import Metrics
 from src.model.pre_config import PreConfig
-from flask import Flask, request, jsonify
-from src.exceptions import IdNotFoundedException
+from flask import request
 
 
 class PreConfigMetrics(Resource):
@@ -10,14 +9,14 @@ class PreConfigMetrics(Resource):
 
         data = request.get_json(force=True)
 
-        id_wanted = data["id_wanted"]
+        pre_config_id = data["pre_config_id"]
 
-        if PreConfig.objects(_id=id_wanted) == {}:
-            raise IdNotFoundedException()
-        else:
-            data.pop("id_wanted", None)
-            pre_config_metrics = Metrics()
-            pre_config_metrics.metrics_list = data
-
-            pre_config_metrics.save()
-            return pre_config_metrics.to_json(), 201
+        try:
+            if PreConfig.objects.with_id(pre_config_id) == None:
+                return 404
+            else:
+                data.pop("pre_config_id", None)
+                Metrics(metrics_list=data).save()
+                return 201
+        except Exception as InvalidQueryError:
+            return 404
