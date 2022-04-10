@@ -2,11 +2,11 @@
 import mongoengine as me
 
 
-class Metrics(me.Document):
+class Components(me.Document):
 
     pre_config_id = me.StringField()
-    metrics_list = me.DictField()
+    components_list = me.ListField()
 
     def to_json(self):
         return {"pre_config_id": self.pre_config_id,
-                "metrics_list": self.metrics_list}
+                "components_list": self.components_list}
