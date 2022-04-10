@@ -1,5 +1,3 @@
-import json
-from flask import Flask, request, jsonify
 import mongoengine as me
 
 
@@ -25,5 +23,5 @@ class PreConfig(me.Document):
             "characteristics_weights": self.characteristics_weights,
             "subcharacteristics_weights": self.subcharacteristics_weights,
             "measures_weights": self.measures_weights,
-            "created_at": self.created_at(),
+            "created_at": str(self.created_at()),
         }
