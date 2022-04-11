@@ -1,4 +1,5 @@
 import json
+from flask import request
 
 
 def test_pre_config_component_post(client):
