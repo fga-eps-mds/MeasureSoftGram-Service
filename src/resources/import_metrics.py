@@ -14,9 +14,13 @@ class ImportMetrics(Resource):
 
         try:
             if PreConfig.objects.with_id(pre_configuration_id) is None:
-                return requests.codes.not_found
+                return {
+                    "pre_config_id": f"There is no pre configurations with ID {pre_configuration_id}"
+                }, requests.codes.not_found
         except me.errors.ValidationError:
-            return requests.codes.not_found
+            return {
+                "pre_config_id": f"{pre_configuration_id} is not a valid ID"
+            }, requests.codes.not_found
 
         try:
             MetricsComponentTree(
