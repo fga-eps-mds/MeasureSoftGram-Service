@@ -1,7 +1,7 @@
 from flask_restful import Resource
 from src.model.metrics_component_tree import MetricsComponentTree
 from src.model.pre_config import PreConfig
-from flask import request, jsonify
+from flask import request
 import mongoengine as me
 import requests
 
