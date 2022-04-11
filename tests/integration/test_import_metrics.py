@@ -1,36 +1,68 @@
-import json
+from tests.test_helpers import read_json
+from src.model.pre_config import PreConfig
 
 
-def test_pre_config_component_post(client):
+def test_import_metrics_inexistent_pre_config_id(client):
+    json_file = read_json("tests/data/sonar.json")
 
-    f = open(r"tests/data/sonar.json", "r")
-    json_file = json.load(f)
-    json_test = {"pre_config_id": "624b45ebac582da342adffc3", "components": json_file}
+    data = {"pre_config_id": "624b45ebac582da342adffc3", "components": json_file}
 
-    response = client.post("/pre-config-components", json=json_test)
-    assert response.status_code == 200
-    assert response.json == 404
+    response = client.post("/import-metrics", json=data)
 
-
-def test_wrong_path(client):
-
-    f = open(r"tests/data/zero_cyclomatic_complexity.json", "r")
-    json_file = json.load(f)
-    json_test = {"pre_config_id": "624b45ebac582da342adffc3", "components": json_file}
-
-    response = client.post("/pre-confi-components", json=json_test)
     assert response.status_code == 404
+    assert response.json == {
+        "pre_config_id": "There is no pre configurations with ID 624b45ebac582da342adffc3"
+    }
 
 
-def test_invalid_id_post(client):
+def test_import_metrics_invalid_pre_config_id(client):
+    json_file = read_json("tests/data/sonar.json")
 
-    f = open(
-        r"tests/data/fga-eps-mds-2020_2-Projeto-Kokama-Usuario-17-04-2021.json", "r"
+    data = {"pre_config_id": "123abc", "components": json_file}
+
+    response = client.post("/import-metrics", json=data)
+
+    assert response.status_code == 404
+    assert response.json == {"pre_config_id": "123abc is not a valid ID"}
+
+
+def test_import_metrics_missing_pre_config_metrics(client):
+    json_file = read_json(
+        "tests/data/fga-eps-mds-2020_2-Projeto-Kokama-Usuario-17-04-2021.json"
     )
-    json_file = json.load(f)
-    json_test = {"pre_config_id": "624b45e32h", "components": json_file}
 
-    response = client.post("/pre-config-components", json=json_test)
+    pre_config = PreConfig(
+        name="pre-config-test-1", measures=["non_complex_file_density", "test_builds"]
+    ).save()
 
-    assert response.json == 404
-    assert response.status_code == 200
+    data = {"pre_config_id": str(pre_config.pk), "components": json_file}
+
+    response = client.post("/import-metrics", json=data)
+
+    assert response.status_code == 422
+    assert response.json == {
+        "__all__": "The metrics in this file are not the expected in the pre config."
+        + "Missing metrics: tests, test_execution_time."
+    }
+
+
+def test_import_metrics_success(client):
+    json_file = read_json(
+        "tests/data/fga-eps-mds-2020_2-Projeto-Kokama-Usuario-17-04-2021.json"
+    )
+
+    pre_config = PreConfig(
+        name="pre-config-test-1",
+        measures=[
+            "non_complex_file_density",
+            "commented_file_density",
+            "duplication_absense",
+        ],
+    ).save()
+
+    data = {"pre_config_id": str(pre_config.pk), "components": json_file}
+
+    response = client.post("/import-metrics", json=data)
+
+    assert response.status_code == 201
+    assert response.json == {}
