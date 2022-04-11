@@ -15,40 +15,37 @@ class MetricsComponentTree(me.Document):
             headers={"Accept": "application/json"},
         ).json()
 
-        # Reduzir todas as metricas necessárias para a pré config relacionada em um vetor
         pre_config = PreConfig.objects.with_id(self.pre_config_id)
 
         found_metrics = []
+        missing_metrics = []
         required_metrics = []
 
         for measure in pre_config.measures:
             for metric in available_entries["measures"][measure]["metrics"]:
                 required_metrics.append(metric)
 
-        # A partir do vetor verificar se existe ao menos um component que possua
-        # a métrica em questão
+        all_metrics = list(
+            map(
+                lambda item: list(map(lambda itm: itm["metric"], item["measures"])),
+                self.components,
+            )
+        )
+
+        found_metrics = dict.fromkeys(
+            [item for sublist in all_metrics for item in sublist], True
+        )
+
         for required_metric in required_metrics:
-            for component in self.components:
-                for measure in component["measures"]:
-                    found = measure["metric"] == required_metric
+            if not found_metrics.get(required_metric, False):
+                missing_metrics.append(required_metric)
 
-                    if found:
-                        break
-
-                if found:
-                    break
-
-            found_metrics.append(found)
-
-        if not all(found_metrics):
-            msg = "Missing metrics: "
-
-            for idx in range(len(found_metrics)):
-                if not found_metrics[idx]:
-                    msg = f"{msg} {required_metrics[idx]},"
+        if len(missing_metrics) > 0:
+            missing_text = ", ".join(missing_metrics)
 
             raise me.errors.ValidationError(
-                f"The metrics in this file are not the expected in the pre config. {msg[:-1]}"
+                "The metrics in this file are not the expected in the pre config."
+                + f"Missing metrics: {missing_text}."
             )
 
     def to_json(self):
