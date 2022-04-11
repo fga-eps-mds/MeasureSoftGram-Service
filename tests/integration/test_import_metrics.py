@@ -47,9 +47,7 @@ def test_import_metrics_missing_pre_config_metrics(client):
 
 
 def test_import_metrics_success(client):
-    json_file = read_json(
-        "tests/data/fga-eps-mds-2020_2-Projeto-Kokama-Usuario-17-04-2021.json"
-    )
+    json_file = read_json("tests/data/sonar.json")
 
     pre_config = PreConfig(
         name="pre-config-test-1",

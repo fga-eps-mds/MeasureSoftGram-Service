@@ -6,6 +6,10 @@ import mongoengine as me
 
 
 class PreConfigs(Resource):
+    def get(self):
+        # return PreConfig.objects.to_json(), 200
+        return PreConfig.objects.with_id("625439e55742575d765b3c22").to_json(), 200
+
     def post(self):
         data = request.get_json(force=True)
 
