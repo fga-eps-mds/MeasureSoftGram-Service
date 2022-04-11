@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_restful import Api
-from src.resources.hello_world import HelloWorld, HelloWorld2
 from src.resources.available import AvailablePreConfigs
+from src.resources.pre_config import PreConfigs
 from flask_mongoengine import MongoEngine
 from .config import MONGO_SETTINGS
 
@@ -24,11 +24,9 @@ def create_app(is_testing=False):
     api = Api(app)
 
     # FIXME: Create routes file
-    api.add_resource(HelloWorld, "/hello")
-
-    api.add_resource(HelloWorld2, "/hello-world")
-
     api.add_resource(AvailablePreConfigs, "/available-pre-configs")
+
+    api.add_resource(PreConfigs, "/pre-configs")
 
     db = MongoEngine(app)
 
