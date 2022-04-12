@@ -29,4 +29,4 @@ class ImportMetrics(Resource):
         except me.errors.ValidationError as error:
             return error.to_dict(), requests.codes.unprocessable_entity
 
-        return requests.codes.created
+        return {}, requests.codes.created
