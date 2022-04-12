@@ -1,17 +1,36 @@
 from flask import Flask
 from flask_restful import Api
-from src.resources.hello_world import HelloWorld, HelloWorld2
 from src.resources.available import AvailablePreConfigs
+from src.resources.pre_config import PreConfigs
+from src.resources.import_metrics import ImportMetrics
 from flask_mongoengine import MongoEngine
 from .config import MONGO_SETTINGS
 
-app = Flask(__name__)
-app.config["MONGODB_SETTINGS"] = MONGO_SETTINGS
-api = Api(app)
-db = MongoEngine(app)
 
-api.add_resource(HelloWorld, "/hello")
+def create_app(is_testing=False):
+    """
+    Create the Flask app
+    """
+    app = Flask(__name__)
 
-api.add_resource(HelloWorld2, "/hello-world")
+    if is_testing:
+        app.config["TESTING"] = True
+        app.config["MONGODB_SETTINGS"] = {
+            "host": "mongomock://localhost",
+            "db": "measuresoftgram",
+        }
+    else:
+        app.config["MONGODB_SETTINGS"] = MONGO_SETTINGS
 
-api.add_resource(AvailablePreConfigs, "/available-pre-configs")
+    api = Api(app)
+
+    # FIXME: Create routes file
+    api.add_resource(AvailablePreConfigs, "/available-pre-configs")
+
+    api.add_resource(ImportMetrics, "/import-metrics")
+
+    api.add_resource(PreConfigs, "/pre-configs")
+
+    db = MongoEngine(app)
+
+    return app, api, db
