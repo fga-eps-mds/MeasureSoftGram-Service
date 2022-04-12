@@ -27,6 +27,8 @@ def create_app(is_testing=False):
     # FIXME: Create routes file
     api.add_resource(AvailablePreConfigs, "/available-pre-configs")
 
+    api.add_resource(ImportMetrics, "/import-metrics")
+
     api.add_resource(PreConfigs, "/pre-configs")
 
     db = MongoEngine(app)
