@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Api
 from src.resources.available import AvailablePreConfigs
 from src.resources.pre_config import PreConfigs
+from src.resources.import_metrics import ImportMetrics
 from flask_mongoengine import MongoEngine
 from .config import MONGO_SETTINGS
 
@@ -25,6 +26,8 @@ def create_app(is_testing=False):
 
     # FIXME: Create routes file
     api.add_resource(AvailablePreConfigs, "/available-pre-configs")
+
+    api.add_resource(ImportMetrics, "/import-metrics")
 
     api.add_resource(PreConfigs, "/pre-configs")
 
