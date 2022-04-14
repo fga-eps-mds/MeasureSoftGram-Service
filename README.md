@@ -6,11 +6,40 @@
 
 The MeasureSoftGram-Service is responsible for containing and manipulating MeasureSoftGram data: metrics, configuration goals, analyzes performed, etc. It uses the MVC layer pattern for building and organizing the service.
 
+# How to run tests
+Install this packages
+
+```
+pip install .
+```
+
+```
+pip install -r requirements.txt
+```
+
+
+We are using tox for the tests, so it is good to install the tox:
+
+```
+pip install tox
+```
+
+Then you can run the tests using
+```
+ tox <PACKAGE OR ARCHIVE>
+```
+
+If it does not work, you can try to run before: 
+```
+pip install pytest-mock
+```
+
 # Another informations
 
 Our services are available on [Docker Hub](https://hub.docker.com/):
 - [Core](https://hub.docker.com/r/measuresoftgram/core)
 - [Service](https://hub.docker.com/r/measuresoftgram/service)
+- [Wiki](https://fga-eps-mds.github.io/2021-2-MeasureSoftGram-Doc/).
 
 # Contribute
 
