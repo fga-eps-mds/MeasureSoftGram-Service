@@ -24,3 +24,19 @@ class PreConfigs(Resource):
         for db_pre_config in PreConfig.objects():
             pre_config.append(db_pre_config.to_lean_json())
         return pre_config
+
+class PreConfigsWithID(Resource):
+    def get(self, pre_config_id):
+        try:
+            pre_config = PreConfig.objects.with_id(pre_config_id)
+            if pre_config is None:
+                return{
+                    "Error" : f"There is no pre configurations with ID {pre_config_id}"
+                }, requests.codes.not_found
+
+            return pre_config.to_json()
+        except me.errors.ValidationError:
+            return {
+                "Error" : f"{pre_config_id} is not a valid ID"
+            }, requests.codes.not_found
+        
