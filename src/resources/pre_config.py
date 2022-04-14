@@ -17,3 +17,10 @@ class PreConfigs(Resource):
             }, requests.codes.unprocessable_entity
 
         return pre_config.to_json(), requests.codes.created
+
+    def get(self):
+        pre_config = []
+
+        for db_pre_config in PreConfig.objects():
+            pre_config.append(db_pre_config.to_lean_json())
+        return pre_config
