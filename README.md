@@ -6,6 +6,23 @@
 
 The MeasureSoftGram-Service is responsible for containing and manipulating MeasureSoftGram data: metrics, configuration goals, analyzes performed, etc. It uses the MVC layer pattern for building and organizing the service.
 
+# How to execute
+-[How to use](https://fga-eps-mds.github.io/2021-2-MeasureSoftGram-Doc/docs/artifact/how_to_use)
+
+# How to run Service
+
+First build the images in the docker with :
+
+```
+docker-compose build
+```
+
+Then made the container with :
+
+```
+docker-compose up
+```
+
 # How to run tests
 Install this packages
 
