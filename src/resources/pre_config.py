@@ -25,14 +25,6 @@ class PreConfigs(Resource):
             pre_config.append(db_pre_config.to_lean_json())
         return pre_config
 
-    def get(self):
-        pre_config_goal = []
-
-        for db_pre_config_goal in PreConfig.objects():
-            pre_config_goal.append(db_pre_config_goal.to_goal_json())
-        return pre_config_goal
-
-
 class PreConfigsWithID(Resource):
     def get(self, pre_config_id):
         try:
@@ -48,18 +40,3 @@ class PreConfigsWithID(Resource):
                 "Error": f"{pre_config_id} is not a valid ID"
             }, requests.codes.not_found
 
-
-class PreConfigsGoals(Resource):
-    def get(self, pre_config2):
-        try:
-            pre_config_goal = PreConfig.objects.goals(pre_config2)
-            if pre_config_goal is None:
-                return{
-                    "Error": f"There is no goals for that pre-config{pre_config2}"
-                }, requests.codes.not_found
-
-            return pre_config_goal.to_json()
-        except me.errors.ValidationError:
-            return{
-                "Error": f"{pre_config2} is not a valid goal"
-            }, requests.codes.not_found
