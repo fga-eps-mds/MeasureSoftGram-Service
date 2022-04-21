@@ -1,17 +1,39 @@
 from src.model.pre_config import PreConfig
 
-EMPTY_LEVELS_CREATE_PRE_CONFIG_PARAMS = {
-    "characteristics": [""],
-    "subcharacteristics": [""],
-    "measures": [""],
-    "characteristics_weights": [""],
-    "subcharacteristics_weights": [""],
-    "measures_weights": [""],
+CREATE_PRE_CONFIG_PARAMS = {
+    "characteristics": {
+        "reliability": {
+            "expected_value": 70,
+            "weight": 50,
+            "subcharacteristics": ["testing_status"],
+            "weights": {"testing_status": 100.0},
+        },
+        "maintainability": {
+            "expected_value": 30,
+            "weight": 50,
+            "subcharacteristics": ["modifiability"],
+            "weights": {"modifiability": 100.0},
+        },
+    },
+    "subcharacteristics": {
+        "testing_status": {
+            "weights": {"passed_tests": 100.0},
+            "measures": ["passed_tests"],
+        },
+        "modifiability": {
+            "weights": {"non_complex_file_density": 100.0},
+            "measures": ["non_complex_file_density"],
+        },
+    },
+    "measures": {
+        "passed_tests": {},
+        "non_complex_file_density": {},
+    },
 }
 
 
 def test_create_pre_config_success(client):
-    params = {"name": "Pre config 1", **EMPTY_LEVELS_CREATE_PRE_CONFIG_PARAMS}
+    params = {"name": "Pre config 1", **CREATE_PRE_CONFIG_PARAMS}
 
     response = client.post("/pre-configs", json=params)
 
@@ -28,7 +50,7 @@ def test_create_pre_config_not_unique_name(client):
     pre_config_one = PreConfig(name="Name one")
     pre_config_one.save()
 
-    params = {"name": "Name one", **EMPTY_LEVELS_CREATE_PRE_CONFIG_PARAMS}
+    params = {"name": "Name one", **CREATE_PRE_CONFIG_PARAMS}
 
     response = client.post("/pre-configs", json=params)
 
@@ -41,4 +63,5 @@ def test_preconfig_wrong_path(client):
         "/selecte-pre-config",
         json={},
     )
+
     assert response.status_code == 404
