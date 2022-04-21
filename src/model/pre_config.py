@@ -2,7 +2,7 @@ import mongoengine as me
 
 
 class PreConfig(me.Document):
-    name = me.StringField(unique=True)
+    name = me.StringField(unique=True, required=False, sparse=True)
     characteristics = me.DictField()
     subcharacteristics = me.DictField()
     measures = me.ListField()
