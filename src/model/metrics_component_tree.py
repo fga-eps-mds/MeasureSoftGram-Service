@@ -18,7 +18,7 @@ def get_required_metrics(pre_config_id):
 
     required_metrics = []
 
-    for measure in pre_config.measures.keys():
+    for measure in pre_config.measures:
         for metric in available_entries["measures"][measure]["metrics"]:
             required_metrics.append(metric)
 

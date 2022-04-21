@@ -5,7 +5,7 @@ class PreConfig(me.Document):
     name = me.StringField(unique=True)
     characteristics = me.DictField()
     subcharacteristics = me.DictField()
-    measures = me.DictField()
+    measures = me.ListField()
 
     def created_at(self):
         return self.id.generation_time

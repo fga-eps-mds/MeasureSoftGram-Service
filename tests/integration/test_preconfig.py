@@ -27,10 +27,7 @@ CREATE_PRE_CONFIG_PARAMS = {
             "measures": ["non_complex_file_density"],
         },
     },
-    "measures": {
-        "passed_tests": {},
-        "non_complex_file_density": {},
-    },
+    "measures": ["passed_tests", "non_complex_file_density"],
 }
 
 
@@ -68,18 +65,18 @@ def test_create_pre_config_invalid_field_types(client):
         "name": "Name two",
         "characteristics": [],
         "subcharacteristics": [],
-        "measures": [],
+        "measures": {},
     }
-
-    wrong_fields = "'characteristics', 'subcharacteristics', 'measures'"
 
     with pytest.raises(me.errors.ValidationError) as error:
         client.post("/pre-configs", json=params)
 
-    assert (
-        f"ValidationError (PreConfig:None) (Only dictionaries may be used in a DictField: [{wrong_fields}])"
-        in str(error.value)
+    expected_msg = (
+        "ValidationError (PreConfig:None) (Only dictionaries may be used in a DictField: "
+        + "['characteristics', 'subcharacteristics'] Only lists and tuples may be used in a list field: ['measures'])"
     )
+
+    assert expected_msg in str(error.value)
 
 
 def test_preconfig_wrong_path(client):

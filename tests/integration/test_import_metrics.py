@@ -105,7 +105,7 @@ def test_import_metrics_missing_pre_config_metrics(client, mocker):
         name="pre-config-test-1",
         characteristics={"maintainability": {}, "reliability": {}},
         subcharacteristics={"modifiability": {}, "testing_status": {}},
-        measures={"non_complex_file_density": {}, "test_builds": {}},
+        measures=["non_complex_file_density", "test_builds"],
     ).save()
 
     mocker.patch("requests.get", return_value=DummyResponse())
@@ -128,11 +128,11 @@ def test_import_metrics_success(client, mocker):
         name="pre-config-test-1",
         characteristics={"maintainability": {}},
         subcharacteristics={"modifiability": {}},
-        measures={
-            "non_complex_file_density": {},
-            "commented_file_density": {},
-            "duplication_absense": {},
-        },
+        measures=[
+            "non_complex_file_density",
+            "commented_file_density",
+            "duplication_absense",
+        ],
     ).save()
 
     mocker.patch("requests.get", return_value=DummyResponse())
