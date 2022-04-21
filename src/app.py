@@ -29,7 +29,7 @@ def create_app(is_testing=False):
 
     api.add_resource(ImportMetrics, "/import-metrics")
 
-    api.add_resource(PreConfigs, "/pre-configs")
+    api.add_resource(PreConfigs, "/pre-configs", "/pre-configs/<string:pre_config_id>")
 
     db = MongoEngine(app)
 
