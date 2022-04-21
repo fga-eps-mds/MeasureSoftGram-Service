@@ -1,3 +1,5 @@
+import pytest
+import mongoengine as me
 from src.model.pre_config import PreConfig
 
 CREATE_PRE_CONFIG_PARAMS = {
@@ -56,6 +58,28 @@ def test_create_pre_config_not_unique_name(client):
 
     assert response.status_code == 422
     assert response.json == {"error": "The pre config name is already in use"}
+
+
+def test_create_pre_config_invalid_field_types(client):
+    pre_config_one = PreConfig(name="Name one")
+    pre_config_one.save()
+
+    params = {
+        "name": "Name two",
+        "characteristics": [],
+        "subcharacteristics": [],
+        "measures": [],
+    }
+
+    wrong_fields = "'characteristics', 'subcharacteristics', 'measures'"
+
+    with pytest.raises(me.errors.ValidationError) as error:
+        client.post("/pre-configs", json=params)
+
+    assert (
+        f"ValidationError (PreConfig:None) (Only dictionaries may be used in a DictField: [{wrong_fields}])"
+        in str(error.value)
+    )
 
 
 def test_preconfig_wrong_path(client):
