@@ -3,6 +3,7 @@ from flask_restful import Api
 from src.resources.available import AvailablePreConfigs
 from src.resources.pre_config import PreConfigs
 from src.resources.import_metrics import ImportMetrics
+from src.resources.analysis import Analysis
 from flask_mongoengine import MongoEngine
 from .config import MONGO_SETTINGS
 
@@ -30,6 +31,8 @@ def create_app(is_testing=False):
     api.add_resource(ImportMetrics, "/import-metrics")
 
     api.add_resource(PreConfigs, "/pre-configs")
+
+    api.add_resource(Analysis, "/analysis")
 
     db = MongoEngine(app)
 
