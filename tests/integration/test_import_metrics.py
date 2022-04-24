@@ -75,7 +75,11 @@ class DummyResponse:
 def test_import_metrics_inexistent_pre_config_id(client):
     json_file = read_json("tests/data/sonar.json")
 
-    data = {"pre_config_id": "624b45ebac582da342adffc3", "components": json_file}
+    data = {
+        "pre_config_id": "624b45ebac582da342adffc3",
+        "components": json_file,
+        "language_extension": "py",
+    }
 
     response = client.post("/import-metrics", json=data)
 
@@ -88,7 +92,11 @@ def test_import_metrics_inexistent_pre_config_id(client):
 def test_import_metrics_invalid_pre_config_id(client):
     json_file = read_json("tests/data/sonar.json")
 
-    data = {"pre_config_id": "123abc", "components": json_file}
+    data = {
+        "pre_config_id": "123abc",
+        "components": json_file,
+        "language_extension": "py",
+    }
 
     response = client.post("/import-metrics", json=data)
 
@@ -110,7 +118,11 @@ def test_import_metrics_missing_pre_config_metrics(client, mocker):
 
     mocker.patch("requests.get", return_value=DummyResponse())
 
-    data = {"pre_config_id": str(pre_config.pk), "components": json_file["components"]}
+    data = {
+        "pre_config_id": str(pre_config.pk),
+        "components": json_file["components"],
+        "language_extension": "py",
+    }
 
     response = client.post("/import-metrics", json=data)
 
@@ -137,7 +149,11 @@ def test_import_metrics_success(client, mocker):
 
     mocker.patch("requests.get", return_value=DummyResponse())
 
-    data = {"pre_config_id": str(pre_config.pk), "components": json_file["components"]}
+    data = {
+        "pre_config_id": str(pre_config.pk),
+        "components": json_file["components"],
+        "language_extension": "py",
+    }
 
     response = client.post("/import-metrics", json=data)
 

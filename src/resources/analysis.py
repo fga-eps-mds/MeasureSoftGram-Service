@@ -59,7 +59,7 @@ class Analysis(Resource):
 
         resultado = requests.post(CORE_URL + "/analysis", json=data_for_analysis)
 
-        resultado_j = json.loads(resultado.text)
+        resultado_j = resultado.json()
 
         AnalysisComponents(
             pre_config_id=data["pre_config_id"],
