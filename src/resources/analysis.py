@@ -17,24 +17,40 @@ class Analysis(Resource):
 
         pre_configuration_id = data["pre_config_id"]
 
-        if PreConfig.objects.with_id(pre_configuration_id) is None:
+        pre_config = PreConfig.objects.with_id(pre_configuration_id)
+
+        if pre_config is None:
             return {
                 "error": f"There is no pre configurations with ID {pre_configuration_id}"
             }, requests.codes.not_found
 
-        pre_config = PreConfig.objects.with_id(pre_configuration_id)
-
-        if (
-            AnalysisComponents.objects(pre_config_id=pre_configuration_id).first()
-            is not None
-        ):
-            return {
-                "error": f"An analysis was already made with this Pre-Configuration (ID: {pre_configuration_id})"
-            }, requests.codes.bad_request
-
         components = MetricsComponentTree.objects(
             pre_config_id=data["pre_config_id"]
         ).first()
+
+        if components is None:
+            return {
+                "error": f"There is no metrics file associated with this pre config {pre_configuration_id}"
+            }, requests.codes.not_found
+
+        analysis = AnalysisComponents.objects(
+            pre_config_id=pre_configuration_id
+        ).first()
+
+        if analysis is not None:
+            # Analysis is already done
+
+            analysis_json = analysis.to_json()
+
+            return {
+                "pre_config": pre_config.to_json(),
+                "components": components.to_json(),
+                "analysis": {
+                    "sqc": analysis_json["sqc"],
+                    "characteristics": analysis_json["aggregated_characteristics"],
+                    "subcharacteristics": analysis_json["aggregated_scs"],
+                },
+            }, requests.codes.ok
 
         data_for_analysis = {
             "pre_config": pre_config.to_json(),
