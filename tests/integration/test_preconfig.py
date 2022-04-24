@@ -1,3 +1,5 @@
+import pytest
+import mongoengine as me
 from src.model.pre_config import PreConfig
 
 CREATE_PRE_CONFIG_PARAMS = {
@@ -63,16 +65,42 @@ def test_create_pre_config_not_unique_name(client):
 
 
 def test_pre_configs_list(client):
-    pre_config_one = PreConfig(name="abc", **CREATE_PRE_CONFIG_PARAMS)
-    pre_config_one.save()
+    PreConfig.objects.delete()
+
+    pre_config_one = PreConfig(name="preconfig1").save()
+    pre_config_two = PreConfig(name="preconfig2").save()
+    pre_config_three = PreConfig(name="preconfig3").save()
 
     response = client.get("/pre-configs")
 
     assert response.status_code == 200
 
-    all_pre_configs = [x.to_lean_json() for x in PreConfig.objects.all()]
+    all_pre_configs = [
+        pre_config_one.to_lean_json(),
+        pre_config_two.to_lean_json(),
+        pre_config_three.to_lean_json(),
+    ]
 
     assert response.json == all_pre_configs
+
+
+def test_create_pre_config_invalid_field_types(client):
+    params = {
+        "name": "Name two",
+        "characteristics": [],
+        "subcharacteristics": [],
+        "measures": {},
+    }
+
+    with pytest.raises(me.errors.ValidationError) as error:
+        client.post("/pre-configs", json=params)
+
+    expected_msg = (
+        "ValidationError (PreConfig:None) (Only dictionaries may be used in a DictField: "
+        + "['characteristics', 'subcharacteristics'] Only lists and tuples may be used in a list field: ['measures'])"
+    )
+
+    assert expected_msg in str(error.value)
 
 
 def test_pre_config_show(client):
@@ -85,9 +113,72 @@ def test_pre_config_show(client):
     assert response.json == pre_config.to_json()
 
 
-def test_preconfig_lean_wrong_path(client):
-    response = client.get(
-        "/pre-config",
+def test_update_pre_config_name_success(client):
+    pre_config = PreConfig(name="To change name")
+    pre_config.save()
+
+    response = client.patch(
+        f"/pre-configs/{str(pre_config.pk)}", json={"name": "Changed name"}
+    )
+
+    assert response.status_code == 200
+    assert response.json["name"] == "Changed name"
+
+
+def test_update_pre_config_name_not_unique(client):
+    PreConfig(name="Name").save()
+
+    pre_config = PreConfig(name="Try to change")
+    pre_config.save()
+
+    response = client.patch(f"/pre-configs/{str(pre_config.pk)}", json={"name": "Name"})
+
+    assert response.status_code == 422
+    assert response.json["error"] == "The pre config name is already in use"
+
+
+def test_update_pre_config_validation_error(client):
+    pre_config = PreConfig()
+    pre_config.save()
+
+    params = {
+        "characteristics": [],
+        "subcharacteristics": [],
+        "measures": {},
+    }
+
+    response = client.patch(f"/pre-configs/{pre_config.pk}", json=params)
+
+    expected_error_msg = (
+        f"ValidationError (PreConfig:{pre_config.pk}) (Only dictionaries may be used in a DictField: "
+        + "['characteristics', 'subcharacteristics'] Only lists and tuples may be used in a list field: ['measures'])"
+    )
+
+    # I've tested it in Insomnia and it returns correctly
+    assert response.status_code == 422
+    assert response.json["error"] == expected_error_msg
+
+
+@pytest.mark.parametrize(
+    "pre_config_id,expected_msg",
+    [
+        ("123", "123 is not a valid ID"),
+        (
+            "6261b76c974ddbc76bdea7a0",
+            "There is no pre configurations with ID 6261b76c974ddbc76bdea7a0",
+        ),
+    ],
+)
+def test_update_pre_config_name_invalid_id(client, pre_config_id, expected_msg):
+    response = client.patch(f"/pre-configs/{pre_config_id}", json={"name": "Name"})
+
+    assert response.status_code == 404
+    assert response.json["error"] == expected_msg
+
+
+def test_preconfig_wrong_path(client):
+    response = client.post(
+        "/selecte-pre-config",
         json={},
     )
 
