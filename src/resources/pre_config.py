@@ -20,7 +20,7 @@ class PreConfigs(Resource):
         pre_config, json_msg = self.get_pre_config(pre_config_id)
 
         if pre_config is None:
-            return json_msg, requests.codes.not_found
+            return simple_error_response(json_msg, requests.codes.not_found)
 
         return pre_config.to_json(), requests.codes.ok
 

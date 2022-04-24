@@ -103,7 +103,7 @@ def test_create_pre_config_invalid_field_types(client):
     assert expected_msg in str(error.value)
 
 
-def test_pre_config_show(client):
+def test_pre_config_show_success(client):
     pre_config = PreConfig(name="def", **CREATE_PRE_CONFIG_PARAMS)
     pre_config.save()
 
@@ -111,6 +111,13 @@ def test_pre_config_show(client):
 
     assert response.status_code == 200
     assert response.json == pre_config.to_json()
+
+
+def test_pre_config_show_error(client):
+    response = client.get("/pre-configs/123")
+
+    assert response.status_code == 404
+    assert response.json["error"] == "123 is not a valid ID"
 
 
 def test_update_pre_config_name_success(client):
