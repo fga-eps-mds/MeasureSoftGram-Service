@@ -58,9 +58,6 @@ def test_create_pre_config_not_unique_name(client):
 
 
 def test_create_pre_config_invalid_field_types(client):
-    pre_config_one = PreConfig(name="Name one")
-    pre_config_one.save()
-
     params = {
         "name": "Name two",
         "characteristics": [],
@@ -77,6 +74,68 @@ def test_create_pre_config_invalid_field_types(client):
     )
 
     assert expected_msg in str(error.value)
+
+
+def test_update_pre_config_name_success(client):
+    pre_config = PreConfig(name="To change name")
+    pre_config.save()
+
+    response = client.patch(
+        f"/pre-configs/{str(pre_config.pk)}", json={"name": "Changed name"}
+    )
+
+    assert response.status_code == 200
+    assert response.json["name"] == "Changed name"
+
+
+def test_update_pre_config_name_not_unique(client):
+    PreConfig(name="Name").save()
+
+    pre_config = PreConfig(name="Try to change")
+    pre_config.save()
+
+    response = client.patch(f"/pre-configs/{str(pre_config.pk)}", json={"name": "Name"})
+
+    assert response.status_code == 422
+    assert response.json["error"] == "The pre config name is already in use"
+
+
+def test_update_pre_config_validation_error(client):
+    pre_config = PreConfig().save()
+
+    params = {
+        "characteristics": [],
+        "subcharacteristics": [],
+        "measures": {},
+    }
+
+    response = client.patch(f"/pre-configs/{str(pre_config.pk)}", json=params)
+
+    expected_error_msg = (
+        "ValidationError (PreConfig:None) (Only dictionaries may be used in a DictField: "
+        + "['characteristics', 'subcharacteristics'] Only lists and tuples may be used in a list field: ['measures'])"
+    )
+
+    # I've tested it in Insomnia and it returns correctly
+    assert response.status_code == 422
+    assert response.json["error"] == expected_error_msg
+
+
+@pytest.mark.parametrize(
+    "pre_config_id,expected_msg",
+    [
+        ("123", "123 is not a valid ID"),
+        (
+            "6261b76c974ddbc76bdea7a0",
+            "There is no pre configurations with ID 6261b76c974ddbc76bdea7a0",
+        ),
+    ],
+)
+def test_update_pre_config_name_invalid_id(client, pre_config_id, expected_msg):
+    response = client.patch(f"/pre-configs/{pre_config_id}", json={"name": "Name"})
+
+    assert response.status_code == 404
+    assert response.json["error"] == expected_msg
 
 
 def test_preconfig_wrong_path(client):
