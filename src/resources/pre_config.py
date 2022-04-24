@@ -56,7 +56,7 @@ class PreConfigs(Resource):
             )
         except me.errors.ValidationError as error:
             return simple_error_response(
-                f"{str(error.value)}", requests.codes.unprocessable_entity
+                str(error), requests.codes.unprocessable_entity
             )
 
     def get_pre_config(self, pre_config_id):
