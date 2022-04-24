@@ -1,29 +1,15 @@
 from src.model.pre_config import PreConfig
 
-EMPTY_LEVELS_CREATE_PRE_CONFIG_PARAMS = {
-    "characteristics": [""],
-    "subcharacteristics": [""],
-    "measures": [""],
-    "characteristics_weights": [""],
-    "subcharacteristics_weights": [""],
-    "measures_weights": [""],
-}
-
-
-EMPTY_LEVELS_PRE_CONFIG_LEAN_PARAMS = {
-    "_id": [""],
-    "name": [""],
-    "created_at": [""],
-}
-
-PRE_CONFIG_FIELDS_EXAMPLE = {
+CREATE_PRE_CONFIG_PARAMS = {
     "characteristics": {
         "reliability": {
+            "expected_value": 70,
             "weight": 50,
             "subcharacteristics": ["testing_status"],
             "weights": {"testing_status": 100.0},
         },
         "maintainability": {
+            "expected_value": 30,
             "weight": 50,
             "subcharacteristics": ["modifiability"],
             "weights": {"modifiability": 100.0},
@@ -43,8 +29,15 @@ PRE_CONFIG_FIELDS_EXAMPLE = {
 }
 
 
+EMPTY_LEVELS_PRE_CONFIG_LEAN_PARAMS = {
+    "_id": [""],
+    "name": [""],
+    "created_at": [""],
+}
+
+
 def test_create_pre_config_success(client):
-    params = {"name": "Pre config 1", **EMPTY_LEVELS_CREATE_PRE_CONFIG_PARAMS}
+    params = {"name": "Pre config 1", **CREATE_PRE_CONFIG_PARAMS}
 
     response = client.post("/pre-configs", json=params)
 
@@ -61,7 +54,7 @@ def test_create_pre_config_not_unique_name(client):
     pre_config_one = PreConfig(name="Name one")
     pre_config_one.save()
 
-    params = {"name": "Name one", **EMPTY_LEVELS_CREATE_PRE_CONFIG_PARAMS}
+    params = {"name": "Name one", **CREATE_PRE_CONFIG_PARAMS}
 
     response = client.post("/pre-configs", json=params)
 
@@ -70,7 +63,7 @@ def test_create_pre_config_not_unique_name(client):
 
 
 def test_pre_config(client):
-    pre_config_one = PreConfig(name="abc", **PRE_CONFIG_FIELDS_EXAMPLE)
+    pre_config_one = PreConfig(name="abc", **CREATE_PRE_CONFIG_PARAMS)
     pre_config_one.save()
 
     response = client.get("/pre-configs")
@@ -83,7 +76,7 @@ def test_pre_config(client):
 
 
 def test_unique_pre_config(client):
-    pre_config = PreConfig(name="def", **PRE_CONFIG_FIELDS_EXAMPLE)
+    pre_config = PreConfig(name="def", **CREATE_PRE_CONFIG_PARAMS)
     pre_config.save()
 
     response = client.get(f"/pre-configs/{pre_config.pk}")
