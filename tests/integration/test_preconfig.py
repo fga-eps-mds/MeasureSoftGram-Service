@@ -101,7 +101,8 @@ def test_update_pre_config_name_not_unique(client):
 
 
 def test_update_pre_config_validation_error(client):
-    pre_config = PreConfig().save()
+    pre_config = PreConfig()
+    pre_config.save()
 
     params = {
         "characteristics": [],
@@ -109,10 +110,10 @@ def test_update_pre_config_validation_error(client):
         "measures": {},
     }
 
-    response = client.patch(f"/pre-configs/{str(pre_config.pk)}", json=params)
+    response = client.patch(f"/pre-configs/{pre_config.pk}", json=params)
 
     expected_error_msg = (
-        "ValidationError (PreConfig:None) (Only dictionaries may be used in a DictField: "
+        f"ValidationError (PreConfig:{pre_config.pk}) (Only dictionaries may be used in a DictField: "
         + "['characteristics', 'subcharacteristics'] Only lists and tuples may be used in a list field: ['measures'])"
     )
 

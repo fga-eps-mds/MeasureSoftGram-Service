@@ -38,15 +38,7 @@ class PreConfigs(Resource):
         data = request.get_json(force=True)
 
         try:
-            updated_entries = pre_config.update(**data)
-
-            if updated_entries == 0:
-                return simple_error_response(
-                    "Update failed, please try again later",
-                    requests.codes.internal_server_error,
-                )
-
-            pre_config.save()
+            pre_config.update(**data)
             pre_config.reload()
 
             return pre_config.to_json(), requests.codes.ok
