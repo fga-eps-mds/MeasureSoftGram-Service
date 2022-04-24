@@ -2,13 +2,20 @@ import mongoengine as me
 
 
 class PreConfig(me.Document):
-    name = me.StringField(unique=True)
-    characteristics = me.ListField()
-    subcharacteristics = me.ListField()
+    name = me.StringField(unique=True, required=False, sparse=True)
+    characteristics = me.DictField()
+    subcharacteristics = me.DictField()
     measures = me.ListField()
-    characteristics_weights = me.ListField()
-    subcharacteristics_weights = me.ListField()
-    measures_weights = me.ListField()
+
+    def update(self, *_, **kwargs):
+        self.name = kwargs.get("name", self.name)
+        self.characteristics = kwargs.get("characteristics", self.characteristics)
+        self.subcharacteristics = kwargs.get(
+            "subcharacteristics", self.subcharacteristics
+        )
+        self.measures = kwargs.get("measures", self.measures)
+
+        self.save()
 
     def created_at(self):
         return self.id.generation_time
@@ -20,8 +27,5 @@ class PreConfig(me.Document):
             "characteristics": self.characteristics,
             "subcharacteristics": self.subcharacteristics,
             "measures": self.measures,
-            "characteristics_weights": self.characteristics_weights,
-            "subcharacteristics_weights": self.subcharacteristics_weights,
-            "measures_weights": self.measures_weights,
             "created_at": str(self.created_at()),
         }
