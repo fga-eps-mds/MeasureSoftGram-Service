@@ -46,6 +46,7 @@ class PreConfigs(Resource):
                     requests.codes.internal_server_error,
                 )
 
+            pre_config.save()
             pre_config.reload()
 
             return pre_config.to_json(), requests.codes.ok
