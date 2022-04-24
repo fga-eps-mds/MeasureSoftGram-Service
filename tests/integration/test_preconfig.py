@@ -62,7 +62,7 @@ def test_create_pre_config_not_unique_name(client):
     assert response.json == {"error": "The pre config name is already in use"}
 
 
-def test_pre_config(client):
+def test_pre_configs_list(client):
     pre_config_one = PreConfig(name="abc", **CREATE_PRE_CONFIG_PARAMS)
     pre_config_one.save()
 
@@ -75,7 +75,7 @@ def test_pre_config(client):
     assert response.json == all_pre_configs
 
 
-def test_unique_pre_config(client):
+def test_pre_config_show(client):
     pre_config = PreConfig(name="def", **CREATE_PRE_CONFIG_PARAMS)
     pre_config.save()
 
