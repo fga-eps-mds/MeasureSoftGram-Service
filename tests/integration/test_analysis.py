@@ -6,7 +6,7 @@ from src.model.analysis import AnalysisComponents
 from src.model.pre_config import PreConfig
 
 
-class DummyResponse1:
+class AvailableConstantsResponse:
     def json(self):
         return {
             "characteristics": {
@@ -76,7 +76,7 @@ class DummyResponse1:
         }
 
 
-class DummyResponse2:
+class AnalysisResultsResponse:
     def json(self):
         return {
             "sqc": {"sqc": 0.6165241607725739},
@@ -158,9 +158,9 @@ def test_analysis_already_exists(client, mocker):
 
     json_file = read_json("tests/data/sonar.json")
 
-    mocker.patch("requests.get", return_value=DummyResponse1())
+    mocker.patch("requests.get", return_value=AvailableConstantsResponse())
 
-    MetricsComponentTree(
+    components = MetricsComponentTree(
         pre_config_id=pre_configuration_id,
         components=json_file["components"],
         language_extension="py",
@@ -180,7 +180,24 @@ def test_analysis_already_exists(client, mocker):
 
     response = client.post("/analysis", json=data)
 
+    analysis_values = {
+        "sqc": {"sqc": 0.769309258162072},
+        "subcharacteristics": {
+            "modifiability": 0.42857142857142855,
+            "testing_status": 1,
+        },
+        "characteristics": {
+            "maintainability": 0.42857142857142855,
+            "reliability": 1,
+        },
+    }
+
     assert response.status_code == 200
+    assert response.json == {
+        "pre_config": pre_config.to_json(),
+        "components": components.to_json(),
+        "analysis": analysis_values,
+    }
 
 
 def test_analysis_success(client, mocker):
@@ -217,9 +234,9 @@ def test_analysis_success(client, mocker):
 
     json_file = read_json("tests/data/sonar.json")
 
-    mocker.patch("requests.get", return_value=DummyResponse1())
+    mocker.patch("requests.get", return_value=AvailableConstantsResponse())
 
-    MetricsComponentTree(
+    components = MetricsComponentTree(
         pre_config_id=pre_configuration_id,
         components=json_file["components"],
         language_extension="py",
@@ -227,8 +244,25 @@ def test_analysis_success(client, mocker):
 
     data = {"pre_config_id": pre_configuration_id}
 
-    mocker.patch("requests.post", return_value=DummyResponse2())
+    mocker.patch("requests.post", return_value=AnalysisResultsResponse())
 
     response = client.post("/analysis", json=data)
 
+    analysis_values = {
+        "sqc": {"sqc": 0.6165241607725739},
+        "subcharacteristics": {
+            "modifiability": 0.5,
+            "testing_status": 0.7142857142857143,
+        },
+        "characteristics": {
+            "maintainability": 0.5,
+            "reliability": 0.7142857142857143,
+        },
+    }
+
     assert response.status_code == 201
+    assert response.json == {
+        "pre_config": pre_config.to_json(),
+        "components": components.to_json(),
+        "analysis": analysis_values,
+    }

@@ -9,7 +9,7 @@ class AnalysisComponents(me.Document):
 
     def to_json(self):
         return {
-            "_id": self.pre_config_id,
+            "pre_config_id": self.pre_config_id,
             "sqc": self.sqc,
             "aggregated_scs": self.aggregated_scs,
             "aggregated_characteristics": self.aggregated_characteristics,

@@ -17,12 +17,17 @@ class Analysis(Resource):
 
         pre_configuration_id = data["pre_config_id"]
 
-        pre_config = PreConfig.objects.with_id(pre_configuration_id)
-
-        if pre_config is None:
+        try:
+            if PreConfig.objects.with_id(pre_configuration_id) is None:
+                return {
+                    "error": f"There is no pre configurations with ID {pre_configuration_id}"
+                }, requests.codes.not_found
+        except me.errors.ValidationError:
             return {
-                "error": f"There is no pre configurations with ID {pre_configuration_id}"
+                "error": f"{pre_configuration_id} is not a valid ID"
             }, requests.codes.not_found
+
+        pre_config = PreConfig.objects.with_id(pre_configuration_id)
 
         components = MetricsComponentTree.objects(
             pre_config_id=data["pre_config_id"]
@@ -59,19 +64,17 @@ class Analysis(Resource):
 
         resultado = requests.post(CORE_URL + "/analysis", json=data_for_analysis)
 
-        resultado_j = resultado.json()
-
         AnalysisComponents(
             pre_config_id=data["pre_config_id"],
-            sqc=resultado_j["sqc"],
-            aggregated_scs=resultado_j["subcharacteristics"],
-            aggregated_characteristics=resultado_j["characteristics"],
+            sqc=resultado.json()["sqc"],
+            aggregated_scs=resultado.json()["subcharacteristics"],
+            aggregated_characteristics=resultado.json()["characteristics"],
         ).save()
 
-        data_for_return = {
+        data_to_return = {
             "pre_config": pre_config.to_json(),
             "components": components.to_json(),
             "analysis": resultado.json(),
         }
 
-        return data_for_return, requests.codes.created
+        return data_to_return, requests.codes.created
