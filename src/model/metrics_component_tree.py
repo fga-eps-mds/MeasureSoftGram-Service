@@ -29,6 +29,7 @@ class MetricsComponentTree(me.Document):
 
     pre_config_id = me.StringField()
     components = me.ListField()
+    language_extension = me.StringField()
 
     def clean(self):
         found_metrics = []
@@ -57,4 +58,8 @@ class MetricsComponentTree(me.Document):
             )
 
     def to_json(self):
-        return {"pre_config_id": self.pre_config_id, "components": self.components}
+        return {
+            "pre_config_id": self.pre_config_id,
+            "components": self.components,
+            "language_extension": self.language_extension,
+        }
