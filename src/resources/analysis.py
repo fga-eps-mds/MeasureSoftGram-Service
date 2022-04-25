@@ -1,12 +1,9 @@
-from cgi import print_form
 from flask_restful import Resource
 from flask import request
 from src.model.pre_config import PreConfig
 from src.model.analysis import AnalysisComponents
 from src.model.metrics_component_tree import MetricsComponentTree
-from flask import jsonify
 import requests
-import json
 from src.util.constants import CORE_URL
 import mongoengine as me
 

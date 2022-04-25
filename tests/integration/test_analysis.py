@@ -1,5 +1,4 @@
 import json
-from urllib import response
 from tests.test_helpers import read_json
 from src.model.metrics_component_tree import MetricsComponentTree
 from src.model.analysis import AnalysisComponents
