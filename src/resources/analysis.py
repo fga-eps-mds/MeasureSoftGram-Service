@@ -6,6 +6,7 @@ from src.model.metrics_component_tree import MetricsComponentTree
 import requests
 from src.util.constants import CORE_URL
 import mongoengine as me
+from src.resources.utils import simple_error_response
 
 
 class Analysis(Resource):
@@ -15,25 +16,28 @@ class Analysis(Resource):
         pre_configuration_id = data["pre_config_id"]
 
         try:
-            if PreConfig.objects.with_id(pre_configuration_id) is None:
-                return {
-                    "error": f"There is no pre configurations with ID {pre_configuration_id}"
-                }, requests.codes.not_found
-        except me.errors.ValidationError:
-            return {
-                "error": f"{pre_configuration_id} is not a valid ID"
-            }, requests.codes.not_found
+            pre_config = PreConfig.objects.with_id(pre_configuration_id)
 
-        pre_config = PreConfig.objects.with_id(pre_configuration_id)
+            if pre_config is None:
+                return simple_error_response(
+                    f"There is no pre configurations with ID {pre_configuration_id}",
+                    requests.codes.not_found,
+                )
+        except me.errors.ValidationError:
+            return simple_error_response(
+                f"{pre_configuration_id} is not a valid ID",
+                requests.codes.not_found,
+            )
 
         components = MetricsComponentTree.objects(
             pre_config_id=data["pre_config_id"]
         ).first()
 
         if components is None:
-            return {
-                "error": f"There is no metrics file associated with this pre config {pre_configuration_id}"
-            }, requests.codes.not_found
+            return simple_error_response(
+                f"There is no metrics file associated with this pre config {pre_configuration_id}",
+                requests.codes.not_found,
+            )
 
         analysis = AnalysisComponents.objects(
             pre_config_id=pre_configuration_id
