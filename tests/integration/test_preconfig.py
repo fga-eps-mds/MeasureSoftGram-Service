@@ -31,6 +31,13 @@ CREATE_PRE_CONFIG_PARAMS = {
 }
 
 
+EMPTY_LEVELS_PRE_CONFIG_LEAN_PARAMS = {
+    "_id": [""],
+    "name": [""],
+    "created_at": [""],
+}
+
+
 def test_create_pre_config_success(client):
     params = {"name": "Pre config 1", **CREATE_PRE_CONFIG_PARAMS}
 
@@ -57,6 +64,26 @@ def test_create_pre_config_not_unique_name(client):
     assert response.json == {"error": "The pre config name is already in use"}
 
 
+def test_pre_configs_list(client):
+    PreConfig.objects.delete()
+
+    pre_config_one = PreConfig(name="preconfig1").save()
+    pre_config_two = PreConfig(name="preconfig2").save()
+    pre_config_three = PreConfig(name="preconfig3").save()
+
+    response = client.get("/pre-configs")
+
+    assert response.status_code == 200
+
+    all_pre_configs = [
+        pre_config_one.to_lean_json(),
+        pre_config_two.to_lean_json(),
+        pre_config_three.to_lean_json(),
+    ]
+
+    assert response.json == all_pre_configs
+
+
 def test_create_pre_config_invalid_field_types(client):
     params = {
         "name": "Name two",
@@ -74,6 +101,23 @@ def test_create_pre_config_invalid_field_types(client):
     )
 
     assert expected_msg in str(error.value)
+
+
+def test_pre_config_show_success(client):
+    pre_config = PreConfig(name="def", **CREATE_PRE_CONFIG_PARAMS)
+    pre_config.save()
+
+    response = client.get(f"/pre-configs/{pre_config.pk}")
+
+    assert response.status_code == 200
+    assert response.json == pre_config.to_json()
+
+
+def test_pre_config_show_error(client):
+    response = client.get("/pre-configs/123")
+
+    assert response.status_code == 404
+    assert response.json["error"] == "123 is not a valid ID"
 
 
 def test_update_pre_config_name_success(client):

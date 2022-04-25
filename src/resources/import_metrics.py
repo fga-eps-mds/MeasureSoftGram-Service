@@ -29,7 +29,9 @@ class ImportMetrics(Resource):
 
         try:
             MetricsComponentTree(
-                pre_config_id=data.pop("pre_config_id"), components=data["components"]
+                pre_config_id=data.pop("pre_config_id"),
+                components=data["components"],
+                language_extension=data["language_extension"],
             ).save()
         except me.errors.ValidationError as error:
             return error.to_dict(), requests.codes.unprocessable_entity

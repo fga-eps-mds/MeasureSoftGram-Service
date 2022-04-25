@@ -10,6 +10,20 @@ DUPLICATED_PRE_CONFIG_NAME_MSG = "The pre config name is already in use"
 
 
 class PreConfigs(Resource):
+    def get(self, pre_config_id=None):
+        if pre_config_id is None:
+            return [pre_config.to_lean_json() for pre_config in PreConfig.objects]
+
+        return self.show(pre_config_id)
+
+    def show(self, pre_config_id):
+        pre_config, json_msg = self.get_pre_config(pre_config_id)
+
+        if pre_config is None:
+            return simple_error_response(json_msg, requests.codes.not_found)
+
+        return pre_config.to_json(), requests.codes.ok
+
     def post(self):
         data = request.get_json(force=True)
 
