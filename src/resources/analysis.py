@@ -65,6 +65,9 @@ class Analysis(Resource):
 
         resultado = requests.post(CORE_URL + "/analysis", json=data_for_analysis)
 
+        if not 200 <= resultado.status_code <= 299:
+            return resultado.json(), resultado.status_code
+
         AnalysisComponents(
             pre_config_id=data["pre_config_id"],
             sqc=resultado.json()["sqc"],
