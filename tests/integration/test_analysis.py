@@ -76,6 +76,9 @@ class AvailableConstantsResponse:
 
 
 class AnalysisResultsResponse:
+    def __init__(self):
+        self.status_code = 200
+
     def json(self):
         return {
             "sqc": {"sqc": 0.6165241607725739},
