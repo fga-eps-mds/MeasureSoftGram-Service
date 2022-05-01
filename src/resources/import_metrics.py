@@ -30,6 +30,7 @@ class ImportMetrics(Resource):
         try:
             MetricsComponentTree(
                 pre_config_id=data.pop("pre_config_id"),
+                file_name=data.pop("file_name"),
                 components=data["components"],
                 language_extension=data["language_extension"],
             ).save()

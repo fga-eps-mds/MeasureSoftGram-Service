@@ -28,6 +28,7 @@ def get_required_metrics(pre_config_id):
 class MetricsComponentTree(me.Document):
 
     pre_config_id = me.StringField()
+    file_name = me.StringField()
     components = me.ListField()
     language_extension = me.StringField()
 
@@ -60,6 +61,7 @@ class MetricsComponentTree(me.Document):
     def to_json(self):
         return {
             "pre_config_id": self.pre_config_id,
+            "file_name": self.file_name,
             "components": self.components,
             "language_extension": self.language_extension,
         }
