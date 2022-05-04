@@ -90,6 +90,15 @@ class AnalysisResultsResponse:
                 "maintainability": 0.5,
                 "reliability": 0.7142857142857143,
             },
+            "weighted_characteristics": {
+                "maintainability": 0.5,
+                "reliability": 0.7142857142857143,
+            },
+            "weighted_subcharacteristics": {
+                "modifiability": 0.5,
+                "testing_status": 0.7142857142857143,
+            },
+            "weighted_measures": {"m1": 0.8},
         }
 
 
@@ -176,6 +185,15 @@ def test_analysis_already_exists(client, mocker):
             "maintainability": 0.42857142857142855,
             "reliability": 1,
         },
+        weighted_c={
+            "maintainability": 0.5,
+            "reliability": 0.7142857142857143,
+        },
+        weighted_scs={
+            "modifiability": 0.5,
+            "testing_status": 0.7142857142857143,
+        },
+        weighted_measures={"m1": 0.8},
     ).save()
 
     data = {"pre_config_id": pre_configuration_id}
@@ -192,6 +210,15 @@ def test_analysis_already_exists(client, mocker):
             "maintainability": 0.42857142857142855,
             "reliability": 1,
         },
+        "weighted_characteristics": {
+            "maintainability": 0.5,
+            "reliability": 0.7142857142857143,
+        },
+        "weighted_subcharacteristics": {
+            "modifiability": 0.5,
+            "testing_status": 0.7142857142857143,
+        },
+        "weighted_measures": {"m1": 0.8},
     }
 
     assert response.status_code == 200
@@ -260,6 +287,15 @@ def test_analysis_success(client, mocker):
             "maintainability": 0.5,
             "reliability": 0.7142857142857143,
         },
+        "weighted_characteristics": {
+            "maintainability": 0.5,
+            "reliability": 0.7142857142857143,
+        },
+        "weighted_subcharacteristics": {
+            "modifiability": 0.5,
+            "testing_status": 0.7142857142857143,
+        },
+        "weighted_measures": {"m1": 0.8},
     }
 
     assert response.status_code == 201
