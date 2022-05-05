@@ -55,6 +55,9 @@ class Analysis(Resource):
                     "sqc": analysis_json["sqc"],
                     "characteristics": analysis_json["aggregated_characteristics"],
                     "subcharacteristics": analysis_json["aggregated_scs"],
+                    "weighted_measures": analysis_json["weighted_measures"],
+                    "weighted_subcharacteristics": analysis_json["weighted_scs"],
+                    "weighted_characteristics": analysis_json["weighted_c"],
                 },
             }, requests.codes.ok
 
@@ -68,11 +71,16 @@ class Analysis(Resource):
         if not 200 <= resultado.status_code <= 299:
             return resultado.json(), resultado.status_code
 
+        analysis_json = resultado.json()
+
         AnalysisComponents(
             pre_config_id=data["pre_config_id"],
-            sqc=resultado.json()["sqc"],
-            aggregated_scs=resultado.json()["subcharacteristics"],
-            aggregated_characteristics=resultado.json()["characteristics"],
+            sqc=analysis_json["sqc"],
+            aggregated_scs=analysis_json["subcharacteristics"],
+            aggregated_characteristics=analysis_json["characteristics"],
+            weighted_measures=analysis_json["weighted_measures"],
+            weighted_scs=analysis_json["weighted_subcharacteristics"],
+            weighted_c=analysis_json["weighted_characteristics"],
         ).save()
 
         data_to_return = {
