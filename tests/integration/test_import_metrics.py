@@ -120,6 +120,7 @@ def test_import_metrics_missing_pre_config_metrics(client, mocker):
 
     data = {
         "pre_config_id": str(pre_config.pk),
+        "file_name": "fga-eps-mds-2020_2-Projeto-Kokama-Usuario-17-04-2021.json",
         "components": json_file["components"],
         "language_extension": "py",
     }
@@ -151,6 +152,7 @@ def test_import_metrics_success(client, mocker):
 
     data = {
         "pre_config_id": str(pre_config.pk),
+        "file_name": "fga-eps-mds-2020_2-Projeto-Kokama-Usuario-17-04-2021.json",
         "components": json_file["components"],
         "language_extension": "py",
     }
