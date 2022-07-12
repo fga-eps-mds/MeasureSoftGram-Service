@@ -1,49 +1,40 @@
 version: "3.8"
-services:
-  web:
-    build: .
-    container_name: measuresoftgram-service
-    ports:
-      - "5000:5000"
-    volumes:
-      - ./src:/code/src
-      - ./server.py:/code/server.py
-    restart: on-failure
-    networks:
-      - measuresoftgram
-    depends_on:
-      - mongo
-  mongo:
-    container_name: measuresoftgram-db
-    image: mongo
-    restart: always
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_DATABASE: measuresoftgram
-    volumes:
-      - db_data:/data/db
-    logging:
-      driver: none
-    networks:
-      - measuresoftgram
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    depends_on:
-      - mongo
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
-    networks:
-      - measuresoftgram
+
 
 volumes:
-  db_data:
+  service_postgres_data:
+  pip_cache:
 
-networks:
-  measuresoftgram:
-    external: true
+
+services:
+
+  db:
+    container_name: db
+    image: postgres:latest
+    restart: on-failure
+    # ports:
+    #   - "5432:5432"
+    volumes:
+      - service_postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./env-vars/.postgres.env
+
+
+  service:
+    container_name: service
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: ./docker/service.Dockerfile
+    command: ["./start_service.sh"]
+    ports:
+      - "8080:80"   # Main port
+      - "8181:8181" # Debug port
+    volumes:
+      - ./src:/src
+      - pip_cache:/usr/local/lib/python3/site-packages
+    env_file:
+      - ./env-vars/.service.env
+      - ./env-vars/.postgres.env
+    depends_on:
+      - db
