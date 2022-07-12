@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_restful import Api
-from src.resources.available import AvailablePreConfigs
-from src.resources.pre_config import PreConfigs
-from src.resources.import_metrics import ImportMetrics
-from src.resources.analysis import Analysis
+from _src.resources.available import AvailablePreConfigs
+from _src.resources.pre_config import PreConfigs
+from _src.resources.import_metrics import ImportMetrics
+from _src.resources.analysis import Analysis
 from flask_mongoengine import MongoEngine
 from .config import MONGO_SETTINGS
 

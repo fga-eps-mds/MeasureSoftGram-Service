@@ -1,5 +1,5 @@
 from flask_restful import Resource
-from src.util.constants import CORE_URL
+from _src.util.constants import CORE_URL
 import requests
 
 

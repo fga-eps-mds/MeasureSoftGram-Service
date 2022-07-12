@@ -1,6 +1,6 @@
 import pytest
 import mongoengine as me
-from src.model.pre_config import PreConfig
+from _src.model.pre_config import PreConfig
 
 CREATE_PRE_CONFIG_PARAMS = {
     "characteristics": {

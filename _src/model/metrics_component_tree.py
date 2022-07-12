@@ -1,7 +1,7 @@
 import mongoengine as me
 import requests
-from src.util.constants import CORE_URL
-from src.model.pre_config import PreConfig
+from _src.util.constants import CORE_URL
+from _src.model.pre_config import PreConfig
 
 
 def flatten_list(array):
