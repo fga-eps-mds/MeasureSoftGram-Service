@@ -1,3 +1,4 @@
+import os
 import contextlib
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -13,7 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
-                username="admin",
-                email="admin@admin.com",
-                password="admin",
+                username=os.getenv('SUPERADMIN_USERNAME', 'admin'),
+                email=os.getenv('SUPERADMIN_EMAIL', '"admin@admin.com"'),
+                password=os.getenv('SUPERADMIN_PASSWORD', 'admin'),
             )
