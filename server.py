@@ -1,4 +1,4 @@
-from src.app import create_app
+from _src.app import create_app
 
 if __name__ == "__main__":
     app, _, _ = create_app()

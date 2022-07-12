@@ -1,5 +1,5 @@
 from tests.test_helpers import read_json
-from src.model.pre_config import PreConfig
+from _src.model.pre_config import PreConfig
 
 
 class DummyResponse:

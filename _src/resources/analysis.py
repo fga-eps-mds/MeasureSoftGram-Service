@@ -1,12 +1,12 @@
 from flask_restful import Resource
 from flask import request
-from src.model.pre_config import PreConfig
-from src.model.analysis import AnalysisComponents
-from src.model.metrics_component_tree import MetricsComponentTree
+from _src.model.pre_config import PreConfig
+from _src.model.analysis import AnalysisComponents
+from _src.model.metrics_component_tree import MetricsComponentTree
 import requests
-from src.util.constants import CORE_URL
+from _src.util.constants import CORE_URL
 import mongoengine as me
-from src.resources.utils import simple_error_response
+from _src.resources.utils import simple_error_response
 
 
 class Analysis(Resource):

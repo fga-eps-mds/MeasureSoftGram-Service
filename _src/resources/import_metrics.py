@@ -2,9 +2,9 @@ import requests
 import mongoengine as me
 from flask import request
 from flask_restful import Resource
-from src.model.pre_config import PreConfig
-from src.resources.utils import simple_error_response
-from src.model.metrics_component_tree import MetricsComponentTree
+from _src.model.pre_config import PreConfig
+from _src.resources.utils import simple_error_response
+from _src.model.metrics_component_tree import MetricsComponentTree
 
 
 class ImportMetrics(Resource):

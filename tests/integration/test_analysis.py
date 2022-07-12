@@ -1,8 +1,8 @@
 import json
 from tests.test_helpers import read_json
-from src.model.metrics_component_tree import MetricsComponentTree
-from src.model.analysis import AnalysisComponents
-from src.model.pre_config import PreConfig
+from _src.model.metrics_component_tree import MetricsComponentTree
+from _src.model.analysis import AnalysisComponents
+from _src.model.pre_config import PreConfig
 
 
 class AvailableConstantsResponse:
