@@ -2,7 +2,7 @@
 
 [![codecov](https://codecov.io/gh/fga-eps-mds/2021-2-MeasureSoftGram-Service/branch/develop/graph/badge.svg?token=XRPXP8LH9I)](https://app.codecov.io/gh/fga-eps-mds/2021-2-MeasureSoftGram-service/)
 
-## What is it?
+## O que é
 
 The MeasureSoftGram-Service is responsible for containing and manipulating MeasureSoftGram data: metrics, configuration goals, analyzes performed, etc. It uses the MVC layer pattern for building and organizing the service.
 
