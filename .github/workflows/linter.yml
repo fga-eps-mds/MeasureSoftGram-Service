@@ -55,6 +55,6 @@ jobs:
       - name: ⭐⭐⭐⭐ Análise do código com o linter `pylint`
         run: |
           pip install pylint-django==2.5.3
-          cd src && pylint --load-plugins pylint_django --django-settings-module=config.settings $(git ls-files '*.py')
+          cd src && pylint $(git ls-files '*.py')
 
 
