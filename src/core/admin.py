@@ -35,6 +35,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'organization',
     )
 
+
 @admin.register(models.QualityCaracteristic)
 class QualityCaracteristicAdmin(admin.ModelAdmin):
     list_display = (
@@ -43,6 +44,7 @@ class QualityCaracteristicAdmin(admin.ModelAdmin):
         "description",
     )
     search_fields = ("name",)
+
 
 @admin.register(models.SubQualityCaracteristic)
 class SubQualityCaracteristicAdmin(admin.ModelAdmin):
@@ -59,6 +61,7 @@ class SubQualityCaracteristicAdmin(admin.ModelAdmin):
     list_filter = (
         "quality_caracteristic",
     )
+
 
 @admin.register(models.Metric)
 class MetricAdmin(admin.ModelAdmin):
