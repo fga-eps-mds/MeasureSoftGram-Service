@@ -1,9 +1,11 @@
+# Action cria uma imagem Docker do projeto toda vez que há uma release (pushes na branch develop e main)
+
+
 name: Docker image deploy
 
 on:
   push:
-      tags:
-      - "v*"
+    branches: [ "develop", [dm][ea][vi][!o]* ]
 
 jobs:
   docker:
