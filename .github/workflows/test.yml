@@ -48,6 +48,9 @@ jobs:
       #   run: |
       #     sed -i 's/\/home\/runner\/work\/2021-2-MeasureSoftGram-Service\/2021-2-MeasureSoftGram-Service\//\/github\/workspace\//g' coverage.xml
 
+      - name: Install requirements
+        run: pip install -r src/requirements.txt
+
       - name: Run Migrations
         run: python src/manage.py migrate
 
