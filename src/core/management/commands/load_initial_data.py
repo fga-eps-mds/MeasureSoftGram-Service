@@ -1,9 +1,9 @@
-import os
 import contextlib
+import os
+
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db.utils import IntegrityError
-
 
 User = get_user_model()
 
