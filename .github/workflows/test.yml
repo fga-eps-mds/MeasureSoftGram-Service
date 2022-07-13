@@ -1,39 +1,71 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Run Tests
 
-# Controls when the workflow will run
 on: [push, pull_request]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PORT: 5432
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.7
           cache: pip
-      - name: Install tox
-        run: pip install tox
-      - name: Run tests
-        run: tox -- --cov=src --cov-report=xml --junitxml=junittest.xml
-      - name: fix code coverage paths
-        if: always()
+
+      # caching dependency will make our build faster.
+      - name: Cache dependency
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      # - name: Install tox
+      #   run: pip install tox
+
+      # - name: Run tests
+      #   run: tox -- --cov=src --cov-report=xml --junitxml=junittest.xml
+
+      # - name: fix code coverage paths
+      #   if: always()
+      #   run: |
+      #     sed -i 's/\/home\/runner\/work\/2021-2-MeasureSoftGram-Service\/2021-2-MeasureSoftGram-Service\//\/github\/workspace\//g' coverage.xml
+
+      - name: Run Migrations
+        run: python src/manage.py migrate
+
+      # coverage report --fail-under=50
+      - name: Análise de cobertura de testes
         run: |
-          sed -i 's/\/home\/runner\/work\/2021-2-MeasureSoftGram-Service\/2021-2-MeasureSoftGram-Service\//\/github\/workspace\//g' coverage.xml
+          pip install coverage==6.4.2
+          coverage run src/manage.py test
+          coverage xml -o junittest.xml
+
+      # Análise da base de código
       - name: SonarCloud Scan
         if: always()
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
       - name: Upload coverage to Codecov
         if: always()
         uses: codecov/codecov-action@v2
