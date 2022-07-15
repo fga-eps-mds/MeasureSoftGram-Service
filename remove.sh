@@ -1,0 +1,1 @@
+docker image rm --force measuresoftgram/core measuresoftgram/service mongo
