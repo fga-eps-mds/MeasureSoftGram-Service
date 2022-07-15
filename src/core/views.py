@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 
-@api_view(['GET'])
+@api_view(['GET', 'HEAD', 'OPTIONS'])
 def get_mocked_repository(request):
     return Response({
         'id': 1,
@@ -14,7 +14,7 @@ def get_mocked_repository(request):
     })
 
 
-@api_view(['GET'])
+@api_view(['GET', 'HEAD', 'OPTIONS'])
 def get_mocked_measures(request):
     return Response({
         'count': 5,
