@@ -1,5 +1,38 @@
-from rest_framework.decorators import api_view
+import json
+from rest_framework import mixins, viewsets
+from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
+from rest_framework.parsers import JSONParser
+
+from service.models import Measure, Metric
+from service.serializers import MeasureModelSerializer, MetricModelSerializer
+
+
+class MetricModelView(mixins.CreateModelMixin,
+                      mixins.ListModelMixin,
+                      viewsets.GenericViewSet):
+
+    queryset = Metric.objects.all()
+    serializer_class = MetricModelSerializer
+
+
+class MeasureModelView(mixins.CreateModelMixin,
+                       mixins.ListModelMixin,
+                       viewsets.GenericViewSet):
+
+    queryset = Measure.objects.all()
+    serializer_class = MeasureModelSerializer
+
+
+@api_view(['POST', 'HEAD', 'OPTIONS'])
+@parser_classes([JSONParser])
+def import_sonar_metrics(request):
+    data = dict(request.data)
+
+    for metric_object in data['baseComponent']['measures']:
+        print(metric_object['metric'])
+
+    return Response()
 
 
 @api_view(['GET', 'HEAD', 'OPTIONS'])
