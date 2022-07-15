@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from service import models
 
-
 # @admin.register(models.Organization)
 # class OrganizationAdmin(admin.ModelAdmin):
 #     list_display = (
