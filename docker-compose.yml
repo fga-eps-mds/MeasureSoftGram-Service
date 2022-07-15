@@ -1,24 +1,20 @@
 version: "3.8"
 
-
 volumes:
   service_postgres_data:
   pip_cache:
 
-
 services:
-
   db:
     container_name: db
     image: postgres:latest
     restart: on-failure
-    # ports:
-    #   - "5432:5432"
+    ports:
+      - "5432:5432"
     volumes:
       - service_postgres_data:/var/lib/postgresql/data
     env_file:
       - ./env-vars/.postgres.env
-
 
   service:
     container_name: service
@@ -28,7 +24,7 @@ services:
       dockerfile: ./docker/service.Dockerfile
     command: ["./start_service.sh"]
     ports:
-      - "8080:80"   # Main port
+      - "8080:80" # Main port
       - "8181:8181" # Debug port
     volumes:
       - ./src:/src
