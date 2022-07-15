@@ -1,8 +1,9 @@
 import json
+
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import api_view, parser_classes
-from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
 
 from service.models import Measure, Metric
 from service.serializers import MeasureModelSerializer, MetricModelSerializer
