@@ -1,7 +1,13 @@
 from django.contrib.auth import get_user_model
-from django.db import models
-from django.utils import timezone
 from simple_history.models import HistoricalRecords
+
+import utils
+
+# Do not delete this imports
+from service.sub_models import (
+    SupportedMetric,
+    CollectedMetric,
+)
 
 User = get_user_model()
 
@@ -62,38 +68,28 @@ User = get_user_model()
 #         return self.name
 
 
-class Metric(models.Model):
-    """
-    Métricas é o maior grau de granualidade de dados.
-    São os dados coletados de diversas fontes (SonarQube, GitHub, etc).
-    """
-    name = models.CharField(max_length=128)
-    value = models.FloatField()
-    created_at = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.name
 
 
-class Measure(models.Model):
-    """
-    Measures são as medidas obtidas com base nas métricas (Metrics)
-    Cada medida tem uma fórmula e várias métricas associadas.
-    A fórmula que calcula uma medida fica no service `core`.
-    Uma vez calculado a medida, ele deve ser salvo no banco de dados.
-    """
-    name = models.CharField(max_length=128)
-    value = models.FloatField()
-    created_at = models.DateTimeField(default=timezone.now)
 
-    # repository = models.ForeignKey(
-    #     Repository,
-    #     related_name='measurements',
-    #     on_delete=models.DO_NOTHING,
-    # )
+# class CalculatedMeasure(models.Model):
+#     """
+#     Measures são as medidas obtidas com base nas métricas (Metrics)
+#     Cada medida tem uma fórmula e várias métricas associadas.
+#     A fórmula que calcula uma medida fica no service `core`.
+#     Uma vez calculado a medida, ele deve ser salvo no banco de dados.
+#     """
+#     name = models.CharField(max_length=128)
+#     value = models.FloatField()
+#     created_at = models.DateTimeField(default=timezone.now)
 
-    def __str__(self):
-        return self.name
+#     # repository = models.ForeignKey(
+#     #     Repository,
+#     #     related_name='measurements',
+#     #     on_delete=models.DO_NOTHING,
+#     # )
+
+#     def __str__(self):
+#         return self.name
 
 
 # class DataInput(models.Model):
