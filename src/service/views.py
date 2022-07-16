@@ -1,5 +1,3 @@
-import json
-
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
@@ -9,18 +7,23 @@ from service.models import Measure, Metric
 from service.serializers import MeasureModelSerializer, MetricModelSerializer
 
 
-class MetricModelView(mixins.CreateModelMixin,
-                      mixins.ListModelMixin,
-                      viewsets.GenericViewSet):
-
+class MetricModelView(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
+    """
+    ModelViewSet para as Métricas coletadas de diveras fontes.
+    """
     queryset = Metric.objects.all()
     serializer_class = MetricModelSerializer
 
 
-class MeasureModelView(mixins.CreateModelMixin,
-                       mixins.ListModelMixin,
-                       viewsets.GenericViewSet):
-
+class MeasureModelView(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    ModelViewSet para listar os valores das medidas
+    calculadas pelas fórmulas do modelo.
+    """
     queryset = Measure.objects.all()
     serializer_class = MeasureModelSerializer
 
@@ -28,6 +31,11 @@ class MeasureModelView(mixins.CreateModelMixin,
 @api_view(['POST', 'HEAD', 'OPTIONS'])
 @parser_classes([JSONParser])
 def import_sonar_metrics(request):
+    """
+    Endpoint que recebe um o JSON obtido na API do SonarQube,
+    extrai os valores das métricas contidas e salva no banco de dados.
+    """
+
     data = dict(request.data)
 
     for metric_object in data['baseComponent']['measures']:

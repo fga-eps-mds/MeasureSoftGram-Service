@@ -63,6 +63,10 @@ User = get_user_model()
 
 
 class Metric(models.Model):
+    """
+    Métricas é o maior grau de granualidade de dados.
+    São os dados coletados de diversas fontes (SonarQube, GitHub, etc).
+    """
     name = models.CharField(max_length=128)
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
@@ -72,6 +76,12 @@ class Metric(models.Model):
 
 
 class Measure(models.Model):
+    """
+    Measures são as medidas obtidas com base nas métricas (Metrics)
+    Cada medida tem uma fórmula e várias métricas associadas.
+    A fórmula que calcula uma medida fica no service `core`.
+    Uma vez calculado a medida, ele deve ser salvo no banco de dados.
+    """
     name = models.CharField(max_length=128)
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
