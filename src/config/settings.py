@@ -34,11 +34,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
 ALLOWED_HOSTS = ['*']
 
 # Allowed origins on CORS
-CORS_ALLOWED_ORIGINS = [
-    'https://localhost:*',
-    'https://measuresoftgram.herokuapp.com',
-    'https://stg-measuresoftgram.herokuapp.com'
-]
+CORS_ALLOWED_ORIGINS = ['*']
 
 
 # Application definition
