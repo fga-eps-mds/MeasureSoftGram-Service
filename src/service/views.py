@@ -3,29 +3,30 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
-from service.models import Measure, Metric
-from service.serializers import MeasureModelSerializer, MetricModelSerializer
+from service import models
+from service import serializers
 
 
-class MetricModelView(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet
-):
+class SupportedMetricModelViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
-    ModelViewSet para as Métricas coletadas de diveras fontes.
+    Viewset que retorna todas as métricas suportadas pelo sistema
     """
-    queryset = Metric.objects.all()
-    serializer_class = MetricModelSerializer
+    queryset = models.SupportedMetric.objects.all()
+    serializer_class = serializers.SupportedMetricSerializer
 
 
-class MeasureModelView(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """
-    ModelViewSet para listar os valores das medidas
-    calculadas pelas fórmulas do modelo.
-    """
-    queryset = Measure.objects.all()
-    serializer_class = MeasureModelSerializer
+class CollectedMetricModelView(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    queryset = models.CollectedMetric.objects.all()
+    serializer_class = serializers.CollectedMetricSerializer
+
+
+# class MeasureModelView(mixins.ListModelMixin, viewsets.GenericViewSet):
+#     """
+#     ModelViewSet para listar os valores das medidas
+#     calculadas pelas fórmulas do modelo.
+#     """
+#     queryset = Measure.objects.all()
+#     serializer_class = MeasureModelSerializer
 
 
 @api_view(['POST', 'HEAD', 'OPTIONS'])
