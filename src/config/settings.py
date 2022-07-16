@@ -60,6 +60,7 @@ THIRD_PARTY_APPS = [
 
 APPLICATION_APPS = [
     'service',
+    'utils',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + APPLICATION_APPS
@@ -165,8 +166,10 @@ django_heroku.settings(locals())
 # Django Rest Framework config
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": 1,
+    "PAGE_SIZE": 500,
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework.parsers.JSONParser',
     )
 }
+
+CREATE_FAKE_DATA = os.getenv("CREATE_FAKE_DATA", "False").lower() in ("true", "t", "1")
