@@ -45,7 +45,15 @@ urlpatterns = [
         views.import_sonar_metrics
     ),
 
-    path('organizations/1/repository/1/measures/', views.get_mocked_measures),
+    path(
+        'organizations/1/repository/1/measures/',
+        views.get_mocked_measures,
+    ),
+
+    path(
+        'organizations/1/repository/1/history/measures/',
+        views.get_mocked_measures_history,
+    ),
     # END MOCKS
 
     # BEGIN REAL Endpoints

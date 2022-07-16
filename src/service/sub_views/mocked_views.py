@@ -1,6 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from service import staticfiles
+
 
 @api_view(['GET', 'HEAD', 'OPTIONS'])
 def get_mocked_repository(request):
@@ -13,6 +15,10 @@ def get_mocked_repository(request):
         'updated_at': '2022-07-15T08:58:55.603466'
     })
 
+
+@api_view(['GET', 'HEAD', 'OPTIONS'])
+def get_mocked_measures_history(request):
+    return Response(staticfiles.MOCKED_MEASURE_HISTORY)
 
 @api_view(['GET', 'HEAD', 'OPTIONS'])
 def get_mocked_measures(request):
