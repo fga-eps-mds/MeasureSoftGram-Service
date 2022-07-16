@@ -41,7 +41,7 @@ urlpatterns = [
     path('organizations/1/repository/1/', views.get_mocked_repository),
 
     path(
-        'organizations/1/repository/1/import-sonar-metrics/',
+        'organizations/1/repository/1/import/sonarqube-metrics/',
         views.import_sonar_metrics
     ),
 
