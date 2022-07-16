@@ -1,4 +1,1 @@
-from service.sub_models.metrics import (
-    SupportedMetric,
-    CollectedMetric
-)
+from service.sub_models.metrics import CollectedMetric, SupportedMetric

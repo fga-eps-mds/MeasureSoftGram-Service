@@ -3,12 +3,7 @@ import datetime as dt
 from django.contrib import admin
 
 # Do not delete this imports
-from service.sub_admin import (
-    SupportedMetricAdmin,
-    CollectedMetricAdmin,
-)
-
-
+from service.sub_admin import CollectedMetricAdmin, SupportedMetricAdmin
 
 # @admin.register(models.QualityCaracteristic)
 # class QualityCaracteristicAdmin(admin.ModelAdmin):

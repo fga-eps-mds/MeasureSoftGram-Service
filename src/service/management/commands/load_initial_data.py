@@ -1,23 +1,21 @@
 # Python Imports
 import contextlib
-import os
 import datetime as dt
-from django.utils import timezone
+import os
+
+# 3rd Party Imports
+import requests
+from django.conf import settings
 
 # Django Imports
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
-from django.db.utils import IntegrityError
-from django.conf import settings
 from django.db.models import Count
-
-# 3rd Party Imports
-import requests
+from django.db.utils import IntegrityError
+from django.utils import timezone
 
 # Local Imports
-from service import models
-from service import staticfiles
-
+from service import models, staticfiles
 from utils import get_random_datetime, get_random_value
 
 User = get_user_model()

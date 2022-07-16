@@ -4,10 +4,7 @@ from simple_history.models import HistoricalRecords
 import utils
 
 # Do not delete this imports
-from service.sub_models import (
-    SupportedMetric,
-    CollectedMetric,
-)
+from service.sub_models import CollectedMetric, SupportedMetric
 
 User = get_user_model()
 
