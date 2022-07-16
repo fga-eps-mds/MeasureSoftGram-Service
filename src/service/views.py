@@ -36,16 +36,19 @@ class LatestCollectedMetricModelViewSet(
     ViewSet para ler o valor mais recente das métricas coletadas
     """
 
-    # Left Join entre as tabelas SupportedMetric e CollectedMetric com
-    # somente o registro mais recente da tabela CollectedMetric
-    queryset = models.SupportedMetric.objects.prefetch_related(
-        Prefetch(
-            'collected_metrics',
-            queryset=models.CollectedMetric.objects.filter(
-                pk=models.CollectedMetric.objects.latest('id').pk,
-            ),
-        )
-    )
+    # TODO: Melhorar essa query
+    # O desejável era que somente fosse realizado o prefetch no último CollectedMetric de cada foreinkey
+    queryset = models.SupportedMetric.objects.prefetch_related('collected_metrics')
+
+    # O Código abaixo é a forma como o django permite fazer um prefetch customizado, mas não está funcinando
+    # queryset = models.SupportedMetric.objects.prefetch_related(
+    #     Prefetch(
+    #         'collected_metrics',
+    #         queryset=models.CollectedMetric.objects.filter(
+    #             pk=models.CollectedMetric.objects.latest('id').pk,
+    #         ),
+    #     )
+    # )
 
     serializer_class = serializers.LatestCollectedMetricSerializer
 
