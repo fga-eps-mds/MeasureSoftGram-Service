@@ -47,7 +47,7 @@ class CollectedMetric(models.Model):
     """
     class Meta:
         # Ordernar na ordem decrescente de criação do registro
-        ordering = ['-created_at']
+        ordering = ['created_at']
 
     metric = models.ForeignKey(
         SupportedMetric,
