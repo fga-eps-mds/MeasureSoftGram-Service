@@ -37,6 +37,7 @@ class CollectedMetricAdmin(admin.ModelAdmin):
     )
     list_filter = (
         "metric__metric_type",
+        "metric__name",
     )
 
     def get_metric_name(self, obj: models.CollectedMetric):
