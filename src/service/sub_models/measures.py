@@ -2,10 +2,11 @@ from django.db import models
 from django.utils import timezone
 
 
-class SuporteMeasure(models.Model):
+class SupportedMeasure(models.Model):
     """
     Medidas suportadas pelo sistema atualmente.
     """
+    key = models.CharField(max_length=128, unique=True)
     name = models.CharField(max_length=128)
     description = models.TextField(max_length=512, null=True, blank=True)
 
@@ -19,7 +20,7 @@ class CalculatedMeasure(models.Model):
         ordering = ['-created_at']
 
     measure = models.ForeignKey(
-        SuporteMeasure,
+        SupportedMeasure,
         related_name='calculated_measures',
         on_delete=models.CASCADE,
     )

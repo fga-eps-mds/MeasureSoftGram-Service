@@ -6,6 +6,12 @@ from service.sub_models.metrics import (
     SupportedMetric,
 )
 
+# Do not delete this imports
+from service.sub_models.measures import (
+    SupportedMeasure,
+    CalculatedMeasure,
+)
+
 User = get_user_model()
 
 

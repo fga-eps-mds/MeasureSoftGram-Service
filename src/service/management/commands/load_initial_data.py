@@ -27,7 +27,7 @@ class Command(BaseCommand):
     )
 
 
-    def create_suported_metrics(self):
+    def create_supported_metrics(self):
         sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'
 
         request = requests.get(sonar_endpoint)
@@ -85,5 +85,5 @@ class Command(BaseCommand):
                 password=os.getenv('SUPERADMIN_PASSWORD', 'admin'),
             )
 
-        self.create_suported_metrics()
+        self.create_supported_metrics()
         self.crete_fake_collected_metrics()
