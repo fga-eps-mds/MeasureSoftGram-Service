@@ -1,6 +1,4 @@
-
-# Do not delete this imports
-from service.sub_serializers import (
+from service.sub_serializers.metrics import (
     SupportedMetricSerializer,
     CollectedMetricSerializer,
     LatestCollectedMetricSerializer,
