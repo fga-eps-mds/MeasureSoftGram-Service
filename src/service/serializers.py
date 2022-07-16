@@ -42,7 +42,39 @@ class CollectedMetricSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-# class CalculatedMeasureSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = models.CalculatedMeasure
-#         fields = ('id', 'name', 'value', 'created_at')
+class LatestCollectedMetricSerializer(serializers.ModelSerializer):
+
+    latest_collected_metric = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.SupportedMetric
+        fields = (
+            'id',
+            'key',
+            'name',
+            'description',
+            'latest_collected_metric',
+        )
+
+    def get_latest_collected_metric(self, obj: models.SupportedMetric):
+        try:
+            latest_collected_metric = obj.collected_metrics.last()
+            return CollectedMetricSerializer(latest_collected_metric).data
+        except models.CollectedMetric.DoesNotExist as e:
+            return None
+
+class CollectedMetricHistorySerializer(serializers.ModelSerializer):
+    collected_metric_history = CollectedMetricSerializer(
+        source='collected_metrics',
+        many=True,
+    )
+
+    class Meta:
+        model = models.SupportedMetric
+        fields = (
+            'id',
+            'key',
+            'name',
+            'description',
+            'collected_metric_history',
+        )

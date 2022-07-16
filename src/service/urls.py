@@ -19,9 +19,22 @@ repo_router = DefaultRouter()
 
 repo_router.register(
     'create/metrics',
-    views.CollectedMetricModelView,
+    views.CollectedMetricModelViewSet,
     basename='collected-metrics',
 )
+
+repo_router.register(
+    'history/metrics',
+    views.CollectedMetricHistoryModelViewSet,
+    basename='collected-metrics-history',
+)
+
+repo_router.register(
+    'metrics',
+    views.LatestCollectedMetricModelViewSet,
+    basename='latest-collected-metrics',
+)
+
 
 urlpatterns = [
     # BEGIN MOCKS

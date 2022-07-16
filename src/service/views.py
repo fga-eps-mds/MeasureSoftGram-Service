@@ -1,3 +1,5 @@
+from django.db.models import Prefetch
+
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
@@ -14,9 +16,57 @@ class SupportedMetricModelViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
     serializer_class = serializers.SupportedMetricSerializer
 
 
-class CollectedMetricModelView(mixins.CreateModelMixin, viewsets.GenericViewSet):
+class CollectedMetricModelViewSet(
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet
+):
+    """
+    ViewSet para cadastrar as métricas coletadas
+    """
     queryset = models.CollectedMetric.objects.all()
     serializer_class = serializers.CollectedMetricSerializer
+
+
+class LatestCollectedMetricModelViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    ViewSet para ler o valor mais recente das métricas coletadas
+    """
+
+    # Left Join entre as tabelas SupportedMetric e CollectedMetric com
+    # somente o registro mais recente da tabela CollectedMetric
+    queryset = models.SupportedMetric.objects.prefetch_related(
+        Prefetch(
+            'collected_metrics',
+            queryset=models.CollectedMetric.objects.filter(
+                pk=models.CollectedMetric.objects.latest('id').pk,
+            ),
+        )
+    )
+
+    serializer_class = serializers.LatestCollectedMetricSerializer
+
+
+class CollectedMetricHistoryModelViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    ViewSet para ler o histórico de métricas coletadas
+
+    TODO: Limitar o número de métricas durante a solicitação do histórico
+    TODO: Criar uma classe de paginação (
+        https://www.django-rest-framework.org/api-guide/pagination/#modifying-the-pagination-style
+    )
+    """
+    queryset = models.SupportedMetric.objects.prefetch_related(
+        'collected_metrics'
+    )
+    serializer_class = serializers.CollectedMetricHistorySerializer
 
 
 # class MeasureModelView(mixins.ListModelMixin, viewsets.GenericViewSet):
