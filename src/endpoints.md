@@ -72,13 +72,13 @@ Metrics
 /api/v1/orgs/1/repositories/1/metrics/1/
 
 #### Endpoint que retorna uma lista com o histórico de valores de uma métrica de um projeto
-/api/v1/orgs/1/repositories/1/metrics/1/history/
+/api/v1/orgs/1/repositories/1/history/metrics/1/
 
 #### Endpoint que retorna o valor atual das metrics e de seus componentes
-/api/v1/orgs/1/repositories/1/metrics/tree/
+/api/v1/orgs/1/repositories/1/tree/metrics/
 
 #### Endpoint que retorna o valor atual de uma metric e de seus componentes
-/api/v1/orgs/1/repositories/1/metrics/1/tree/
+/api/v1/orgs/1/repositories/1/tree/metrics/1/
 
 
 ### Medidas
@@ -90,13 +90,13 @@ Metrics
 /api/v1/orgs/1/repositories/1/measures/1/
 
 #### Endpoint que retorna uma lista com o histórico de valores de uma medida de um projeto
-/api/v1/orgs/1/repositories/1/measures/1/history/
+/api/v1/orgs/1/repositories/1/history/measures/1/
 
 #### Endpoint que retorna o valor atual das measures e de seus componentes
-/api/v1/orgs/1/repositories/1/measures/tree/
+/api/v1/orgs/1/repositories/1/tree/measures/
 
 #### Endpoint que retorna o valor atual de uma measure e de seus componentes
-/api/v1/orgs/1/repositories/1/measures/1/tree/
+/api/v1/orgs/1/repositories/1/tree/measures/1/
 
 
 ### subcharacteristics
@@ -108,13 +108,13 @@ Metrics
 /api/v1/orgs/1/repositories/1/subcharacteristics/1/
 
 #### Endpoint que retorna uma lista com o histórico de valores de uma subcharacteristic de um projeto
-/api/v1/orgs/1/repositories/1/subcharacteristics/1/history/
+/api/v1/orgs/1/repositories/1/history/subcharacteristics/1/
 
 #### Endpoint que retorna o valor atual das subcharacteristics e de seus componentes
-/api/v1/orgs/1/repositories/1/subcharacteristics/tree/
+/api/v1/orgs/1/repositories/1/tree/subcharacteristics/
 
 #### Endpoint que retorna o valor atual da subcharacteristic e de seus componentes
-/api/v1/orgs/1/repositories/1/subcharacteristics/1/tree/
+/api/v1/orgs/1/repositories/1/tree/subcharacteristics/1/
 
 
 ### characteristics
@@ -126,13 +126,13 @@ Metrics
 /api/v1/orgs/1/repositories/1/characteristics/1/
 
 #### Endpoint que retorna uma lista com o histórico de valores de uma characteristic de um projeto
-/api/v1/orgs/1/repositories/1/characteristics/1/history/
+/api/v1/orgs/1/repositories/1/history/characteristics/1/
 
 #### Endpoint que retorna o valor atual das characteristics e de seus componentes
-/api/v1/orgs/1/repositories/1/characteristics/tree/
+/api/v1/orgs/1/repositories/1/tree/characteristics/
 
 #### Endpoint que retorna o valor atual da characteristic e de seus componentes
-/api/v1/orgs/1/repositories/1/characteristics/1/tree/
+/api/v1/orgs/1/repositories/1/tree/characteristics/1/
 
 
 ### gqm
