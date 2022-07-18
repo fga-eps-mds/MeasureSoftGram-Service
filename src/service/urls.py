@@ -51,6 +51,11 @@ urlpatterns = [
     ),
 
     path(
+        'organizations/1/repository/1/measures/<int:measure_id>/',
+        views.get_specific_mocked_measure,
+    ),
+
+    path(
         'organizations/1/repository/1/history/measures/',
         views.get_mocked_measures_history,
     ),
