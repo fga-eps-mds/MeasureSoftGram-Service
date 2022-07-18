@@ -30,7 +30,7 @@ def get_mocked_measures(request):
             {
                 "id": 1,
                 "key": "passed_tests",
-                "name": "",
+                "name": "Passed tests",
                 "description": "",
                 "latest_collected_measure": {
                     "id": 10003,
@@ -43,7 +43,7 @@ def get_mocked_measures(request):
                 "id": 2,
                 "key": "fast_test_builds",
                 "name": "",
-                "description": "",
+                "description": "Fast test builds",
                 "latest_collected_measure": {
                     "id": 10004,
                     "measure_id": 2,
@@ -54,7 +54,7 @@ def get_mocked_measures(request):
             {
                 "id": 3,
                 "key": "test_coverage",
-                "name": "",
+                "name": "Test coverage",
                 "description": "",
                 "latest_collected_measure": {
                     "id": 3969,
@@ -66,7 +66,7 @@ def get_mocked_measures(request):
             {
                 "id": 4,
                 "key": "non_complex_files_density",
-                "name": "",
+                "name": "Non complex files density",
                 "description": "",
                 "latest_collected_measure": {
                     "id": 4981,
@@ -78,7 +78,7 @@ def get_mocked_measures(request):
             {
                 "id": 5,
                 "key": "commented_files_density",
-                "name": "",
+                "name": "Commented files density",
                 "description": "",
                 "latest_collected_measure": {
                     "id": 4367,
@@ -88,13 +88,13 @@ def get_mocked_measures(request):
                 }
             },
             {
-                "id": 5,
+                "id": 6,
                 "key": "absence_of_duplications",
-                "name": "",
+                "name": "Absence of duplications",
                 "description": "",
                 "latest_collected_measure": {
                     "id": 4367,
-                    "measure_id": 5,
+                    "measure_id": 6,
                     "value": 0.62,
                     "created_at": "2022-07-16T02:13:37-03:00"
                 }
