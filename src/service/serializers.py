@@ -1,8 +1,8 @@
 
 # Do not delete this imports
 from service.sub_serializers import (
-    SupportedMetricSerializer,
+    CollectedMetricHistorySerializer,
     CollectedMetricSerializer,
     LatestCollectedMetricSerializer,
-    CollectedMetricHistorySerializer,
+    SupportedMetricSerializer,
 )

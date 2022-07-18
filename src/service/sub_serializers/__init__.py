@@ -1,6 +1,6 @@
 from service.sub_serializers.metrics import (
-    SupportedMetricSerializer,
+    CollectedMetricHistorySerializer,
     CollectedMetricSerializer,
     LatestCollectedMetricSerializer,
-    CollectedMetricHistorySerializer,
+    SupportedMetricSerializer,
 )

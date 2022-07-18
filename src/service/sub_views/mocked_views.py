@@ -1,6 +1,6 @@
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
 
 from service import staticfiles
 
@@ -20,6 +20,7 @@ def get_mocked_repository(request):
 @api_view(['GET', 'HEAD', 'OPTIONS'])
 def get_mocked_measures_history(request):
     return Response(staticfiles.MOCKED_MEASURE_HISTORY)
+
 
 @api_view(['GET', 'HEAD', 'OPTIONS'])
 def get_mocked_measures(request):
@@ -182,7 +183,7 @@ def get_specific_mocked_measure(request, measure_id):
     }
     if measure_id not in mocked_data:
         return Response(
-            data={ "detail": "Not found" },
+            data={"detail": "Not found"},
             status=status.HTTP_404_NOT_FOUND
         )
     return Response(mocked_data[measure_id], status=status.HTTP_200_OK)

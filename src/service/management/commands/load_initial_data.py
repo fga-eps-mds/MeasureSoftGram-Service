@@ -26,7 +26,6 @@ class Command(BaseCommand):
         "Registra os dados iniciais da aplicação no banco de dados"
     )
 
-
     def create_supported_metrics(self):
         sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'
 
@@ -44,7 +43,7 @@ class Command(BaseCommand):
                     key=metric['key'],
                     name=metric['name'],
                     description=metric.get('description', ''),
-                    metric_type= metric['type'],
+                    metric_type=metric['type'],
                 )
             except IntegrityError:
                 continue
@@ -75,7 +74,6 @@ class Command(BaseCommand):
 
                     fake_collected_metrics.append(fake_collected_metric)
                 models.CollectedMetric.objects.bulk_create(fake_collected_metrics)
-
 
     def handle(self, *args, **options):
         with contextlib.suppress(IntegrityError):
