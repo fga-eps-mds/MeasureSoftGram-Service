@@ -63,8 +63,8 @@ class Command(BaseCommand):
                 continue
 
     def crete_fake_collected_metrics(self):
-        # if settings.CREATE_FAKE_DATA == False:
-        #     return
+        if settings.CREATE_FAKE_DATA == False:
+            return
 
         qs = models.SupportedMetric.objects.annotate(
             collected_qty=Count('collected_metrics')
