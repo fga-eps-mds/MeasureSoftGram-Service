@@ -16,7 +16,12 @@ from django.utils import timezone
 
 # Local Imports
 from service import models, staticfiles
-from utils import get_random_datetime, get_random_qualifier, get_random_string, get_random_value
+from utils import (
+    get_random_datetime,
+    get_random_qualifier,
+    get_random_string,
+    get_random_value,
+)
 
 User = get_user_model()
 
