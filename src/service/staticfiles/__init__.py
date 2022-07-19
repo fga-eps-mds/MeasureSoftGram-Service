@@ -1,1 +1,2 @@
 from .sonarqube_available_metrics import SONARQUBE_AVAILABLE_METRICS
+from .github_available_metrics import GITHUB_AVAILABLE_METRICS

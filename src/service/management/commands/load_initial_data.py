@@ -17,6 +17,7 @@ import requests
 # Local Imports
 from service import models
 from service import staticfiles
+from service.git_metrics.github_metric_collector import GithubMetricCollector
 
 from utils import get_random_datetime, get_random_value
 
@@ -28,8 +29,11 @@ class Command(BaseCommand):
         "Registra os dados iniciais da aplicação no banco de dados"
     )
 
+    def create_supported_metrics(self):
+        self.create_sonarqube_supported_metrics()
+        self.create_github_supported_metrics()
 
-    def create_suported_metrics(self):
+    def create_sonarqube_supported_metrics(self):
         sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'
 
         request = requests.get(sonar_endpoint)
@@ -40,9 +44,16 @@ class Command(BaseCommand):
         else:
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
 
-        for metric in data['metrics']:
+        self.model_generator(models.SupportedMetric.objects, data['metrics'])
+
+    def create_github_supported_metrics(self):
+        data = staticfiles.GITHUB_AVAILABLE_METRICS
+        self.model_generator(models.SupportedMetric.objects, data['metrics'])
+
+    def model_generator(self, model, metrics):
+        for metric in metrics:
             try:
-                models.SupportedMetric.objects.create(
+                model.create(
                     key=metric['key'],
                     name=metric['name'],
                     description=metric.get('description', ''),
@@ -58,6 +69,8 @@ class Command(BaseCommand):
         qs = models.SupportedMetric.objects.annotate(
             collected_qty=Count('collected_metrics')
         )
+        github_metric_collector = GithubMetricCollector("https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Front")
+        git_metrics = github_metric_collector.get_metrics()
 
         end_date = timezone.now()
         start_date = end_date - dt.timedelta(days=90)
@@ -69,9 +82,13 @@ class Command(BaseCommand):
                 for _ in range(100 - supported_metric.collected_qty):
                     metric_type = supported_metric.metric_type
 
+                    metric_value = get_random_value(metric_type)
+                    if supported_metric in GithubMetricCollector.metrics_types:
+                        metric_value = git_metrics[supported_metric]
+
                     fake_collected_metric = models.CollectedMetric(
                         metric=supported_metric,
-                        value=get_random_value(metric_type),
+                        value=metric_value,
                         created_at=get_random_datetime(start_date, end_date),
                     )
 
@@ -87,5 +104,5 @@ class Command(BaseCommand):
                 password=os.getenv('SUPERADMIN_PASSWORD', 'admin'),
             )
 
-        self.create_suported_metrics()
+        self.create_supported_metrics()
         self.crete_fake_collected_metrics()
