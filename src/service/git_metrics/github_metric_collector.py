@@ -4,6 +4,9 @@ GIT_API_URL = 'https://api.github.com'
 GIT_HUB = 'github.com'
 
 class GithubMetricCollector:
+
+	metrics_types = ['commits_by_release', 'release_issues', 'health_percentage']
+
 	def __init__(self, url):
 		self.__metrics = {}
 		self.__url = url
