@@ -1,5 +1,6 @@
 import datetime as dt
 import random
+import string
 
 from django.utils import timezone
 
@@ -15,6 +16,17 @@ def get_random_datetime(start_date, end_date):
             )
         )
     )
+
+def namefy(str):
+    return str.replace('_', ' ').title()
+
+def get_random_string():
+    r = random.choice(string.ascii_uppercase + string.digits)
+    return ''.join(r for _ in range(100))
+
+def get_random_qualifier():
+    available = ['UTS', 'FIL', 'DIR']
+    return available[random.randint(0, 2)]
 
 
 @staticmethod
