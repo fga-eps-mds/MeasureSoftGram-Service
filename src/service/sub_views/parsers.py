@@ -10,10 +10,21 @@ def import_sonar_metrics(request):
     Endpoint que recebe um o JSON obtido na API do SonarQube,
     extrai os valores das métricas contidas e salva no banco de dados.
     """
-
     data = dict(request.data)
+    metrics = []
 
-    for metric_object in data['baseComponent']['measures']:
-        print(metric_object['metric'])
+    for component in data['components']:
+        obj = {}
+        obj['qualifier'] = component['qualifier']
+        obj['path'] = component['path']
+        obj['metric'] = []
 
-    return Response()
+        for metric in component['measures']:
+            obj['metric'].append({ 
+                'metric': metric['metric'], 
+                'value': float(metric['value'])
+            })
+
+        metrics.append(obj)
+
+    return Response(metrics)
