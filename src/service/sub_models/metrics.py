@@ -55,6 +55,8 @@ class CollectedMetric(models.Model):
         on_delete=models.CASCADE,
     )
     value = models.FloatField()
+    path = models.CharField(max_length=255, default=None)
+    qualifier = models.CharField(max_length=5, default=None)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
