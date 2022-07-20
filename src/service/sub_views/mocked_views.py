@@ -34,7 +34,7 @@ def get_mocked_measures(request):
                 "key": "passed_tests",
                 "name": "Passed tests",
                 "description": "",
-                "latest_collected_measure": {
+                "latest": {
                     "id": 10003,
                     "measure_id": 1,
                     "value": 0.5,
@@ -46,7 +46,7 @@ def get_mocked_measures(request):
                 "key": "fast_test_builds",
                 "name": "Fast test builds",
                 "description": "Fast test builds",
-                "latest_collected_measure": {
+                "latest": {
                     "id": 10004,
                     "measure_id": 2,
                     "value": 0.3,
@@ -58,7 +58,7 @@ def get_mocked_measures(request):
                 "key": "test_coverage",
                 "name": "Test coverage",
                 "description": "",
-                "latest_collected_measure": {
+                "latest": {
                     "id": 3969,
                     "measure_id": 3,
                     "value": 0.68,
@@ -70,7 +70,7 @@ def get_mocked_measures(request):
                 "key": "non_complex_files_density",
                 "name": "Non complex files density",
                 "description": "",
-                "latest_collected_measure": {
+                "latest": {
                     "id": 4981,
                     "measure_id": 4,
                     "value": 0.42,
@@ -82,7 +82,7 @@ def get_mocked_measures(request):
                 "key": "commented_files_density",
                 "name": "Commented files density",
                 "description": "",
-                "latest_collected_measure": {
+                "latest": {
                     "id": 4367,
                     "measure_id": 5,
                     "value": 0.26,
@@ -94,7 +94,7 @@ def get_mocked_measures(request):
                 "key": "absence_of_duplications",
                 "name": "Absence of duplications",
                 "description": "",
-                "latest_collected_measure": {
+                "latest": {
                     "id": 4367,
                     "measure_id": 6,
                     "value": 0.62,
@@ -113,7 +113,7 @@ def get_specific_mocked_measure(request, measure_id):
             "key": "passed_tests",
             "name": "Passed tests",
             "description": "",
-            "latest_collected_measure": {
+            "latest": {
                 "id": 10003,
                 "measure_id": 1,
                 "value": 0.5,
@@ -125,7 +125,7 @@ def get_specific_mocked_measure(request, measure_id):
             "key": "fast_test_builds",
             "name": "Fast test builds",
             "description": "Fast test builds",
-            "latest_collected_measure": {
+            "latest": {
                 "id": 10004,
                 "measure_id": 2,
                 "value": 0.3,
@@ -137,7 +137,7 @@ def get_specific_mocked_measure(request, measure_id):
             "key": "test_coverage",
             "name": "Test coverage",
             "description": "",
-            "latest_collected_measure": {
+            "latest": {
                 "id": 3969,
                 "measure_id": 3,
                 "value": 0.68,
@@ -149,7 +149,7 @@ def get_specific_mocked_measure(request, measure_id):
             "key": "non_complex_files_density",
             "name": "Non complex files density",
             "description": "",
-            "latest_collected_measure": {
+            "latest": {
                 "id": 4981,
                 "measure_id": 4,
                 "value": 0.42,
@@ -161,7 +161,7 @@ def get_specific_mocked_measure(request, measure_id):
             "key": "commented_files_density",
             "name": "Commented files density",
             "description": "",
-            "latest_collected_measure": {
+            "latest": {
                 "id": 4367,
                 "measure_id": 5,
                 "value": 0.26,
@@ -173,7 +173,7 @@ def get_specific_mocked_measure(request, measure_id):
             "key": "absence_of_duplications",
             "name": "Absence of duplications",
             "description": "",
-            "latest_collected_measure": {
+            "latest": {
                 "id": 4367,
                 "measure_id": 6,
                 "value": 0.62,
