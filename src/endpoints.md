@@ -8,10 +8,10 @@ Metrics
 ## Endpoints que retorna o catálogo de entidades suportadas pelo sistema atualmente
 
 #### Lista todas as métricas conhecidas pelo repositório
-/api/v1/metrics/
+/api/v1/metrics/ OK
 
 #### Lista todas as medidas suportadas pelo repositório
-/api/v1/measures/
+/api/v1/measures/ OK
 
 #### Lista todas as subcharacteristics suportadas pelo repositório
 /api/v1/subcharacteristics/
@@ -30,8 +30,11 @@ Metrics
 #### Endpoint que salva todas as métricas contidas no json do sonarqube
 /api/v1/orgs/1/repositories/1/create/metrics/sonarqube/
 
+CLI para importar vários arquivos do SonarQube -> New issue
+
 #### Endpoint que salva todas as métricas contidas no json do github
 /api/v1/orgs/1/repositories/1/create/metrics/github/
+/api/v1/orgs/1/repositories/1/create/metrics/gitlab/
 
 #### Calcula e retorna o valor atual de uma **medida** em um repositório
 /api/v1/orgs/1/repositories/1/calculate/measures/1/

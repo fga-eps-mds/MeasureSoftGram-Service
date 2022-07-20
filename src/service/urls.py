@@ -65,5 +65,10 @@ urlpatterns = [
     path('', include(system_router.urls)),
 
     path('organizations/1/repository/1/', include(repo_router.urls)),
+
+    path(
+        'organizations/1/repository/1/calculate/measures/<int:measure_id>/',
+        views.calculate_measure,
+    ),
     # END REAL Endpoints
 ]

@@ -26,13 +26,32 @@ class Command(BaseCommand):
         "Registra os dados iniciais da aplicação no banco de dados"
     )
 
+    def create_suported_measures(self):
+        """
+        Registra no banco de dados todas as medidas que o sistema tem suporte
+        """
+        supported_measures = [
+            "passed_tests",
+            "test_builds",
+            "test_coverage",
+            "non_complex_file_density",
+            "commented_file_density",
+            "duplication_absense",
+        ]
+        for measure in supported_measures:
+            with contextlib.suppress(IntegrityError):
+                name = measure.replace('_', ' ').title()
+                models.SupportedMeasure.objects.create(
+                    key=measure,
+                    name=name,
+                )
+
     def create_supported_metrics(self):
         sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'
 
         request = requests.get(sonar_endpoint)
 
         if request.ok:
-
             data = request.json()
         else:
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
@@ -85,3 +104,5 @@ class Command(BaseCommand):
 
         self.create_supported_metrics()
         self.crete_fake_collected_metrics()
+
+        self.create_suported_measures()
