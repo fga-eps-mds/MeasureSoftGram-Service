@@ -60,7 +60,7 @@ class LatestCollectedMetricSerializer(serializers.ModelSerializer):
         try:
             latest_collected_metric = obj.collected_metrics.last()
             return CollectedMetricSerializer(latest_collected_metric).data
-        except models.CollectedMetric.DoesNotExist as e:
+        except models.CollectedMetric.DoesNotExist:
             return None
 
 
