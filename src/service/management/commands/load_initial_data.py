@@ -15,11 +15,15 @@ from django.db.utils import IntegrityError
 from django.utils import timezone
 
 # Local Imports
-from service import models
-from service import staticfiles
+from service import models, staticfiles
 from service.git_metrics.github_metric_collector import GithubMetricCollector
 
-from utils import get_random_datetime, get_random_value
+from utils import (
+    get_random_datetime,
+    get_random_qualifier,
+    get_random_string,
+    get_random_value,
+)
 
 User = get_user_model()
 
@@ -91,7 +95,9 @@ class Command(BaseCommand):
 
                     fake_collected_metric = models.CollectedMetric(
                         metric=supported_metric,
-                        value=metric_value,
+                        path=get_random_string(),
+                        qualifier=get_random_qualifier(),
+                        value=get_random_value(metric_type),
                         created_at=get_random_datetime(start_date, end_date),
                     )
 

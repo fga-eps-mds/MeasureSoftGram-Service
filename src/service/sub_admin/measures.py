@@ -39,7 +39,6 @@ class CalculatedMeasureAdmin(admin.ModelAdmin):
     get_measure_name.short_description = "Measure name"
     get_measure_name.admin_order_field = "measure__name"
 
-
     def get_measure_key(self, obj):
         return obj.measure.key
     get_measure_key.short_description = "Measure key"

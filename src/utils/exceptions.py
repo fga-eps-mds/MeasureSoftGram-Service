@@ -1,1 +1,2 @@
-class RandomMetricTypeException(Exception): pass
+class RandomMetricTypeException(Exception):
+    pass
