@@ -1,58 +1,46 @@
+from datetime import datetime
 import requests
 GIT_API_URL = 'https://api.github.com'
 GIT_HUB = 'github.com'
 
 class GithubMetricCollector:
 
-	metrics_types = ['commits_by_release', 'release_issues', 'health_percentage']
-
 	def __init__(self, url):
-		self.metrics = {}
 		self.user = ''
 		self.repo = ''
 		self.url = url
 		self.git_api = f"{GIT_API_URL}/repos"
 		self.url_spliter()
-		self.last_release_date = self.get_last_release_date()
 		# TODO Pegar auth_key e auth_key do Front
 		# self.auth_user = user
 		# self.auth_key = auth_key
-
-	def get_last_release_date(self):
-		releases = self.request_git_api('releases')
-		if len(releases) > 0:
-			return releases[-1]['published_at']
-		else: 
-			return ""
 
 	def url_spliter(self):
 		url_splitted = self.url.split('/')
 		index = url_splitted.index(GIT_HUB)
 		self.user, self.repo = url_splitted[index + 1: index + 3]
 
-	def get_metrics(self):
-		self.set_health_percentage()
-		self.set_release_issues()
-		self.set_release_commits()
-		return self.metrics
+	def get_team_throughput(self, min_date, max_date): 
+		issues = len(self.get_issues(min_date, max_date, ""))
+		closedIssues = len(self.get_resolved_issues_throughput("", datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')))
+		return closedIssues/issues
 
-	def set_release_commits(self):
-		date = ""
-		if self.last_release_date != None: 
-			date = f"?since={self.last_release_date}"
-		commitsResponse = self.request_git_api(f"commits{date}")
-		self.metrics['commits_by_release'] = len(commitsResponse)
+	def get_resolved_issues_throughput(self, min_date, max_date):
+		issues = self.get_issues(min_date, max_date, "state=closed")
+		return len(list(filter(lambda issue: issue["closed_at"] > min_date and issue["closed_at"] < max_date, issues)))/len(issues)
 
-	def set_release_issues(self):
-		date = ""
-		if self.last_release_date != None: 
-			date = f"&since={self.last_release_date}"
-		commitsResponse = self.request_git_api(f"issues?state=closed{date}")
-		self.metrics['release_issues'] = len(commitsResponse)
+	def get_issue_type_timeframe(self, min_date, max_date, type):
+		total_issues = len(self.get_issues(min_date, max_date, ""))
+		issues = len(self.get_issues(min_date, max_date, f"label={type}"))
+		return issues/total_issues
 
-	def set_health_percentage(self):
-		response = self.request_git_api('community/profile')
-		self.metrics['health_percentage'] = response['health_percentage']
+	def get_issues(self, min_date, max_date, url_parm):
+		issues = []
+		if min_date:
+			issues = self.request_git_api(f"issues?since={min_date}&{url_parm}")
+		else:
+			issues = self.request_git_api(f"issues?{url_parm}")
+		return list(filter(lambda issue: issue["created_at"] < max_date, issues))
 
 	def request_git_api(self, path):
 		github_api = f'{self.git_api}/{self.user}/{self.repo}/{path}'
