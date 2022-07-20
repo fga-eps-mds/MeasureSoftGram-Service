@@ -39,37 +39,39 @@ class Command(BaseCommand):
         request = requests.get(sonar_endpoint)
 
         if request.ok:
-
             data = request.json()
         else:
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
 
-        self.model_generator(models.SupportedMetric.objects, data['metrics'])
+        self.model_generator(models.SupportedMetric, data['metrics'])
 
     def create_github_supported_metrics(self):
         data = staticfiles.GITHUB_AVAILABLE_METRICS
-        self.model_generator(models.SupportedMetric.objects, data['metrics'])
+        self.model_generator(models.SupportedMetric, data['metrics'])
 
     def model_generator(self, model, metrics):
         for metric in metrics:
-            try:
-                model.create(
+            with contextlib.suppress(IntegrityError):
+                model.objects.create(
                     key=metric['key'],
                     name=metric['name'],
                     description=metric.get('description', ''),
                     metric_type=metric['type'],
                 )
-            except IntegrityError:
-                continue
 
     def crete_fake_collected_metrics(self):
-        if settings.CREATE_FAKE_DATA == False:
-            return
+        # if settings.CREATE_FAKE_DATA == False:
+        #     return
 
         qs = models.SupportedMetric.objects.annotate(
             collected_qty=Count('collected_metrics')
         )
-        github_metric_collector = GithubMetricCollector("https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Front")
+
+        # TODO: Adicionar uma variável de ambiente
+        # que especifica o projeto que iremos coletar os dados
+        github_metric_collector = GithubMetricCollector(
+            "https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Front",
+        )
         git_metrics = github_metric_collector.get_metrics()
 
         end_date = timezone.now()
@@ -83,6 +85,7 @@ class Command(BaseCommand):
                     metric_type = supported_metric.metric_type
 
                     metric_value = get_random_value(metric_type)
+
                     if supported_metric in GithubMetricCollector.metrics_types:
                         metric_value = git_metrics[supported_metric]
 
