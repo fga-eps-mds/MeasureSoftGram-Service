@@ -32,6 +32,26 @@ class Command(BaseCommand):
         "Registra os dados iniciais da aplicação no banco de dados"
     )
 
+    def create_suported_measures(self):
+        """
+        Registra no banco de dados todas as medidas que o sistema tem suporte
+        """
+        supported_measures = [
+            "passed_tests",
+            "test_builds",
+            "test_coverage",
+            "non_complex_file_density",
+            "commented_file_density",
+            "duplication_absense",
+        ]
+        for measure in supported_measures:
+            with contextlib.suppress(IntegrityError):
+                name = measure.replace('_', ' ').title()
+                models.SupportedMeasure.objects.create(
+                    key=measure,
+                    name=name,
+                )
+
     def create_supported_metrics(self):
         self.create_sonarqube_supported_metrics()
         self.create_github_supported_metrics()
@@ -122,3 +142,5 @@ class Command(BaseCommand):
 
         self.create_supported_metrics()
         self.crete_fake_collected_metrics()
+
+        self.create_suported_measures()
