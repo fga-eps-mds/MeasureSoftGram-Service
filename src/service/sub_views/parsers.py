@@ -15,30 +15,39 @@ def import_sonar_metrics(request):
     extrai os valores das métricas contidas e salva no banco de dados.
     """
     data = dict(request.data)
-    collected_metrics = []
-    supported_metrics = {}
 
-    for supported_metric in SupportedMetric.objects.all():
-        supported_metrics[supported_metric.key] = supported_metric
+    supported_metrics = {
+        supported_metric.key: supported_metric
+        for supported_metric in SupportedMetric.objects.all()
+    }
+
+    # List used to bulk create metrics
+    collected_metrics = []
 
     for component in data['components']:
-        for metric in component['measures']:
-            obj = {}
-            obj['qualifier'] = component['qualifier']
-            obj['path'] = component['path']
+        for obj in component['measures']:
+            metric_key = obj['metric']
+            metric_name = namefy(metric_key)
+            metric_value = obj['value']
 
-            if metric['metric'] not in supported_metrics:
-                supported_metrics[metric['metric']] = SupportedMetric.objects.create(
-                    key=metric['metric'],
+            if obj['metric'] not in supported_metrics:
+                supported_metrics[metric_key] = SupportedMetric.objects.create(
+                    key=metric_key,
                     metric_type=SupportedMetric.SupportedMetricTypes.FLOAT,
-                    name=namefy(metric['metric'])
+                    name=metric_name,
                 )
 
-            obj['metric'] = supported_metrics[metric['metric']]
-            obj['value'] = float(metric['value'])
+            obj = {
+                'qualifier': component['qualifier'],
+                'path': component['path'],
+                'metric': supported_metrics[metric_key],
+                'value': float(metric_value),
+            }
 
-            collected_metrics.append(CollectedMetric(**obj))
+            in_memory_metric = CollectedMetric(**obj)
+            collected_metrics.append(in_memory_metric)
 
     saved_metrics = CollectedMetric.objects.bulk_create(collected_metrics)
 
-    return Response(CollectedMetricSerializer(saved_metrics, many=True).data)
+    json_data = CollectedMetricSerializer(saved_metrics, many=True).data
+    return Response(json_data)

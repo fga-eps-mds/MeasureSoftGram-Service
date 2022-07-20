@@ -25,9 +25,7 @@ def get_random_string():
     return ''.join(r for _ in range(100))
 
 def get_random_qualifier():
-    available = ['UTS', 'FIL', 'DIR']
-    return available[random.randint(0, 2)]
-
+    return random.choice(['UTS', 'FIL', 'DIR'])
 
 @staticmethod
 def get_random_value(metric_type):
