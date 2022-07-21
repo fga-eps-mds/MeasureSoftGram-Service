@@ -1,6 +1,6 @@
 from datetime import datetime
 import requests
-GIT_API_URL = 'https://api.github.com'
+GIT_API_URL = 'https://api.github.com/repos'
 GIT_HUB = 'github.com'
 
 class GithubMetricCollector:
@@ -9,7 +9,6 @@ class GithubMetricCollector:
 		self.user = ''
 		self.repo = ''
 		self.url = url
-		self.git_api = f"{GIT_API_URL}/repos"
 		self.url_spliter()
 		# TODO Pegar auth_key e auth_key do Front
 		# self.auth_user = user
@@ -21,8 +20,9 @@ class GithubMetricCollector:
 		self.user, self.repo = url_splitted[index + 1: index + 3]
 
 	def get_team_throughput(self, min_date, max_date): 
+		date_now = datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
 		issues = len(self.get_issues(min_date, max_date, ""))
-		closedIssues = len(self.get_resolved_issues_throughput("", datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')))
+		closedIssues = len(self.get_issues("", date_now, "state=closed"))
 		return closedIssues/issues
 
 	def get_resolved_issues_throughput(self, min_date, max_date):
@@ -43,7 +43,7 @@ class GithubMetricCollector:
 		return list(filter(lambda issue: issue["created_at"] < max_date, issues))
 
 	def request_git_api(self, path):
-		github_api = f'{self.git_api}/{self.user}/{self.repo}/{path}'
+		github_api = f'{GIT_API_URL}/{self.user}/{self.repo}/{path}'
 		github_response = requests.get(f'{github_api}')
 		# TODO Utilizar request com auth_key
 		# github_response = requests.get(f'{github_api}', auth=(self.auth_user, self.auth_key))

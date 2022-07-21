@@ -69,8 +69,15 @@ class Command(BaseCommand):
         qs = models.SupportedMetric.objects.annotate(
             collected_qty=Count('collected_metrics')
         )
+
+        date_now = dt.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
         github_metric_collector = GithubMetricCollector("https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Front")
-        git_metrics = github_metric_collector.get_metrics()
+
+        git_metrics = {
+            "team_throughput": github_metric_collector.get_team_throughput("", date_now),
+            "resolved_issues_throughput":github_metric_collector.get_resolved_issues_throughput("",date_now),
+            "issue_type_timeframe":github_metric_collector.get_issue_type_timeframe("",date_now,'feature')
+        }
 
         end_date = timezone.now()
         start_date = end_date - dt.timedelta(days=90)
@@ -83,7 +90,7 @@ class Command(BaseCommand):
                     metric_type = supported_metric.metric_type
 
                     metric_value = get_random_value(metric_type)
-                    if supported_metric in GithubMetricCollector.metrics_types:
+                    if supported_metric in git_metrics:
                         metric_value = git_metrics[supported_metric]
 
                     fake_collected_metric = models.CollectedMetric(
