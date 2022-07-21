@@ -15,11 +15,15 @@ from django.db.utils import IntegrityError
 from django.utils import timezone
 
 # Local Imports
-from service import models
-from service import staticfiles
+from service import models, staticfiles
 from service.git_metrics.github_metric_collector import GithubMetricCollector
 
-from utils import get_random_datetime, get_random_value
+from utils import (
+    get_random_datetime,
+    get_random_qualifier,
+    get_random_string,
+    get_random_value,
+)
 
 User = get_user_model()
 
@@ -39,37 +43,36 @@ class Command(BaseCommand):
         request = requests.get(sonar_endpoint)
 
         if request.ok:
-
             data = request.json()
         else:
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
 
-        self.model_generator(models.SupportedMetric.objects, data['metrics'])
+        self.model_generator(models.SupportedMetric, data['metrics'])
 
     def create_github_supported_metrics(self):
         data = staticfiles.GITHUB_AVAILABLE_METRICS
-        self.model_generator(models.SupportedMetric.objects, data['metrics'])
+        self.model_generator(models.SupportedMetric, data['metrics'])
 
     def model_generator(self, model, metrics):
         for metric in metrics:
-            try:
-                model.create(
+            with contextlib.suppress(IntegrityError):
+                model.objects.create(
                     key=metric['key'],
                     name=metric['name'],
                     description=metric.get('description', ''),
                     metric_type=metric['type'],
                 )
-            except IntegrityError:
-                continue
 
     def crete_fake_collected_metrics(self):
-        if settings.CREATE_FAKE_DATA == False:
-            return
+        # if settings.CREATE_FAKE_DATA == False:
+        #     return
 
         qs = models.SupportedMetric.objects.annotate(
             collected_qty=Count('collected_metrics')
         )
 
+        # TODO: Adicionar uma variável de ambiente
+        # que especifica o projeto que iremos coletar os dados
         date_now = dt.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
         github_metric_collector = GithubMetricCollector("https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Front")
 
@@ -95,7 +98,9 @@ class Command(BaseCommand):
 
                     fake_collected_metric = models.CollectedMetric(
                         metric=supported_metric,
-                        value=metric_value,
+                        path=get_random_string(),
+                        qualifier=get_random_qualifier(),
+                        value=get_random_value(metric_type),
                         created_at=get_random_datetime(start_date, end_date),
                     )
 

@@ -44,7 +44,7 @@ class CollectedMetricSerializer(serializers.ModelSerializer):
 
 class LatestCollectedMetricSerializer(serializers.ModelSerializer):
 
-    latest_collected_metric = serializers.SerializerMethodField()
+    latest = serializers.SerializerMethodField()
 
     class Meta:
         model = models.SupportedMetric
@@ -53,14 +53,14 @@ class LatestCollectedMetricSerializer(serializers.ModelSerializer):
             'key',
             'name',
             'description',
-            'latest_collected_metric',
+            'latest',
         )
 
-    def get_latest_collected_metric(self, obj: models.SupportedMetric):
+    def get_latest(self, obj: models.SupportedMetric):
         try:
-            latest_collected_metric = obj.collected_metrics.last()
-            return CollectedMetricSerializer(latest_collected_metric).data
-        except models.CollectedMetric.DoesNotExist as e:
+            latest = obj.collected_metrics.last()
+            return CollectedMetricSerializer(latest).data
+        except models.CollectedMetric.DoesNotExist:
             return None
 
 
