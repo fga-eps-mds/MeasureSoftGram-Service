@@ -6,6 +6,12 @@ from django.utils import timezone
 
 from utils import exceptions
 
+from itertools import zip_longest
+
+def chunkify(iterable, n, fillvalue=None) -> list:
+    args = [iter(iterable)] * n
+    return list(zip_longest(*args, fillvalue=fillvalue))
+
 
 def get_random_datetime(start_date, end_date):
     return timezone.make_aware(
@@ -78,3 +84,15 @@ def get_random_value(metric_type):
     raise exceptions.RandomMetricTypeException(
         'Metric type not supported'
     )
+
+
+class DateRange:
+    def __init__(self, start: dt.date, end: dt.date):
+        self.start = start
+        self.end = end
+
+    def __str__(self):
+        return f"{self.start} - {self.end}"
+
+    def __repr__(self):
+        return f"{self.start} - {self.end}"
