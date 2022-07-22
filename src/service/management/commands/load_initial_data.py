@@ -52,27 +52,45 @@ class Command(BaseCommand):
     def create_github_supported_metrics(self):
         # TODO: Criar no banco as metricas suportadas pelo github
         # TODO: Elas tem thresholds e labels dinâmicas
-        thd = settings.GITHUB_THRESHOLD
-        #TODO: O treshold dos pipelines de build eh diferente dos outros thresholds
 
-        models.SupportedMetric.objects.bulk_create([
+        issue_thd = settings.GITHUB_ISSUE_METRICS_THRESHOLD
+        pipel_thd = settings.GITHUB_PIPELINE_METRICS_THRESHOLD
+
+        github_metrics = [
             models.SupportedMetric(
-                key=f"number_of_resolved_issues_in_the_last_{thd}_days",
-                name=f"Number of resolved issues in the last {thd} days",
+                key=f"number_of_resolved_issues_in_the_last_{issue_thd}_days",
+                name=f"Number of resolved issues in the last {issue_thd} days",
+                metric_type=models.SupportedMetric.SupportedMetricTypes.INT,
             ),
             models.SupportedMetric(
-                key=f"number_of_issues_with_bug_label_in_the_last_{thd}_days",
-                name=f"Number of issues with bug label in the last {thd} days",
+                key=f"number_of_issues_with_bug_label_in_the_last_{issue_thd}_days",
+                name=f"Number of issues with bug label in the last {issue_thd} days",
+                metric_type=models.SupportedMetric.SupportedMetricTypes.INT,
             ),
             models.SupportedMetric(
-                key=f"number_of_build_pipelines_in_the_last_{thd}_days",
-                name=f"Number of build pipelines in the last {thd} days",
+                key=f"number_of_build_pipelines_in_the_last_{pipel_thd}_days",
+                name=f"Number of build pipelines in the last {pipel_thd} days",
+                metric_type=models.SupportedMetric.SupportedMetricTypes.INT,
             ),
             models.SupportedMetric(
-                key=f"runtime_sum_of_build_pipelines_in_the_last_{thd}_days",
-                name=f"Runtime sum of build pipelines in the last {thd} days",
+                key=f"runtime_sum_of_build_pipelines_in_the_last_{pipel_thd}_days",
+                name=f"Runtime sum of build pipelines in the last {pipel_thd} days",
+                metric_type=models.SupportedMetric.SupportedMetricTypes.FLOAT,
             ),
-        ])
+            models.SupportedMetric(
+                key=f"total_number_of_issues_in_the_last_{issue_thd}_days",
+                name=f"Total number of issues in the last {issue_thd} days",
+                metric_type=models.SupportedMetric.SupportedMetricTypes.INT,
+            ),
+        ]
+
+        for metric in github_metrics:
+            try:
+                metric.save()
+            except IntegrityError:
+                db_metric = models.SupportedMetric.objects.get(key=metric.key)
+                db_metric.metric_type = metric.metric_type
+                db_metric.save()
 
     def model_generator(self, model, metrics):
         for metric in metrics:
@@ -91,24 +109,6 @@ class Command(BaseCommand):
         qs = models.SupportedMetric.objects.annotate(
             collected_qty=Count('collected_metrics')
         )
-
-        # TODO: Adicionar uma variável de ambiente
-        # que especifica o projeto que iremos coletar os dados
-        date_now = dt.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
-
-
-        github_metric_collector = GithubMetricCollector(
-            "https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Front",
-            token=settings.GITHUB_TOKEN,
-
-        )
-
-        # TODO: Não são métricas, são medidas
-        # git_metrics = {
-        #     "team_throughput": github_metric_collector.get_team_throughput("", date_now),
-        #     "resolved_issues_throughput":github_metric_collector.get_resolved_issues_throughput("",date_now),
-        #     "issue_type_timeframe":github_metric_collector.get_issue_type_timeframe("",date_now,'feature')
-        # }
 
         end_date = timezone.now()
         start_date = end_date - dt.timedelta(days=90)
