@@ -152,6 +152,14 @@ class GithubMetricCollector:
 
         return len(workflow_runs), total_time_ms
 
+    def get_total_number_of_issues_in_a_given_timeframe(
+        self,
+        date_range: DateRange,
+    ) -> int:
+        """
+        metric: total number of issues in a given timeframe
+        """
+        return len(self.get_issues(date_range))
 
     def get_issues(
         self,
