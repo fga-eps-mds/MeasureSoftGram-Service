@@ -16,7 +16,7 @@ from django.utils import timezone
 
 # Local Imports
 from service import models, staticfiles
-from service.git_metrics.github_metric_collector import GithubMetricCollector
+from service.collectors.github_metric_collector import GithubMetricCollector
 
 from utils import (
     get_random_datetime,
@@ -50,8 +50,29 @@ class Command(BaseCommand):
         self.model_generator(models.SupportedMetric, data['metrics'])
 
     def create_github_supported_metrics(self):
-        data = staticfiles.GITHUB_AVAILABLE_METRICS
-        self.model_generator(models.SupportedMetric, data['metrics'])
+        # TODO: Criar no banco as metricas suportadas pelo github
+        # TODO: Elas tem thresholds e labels dinâmicas
+        thd = settings.GITHUB_THRESHOLD
+        #TODO: O treshold dos pipelines de build eh diferente dos outros thresholds
+
+        models.SupportedMetric.objects.bulk_create([
+            models.SupportedMetric(
+                key=f"number_of_resolved_issues_in_the_last_{thd}_days",
+                name=f"Number of resolved issues in the last {thd} days",
+            ),
+            models.SupportedMetric(
+                key=f"number_of_issues_with_bug_label_in_the_last_{thd}_days",
+                name=f"Number of issues with bug label in the last {thd} days",
+            ),
+            models.SupportedMetric(
+                key=f"number_of_build_pipelines_in_the_last_{thd}_days",
+                name=f"Number of build pipelines in the last {thd} days",
+            ),
+            models.SupportedMetric(
+                key=f"runtime_sum_of_build_pipelines_in_the_last_{thd}_days",
+                name=f"Runtime sum of build pipelines in the last {thd} days",
+            ),
+        ])
 
     def model_generator(self, model, metrics):
         for metric in metrics:
@@ -74,13 +95,20 @@ class Command(BaseCommand):
         # TODO: Adicionar uma variável de ambiente
         # que especifica o projeto que iremos coletar os dados
         date_now = dt.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ')
-        github_metric_collector = GithubMetricCollector("https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Front")
 
-        git_metrics = {
-            "team_throughput": github_metric_collector.get_team_throughput("", date_now),
-            "resolved_issues_throughput":github_metric_collector.get_resolved_issues_throughput("",date_now),
-            "issue_type_timeframe":github_metric_collector.get_issue_type_timeframe("",date_now,'feature')
-        }
+
+        github_metric_collector = GithubMetricCollector(
+            "https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Front",
+            token=settings.GITHUB_TOKEN,
+
+        )
+
+        # TODO: Não são métricas, são medidas
+        # git_metrics = {
+        #     "team_throughput": github_metric_collector.get_team_throughput("", date_now),
+        #     "resolved_issues_throughput":github_metric_collector.get_resolved_issues_throughput("",date_now),
+        #     "issue_type_timeframe":github_metric_collector.get_issue_type_timeframe("",date_now,'feature')
+        # }
 
         end_date = timezone.now()
         start_date = end_date - dt.timedelta(days=90)
@@ -91,16 +119,16 @@ class Command(BaseCommand):
 
                 for _ in range(100 - supported_metric.collected_qty):
                     metric_type = supported_metric.metric_type
-
                     metric_value = get_random_value(metric_type)
-                    if supported_metric in git_metrics:
-                        metric_value = git_metrics[supported_metric]
+
+                    # if supported_metric in git_metrics:
+                    #     metric_value = git_metrics[supported_metric]
 
                     fake_collected_metric = models.CollectedMetric(
                         metric=supported_metric,
                         path=get_random_string(),
                         qualifier=get_random_qualifier(),
-                        value=get_random_value(metric_type),
+                        value=metric_value,
                         created_at=get_random_datetime(start_date, end_date),
                     )
 
