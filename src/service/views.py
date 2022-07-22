@@ -14,4 +14,7 @@ from service.sub_views.mocked_views import (
 )
 
 # Dont delete this line. It is used to import the views from the sub_views.
-from service.sub_views.parsers import import_sonar_metrics
+from service.sub_views.parsers import (
+    import_sonar_metrics,
+    import_github_metrics,
+)
