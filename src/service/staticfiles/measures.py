@@ -1,3 +1,4 @@
+# flake8: noqa
 GITHUB_AVAILABLE_METRICS = {
     "metrics": [
         {

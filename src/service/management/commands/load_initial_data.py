@@ -77,7 +77,7 @@ class Command(BaseCommand):
                 )
 
     def crete_fake_collected_metrics(self):
-        if settings.CREATE_FAKE_DATA == False:
+        if settings.CREATE_FAKE_DATA is False:
             return
 
         qs = models.SupportedMetric.objects.annotate(

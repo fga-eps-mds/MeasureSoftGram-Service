@@ -28,9 +28,11 @@ def namefy(str):
     "Key to name"
     return str.replace('_', ' ').title()
 
+
 def keyfy(str):
     "Name to key"
     return str.replace(' ', '_').lower()
+
 
 def get_random_string():
     r = random.choice(string.ascii_uppercase + string.digits)
@@ -40,8 +42,7 @@ def get_random_string():
 def get_random_qualifier():
     return random.choice(['UTS', 'FIL', 'DIR'])
 
-
-def get_random_value(metric_type):
+def get_random_value(metric_type): # noqa: max-complexity: 13
     if metric_type == 'INT':
         return random.randint(0, 100)
 
@@ -88,6 +89,7 @@ def get_random_value(metric_type):
     raise exceptions.RandomMetricTypeException(
         'Metric type not supported'
     )
+
 
 class DateRange:
     def __init__(self, start: dt.datetime, end: dt.datetime):

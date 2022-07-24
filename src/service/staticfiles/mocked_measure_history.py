@@ -1,3 +1,4 @@
+# flake8: noqa
 MOCKED_MEASURE_HISTORY = {
     "count": 100,
     "next": None,

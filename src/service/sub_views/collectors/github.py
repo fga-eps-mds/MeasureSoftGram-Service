@@ -28,6 +28,7 @@ def get_or_create_supported_metric(
     )
     return sup_metric
 
+
 def get_threshold(data):
     if 'issues_metrics_x_days' in data:
         threshold = data['issues_metrics_x_days']
@@ -98,4 +99,4 @@ def import_github_metrics(request):
         many=True,
     )
 
-    return Response({ 'calculated_metrics': serializer.data })
+    return Response({'calculated_metrics': serializer.data})

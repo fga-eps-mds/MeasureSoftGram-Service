@@ -18,14 +18,15 @@ GITHUB_DATETIME_STR_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 GIT_API_URL = 'https://api.github.com/repos'
 GIT_HUB = 'github.com'
 
+
 @lru_cache_time(60 * 5)
 def cached_get_request(*args, **kwargs):
-    headers = { }
+    headers = {}
     if kwargs['token']:
         token = kwargs.pop('token')
         headers['Authorization'] = f'token {token}'
-
     return requests.get(*args, **kwargs, headers=headers)
+
 
 class GithubMetricCollector:
     def __init__(self, url, token=None):
@@ -56,8 +57,16 @@ class GithubMetricCollector:
     #     closed_issues = self.get_issues(start_date, end_date, "state=closed")
 
     #     # TODO: Tirar dúvida com o Danillo
-    #     a = list(filter(lambda issue: issue["closed_at"] > start_date and issue["closed_at"] < end_date, closed_issues))
-
+    #    a = list(
+    #        filter(
+    #            lambda issue: (
+    #                issue["closed_at"] > start_date and
+    #                issue["closed_at"] < end_date
+    #            ),
+    #            closed_issues
+    #        )
+    #    )
+    #
     #     return len(a) / len(closed_issues)
 
     # def get_issue_type_timeframe(self, start_date, end_date, type):
@@ -122,8 +131,11 @@ class GithubMetricCollector:
             raise ValueError('x must be an integer')
 
         if (
-            not build_pipeline_names or
-            any(not isinstance(pipeline_name, str) for pipeline_name in build_pipeline_names)
+            not build_pipeline_names
+            or any(
+                not isinstance(pipeline_name, str)
+                for pipeline_name in build_pipeline_names
+            )
         ):
             raise ValueError('build_pipeline_names must be a list of strings')
 
@@ -255,7 +267,7 @@ class GithubMetricCollector:
             page += 1
             issues_and_prs.extend(response_json)
 
-        issues = [ ]
+        issues = []
         for issue in issues_and_prs:
             created_at = dt.datetime.strptime(
                 issue["created_at"],
