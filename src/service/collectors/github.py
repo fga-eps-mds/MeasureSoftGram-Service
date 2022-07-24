@@ -1,22 +1,32 @@
+"""
+Módulo que define as classes que interagem diretamente com a API do GitHub.
+
+O objetivo é que todos os interessados nas métricas do GitHub somente
+interajam com essa classe, que abstrai a API do GitHub.
+"""
 import datetime as dt
-from typing import Tuple
+from typing import Iterable, List, Tuple
 import requests
 import concurrent
 import concurrent.futures
 
-from utils import chunkify, DateRange
+from utils import chunkify, DateRange, lru_cache_time
 
 
 GITHUB_DATETIME_STR_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 GIT_API_URL = 'https://api.github.com/repos'
 GIT_HUB = 'github.com'
 
-class GithubMetricCollector:
-    """
-    todo: pensar na interface dessa classe
-    O repositorio de issues pode ser diferente do repositorio de codigo
-    """
+@lru_cache_time(60 * 5)
+def cached_get_request(*args, **kwargs):
+    headers = { }
+    if kwargs['token']:
+        token = kwargs.pop('token')
+        headers['Authorization'] = f'token {token}'
 
+    return requests.get(*args, **kwargs, headers=headers)
+
+class GithubMetricCollector:
     def __init__(self, url, token=None):
         self.url = url
         self.user, self.repo = self.url_spliter(url)
@@ -27,6 +37,10 @@ class GithubMetricCollector:
         url_splitted = url.split('/')
         index = url_splitted.index(GIT_HUB)
         return url_splitted[index + 1: index + 3]
+
+    @staticmethod
+    def str_to_datetime(date_str):
+        return dt.datetime.strptime(date_str, GITHUB_DATETIME_STR_FORMAT)
 
     # TODO: Mover para core
     # def get_team_throughput(self, start_date, end_date):
@@ -50,32 +64,68 @@ class GithubMetricCollector:
     #     issues = len(self.get_issues(start_date, end_date, f"label={type}"))
     #     return issues/total_issues
 
-
-    def get_number_of_issues_resolved_under_duration_threshold(self, date_range):
-        """
-        Pega todas as issues fechadas dentro de um período de tempo
-        metric: number of issues resolved under the duration threshold
-        """
-        return self.get_issues(date_range, url_parm="state=closed")
-
-    def get_number_of_issues_of_a_specific_label_under_duration_threshold(
+    def get_number_of_issues_resolved_in_the_last_x_days(
         self,
-        date_range: DateRange,
-        label: str,
+        x: int,
+    ) -> int:
+        """
+        metric: number of issues resolved in the last x days
+        """
+        if not isinstance(x, int):
+            raise ValueError('x must be an integer')
+
+        date_range = DateRange.create_from_today(x)
+
+        return len(self.get_issues(date_range, "state=closed"))
+
+    def get_number_of_issues_with_such_labels_in_the_last_x_days(
+        self,
+        x: int,
+        labels: List[str],
+    ) -> int:
+        if not isinstance(x, int):
+            raise ValueError('x must be an integer')
+
+        # Se a lista for vazia ou ao menos um item não for uma string
+        if not labels or any(not isinstance(label, str) for label in labels):
+            raise ValueError('labels must be a list of strings')
+
+        labels: str = ','.join(labels)
+
+        date_range = DateRange.create_from_today(x)
+
+        return len(self.get_issues(date_range, f"labels={labels}"))
+
+    def get_total_number_of_issues_in_the_last_x_days(
+        self,
+        x: int,
+    ) -> int:
+        """
+        metric: total number of issues in a given timeframe
+        """
+        date_range = DateRange.create_from_today(x)
+
+        issues = self.get_issues(date_range)
+
+        return len(issues)
+
+    def __get_all_build_pipelines_executed_in_the_last_x_days(
+        self,
+        x: int,
+        build_pipeline_names: List[str],
     ):
         """
-        metric: number of issues of a specific type
+        metric: number of build workflows run in the last x days
         """
-        self.get_issues(date_range, f"label={label}")
+        if not isinstance(x, int):
+            raise ValueError('x must be an integer')
 
-    def get_all_build_workflows_run_under_duration_threshold(
-        self,
-        date_range=None,
-        build_pipeline_name='Build',
-    ):
-        response_json = self.request_git_api('actions/runs')
+        if (
+            not build_pipeline_names or
+            any(not isinstance(pipeline_name, str) for pipeline_name in build_pipeline_names)
+        ):
+            raise ValueError('build_pipeline_names must be a list of strings')
 
-        # Issues and pull requests
         workflow_runs = []
         page = 1
 
@@ -83,49 +133,73 @@ class GithubMetricCollector:
             response_json = self.request_git_api(
                 f'actions/runs?per_page=100&page={page}'
             )
-
             if response_json['workflow_runs'] == []:
                 break
 
             page += 1
+
             workflow_runs.extend(response_json['workflow_runs'])
 
-        if date_range:
-            workflow_runs = list(filter(
-                lambda run: date_range.start <= run['created_at'] <= date_range.end,
-                workflow_runs,
-            ))
+        d = DateRange.create_from_today(x)
 
-        workflow_runs = list(filter(
-            lambda run: run['name'] == build_pipeline_name,
-            workflow_runs,
-        ))
-
-        return workflow_runs
-
-    def get_build_qty_and_time_sum_under_duration_threshold(
-        self,
-        date_range=None,
-        build_pipeline_name='Build',
-
-    ) -> Tuple[int, float]:
-        """
-        metrics:
-            1. Total builds in a timeframe
-            2. Feedback time for every build
-
-        Returns:
-            Retorna a quantidade de pipelines de build e o somatorio de tempo de execução
-        """
-        workflow_runs = self.get_all_build_workflows_run_under_duration_threshold(
-            date_range,
-            build_pipeline_name,
+        # Filtra as execuções dentro do período de tempo
+        workflow_runs = filter(
+            lambda run: (
+                d.start <= self.str_to_datetime(run['created_at']) <= d.end
+            ),
+            workflow_runs
         )
 
-        total_time_ms = 0
+        workflow_runs = filter(
+            lambda run: run['name'] in build_pipeline_names,
+            workflow_runs
+        )
 
+        return tuple(workflow_runs)
+
+    def get_the_number_of_build_pipelines_executed_in_the_last_x_days(
+        self,
+        x: int,
+        build_pipeline_names: Iterable[str],
+    ) -> int:
+        """
+        metrics: Total builds in a timeframe
+
+        Returns:
+            A quantidade de pipelines de build nos últimos x dias
+        """
+        build_pipeline_names = tuple(build_pipeline_names)
+
+        workflow_runs = self.__get_all_build_pipelines_executed_in_the_last_x_days(
+            x,
+            build_pipeline_names,
+        )
+
+        return len(workflow_runs)
+
+    def get_the_sum_of_their_durations_in_the_last_x_days(
+        self,
+        x: int,
+        build_pipeline_names: Iterable[str],
+    ) -> float:
+        """
+        metrics: Feedback time for every build
+
+        Returns:
+            O somatorio de tempo de execução das pipelines de build
+            nos últimos x dias
+        """
+        build_pipeline_names = tuple(build_pipeline_names)
+
+        workflow_runs = self.__get_all_build_pipelines_executed_in_the_last_x_days(
+            x,
+            build_pipeline_names,
+        )
+
+        # No máximo 5 requisições simultâneas
         chunks = chunkify(workflow_runs, 5)
 
+        # python closure for parallelize the github api requests
         def process_chunk(chunk):
             total_time_ms = 0
             for run in chunk:
@@ -140,6 +214,8 @@ class GithubMetricCollector:
                 total_time_ms += r['run_duration_ms']
             return total_time_ms
 
+        total_time_ms = 0
+
         with concurrent.futures.ThreadPoolExecutor() as executor:
 
             futures = [
@@ -150,16 +226,7 @@ class GithubMetricCollector:
             for future in concurrent.futures.as_completed(futures):
                 total_time_ms += future.result()
 
-        return len(workflow_runs), total_time_ms
-
-    def get_total_number_of_issues_in_a_given_timeframe(
-        self,
-        date_range: DateRange,
-    ) -> int:
-        """
-        metric: total number of issues in a given timeframe
-        """
-        return len(self.get_issues(date_range))
+        return total_time_ms
 
     def get_issues(
         self,
@@ -170,12 +237,6 @@ class GithubMetricCollector:
         Retorna todas as issues dentro de um período de tempo
         metric: total number of issues in a given timeframe
         """
-        if date_range and not isinstance(date_range.start, dt.datetime):
-            raise TypeError('start_date must be a datetime object')
-
-        if date_range and not isinstance(date_range.end, dt.datetime):
-            raise TypeError('end_date must be a datetime object')
-
         if url_parm and not isinstance(url_parm, str):
             raise TypeError('url_parm must be a string')
 
@@ -223,19 +284,21 @@ class GithubMetricCollector:
         if self.token:
             headers['Authorization'] = f'token {self.token}'
 
-        github_response = requests.get(
-            github_api,
-            headers=headers,
+        github_response = cached_get_request(
+            url=github_api,
+            token=self.token,
         )
 
         return github_response.json()
 
 
 if __name__ == '__main__':
-    obj = GithubMetricCollector('https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Service/')
+    obj = GithubMetricCollector(
+        'https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Doc/',
+    )
 
+    n = obj.get_number_of_issues_resolved_in_the_last_x_days(
+        x=90,
+    )
 
-    begin = dt.datetime(2021, 7, 18, 19, 50, 55, 697558)
-    end   = dt.datetime(2022, 7, 21, 21, 50, 55, 697558)
-
-    print(obj.get_time_sum_of_all_build_pipelines('Run Tests'))
+    print('n:', n)
