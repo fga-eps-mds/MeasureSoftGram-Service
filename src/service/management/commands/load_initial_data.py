@@ -16,6 +16,7 @@ from django.utils import timezone
 
 # Local Imports
 from service import models, staticfiles
+from service.collectors import GithubMetricCollector
 from utils import (
     get_random_datetime,
     get_random_qualifier,
@@ -32,30 +33,52 @@ class Command(BaseCommand):
     )
 
     def create_supported_metrics(self):
+        self.create_sonarqube_supported_metrics()
+        self.create_github_supported_metrics()
+
+    def create_sonarqube_supported_metrics(self):
         sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'
 
         request = requests.get(sonar_endpoint)
 
         if request.ok:
-
             data = request.json()
         else:
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
 
-        for metric in data['metrics']:
+        self.model_generator(models.SupportedMetric, data['metrics'])
+
+    def create_github_supported_metrics(self):
+        github_metrics = [
+            models.SupportedMetric(
+                key=metric['key'],
+                name=metric['name'],
+                metric_type=metric['metric_type'],
+            ) for metric in settings.GITHUB_METRICS
+        ]
+
+        for metric in github_metrics:
             try:
-                models.SupportedMetric.objects.create(
+                metric.save()
+            except IntegrityError:
+                db_metric = models.SupportedMetric.objects.get(key=metric.key)
+                db_metric.metric_type = metric.metric_type
+                db_metric.name = metric.name
+                db_metric.save()
+
+    def model_generator(self, model, metrics):
+        for metric in metrics:
+            with contextlib.suppress(IntegrityError):
+                model.objects.create(
                     key=metric['key'],
                     name=metric['name'],
                     description=metric.get('description', ''),
                     metric_type=metric['type'],
                 )
-            except IntegrityError:
-                continue
 
     def crete_fake_collected_metrics(self):
-        # if settings.CREATE_FAKE_DATA == False:
-        #     return
+        if settings.CREATE_FAKE_DATA is False:
+            return
 
         qs = models.SupportedMetric.objects.annotate(
             collected_qty=Count('collected_metrics')
@@ -70,12 +93,16 @@ class Command(BaseCommand):
 
                 for _ in range(100 - supported_metric.collected_qty):
                     metric_type = supported_metric.metric_type
+                    metric_value = get_random_value(metric_type)
+
+                    # if supported_metric in git_metrics:
+                    #     metric_value = git_metrics[supported_metric]
 
                     fake_collected_metric = models.CollectedMetric(
                         metric=supported_metric,
                         path=get_random_string(),
                         qualifier=get_random_qualifier(),
-                        value=get_random_value(metric_type),
+                        value=metric_value,
                         created_at=get_random_datetime(start_date, end_date),
                     )
 

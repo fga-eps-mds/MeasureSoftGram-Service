@@ -173,3 +173,131 @@ REST_FRAMEWORK = {
 }
 
 CREATE_FAKE_DATA = os.getenv("CREATE_FAKE_DATA", "False").lower() in ("true", "t", "1")
+
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
+
+GITHUB_ISSUE_METRICS_THRESHOLD = int(
+    os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7")
+)
+
+GITHUB_PIPELINE_METRICS_THRESHOLD = int(
+    os.getenv("GITHUB_PIPELINE_METRICS_THRESHOLD", "90")
+)
+
+
+issue_thd = GITHUB_ISSUE_METRICS_THRESHOLD
+pipel_thd = GITHUB_PIPELINE_METRICS_THRESHOLD
+
+GITHUB_METRICS = [
+    {
+        "key": f"number_of_resolved_issues_in_the_last_{issue_thd}_days",
+        "name": f"Number of resolved issues in the last {issue_thd} days",
+        "metric_type": "INT",
+        'api_params': [
+            'issues_repository_url',
+            'issues_metrics_x_days',
+        ],
+        'methods_params_map': {
+            '__init__': {
+                'url': 'issues_repository_url',
+                'token': 'github_token',
+            },
+            'metric_method': {
+                'method_name': 'get_number_of_issues_resolved_in_the_last_x_days',
+                'method_params': {
+                    'x': 'issues_metrics_x_days',
+                }
+            }
+        },
+    },
+    {
+        "key": f"number_of_issues_with_bug_label_in_the_last_{issue_thd}_days",
+        "name": f"Number of issues with bug label in the last {issue_thd} days",
+        "metric_type": "INT",
+        "api_params": [
+            'issues_repository_url',
+            'issues_metrics_x_days',
+            'issue_labels',
+        ],
+        'methods_params_map': {
+            '__init__': {
+                'url': 'issues_repository_url',
+                'token': 'github_token',
+            },
+            'metric_method': {
+                'method_name': 'get_number_of_issues_with_such_labels_in_the_last_x_days',
+                'method_params': {
+                    'x': 'issues_metrics_x_days',
+                    'labels': 'issue_labels',
+                }
+            }
+        },
+    },
+    {
+        "key": f"total_number_of_issues_in_the_last_{issue_thd}_days",
+        "name": f"Total number of issues in the last {issue_thd} days",
+        "metric_type": "INT",
+        "api_params": [
+            'issues_repository_url',
+            'issues_metrics_x_days',
+        ],
+        'methods_params_map': {
+            '__init__': {
+                'url': 'issues_repository_url',
+                'token': 'github_token',
+            },
+            'metric_method': {
+                'method_name': 'get_total_number_of_issues_in_the_last_x_days',
+                'method_params': {
+                    'x': 'issues_metrics_x_days',
+                }
+            }
+        },
+    },
+    {
+        "key": f"number_of_build_pipelines_in_the_last_{pipel_thd}_days",
+        "name": f"Number of build pipelines in the last {pipel_thd} days",
+        "metric_type": "INT",
+        "api_params": [
+            'pipelines_repository_url',
+            'pipeline_metrics_x_days',
+            'build_pipeline_names',
+        ],
+        'methods_params_map': {
+            '__init__': {
+                'url': 'pipelines_repository_url',
+                'token': 'github_token',
+            },
+            'metric_method': {
+                'method_name': 'get_the_number_of_build_pipelines_executed_in_the_last_x_days',
+                'method_params': {
+                    'x': 'issues_metrics_x_days',
+                    'build_pipeline_names': 'build_pipeline_names',
+                },
+            },
+        },
+    },
+    {
+        "key": f"runtime_sum_of_build_pipelines_in_the_last_{pipel_thd}_days",
+        "name": f"Runtime sum of build pipelines in the last {pipel_thd} days",
+        "metric_type": "INT",
+        "api_params": [
+            'pipelines_repository_url',
+            'pipeline_metrics_x_days',
+            'build_pipeline_names',
+        ],
+        'methods_params_map': {
+            '__init__': {
+                'url': 'pipelines_repository_url',
+                'token': 'github_token',
+            },
+            'metric_method': {
+                'method_name': 'get_the_sum_of_their_durations_in_the_last_x_days',
+                'method_params': {
+                    'x': 'issues_metrics_x_days',
+                    'build_pipeline_names': 'build_pipeline_names',
+                },
+            },
+        },
+    },
+]
