@@ -46,6 +46,11 @@ urlpatterns = [
     ),
 
     path(
+        'organizations/1/repository/1/import/github-metrics/',
+        views.import_github_metrics,
+    ),
+
+    path(
         'organizations/1/repository/1/measures/',
         views.get_mocked_measures,
     ),
