@@ -1,12 +1,11 @@
-import datetime as dt
 import random
 import string
+import datetime as dt
+from utils import exceptions
+from itertools import zip_longest
 
 from django.utils import timezone
 
-from utils import exceptions
-
-from itertools import zip_longest
 
 def chunkify(iterable, n, fillvalue=None) -> list:
     args = [iter(iterable)] * n
@@ -25,8 +24,12 @@ def get_random_datetime(start_date, end_date):
 
 
 def namefy(str):
+    "Key to name"
     return str.replace('_', ' ').title()
 
+def keyfy(str):
+    "Name to key"
+    return str.replace(' ', '_').lower()
 
 def get_random_string():
     r = random.choice(string.ascii_uppercase + string.digits)
@@ -85,11 +88,23 @@ def get_random_value(metric_type):
         'Metric type not supported'
     )
 
-
 class DateRange:
-    def __init__(self, start: dt.date, end: dt.date):
+    def __init__(self, start: dt.datetime, end: dt.datetime):
+        if not isinstance(start, dt.datetime):
+            raise TypeError('start must be a datetime.date')
+
+        if not isinstance(end, dt.datetime):
+            raise TypeError('end must be a datetime.date')
+
         self.start = start
         self.end = end
+
+    @staticmethod
+    def create_from_today(days: int):
+        return DateRange(
+            start=dt.datetime.today() - dt.timedelta(days=days),
+            end=dt.datetime.today(),
+        )
 
     def __str__(self):
         return f"{self.start} - {self.end}"
