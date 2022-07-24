@@ -50,38 +50,12 @@ class Command(BaseCommand):
         self.model_generator(models.SupportedMetric, data['metrics'])
 
     def create_github_supported_metrics(self):
-        # TODO: Criar no banco as metricas suportadas pelo github
-        # TODO: Elas tem thresholds e labels dinâmicas
-
-        issue_thd = settings.GITHUB_ISSUE_METRICS_THRESHOLD
-        pipel_thd = settings.GITHUB_PIPELINE_METRICS_THRESHOLD
-
         github_metrics = [
             models.SupportedMetric(
-                key=f"number_of_resolved_issues_in_the_last_{issue_thd}_days",
-                name=f"Number of resolved issues in the last {issue_thd} days",
-                metric_type=models.SupportedMetric.SupportedMetricTypes.INT,
-            ),
-            models.SupportedMetric(
-                key=f"number_of_issues_with_bug_label_in_the_last_{issue_thd}_days",
-                name=f"Number of issues with bug label in the last {issue_thd} days",
-                metric_type=models.SupportedMetric.SupportedMetricTypes.INT,
-            ),
-            models.SupportedMetric(
-                key=f"number_of_build_pipelines_in_the_last_{pipel_thd}_days",
-                name=f"Number of build pipelines in the last {pipel_thd} days",
-                metric_type=models.SupportedMetric.SupportedMetricTypes.INT,
-            ),
-            models.SupportedMetric(
-                key=f"runtime_sum_of_build_pipelines_in_the_last_{pipel_thd}_days",
-                name=f"Runtime sum of build pipelines in the last {pipel_thd} days",
-                metric_type=models.SupportedMetric.SupportedMetricTypes.FLOAT,
-            ),
-            models.SupportedMetric(
-                key=f"total_number_of_issues_in_the_last_{issue_thd}_days",
-                name=f"Total number of issues in the last {issue_thd} days",
-                metric_type=models.SupportedMetric.SupportedMetricTypes.INT,
-            ),
+                key=metric['key'],
+                name=metric['name'],
+                metric_type=metric['metric_type'],
+            ) for metric in settings.GITHUB_METRICS
         ]
 
         for metric in github_metrics:
@@ -90,6 +64,7 @@ class Command(BaseCommand):
             except IntegrityError:
                 db_metric = models.SupportedMetric.objects.get(key=metric.key)
                 db_metric.metric_type = metric.metric_type
+                db_metric.name = metric.name
                 db_metric.save()
 
     def model_generator(self, model, metrics):
@@ -103,8 +78,8 @@ class Command(BaseCommand):
                 )
 
     def crete_fake_collected_metrics(self):
-        # if settings.CREATE_FAKE_DATA == False:
-        #     return
+        if settings.CREATE_FAKE_DATA == False:
+            return
 
         qs = models.SupportedMetric.objects.annotate(
             collected_qty=Count('collected_metrics')
