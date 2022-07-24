@@ -5,15 +5,12 @@ from django.conf import settings
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-from service import serializers
 
-from service.serializers import GithubCollectorParamsSerializer
-from service import models
-from service.collectors import GithubMetricCollector
-
-from utils.exceptions import GithubCollectorParamsException
 import utils
-
+from service import models, serializers
+from service.collectors import GithubMetricCollector
+from service.serializers import GithubCollectorParamsSerializer
+from utils.exceptions import GithubCollectorParamsException
 
 
 def get_or_create_supported_metric(

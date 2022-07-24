@@ -1,10 +1,11 @@
+import datetime as dt
 import random
 import string
-import datetime as dt
-from utils import exceptions
 from itertools import zip_longest
 
 from django.utils import timezone
+
+from utils import exceptions
 
 
 def chunkify(iterable, n, fillvalue=None) -> list:

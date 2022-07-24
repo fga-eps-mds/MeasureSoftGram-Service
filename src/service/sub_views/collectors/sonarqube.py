@@ -3,10 +3,7 @@ from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 
 from service.models import CollectedMetric, SupportedMetric
-from service.serializers import (
-    CollectedMetricSerializer,
-)
-
+from service.serializers import CollectedMetricSerializer
 from utils import namefy
 
 

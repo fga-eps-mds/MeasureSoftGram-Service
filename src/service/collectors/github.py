@@ -4,14 +4,15 @@ Módulo que define as classes que interagem diretamente com a API do GitHub.
 O objetivo é que todos os interessados nas métricas do GitHub somente
 interajam com essa classe, que abstrai a API do GitHub.
 """
-import datetime as dt
-from typing import Iterable, List, Tuple
-import requests
 import concurrent
 import concurrent.futures
+import datetime as dt
+from typing import Iterable, List, Tuple
 
-from utils import chunkify, DateRange, lru_cache_time
+import requests
 
+from utils import DateRange, chunkify
+from utils.decoratos import lru_cache_time
 
 GITHUB_DATETIME_STR_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 GIT_API_URL = 'https://api.github.com/repos'

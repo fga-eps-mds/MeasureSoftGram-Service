@@ -17,7 +17,6 @@ from django.utils import timezone
 # Local Imports
 from service import models, staticfiles
 from service.collectors import GithubMetricCollector
-
 from utils import (
     get_random_datetime,
     get_random_qualifier,
