@@ -56,7 +56,6 @@ class GithubMetricCollector:
     #     # Todas as issues criadas dentro do período de tempo com o estado closed
     #     closed_issues = self.get_issues(start_date, end_date, "state=closed")
 
-    #     # TODO: Tirar dúvida com o Danillo
     #    a = list(
     #        filter(
     #            lambda issue: (
@@ -153,12 +152,12 @@ class GithubMetricCollector:
 
             workflow_runs.extend(response_json['workflow_runs'])
 
-        d = DateRange.create_from_today(x)
+        date = DateRange.create_from_today(x)
 
         # Filtra as execuções dentro do período de tempo
         workflow_runs = filter(
             lambda run: (
-                d.start <= self.str_to_datetime(run['created_at']) <= d.end
+                date.start <= self.str_to_datetime(run['created_at']) <= date.end
             ),
             workflow_runs
         )
@@ -221,10 +220,10 @@ class GithubMetricCollector:
 
                 run_id = run['id']
 
-                r = self.request_git_api(
+                response_json = self.request_git_api(
                     f'actions/runs/{run_id}/timing'
                 )
-                total_time_ms += r['run_duration_ms']
+                total_time_ms += response_json['run_duration_ms']
             return total_time_ms
 
         total_time_ms = 0
@@ -305,13 +304,13 @@ class GithubMetricCollector:
         return github_response.json()
 
 
-if __name__ == '__main__':
-    obj = GithubMetricCollector(
-        'https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Doc/',
-    )
+# if __name__ == '__main__':
+#     obj = GithubMetricCollector(
+#         'https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Doc/',
+#     )
 
-    n = obj.get_number_of_issues_resolved_in_the_last_x_days(
-        x=90,
-    )
+#     value = obj.get_number_of_issues_resolved_in_the_last_x_days(
+#         x=90,
+#     )
 
-    print('n:', n)
+#     print('value:', value)

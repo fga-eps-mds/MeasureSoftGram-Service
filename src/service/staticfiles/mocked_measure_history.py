@@ -1,4 +1,5 @@
 # flake8: noqa
+# pylint: skip-file
 MOCKED_MEASURE_HISTORY = {
     "count": 100,
     "next": None,

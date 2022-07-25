@@ -8,8 +8,8 @@ from django.utils import timezone
 from utils import exceptions
 
 
-def chunkify(iterable, n, fillvalue=None) -> list:
-    args = [iter(iterable)] * n
+def chunkify(iterable, size, fillvalue=None) -> list:
+    args = [iter(iterable)] * size
     return list(zip_longest(*args, fillvalue=fillvalue))
 
 
@@ -24,63 +24,64 @@ def get_random_datetime(start_date, end_date):
     )
 
 
-def namefy(str):
+def namefy(str_value):
     "Key to name"
-    return str.replace('_', ' ').title()
+    return str_value.replace('_', ' ').title()
 
 
-def keyfy(str):
+def keyfy(str_value):
     "Name to key"
-    return str.replace(' ', '_').lower()
+    return str_value.replace(' ', '_').lower()
 
 
 def get_random_string():
-    r = random.choice(string.ascii_uppercase + string.digits)
-    return ''.join(r for _ in range(100))
+    valid_chars = random.choice(string.ascii_uppercase + string.digits)
+    return ''.join(valid_chars for _ in range(100))
 
 
 def get_random_qualifier():
     return random.choice(['UTS', 'FIL', 'DIR'])
 
+# pylint: disable=too-many-return-statements
 def get_random_value(metric_type): # noqa: max-complexity: 13
     if metric_type == 'INT':
         return random.randint(0, 100)
 
-    elif metric_type == 'FLOAT':
+    if metric_type == 'FLOAT':
         # Para valores aleatórios entre 0 e 100
         # return random.random() * random.randint(0, 100)
 
         # Para valores variando perto de 50
         return random.uniform(0, 100)
 
-    elif metric_type == 'PERCENT':
+    if metric_type == 'PERCENT':
         return random.random()
 
-    elif metric_type == 'BOOL':
+    if metric_type == 'BOOL':
         return random.choice([True, False])
 
-    elif metric_type == 'STRING':
+    if metric_type == 'STRING':
         # Por mais que o tipo seja uma string, o valor da única
         # métrica que tem esse tipo no sonarqube é a métrica
         # `new_development_cost` cujo valor é um float
         return random.uniform(0, 1000)
 
-    elif metric_type == 'DATA':
+    if metric_type == 'DATA':
         return random.randint(0, 100)
 
-    elif metric_type == 'WORK_DUR':
+    if metric_type == 'WORK_DUR':
         return random.randint(0, 100)
 
-    elif metric_type == 'DISTRIB':
+    if metric_type == 'DISTRIB':
         return random.randint(0, 100)
 
-    elif metric_type == 'RATING':
+    if metric_type == 'RATING':
         return random.randint(0, 100)
 
-    elif metric_type == 'LEVEL':
+    if metric_type == 'LEVEL':
         return random.choice([True, False])
 
-    elif metric_type == 'MILLISEC':
+    if metric_type == 'MILLISEC':
         end_date = timezone.now()
         start_date = end_date - timezone.timedelta(days=90)
         datetime = get_random_datetime(start_date, end_date)

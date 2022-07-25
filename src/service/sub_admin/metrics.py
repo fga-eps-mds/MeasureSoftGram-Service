@@ -53,8 +53,9 @@ class CollectedMetricAdmin(admin.ModelAdmin):
     def get_value(self, obj: models.CollectedMetric):
         value = obj.value
 
-        MILLISEC = models.SupportedMetric.SupportedMetricTypes.MILLISEC
-        if obj.metric.metric_type == MILLISEC:
+        millisec_type = models.SupportedMetric.SupportedMetricTypes.MILLISEC
+
+        if obj.metric.metric_type == millisec_type:
             value = dt.datetime.fromtimestamp(value)
 
         return value

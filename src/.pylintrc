@@ -155,7 +155,9 @@ disable=raw-checker-failed,
         use-symbolic-message-instead,
         missing-module-docstring,
         unused-import,
-        missing-class-docstring
+        missing-class-docstring,
+        fixme,
+        missing-function-docstring
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -503,6 +505,8 @@ function-naming-style=snake_case
 # Good variable names which should always be accepted, separated by a comma.
 good-names=i,
            j,
+           x,
+           y,
            k,
            ex,
            Run,

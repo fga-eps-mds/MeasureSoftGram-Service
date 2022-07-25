@@ -26,12 +26,12 @@ class CollectedMetricSerializer(serializers.ModelSerializer):
         try:
             models.SupportedMetric.objects.get(id=value)
 
-        except models.SupportedMetric.DoesNotExist as e:
+        except models.SupportedMetric.DoesNotExist as exc:
             raise serializers.ValidationError(
                 f'There is no metric with the ID {value}.'
                 'See the IDs of the metrics supported in the API in the '
                 'endpoint: ' + reverse_lazy('service:supported-metrics-list')
-            ) from e
+            ) from exc
 
         return value
 

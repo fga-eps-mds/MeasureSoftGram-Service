@@ -1,3 +1,5 @@
+# pylint: disable=abstract-method
+
 from django.conf import settings
 from rest_framework import serializers
 
@@ -82,7 +84,7 @@ class GithubCollectorParamsSerializer(serializers.Serializer):
             has_issue_labels_metrics_params
         )
 
-    def validate(self, data):
+    def validate(self, attrs):
         """
         Valida se ao menos um dos parâmetros opcionais foi definido.
 
@@ -101,7 +103,7 @@ class GithubCollectorParamsSerializer(serializers.Serializer):
 
             metrics_required_params[correct_metric_name] = metric['api_params']
 
-        if not self.has_at_least_one_metrics_params(data):
+        if not self.has_at_least_one_metrics_params(attrs):
             raise serializers.ValidationError({
                 'not_enough_params': (
                     'Not enough parameters were passed to collect at least '
@@ -111,4 +113,4 @@ class GithubCollectorParamsSerializer(serializers.Serializer):
                 'supported_metrics': metrics_required_params,
             })
 
-        return data
+        return attrs

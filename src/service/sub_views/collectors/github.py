@@ -42,6 +42,40 @@ def get_threshold(data):
     return threshold
 
 
+def get_collector_instance(params_map, data):
+    if not isinstance(data, dict):
+        raise TypeError('data must be a dictionary')
+
+    if not isinstance(params_map, dict):
+        raise TypeError('params_map must be a dictionary')
+
+    # Nomes das chaves serializadora
+    url_key = params_map['__init__']['url']
+    token_key = params_map['__init__']['token']
+
+    url = data[url_key]
+    token = data[token_key]
+
+    return GithubMetricCollector(url, token)
+
+
+def get_collector_metric_method_params(params_map, data):
+    params: dict = params_map['metric_method']['method_params']
+
+    return {
+        param_name: data[serializer_key]
+        for param_name, serializer_key in params.items()
+    }
+
+
+def calculate_metric_value(metric, data):
+    params_map = metric['methods_params_map']
+    collector = get_collector_instance(params_map, data)
+    method = getattr(collector, params_map['metric_method']['method_name'])
+    method_params = get_collector_metric_method_params(params_map, data)
+    return method(**method_params)
+
+
 @api_view(['POST', 'HEAD', 'OPTIONS'])
 @parser_classes([JSONParser])
 def import_github_metrics(request):
@@ -70,26 +104,8 @@ def import_github_metrics(request):
             threshold,
         )
 
-        params_map = metric['methods_params_map']
-
-        # Nomes das chaves serializadora
-        url_key = params_map['__init__']['url']
-        token_key = params_map['__init__']['token']
-
-        url = data[url_key]
-        token = data[token_key]
-
-        collector = GithubMetricCollector(url, token)
-
-        method = getattr(collector, params_map['metric_method']['method_name'])
-        params: dict = params_map['metric_method']['method_params']
-
-        method_params = {
-            param_name: data[serializer_key]
-            for param_name, serializer_key in params.items()
-        }
-
-        value = method(**method_params)
+        # Calcula o valor da métrica desejada
+        value = calculate_metric_value(metric, data)
 
         colleted_metric = sup_metric.collected_metrics.create(value=value)
         new_metrics.append(colleted_metric)

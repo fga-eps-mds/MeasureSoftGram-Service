@@ -1,4 +1,5 @@
 # flake8: noqa
+# pylint: skip-file
 SONARQUBE_AVAILABLE_METRICS = {
     "metrics": [
         {
