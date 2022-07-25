@@ -87,11 +87,14 @@ class Command(BaseCommand):
         end_date = timezone.now()
         start_date = end_date - dt.timedelta(days=90)
 
+        MIN_NUMBER_OF_COLLECTED_METRICS = 15
+        MIN_METRICS = MIN_NUMBER_OF_COLLECTED_METRICS
+
         for supported_metric in qs:
-            if supported_metric.collected_qty <= 100:
+            if supported_metric.collected_qty <= MIN_METRICS:
                 fake_collected_metrics = []
 
-                for _ in range(100 - supported_metric.collected_qty):
+                for _ in range(MIN_METRICS - supported_metric.collected_qty):
                     metric_type = supported_metric.metric_type
                     metric_value = get_random_value(metric_type)
 
