@@ -83,7 +83,7 @@ def import_github_metrics(request):
     serializer.is_valid(raise_exception=True)
     data = serializer.validated_data
 
-    new_metrics = []
+    new_collected_metrics = []
 
     # TODO: Parallelize this for loop
     for metric in settings.GITHUB_METRICS:
@@ -107,11 +107,11 @@ def import_github_metrics(request):
         # Calcula o valor da métrica desejada
         value = calculate_metric_value(metric, data)
 
-        colleted_metric = sup_metric.collected_metrics.create(value=value)
-        new_metrics.append(colleted_metric)
+        sup_metric.collected_metrics.create(value=value)
+        new_collected_metrics.append(sup_metric)
 
-    serializer = serializers.CollectedMetricSerializer(
-        new_metrics,
+    serializer = serializers.LatestCollectedMetricSerializer(
+        new_collected_metrics,
         many=True,
     )
 
