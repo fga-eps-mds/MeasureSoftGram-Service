@@ -22,6 +22,7 @@ from utils import (
     get_random_string,
     get_random_value,
 )
+import utils
 
 User = get_user_model()
 
@@ -33,23 +34,74 @@ class Command(BaseCommand):
 
     def create_suported_measures(self):
         """
-        Registra no banco de dados todas as medidas que o sistema tem suporte
+        Função que popula banco de dados com todas as medidas que são
+        suportadas atualmente e as métricas que cada medida é dependente
         """
         supported_measures = [
-            "passed_tests",
-            "test_builds",
-            "test_coverage",
-            "non_complex_file_density",
-            "commented_file_density",
-            "duplication_absense",
+            {
+                "key": "passed_tests",
+                "metrics": [
+                    {"key": "tests"},
+                    {"key": "test_failures"},
+                    {"key": "test_errors"},
+                ],
+            },
+            {
+                "key": "test_builds",
+                "metrics": [
+                    {"key": "tests"},
+                    {"key": "test_execution_time"},
+                ],
+            },
+            {
+                "key": "test_coverage",
+                "metrics": [
+                    {"key": "coverage"},
+                    {"key": "number_of_files"},
+                ],
+            },
+            {
+                "key": "non_complex_file_density",
+                "metrics": [
+                    {"key": "number_of_files"},
+                    {"key": "functions"},
+                    {"key": "complexity"},
+                ],
+            },
+            {
+                "key": "commented_file_density",
+                "metrics": [
+                    {"key": "number_of_files"},
+                    {"key": "comment_lines_density"},
+                ],
+            },
+            {
+                "key": "duplication_absense",
+                "metrics": [
+                    {"key": "number_of_files"},
+                    {"key": "duplicated_lines_density"},
+                ],
+            },
         ]
-        for measure in supported_measures:
+        for measure_data in supported_measures:
+            measure_key = measure_data["key"]
             with contextlib.suppress(IntegrityError):
-                name = measure.replace('_', ' ').title()
-                models.SupportedMeasure.objects.create(
-                    key=measure,
-                    name=name,
+                measure_name = utils.namefy(measure_key)
+
+                measure, _ = models.SupportedMeasure.objects.get_or_create(
+                    key=measure_key,
+                    name=measure_name,
                 )
+
+                metrics_keys = [
+                    metric["key"]
+                    for metric in measure_data["metrics"]
+                ]
+
+                metrics = models.SupportedMetric.objects.filter(
+                    key__in=metrics_keys,
+                )
+                measure.metrics.set(metrics)
 
     def create_supported_metrics(self):
         self.create_sonarqube_supported_metrics()
