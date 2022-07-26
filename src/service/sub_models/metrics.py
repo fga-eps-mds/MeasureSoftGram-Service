@@ -9,6 +9,9 @@ class SupportedMetric(models.Model):
     Somente é possível cadastrar o valor de uma métrica se
     ela estiver cadastrada nesta tabela.
     """
+    class Meta:
+        ordering = ["key"]
+
     class SupportedMetricTypes(models.TextChoices):
         INT = ('INT', 'Integer')
         FLOAT = ('FLOAT', 'Float')
@@ -31,7 +34,7 @@ class SupportedMetric(models.Model):
     description = models.TextField(max_length=512, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.key
 
     def get_latest_metric_value(self):
         """
