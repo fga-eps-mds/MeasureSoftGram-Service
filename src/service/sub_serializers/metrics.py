@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import reverse_lazy
 from rest_framework import serializers
 
@@ -58,17 +59,18 @@ class LatestCollectedMetricSerializer(serializers.ModelSerializer):
 
     def get_latest(self, obj: models.SupportedMetric):
         try:
-            latest = obj.collected_metrics.last()
+            latest = obj.collected_metrics.first()
             return CollectedMetricSerializer(latest).data
         except models.CollectedMetric.DoesNotExist:
             return None
 
 
 class CollectedMetricHistorySerializer(serializers.ModelSerializer):
-    collected_metric_history = CollectedMetricSerializer(
-        source='collected_metrics',
-        many=True,
-    )
+    # history = CollectedMetricSerializer(
+    #     source='collected_metrics',
+    #     many=True,
+    # )
+    history = serializers.SerializerMethodField()
 
     class Meta:
         model = models.SupportedMetric
@@ -77,5 +79,14 @@ class CollectedMetricHistorySerializer(serializers.ModelSerializer):
             'key',
             'name',
             'description',
-            'collected_metric_history',
+            'history',
         )
+
+    def get_history(self, obj: models.SupportedMeasure):
+        MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
+        try:
+            # Os últimos 10 registros criados em ordem decrescente
+            qs = obj.collected_metrics.all()[:MAX]
+            return CollectedMetricSerializer(qs, many=True).data
+        except models.CalculatedMeasure.DoesNotExist:
+            return None

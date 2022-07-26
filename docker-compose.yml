@@ -15,6 +15,8 @@ services:
       - service_postgres_data:/var/lib/postgresql/data
     env_file:
       - ./env-vars/.postgres.env
+    networks:
+      - msg-service-network
 
   service:
     container_name: service
@@ -23,6 +25,9 @@ services:
       context: .
       dockerfile: ./docker/service.Dockerfile
     command: ["./start_service.sh"]
+    networks:
+      - measuresoftgram
+      - msg-service-network
     ports:
       - "8080:80" # Main port
       - "8181:8181" # Debug port
@@ -34,3 +39,15 @@ services:
       - ./env-vars/.postgres.env
     depends_on:
       - db
+
+
+networks:
+  # Bridge used to talk with `core` service
+  measuresoftgram:
+    external: true
+
+  # Bridge used to `service` talk to the right postgres `db` service
+  msg-service-network:
+    name: msg-service-network
+    driver: bridge
+

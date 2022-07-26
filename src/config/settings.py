@@ -160,6 +160,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CORE_URL = os.getenv("CORE_URL", "http://localhost:5000")
 
 django_heroku.settings(locals())
 
@@ -179,6 +180,11 @@ GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 GITHUB_ISSUE_METRICS_THRESHOLD = int(
     os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7")
 )
+
+MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(os.getenv(
+    "MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS",
+    "100",
+))
 
 GITHUB_PIPELINE_METRICS_THRESHOLD = int(
     os.getenv("GITHUB_PIPELINE_METRICS_THRESHOLD", "90")

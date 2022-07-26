@@ -9,6 +9,9 @@ class SupportedMetric(models.Model):
     Somente é possível cadastrar o valor de uma métrica se
     ela estiver cadastrada nesta tabela.
     """
+    class Meta:
+        ordering = ["key"]
+
     class SupportedMetricTypes(models.TextChoices):
         INT = ('INT', 'Integer')
         FLOAT = ('FLOAT', 'Float')
@@ -31,7 +34,15 @@ class SupportedMetric(models.Model):
     description = models.TextField(max_length=512, null=True, blank=True)
 
     def __str__(self):
-        return self.name
+        return self.key
+
+    def get_latest_metric_value(self):
+        """
+        Função que recupera o valor mais recente da métrica
+        """
+        if latest_metric := self.collected_metrics.first():
+            return latest_metric.value
+        return None
 
 
 class CollectedMetric(models.Model):
@@ -46,8 +57,9 @@ class CollectedMetric(models.Model):
     valor da métrica é retornado como None.
     """
     class Meta:
-        # Ordernar na ordem decrescente de criação do registro
-        ordering = ['created_at']
+        # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
+        # os registros mais recentes vem primeiro (qs.first() == mais recente)
+        ordering = ['-created_at']
 
     metric = models.ForeignKey(
         SupportedMetric,

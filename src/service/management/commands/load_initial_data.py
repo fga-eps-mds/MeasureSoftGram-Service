@@ -14,9 +14,10 @@ from django.db.models import Count
 from django.db.utils import IntegrityError
 from django.utils import timezone
 
+import utils
+
 # Local Imports
 from service import models, staticfiles
-from service.collectors import GithubMetricCollector
 from utils import (
     get_random_datetime,
     get_random_qualifier,
@@ -31,6 +32,77 @@ class Command(BaseCommand):
     help = (
         "Registra os dados iniciais da aplicação no banco de dados"
     )
+
+    def create_suported_measures(self):
+        """
+        Função que popula banco de dados com todas as medidas que são
+        suportadas atualmente e as métricas que cada medida é dependente
+        """
+        supported_measures = [
+            {
+                "key": "passed_tests",
+                "metrics": [
+                    {"key": "tests"},
+                    {"key": "test_failures"},
+                    {"key": "test_errors"},
+                ],
+            },
+            {
+                "key": "test_builds",
+                "metrics": [
+                    {"key": "tests"},
+                    {"key": "test_execution_time"},
+                ],
+            },
+            {
+                "key": "test_coverage",
+                "metrics": [
+                    {"key": "coverage"},
+                    {"key": "number_of_files"},
+                ],
+            },
+            {
+                "key": "non_complex_file_density",
+                "metrics": [
+                    {"key": "number_of_files"},
+                    {"key": "functions"},
+                    {"key": "complexity"},
+                ],
+            },
+            {
+                "key": "commented_file_density",
+                "metrics": [
+                    {"key": "number_of_files"},
+                    {"key": "comment_lines_density"},
+                ],
+            },
+            {
+                "key": "duplication_absense",
+                "metrics": [
+                    {"key": "number_of_files"},
+                    {"key": "duplicated_lines_density"},
+                ],
+            },
+        ]
+        for measure_data in supported_measures:
+            measure_key = measure_data["key"]
+            with contextlib.suppress(IntegrityError):
+                measure_name = utils.namefy(measure_key)
+
+                measure, _ = models.SupportedMeasure.objects.get_or_create(
+                    key=measure_key,
+                    name=measure_name,
+                )
+
+                metrics_keys = [
+                    metric["key"]
+                    for metric in measure_data["metrics"]
+                ]
+
+                metrics = models.SupportedMetric.objects.filter(
+                    key__in=metrics_keys,
+                )
+                measure.metrics.set(metrics)
 
     def create_supported_metrics(self):
         self.create_sonarqube_supported_metrics()
@@ -76,7 +148,7 @@ class Command(BaseCommand):
                     metric_type=metric['type'],
                 )
 
-    def crete_fake_collected_metrics(self):
+    def create_fake_collected_metrics(self):
         if settings.CREATE_FAKE_DATA is False:
             return
 
@@ -87,7 +159,7 @@ class Command(BaseCommand):
         end_date = timezone.now()
         start_date = end_date - dt.timedelta(days=90)
 
-        MIN_NUMBER_OF_COLLECTED_METRICS = 15
+        MIN_NUMBER_OF_COLLECTED_METRICS = 50
         MIN_METRICS = MIN_NUMBER_OF_COLLECTED_METRICS
 
         for supported_metric in qs:
@@ -112,6 +184,35 @@ class Command(BaseCommand):
                     fake_collected_metrics.append(fake_collected_metric)
                 models.CollectedMetric.objects.bulk_create(fake_collected_metrics)
 
+    def create_fake_calculated_measures(self):
+        if settings.CREATE_FAKE_DATA is False:
+            return
+
+        qs = models.SupportedMeasure.objects.annotate(
+            calculated_qty=Count('calculated_measures'),
+        )
+
+        end_date = timezone.now()
+        start_date = end_date - dt.timedelta(days=90)
+
+        MIN_NUMBER_OF_CALCULATED_MEASURES = 50
+        MIN_MEASURES = MIN_NUMBER_OF_CALCULATED_MEASURES
+
+        for supported_measure in qs:
+            if supported_measure.calculated_qty <= MIN_MEASURES:
+                fake_calculated_measures = []
+
+                for _ in range(MIN_MEASURES - supported_measure.calculated_qty):
+                    metric_value = get_random_value('PERCENT')
+
+                    fake_calculated_measure = models.CalculatedMeasure(
+                        measure=supported_measure,
+                        value=metric_value,
+                        created_at=get_random_datetime(start_date, end_date),
+                    )
+                    fake_calculated_measures.append(fake_calculated_measure)
+                models.CalculatedMeasure.objects.bulk_create(fake_calculated_measures)
+
     def handle(self, *args, **options):
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
@@ -121,4 +222,7 @@ class Command(BaseCommand):
             )
 
         self.create_supported_metrics()
-        self.crete_fake_collected_metrics()
+        self.create_fake_collected_metrics()
+
+        self.create_suported_measures()
+        self.create_fake_calculated_measures()

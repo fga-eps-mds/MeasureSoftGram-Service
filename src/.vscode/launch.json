@@ -14,7 +14,7 @@
                 "0.0.0.0:9090",
             ],
             "django": true,
-            "justMyCode": true
+            "justMyCode": false,
         },
         {
             "name": "Django CMD: load_initial_data",
