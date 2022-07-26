@@ -16,6 +16,7 @@ class SupportedMeasureSerializer(serializers.ModelSerializer):
             'description',
         )
 
+
 class MeasureCalculationRequestSerializer(serializers.Serializer):
     """
     Serializadora usada para solicitar o cálculo de uma medida
@@ -84,6 +85,7 @@ class CalculatedMeasureSerializer(serializers.ModelSerializer):
             'value',
             'created_at',
         )
+
 
 class LatestMeasuresCalculationsRequestSerializer(serializers.ModelSerializer):
     """

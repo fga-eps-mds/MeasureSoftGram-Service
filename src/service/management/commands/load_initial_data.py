@@ -14,6 +14,8 @@ from django.db.models import Count
 from django.db.utils import IntegrityError
 from django.utils import timezone
 
+import utils
+
 # Local Imports
 from service import models, staticfiles
 from utils import (
@@ -22,7 +24,6 @@ from utils import (
     get_random_string,
     get_random_value,
 )
-import utils
 
 User = get_user_model()
 

@@ -44,6 +44,7 @@ class SupportedMetric(models.Model):
             return latest_metric.value
         return None
 
+
 class CollectedMetric(models.Model):
     """
     Métricas é o maior grau de granualidade de dados.

@@ -1,8 +1,7 @@
 
 import requests
-from requests.adapters import HTTPAdapter, Retry
-
 from django.conf import settings
+from requests.adapters import HTTPAdapter, Retry
 
 
 class CoreClient:
