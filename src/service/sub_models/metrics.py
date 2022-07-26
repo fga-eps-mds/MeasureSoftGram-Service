@@ -33,6 +33,13 @@ class SupportedMetric(models.Model):
     def __str__(self):
         return self.name
 
+    def get_latest_metric_value(self):
+        """
+        Função que recupera o valor mais recente da métrica
+        """
+        if latest_metric := self.collected_metrics.last():
+            return latest_metric.value
+        return None
 
 class CollectedMetric(models.Model):
     """
@@ -46,7 +53,6 @@ class CollectedMetric(models.Model):
     valor da métrica é retornado como None.
     """
     class Meta:
-        # Ordernar na ordem decrescente de criação do registro
         ordering = ['created_at']
 
     metric = models.ForeignKey(

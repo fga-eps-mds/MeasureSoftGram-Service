@@ -16,7 +16,6 @@ from django.utils import timezone
 
 # Local Imports
 from service import models, staticfiles
-from service.collectors import GithubMetricCollector
 from utils import (
     get_random_datetime,
     get_random_qualifier,
@@ -96,7 +95,7 @@ class Command(BaseCommand):
                     metric_type=metric['type'],
                 )
 
-    def crete_fake_collected_metrics(self):
+    def create_fake_collected_metrics(self):
         if settings.CREATE_FAKE_DATA is False:
             return
 
@@ -141,6 +140,6 @@ class Command(BaseCommand):
             )
 
         self.create_supported_metrics()
-        self.crete_fake_collected_metrics()
+        self.create_fake_collected_metrics()
 
         self.create_suported_measures()

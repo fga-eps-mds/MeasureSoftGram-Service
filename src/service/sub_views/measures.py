@@ -1,58 +1,68 @@
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
+from rest_framework import status
 
 from service import models
 from service import clients
 from service import serializers
 
 
-def calculate_measure(request, measure_id):
+@api_view(['POST', 'HEAD', 'OPTIONS'])
+@parser_classes([JSONParser])
+def calculate_measures(request):
     """
-    Calculate a measure for a specific repository.
+    Calcula uma medida
     """
-    # Validatar se essa medida existe
+    # 1. Valida se os dados foram enviados corretamente
+    serializer = serializers.MeasuresCalculationsRequestSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
 
-    # Obter a instância da medida no banco de dados
-    measure = models.SupportedMeasure.objects.get(id=measure_id)
+    # 2. Obtenção das medidas suportadas pelo serviço
+    measure_keys = [measure['key'] for measure in data['measures']]
+    qs = models.SupportedMeasure.objects.filter(key__in=measure_keys)
 
-    # Obter as métricas necessárias para calcular a medida
-    metric1 = models.SupportedMetric.objects.get(key='key_name_1')
-    metric2 = models.SupportedMetric.objects.get(key='key_name_2')
-    metric3 = models.SupportedMetric.objects.get(key='key_name_3')
+    # 3. Criação do dicionário que será enviado para o serviço `core`
+    core_params = {'measures': []}
 
-    lts_metric1_value = metric1.objects.collected_metrics.last().value
-    lts_metric2_value = metric2.objects.collected_metrics.last().value
-    lts_metric3_value = metric3.objects.collected_metrics.last().value
+    # 4. Obtenção das métricas necessárias para calcular as medidas
+    measure: models.SupportedMeasure
+    for measure in qs:
+        metric_params = measure.get_latest_metric_params()
 
-    already_calculated = models.CalculatedMeasure.objects.filter(
-        measure=measure,
-        data = {
-            "lts_metric1": lts_metric1_value,
-            "lts_metric2": lts_metric2_value,
-            "lts_metric3": lts_metric3_value,
-        }
+        core_params['measures'].append({
+            'key': measure.key,
+            'parameters': metric_params,
+        })
+
+    # 5. Solicitação do cáculo ao serviço core
+    # TODO: Se alguma métrica ter sido recentemente calculada não recalculá-la
+    response = clients.CoreClient().calculate_measure(core_params)
+
+    if response.ok is False:
+        return Response(response.text, status=response.status_code)
+
+    data = response.json()
+
+    calculated_values = {
+        measure['key']: measure['value']
+        for measure in data['measures']
+    }
+
+    # 6. Salvando no banco de dados as medidas calculadas
+    measure: models.SupportedMeasure
+    for measure in qs:
+        value = calculated_values[measure.key]
+        measure.calculated_measures.create(value=value)
+
+    # 7. Retornando o resultado
+    serializer = serializers.LatestMeasuresCalculationsRequestSerializer(
+        qs,
+        many=True,
     )
 
-    if already_calculated:
-        # TODO: Implementar a classe CalculatedMeasureSerializer
-        data = serializers.CalculatedMeasureSerializer(already_calculated).data
-        return Response(data)
-
-    measure_value = clients.CoreClient.calculate_measure(
-        measure.key,
-        lts_metric1_value,
-        lts_metric2_value,
-        lts_metric3_value,
+    return Response(
+        serializer.data,
+        status=status.HTTP_201_CREATED
     )
-
-    new_calculated_measure = models.CalculatedMeasure.objects.create(
-        measure=measure,
-        value=measure_value
-        data = {
-            "lts_metric1": lts_metric1_value,
-            "lts_metric2": lts_metric2_value,
-            "lts_metric3": lts_metric3_value,
-        },
-    )
-
-    data = serializers.CalculatedMeasureSerializer(new_calculated_measure).data
-    return Response(data)

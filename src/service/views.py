@@ -1,6 +1,4 @@
 # Dont delete this line. It is used to import the views from the sub_views.
-# Dont delete this line. It is used to import the views from the sub_views.
-# Dont delete this line. It is used to import the views from the sub_views.
 from service.sub_views.collectors.github import import_github_metrics
 from service.sub_views.collectors.sonarqube import import_sonar_metrics
 from service.sub_views.metrics import (
@@ -11,7 +9,7 @@ from service.sub_views.metrics import (
 )
 
 from service.sub_views.measures import (
-    calculate_measure,
+    calculate_measures,
 )
 
 from service.sub_views.mocked_views import (

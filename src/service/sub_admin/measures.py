@@ -3,6 +3,15 @@ from django.contrib import admin
 from service import models
 
 
+class RelatedMetricInline(admin.TabularInline):
+    """
+    Tabular inline para listar as métricas associadas a uma medida na painel
+    administrativo de uma medida suportada
+    """
+    model = models.SupportedMeasure.metrics.through
+    extra = 1
+
+
 @admin.register(models.SupportedMeasure)
 class SupportedMeasureAdmin(admin.ModelAdmin):
     list_display = (
@@ -15,6 +24,14 @@ class SupportedMeasureAdmin(admin.ModelAdmin):
         "key",
         "name",
     )
+    inlines = [
+        RelatedMetricInline,
+    ]
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.prefetch_related('metrics')
+        return queryset
 
 
 @admin.register(models.CalculatedMeasure)
