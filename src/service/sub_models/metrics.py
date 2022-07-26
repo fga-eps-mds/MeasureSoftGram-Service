@@ -57,7 +57,8 @@ class CollectedMetric(models.Model):
     valor da métrica é retornado como None.
     """
     class Meta:
-        # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets os registros mais recentes vem primeiro (qs.first() == mais recente)
+        # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
+        # os registros mais recentes vem primeiro (qs.first() == mais recente)
         ordering = ['-created_at']
 
     metric = models.ForeignKey(
