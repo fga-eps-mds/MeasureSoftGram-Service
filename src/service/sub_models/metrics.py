@@ -40,7 +40,7 @@ class SupportedMetric(models.Model):
         """
         Função que recupera o valor mais recente da métrica
         """
-        if latest_metric := self.collected_metrics.last():
+        if latest_metric := self.collected_metrics.first():
             return latest_metric.value
         return None
 
@@ -57,7 +57,8 @@ class CollectedMetric(models.Model):
     valor da métrica é retornado como None.
     """
     class Meta:
-        ordering = ['created_at']
+        # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets os registros mais recentes vem primeiro (qs.first() == mais recente)
+        ordering = ['-created_at']
 
     metric = models.ForeignKey(
         SupportedMetric,
