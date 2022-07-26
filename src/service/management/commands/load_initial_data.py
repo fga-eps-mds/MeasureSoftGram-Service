@@ -159,7 +159,7 @@ class Command(BaseCommand):
         end_date = timezone.now()
         start_date = end_date - dt.timedelta(days=90)
 
-        MIN_NUMBER_OF_COLLECTED_METRICS = 15
+        MIN_NUMBER_OF_COLLECTED_METRICS = 50
         MIN_METRICS = MIN_NUMBER_OF_COLLECTED_METRICS
 
         for supported_metric in qs:
@@ -184,6 +184,35 @@ class Command(BaseCommand):
                     fake_collected_metrics.append(fake_collected_metric)
                 models.CollectedMetric.objects.bulk_create(fake_collected_metrics)
 
+    def create_fake_calculated_measures(self):
+        if settings.CREATE_FAKE_DATA is False:
+            return
+
+        qs = models.SupportedMeasure.objects.annotate(
+            calculated_qty=Count('calculated_measures'),
+        )
+
+        end_date = timezone.now()
+        start_date = end_date - dt.timedelta(days=90)
+
+        MIN_NUMBER_OF_CALCULATED_MEASURES = 50
+        MIN_MEASURES = MIN_NUMBER_OF_CALCULATED_MEASURES
+
+        for supported_measure in qs:
+            if supported_measure.calculated_qty <= MIN_MEASURES:
+                fake_calculated_measures = []
+
+                for _ in range(MIN_MEASURES - supported_measure.calculated_qty):
+                    metric_value = get_random_value('PERCENT')
+
+                    fake_calculated_measure = models.CalculatedMeasure(
+                        measure=supported_measure,
+                        value=metric_value,
+                        created_at=get_random_datetime(start_date, end_date),
+                    )
+                    fake_calculated_measures.append(fake_calculated_measure)
+                models.CalculatedMeasure.objects.bulk_create(fake_calculated_measures)
+
     def handle(self, *args, **options):
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
@@ -196,3 +225,4 @@ class Command(BaseCommand):
         self.create_fake_collected_metrics()
 
         self.create_suported_measures()
+        self.create_fake_calculated_measures()
