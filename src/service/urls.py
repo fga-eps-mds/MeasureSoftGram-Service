@@ -7,10 +7,17 @@ app_name = 'service'
 
 # tem o prefixo `api/v1/`
 system_router = DefaultRouter()
+
 system_router.register(
     'supported-metrics',
     views.SupportedMetricModelViewSet,
     basename='supported-metrics',
+)
+
+system_router.register(
+    'supported-measures',
+    views.SupportedMeasureModelViewSet,
+    basename='supported-measures',
 )
 
 # tem o prefixo `api/v1/organizations/<int>/repository/<int>/`
@@ -30,6 +37,18 @@ repo_router.register(
 )
 
 repo_router.register(
+    'history/measures',
+    views.CalculatedMeasureHistoryModelViewSet,
+    basename='collected-measures-history',
+)
+
+repo_router.register(
+    'measures',
+    views.LatestCalculatedMeasureModelViewSet,
+    basename='latest-calculated-measures',
+)
+
+repo_router.register(
     'metrics',
     views.LatestCollectedMetricModelViewSet,
     basename='latest-collected-metrics',
@@ -37,7 +56,7 @@ repo_router.register(
 
 
 urlpatterns = [
-    # BEGIN MOCKS
+
     path('organizations/1/repository/1/', views.get_mocked_repository),
 
     path(
@@ -49,22 +68,6 @@ urlpatterns = [
         'organizations/1/repository/1/import/github-metrics/',
         views.import_github_metrics,
     ),
-
-    path(
-        'organizations/1/repository/1/measures/',
-        views.get_mocked_measures,
-    ),
-
-    path(
-        'organizations/1/repository/1/measures/<int:measure_id>/',
-        views.get_specific_mocked_measure,
-    ),
-
-    path(
-        'organizations/1/repository/1/history/measures/',
-        views.get_mocked_measures_history,
-    ),
-    # END MOCKS
 
     # BEGIN REAL Endpoints
     path('', include(system_router.urls)),

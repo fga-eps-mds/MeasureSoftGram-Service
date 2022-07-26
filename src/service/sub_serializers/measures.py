@@ -107,7 +107,34 @@ class LatestMeasuresCalculationsRequestSerializer(serializers.ModelSerializer):
 
     def get_latest(self, obj: models.SupportedMeasure):
         try:
-            latest = obj.calculated_measures.last()
+            latest = obj.calculated_measures.first()
             return CalculatedMeasureSerializer(latest).data
         except models.CollectedMetric.DoesNotExist:
+            return None
+
+
+class CalculatedMeasureHistorySerializer(serializers.ModelSerializer):
+    # history = CalculatedMeasureSerializer(
+    #     source='calculated_measures',
+    #     many=True,
+    # )
+
+    history = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.SupportedMetric
+        fields = (
+            'id',
+            'key',
+            'name',
+            'description',
+            'history',
+        )
+
+    def get_history(self, obj: models.SupportedMeasure):
+        try:
+            # Os últimos 10 registros criados em ordem decrescente
+            qs = obj.calculated_measures.all()[:25]
+            return CalculatedMeasureSerializer(qs, many=True).data
+        except models.CalculatedMeasure.DoesNotExist:
             return None

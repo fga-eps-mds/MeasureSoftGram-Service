@@ -49,7 +49,8 @@ class CalculatedMeasure(models.Model):
     Tabela que armazena todas os valores das medidas já calculadas
     """
     class Meta:
-        ordering = ['created_at']
+        # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets os registros mais recentes vem primeiro (qs.first() == mais recente)
+        ordering = ['-created_at']
 
     measure = models.ForeignKey(
         SupportedMeasure,

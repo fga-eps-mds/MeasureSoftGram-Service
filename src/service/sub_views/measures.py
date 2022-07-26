@@ -1,4 +1,4 @@
-from rest_framework import status
+from rest_framework import status, mixins, viewsets
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
@@ -64,3 +64,47 @@ def calculate_measures(request):
         serializer.data,
         status=status.HTTP_201_CREATED
     )
+
+
+class SupportedMeasureModelViewSet(
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    Viewset que retorna todas as medidas suportadas pelo sistema
+    """
+    queryset = models.SupportedMeasure.objects.all()
+    serializer_class = serializers.SupportedMeasureSerializer
+
+
+class LatestCalculatedMeasureModelViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    ViewSet para cadastrar as medidas coletadas
+    """
+    queryset = models.SupportedMeasure.objects.prefetch_related(
+        'calculated_measures',
+    )
+    serializer_class = serializers.LatestMeasuresCalculationsRequestSerializer
+
+
+class CalculatedMeasureHistoryModelViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    ViewSet para ler o histórico de medidas coletadas
+
+    TODO: Limitar o número de medidas durante a solicitação do histórico
+    TODO: Criar uma classe de paginação (
+        https://www.django-rest-framework.org/api-guide/pagination/#modifying-the-pagination-style
+    )
+    """
+    queryset = models.SupportedMeasure.objects.prefetch_related(
+        'calculated_measures',
+    )
+    serializer_class = serializers.CalculatedMeasureHistorySerializer
