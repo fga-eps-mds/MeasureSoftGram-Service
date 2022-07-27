@@ -28,6 +28,7 @@ from utils import (
 User = get_user_model()
 
 
+
 class Command(BaseCommand):
     help = (
         "Registra os dados iniciais da aplicação no banco de dados"
@@ -213,6 +214,51 @@ class Command(BaseCommand):
                     fake_calculated_measures.append(fake_calculated_measure)
                 models.CalculatedMeasure.objects.bulk_create(fake_calculated_measures)
 
+    def create_suported_subcharacteristics(self):
+        suported_subcharacteristics = [
+            {
+                "key": "modifiability",
+                "name": "Modifiability",
+            },
+            {
+                "key": "testing_status",
+                "name": "Testing Status",
+            },
+        ]
+
+        for subcharacteristic in suported_subcharacteristics:
+            with contextlib.suppress(IntegrityError):
+                models.SupportedSubCharacteristic.objects.create(
+                    name=subcharacteristic['name'],
+                    key=subcharacteristic['key'],
+                )
+
+    def create_suported_characteristics(self):
+        suported_characteristics = [
+            {
+                "key": "reliability",
+                "name": "Reliability",
+            },
+            {
+                "key": "maintainability",
+                "name": "Maintainability",
+            },
+        ]
+
+        for characteristic in suported_characteristics:
+            with contextlib.suppress(IntegrityError):
+                models.SupportedCharacteristic.objects.create(
+                    name=characteristic['name'],
+                    key=characteristic['key'],
+                )
+
+    def create_default_pre_config(self):
+        with contextlib.suppress(IntegrityError):
+            models.PreConfig.objects.create(
+                name='Default pre-config',
+                data=staticfiles.DEFAULT_ṔRE_CONFIG,
+            )
+
     def handle(self, *args, **options):
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
@@ -226,3 +272,8 @@ class Command(BaseCommand):
 
         self.create_suported_measures()
         self.create_fake_calculated_measures()
+
+        self.create_suported_subcharacteristics()
+        self.create_suported_characteristics()
+
+        self.create_default_pre_config()
