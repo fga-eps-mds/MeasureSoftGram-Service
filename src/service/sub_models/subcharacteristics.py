@@ -1,4 +1,5 @@
 from typing import Iterable, Set
+
 from django.db import models
 
 import utils
@@ -50,7 +51,6 @@ class SupportedSubCharacteristic(models.Model):
         related_measures: Set[str] = set(qs.values_list('key', flat=True))
 
         return measures_keys - related_measures
-
 
     @staticmethod
     def has_unsupported_subcharacteristics(

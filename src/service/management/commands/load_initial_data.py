@@ -28,7 +28,6 @@ from utils import (
 User = get_user_model()
 
 
-
 class Command(BaseCommand):
     help = "Registra os dados iniciais no banco de dados"
 

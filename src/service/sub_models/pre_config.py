@@ -1,11 +1,10 @@
 from django.db import models
 from django.utils import timezone
 
+import utils
+from service.sub_models.characteristics import SupportedCharacteristic
 from service.sub_models.measures import SupportedMeasure
 from service.sub_models.subcharacteristics import SupportedSubCharacteristic
-from service.sub_models.characteristics import SupportedCharacteristic
-
-import utils
 
 
 class PreConfig(models.Model):
@@ -187,7 +186,7 @@ class PreConfig(models.Model):
             characteristic_key = characteristic['key']
             selected_characteristics_set.add(characteristic_key)
 
-        unsuported:str = utils.validate_entity(
+        unsuported: str = utils.validate_entity(
             selected_characteristics_set,
             SupportedCharacteristic.has_unsupported_characteristics,
         )

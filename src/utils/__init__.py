@@ -4,8 +4,8 @@ import string
 from itertools import zip_longest
 from typing import Callable, Iterable, Set
 
-from django.utils import timezone
 from django.db import models
+from django.utils import timezone
 
 from utils import exceptions
 

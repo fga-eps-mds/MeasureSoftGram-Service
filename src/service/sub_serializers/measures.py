@@ -1,9 +1,8 @@
 from django.conf import settings
 from rest_framework import serializers
 
-from service import models
-
 import utils
+from service import models
 
 
 class SupportedMeasureSerializer(serializers.ModelSerializer):
