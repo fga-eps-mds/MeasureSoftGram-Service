@@ -19,3 +19,4 @@ from service.sub_views.mocked_views import (
     get_mocked_repository,
     get_specific_mocked_measure,
 )
+from service.sub_views.pre_config import CurrentPreConfigModelViewSet

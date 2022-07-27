@@ -1,7 +1,6 @@
 # flake8: noqa
 # pylint: skip-file
 DEFAULT_ṔRE_CONFIG = {
-  "name": "pre-config-name",
   "characteristics": [
     {
       "key": "reliability",

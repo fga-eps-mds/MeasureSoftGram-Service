@@ -54,6 +54,12 @@ repo_router.register(
     basename='latest-collected-metrics',
 )
 
+repo_router.register(
+    'current-pre-config',
+    views.CurrentPreConfigModelViewSet,
+    basename='current-pre-config',
+)
+
 
 urlpatterns = [
 

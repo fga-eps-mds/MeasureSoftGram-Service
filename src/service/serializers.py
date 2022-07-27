@@ -14,3 +14,4 @@ from service.sub_serializers.metrics import (
     LatestCollectedMetricSerializer,
     SupportedMetricSerializer,
 )
+from service.sub_serializers.pre_config import PreConfigSerializer
