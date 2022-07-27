@@ -6,113 +6,486 @@
 	},
 	"item": [
 		{
-			"name": "Save colleted metric",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"metric_id\": 1,\n    \"value\": 1\n}",
-					"options": {
-						"raw": {
-							"language": "json"
+			"name": "Service",
+			"item": [
+				{
+					"name": "Read",
+					"item": [
+						{
+							"name": "Repository",
+							"item": [
+								{
+									"name": "Repository detail",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Metrics",
+							"item": [
+								{
+									"name": "List suported Metrics",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/supported-metrics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"supported-metrics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List the current value of all metrics",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/metrics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"metrics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List the current value of a metric",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/metrics/1/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"metrics",
+												"1",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List the history of values for all metrics",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/metrics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"history",
+												"metrics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List the history of values for a metric",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/metrics/1/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"history",
+												"metrics",
+												"1",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Measures",
+							"item": [
+								{
+									"name": "List supported measures",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/supported-measures/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"supported-measures",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List the current value of all measures",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/measures/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"measures",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List the current value of a measure",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/measures/1/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"measures",
+												"1",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List the history of values for all measures",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/measures/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"history",
+												"measures",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List the history of values for a measure",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/measures/1/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"history",
+												"measures",
+												"1",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
-					}
+					]
 				},
-				"url": {
-					"raw": "http://localhost:8080/api/v1/organizations/1/repository/1/create/metrics/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"v1",
-						"organizations",
-						"1",
-						"repository",
-						"1",
-						"create",
-						"metrics",
-						""
+				{
+					"name": "Write",
+					"item": [
+						{
+							"name": "Collectors",
+							"item": [
+								{
+									"name": "Import SonarQube JSON",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"paging\": {\n        \"pageIndex\": 1,\n        \"pageSize\": 500,\n        \"total\": 44\n    },\n    \"baseComponent\": {\n        \"id\": \"AYH1Gki9YGgAeaDMB6HC\",\n        \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI\",\n        \"name\": \"2022-1-MeasureSoftGram-CLI\",\n        \"qualifier\": \"TRK\",\n        \"measures\": [\n            {\n                \"metric\": \"duplicated_lines_density\",\n                \"value\": \"0.0\",\n                \"bestValue\": true\n            },\n            {\n                \"metric\": \"functions\",\n                \"value\": \"36\"\n            },\n            {\n                \"metric\": \"test_execution_time\",\n                \"value\": \"3028\"\n            },\n            {\n                \"metric\": \"test_failures\",\n                \"value\": \"0\",\n                \"bestValue\": true\n            },\n            {\n                \"metric\": \"test_errors\",\n                \"value\": \"0\",\n                \"bestValue\": true\n            },\n            {\n                \"metric\": \"security_rating\",\n                \"value\": \"1.0\",\n                \"bestValue\": true\n            },\n            {\n                \"metric\": \"tests\",\n                \"value\": \"59\"\n            },\n            {\n                \"metric\": \"files\",\n                \"value\": \"12\"\n            },\n            {\n                \"metric\": \"complexity\",\n                \"value\": \"112\"\n            },\n            {\n                \"metric\": \"ncloc\",\n                \"value\": \"674\"\n            },\n            {\n                \"metric\": \"coverage\",\n                \"value\": \"0.0\",\n                \"bestValue\": false\n            },\n            {\n                \"metric\": \"comment_lines_density\",\n                \"value\": \"1.5\",\n                \"bestValue\": false\n            }\n        ]\n    },\n    \"components\": [\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX9\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/__init__.py\",\n            \"name\": \"__init__.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/__init__.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX3\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/__init__.py\",\n            \"name\": \"__init__.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/__init__.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX7\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/integration/__init__.py\",\n            \"name\": \"__init__.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/integration/__init__.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXm\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system/__init__.py\",\n            \"name\": \"__init__.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/system/__init__.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXf\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/__init__.py\",\n            \"name\": \"__init__.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/__init__.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"0\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"0\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"0\"\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXc\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/__init__.py\",\n            \"name\": \"__init__.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/__init__.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"0\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"0\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"0\"\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXV\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/available.py\",\n            \"name\": \"available.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/available.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"6\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"26\"\n                },\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXe\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli\",\n            \"name\": \"cli\",\n            \"qualifier\": \"DIR\",\n            \"path\": \"src/cli\",\n            \"measures\": [\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"36\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"11\"\n                },\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"112\"\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"674\"\n                },\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"1.5\",\n                    \"bestValue\": false\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXW\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/cliRunner.py\",\n            \"name\": \"cliRunner.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/cliRunner.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"9\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"7\"\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"144\"\n                },\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"1.4\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXU\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/create.py\",\n            \"name\": \"create.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/create.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"51\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"14\"\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"282\"\n                },\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXy\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/data\",\n            \"name\": \"data\",\n            \"qualifier\": \"DIR\",\n            \"path\": \"tests/unit/data\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXT\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/exceptions.py\",\n            \"name\": \"exceptions.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/exceptions.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"0\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"0\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"33.3\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"16\"\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX8\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/integration\",\n            \"name\": \"integration\",\n            \"qualifier\": \"DIR\",\n            \"path\": \"tests/integration\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXw\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/data/invalid_json.json\",\n            \"name\": \"invalid_json.json\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/data/invalid_json.json\",\n            \"language\": \"json\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXZ\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/jsonReader.py\",\n            \"name\": \"jsonReader.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/jsonReader.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"22\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"8\"\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"86\"\n                },\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXb\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/list.py\",\n            \"name\": \"list.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/list.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"4\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"23\"\n                },\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXu\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/data/measuresoftgramCoreFormat.json\",\n            \"name\": \"measuresoftgramCoreFormat.json\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/data/measuresoftgramCoreFormat.json\",\n            \"language\": \"json\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXx\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/data/measuresoftgramPreConfig.json\",\n            \"name\": \"measuresoftgramPreConfig.json\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/data/measuresoftgramPreConfig.json\",\n            \"language\": \"json\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXX\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/parser.py\",\n            \"name\": \"parser.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/parser.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"0\"\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"31\"\n                },\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXY\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/results.py\",\n            \"name\": \"results.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/results.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"13\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"3\"\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"34\"\n                },\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXa\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/show.py\",\n            \"name\": \"show.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/show.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"5\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"26\"\n                },\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXv\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/data/sonar.json\",\n            \"name\": \"sonar.json\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/data/sonar.json\",\n            \"language\": \"json\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXg\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src\",\n            \"name\": \"src\",\n            \"qualifier\": \"DIR\",\n            \"path\": \"src\",\n            \"measures\": [\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"36\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"12\"\n                },\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"112\"\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"674\"\n                },\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"1.5\",\n                    \"bestValue\": false\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXr\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system\",\n            \"name\": \"system\",\n            \"qualifier\": \"DIR\",\n            \"path\": \"tests/system\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"2949\"\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"8\"\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXp\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system/test_analysis.py\",\n            \"name\": \"test_analysis.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/system/test_analysis.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"306\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXz\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/test_available.py\",\n            \"name\": \"test_available.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/test_available.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"3\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXl\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system/test_available.py\",\n            \"name\": \"test_available.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/system/test_available.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"272\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX1\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/test_change_name.py\",\n            \"name\": \"test_change_name.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/test_change_name.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"6\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"3\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXn\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system/test_change_name.py\",\n            \"name\": \"test_change_name.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/system/test_change_name.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"269\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX2\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/test_create.py\",\n            \"name\": \"test_create.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/test_create.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"17\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"17\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXi\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system/test_help.py\",\n            \"name\": \"test_help.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/system/test_help.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"528\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX6\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/test_helpers.py\",\n            \"name\": \"test_helpers.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/test_helpers.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXk\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system/test_import.py\",\n            \"name\": \"test_import.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/system/test_import.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"266\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXt\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/test_jsonReader.py\",\n            \"name\": \"test_jsonReader.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/test_jsonReader.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"23\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"23\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX4\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/test_list.py\",\n            \"name\": \"test_list.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/test_list.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"23\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"2\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXq\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system/test_list.py\",\n            \"name\": \"test_list.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/system/test_list.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"267\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXh\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system/test_no_env.py\",\n            \"name\": \"test_no_env.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/system/test_no_env.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"267\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXs\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/test_results.py\",\n            \"name\": \"test_results.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/test_results.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"3\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"3\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX0\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit/test_show.py\",\n            \"name\": \"test_show.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/unit/test_show.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"4\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"2\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXj\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system/test_show.py\",\n            \"name\": \"test_show.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/system/test_show.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"268\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXo\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/system/test_sigint.py\",\n            \"name\": \"test_sigint.py\",\n            \"qualifier\": \"UTS\",\n            \"path\": \"tests/system/test_sigint.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"506\"\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"0\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX-\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests\",\n            \"name\": \"tests\",\n            \"qualifier\": \"DIR\",\n            \"path\": \"tests\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"3028\"\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"59\"\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umX5\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:tests/unit\",\n            \"name\": \"unit\",\n            \"qualifier\": \"DIR\",\n            \"path\": \"tests/unit\",\n            \"measures\": [\n                {\n                    \"metric\": \"test_execution_time\",\n                    \"value\": \"79\"\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"tests\",\n                    \"value\": \"51\"\n                }\n            ]\n        },\n        {\n            \"id\": \"AYIR2uf_sJU0gXq1umXd\",\n            \"key\": \"fga-eps-mds_2022-1-MeasureSoftGram-CLI:src/cli/utils.py\",\n            \"name\": \"utils.py\",\n            \"qualifier\": \"FIL\",\n            \"path\": \"src/cli/utils.py\",\n            \"language\": \"py\",\n            \"measures\": [\n                {\n                    \"metric\": \"coverage\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"complexity\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"functions\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"security_rating\",\n                    \"value\": \"1.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"comment_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": false\n                },\n                {\n                    \"metric\": \"ncloc\",\n                    \"value\": \"6\"\n                },\n                {\n                    \"metric\": \"files\",\n                    \"value\": \"1\"\n                },\n                {\n                    \"metric\": \"test_errors\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"duplicated_lines_density\",\n                    \"value\": \"0.0\",\n                    \"bestValue\": true\n                },\n                {\n                    \"metric\": \"test_failures\",\n                    \"value\": \"0\",\n                    \"bestValue\": true\n                }\n            ]\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/import/sonarqube-metrics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"import",
+												"sonarqube-metrics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Collect metrics from Github Repository",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \n    \"github_token\": \"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\",\n    \"issues_repository_url\": \"https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Doc\",\n    \"pipelines_repository_url\": \"https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Service\",\n    \"issues_metrics_x_days\": 7,\n    \"pipeline_metrics_x_days\": 90,\n    \"issue_labels\": [\"bug\", \"problema\"],\n    \"build_pipeline_names\": [\"pre-build\", \"build\"]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/import/github-metrics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"import",
+												"github-metrics",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Metrics",
+							"item": [
+								{
+									"name": "Colleted a metric",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"metric_id\": 1,\n    \"value\": 1\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/create/metrics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"create",
+												"metrics",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Measures",
+							"item": [
+								{
+									"name": "Calculate measures",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"measures\": [\n        {\n            \"key\": \"passed_tests\"\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/calculate/measures/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"calculate",
+												"measures",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
 					]
 				}
-			},
-			"response": []
+			]
 		},
 		{
-			"name": "List suported Metrics",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/api/v1/supported-metrics/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"v1",
-						"supported-metrics",
-						""
-					]
+			"name": "Core",
+			"item": [
+				{
+					"name": "Calculate measures",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"measures\": [\n        {\n            \"key\": \"passed_tests\",\n            \"parameters\": {\n                \"tests\": 51.00,\n                \"test_errors\": 0.0,\n                \"test_failures\": 0.0\n            }\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{MSG_CORE_HOST}}/calculate-measures/",
+							"host": [
+								"{{MSG_CORE_HOST}}"
+							],
+							"path": [
+								"calculate-measures",
+								""
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
-		},
+			]
+		}
+	],
+	"variable": [
 		{
-			"name": "Detail repository",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/api/v1/organizations/1/repository/1/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"v1",
-						"organizations",
-						"1",
-						"repository",
-						"1",
-						""
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Import SonarQube JSON",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/api/v1/organizations/1/repository/1/import-sonar-metrics/",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"v1",
-						"organizations",
-						"1",
-						"repository",
-						"1",
-						"import-sonar-metrics",
-						""
-					]
-				}
-			},
-			"response": []
+			"key": "MSG_HOST",
+			"value": "http://0.0.0.0:9090"
 		}
 	]
 }

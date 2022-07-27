@@ -56,7 +56,6 @@ class CollectedMetricHistoryModelViewSet(
     """
     ViewSet para ler o histórico de métricas coletadas
 
-    TODO: Limitar o número de métricas durante a solicitação do histórico
     TODO: Criar uma classe de paginação (
         https://www.django-rest-framework.org/api-guide/pagination/#modifying-the-pagination-style
     )

@@ -98,8 +98,6 @@ class CalculatedMeasureHistoryModelViewSet(
 ):
     """
     ViewSet para ler o histórico de medidas coletadas
-
-    TODO: Limitar o número de medidas durante a solicitação do histórico
     TODO: Criar uma classe de paginação (
         https://www.django-rest-framework.org/api-guide/pagination/#modifying-the-pagination-style
     )
