@@ -39,8 +39,14 @@ class PreConfig(models.Model):
         Sobrescreve o método save para validar se o campo `data` é valido
         """
         self.validate_measures(self.data)
+        self.validate_measures_weights(self.data)
+
         self.validate_subcharacteristics(self.data)
+        self.validate_subcharacteristics_weights(self.data)
+
         self.validate_characteristics(self.data)
+        self.validate_characteristics_weights(self.data)
+
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -69,6 +75,27 @@ class PreConfig(models.Model):
             )
 
     @staticmethod
+    def validate_measures_weights(data: dict):
+        """
+        Verifica se o somatório do peso das medidas é igual a 100
+
+        Raises a `ValueError` caso alguma weight não seja
+        """
+        for characteristic in data['characteristics']:
+            for subcharacteristic in characteristic['subcharacteristics']:
+
+                sum_of_weights: int = sum(
+                    measure['weight']
+                    for measure in subcharacteristic['measures']
+                )
+
+                if sum_of_weights != 100:
+                    raise ValueError((
+                        "The sum of weights of measures of subcharacteristic "
+                        f"`{subcharacteristic['key']}` is not 100"
+                    ))
+
+    @staticmethod
     def validate_subcharacteristics(data: dict):
         """
         Verifica se as subcharacteristics contidas no dicionário `data` são
@@ -94,6 +121,25 @@ class PreConfig(models.Model):
             )
 
     @staticmethod
+    def validate_subcharacteristics_weights(data: dict):
+        """
+        Verifica se o somatório do peso das subcharacteristics é igual a 100
+
+        Raises a `ValueError` caso alguma weight não seja
+        """
+        for characteristic in data['characteristics']:
+            sum_of_weights: int = sum(
+                subcharacteristic['weight']
+                for subcharacteristic in characteristic['subcharacteristics']
+            )
+
+            if sum_of_weights != 100:
+                raise ValueError((
+                    "The sum of weights of subcharacteristics of "
+                    f"characteristic `{characteristic['key']}` is not 100"
+                ))
+
+    @staticmethod
     def validate_characteristics(data: dict):
         """
         Verifica se as characteristics contidas no dicionário `data` são
@@ -110,10 +156,24 @@ class PreConfig(models.Model):
         unsuported:str = utils.validate_entity(
             selected_characteristics_set,
             SupportedCharacteristic.has_unsupported_characteristics,
-            'characteristics',
         )
 
         if unsuported:
             raise ValueError(
                 f"The following characteristics are not supported: {unsuported}"
             )
+
+    @staticmethod
+    def validate_characteristics_weights(data: dict):
+        """
+        Verifica se o somatório do peso das characteristics é igual a 100
+
+        Raises a `ValueError` caso alguma weight não seja
+        """
+        sum_of_weights: int = sum(
+            characteristic['weight']
+            for characteristic in data['characteristics']
+        )
+
+        if sum_of_weights != 100:
+            raise ValueError("The sum of weights of characteristics is not 100")
