@@ -21,6 +21,26 @@ class SupportedCharacteristic(models.Model):
         blank=True,
     )
 
+    def has_unsupported_subcharacteristics(
+        self,
+        subcharacteristics_keys: Iterable[str],
+    ) -> Set[str]:
+        """
+        Verifica se todas as subcaracterísticas passadas no argumento
+        `subcharacteristics_keys` estão associadas a característica no modelo.
+
+        Retorna um set com as subcaracterísticas que não estão associadas
+        a característica.
+        """
+        subcharacteristics_keys = set(subcharacteristics_keys)
+
+        qs = self.subcharacteristics.all()
+        related_subcharacteristics: Set[str] = set(
+            qs.values_list('key', flat=True)
+        )
+
+        return subcharacteristics_keys - related_subcharacteristics
+
     def __str__(self):
         return self.name
 

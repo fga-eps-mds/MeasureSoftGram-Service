@@ -1,13 +1,8 @@
-from typing import Callable, Iterable, Set
 from django.db import models
 from django.utils import timezone
 
 from service.sub_models.measures import SupportedMeasure
-
-from service.sub_models.subcharacteristics import (
-    SupportedSubCharacteristic,
-)
-
+from service.sub_models.subcharacteristics import SupportedSubCharacteristic
 from service.sub_models.characteristics import SupportedCharacteristic
 
 import utils
@@ -36,15 +31,21 @@ class PreConfig(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Sobrescreve o método save para validar se o campo `data` é valido
+        Sobrescreve o método save para validar se a pré-configuração que
+        está sendo criada ou editada é ou não válida
         """
+        if self.id:
+            raise ValueError("It's not allowed to edit a pre-configuration")
+
         self.validate_measures(self.data)
         self.validate_measures_weights(self.data)
 
         self.validate_subcharacteristics(self.data)
+        self.validate_subcharacteristics_measures_relation(self.data)
         self.validate_subcharacteristics_weights(self.data)
 
         self.validate_characteristics(self.data)
+        self.validate_characteristics_subcharacteristics_relation(self.data)
         self.validate_characteristics_weights(self.data)
 
         super().save(*args, **kwargs)
@@ -121,6 +122,39 @@ class PreConfig(models.Model):
             )
 
     @staticmethod
+    def validate_subcharacteristics_measures_relation(data: dict):
+        """
+        Valida se as medidas que estão relacionadas com as subcaracteristicas
+        na pré-configuração são realmente relacionadas com as
+        subcaracteristicas no modelo
+
+        Raises a `ValueError` caso alguma medida não seja relacionada
+        """
+
+        for characteristic in data['characteristics']:
+            for subcharacteristic in characteristic['subcharacteristics']:
+
+                subchar = SupportedSubCharacteristic.objects.get(
+                    key=subcharacteristic['key'],
+                )
+
+                sub_measures = {
+                    measure['key']
+                    for measure in subcharacteristic['measures']
+                }
+
+                if invalid_measures := subchar.has_unsupported_measures(sub_measures):
+
+                    invalid_measures: list = [f"`{key}`" for key in invalid_measures]
+                    invalid_measures: str = ', '.join(invalid_measures)
+
+                    raise ValueError((
+                        "Failed to save pre-config. It is not allowed to "
+                        f"associate the measures [{invalid_measures}] with the "
+                        f"subcharacteristic {subchar.key}"
+                    ))
+
+    @staticmethod
     def validate_subcharacteristics_weights(data: dict):
         """
         Verifica se o somatório do peso das subcharacteristics é igual a 100
@@ -162,6 +196,38 @@ class PreConfig(models.Model):
             raise ValueError(
                 f"The following characteristics are not supported: {unsuported}"
             )
+
+    @staticmethod
+    def validate_characteristics_subcharacteristics_relation(data: dict):
+        """
+        Valida se as subcharacteristics que estão relacionadas com as
+        characteristics na pré-configuração são realmente relacionadas com as
+        characteristics no modelo
+
+        Raises a `ValueError` caso alguma subcharacteristic não seja
+        """
+
+        for characteristic in data['characteristics']:
+            charact = SupportedCharacteristic.objects.get(
+                key=characteristic['key'],
+            )
+
+            charact_subcharacteristics = {
+                subcharacteristic['key']
+                for subcharacteristic in characteristic['subcharacteristics']
+            }
+
+            if invalid_subs := charact.has_unsupported_subcharacteristics(
+                charact_subcharacteristics,
+            ):
+                invalid_subs: list = [f"`{key}`" for key in invalid_subs]
+                invalid_subs: str = ', '.join(invalid_subs)
+
+                raise ValueError((
+                    "Failed to save pre-config. It is not allowed to "
+                    f"associate the subcharacteristics [{invalid_subs}] "
+                    f"with the characteristic {charact.key}"
+                ))
 
     @staticmethod
     def validate_characteristics_weights(data: dict):

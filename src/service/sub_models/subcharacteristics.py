@@ -33,6 +33,25 @@ class SupportedSubCharacteristic(models.Model):
             self.key = utils.namefy(self.name)
         super().save(*args, **kwargs)
 
+    def has_unsupported_measures(
+        self,
+        measures_keys: Iterable[str],
+    ) -> Set[str]:
+        """
+        Verifica se todas as medidas passadas no argumento `measures_keys`
+        estão associadas a subcaracterística no modelo.
+
+        Retorna um set com as medidas que não estão associadas
+        a subcaracterística.
+        """
+        measures_keys = set(measures_keys)
+
+        qs = self.measures.all()
+        related_measures: Set[str] = set(qs.values_list('key', flat=True))
+
+        return measures_keys - related_measures
+
+
     @staticmethod
     def has_unsupported_subcharacteristics(
         selected_subcharacteristics_keys: Iterable[str]
