@@ -3,6 +3,8 @@ from rest_framework import serializers
 
 from service import models
 
+import utils
+
 
 class SupportedMeasureSerializer(serializers.ModelSerializer):
     """
@@ -42,33 +44,17 @@ class MeasuresCalculationsRequestSerializer(serializers.Serializer):
         """
         Valida se todas as medidas solicitadas são suportadas
         """
-        measure_keys = [
-            measure['key']
-            for measure in attrs['measures']
-        ]
+        measure_keys = [measure['key'] for measure in attrs['measures']]
 
-        qs = models.SupportedMeasure.objects.filter(
-            key__in=measure_keys,
+        unsuported_measures: str = utils.validate_entity(
+            measure_keys,
+            models.SupportedMeasure.has_unsupported_measures,
         )
 
-        supported_measures_keys = [
-            measure.key for measure in qs
-        ]
-
-        supported_measures_set = set(supported_measures_keys)
-        measure_keys_set = set(measure_keys)
-
-        if unsuported_measures := measure_keys_set - supported_measures_set:
-            unsuported_measures = [
-                f"`{key}`"
-                for key in unsuported_measures
-            ]
-
-            unsuported_measures = ', '.join(unsuported_measures)
-
+        if unsuported_measures:
             raise serializers.ValidationError((
-                "The following measures "
-                f"are not supported: {unsuported_measures}"
+                "The following measures are "
+                f"not supported: {unsuported_measures}"
             ))
 
         return attrs
