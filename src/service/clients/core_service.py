@@ -14,5 +14,5 @@ class CoreClient:
             retries = Retry(total=5, backoff_factor=5, status_forcelist=errors)
             session.mount("http://", HTTPAdapter(max_retries=retries))
             session.mount("https://", HTTPAdapter(max_retries=retries))
-            url = f'{self.host}/calculate-measures'
+            url = f'{self.host}/calculate-measures/'
             return session.post(url, json=params)
