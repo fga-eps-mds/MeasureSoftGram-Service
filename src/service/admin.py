@@ -9,3 +9,11 @@ from service.sub_admin.measures import CalculatedMeasureAdmin, SupportedMeasureA
 from service.sub_admin.metrics import CollectedMetricAdmin, SupportedMetricAdmin
 
 from service.sub_admin.pre_config import PreConfigAdmin
+
+from service.sub_admin.subcharacteristics import (
+    SupportedSubCharacteristicAdmin,
+)
+
+from service.sub_admin.characteristics import (
+    SupportedCharacteristicAdmin,
+)

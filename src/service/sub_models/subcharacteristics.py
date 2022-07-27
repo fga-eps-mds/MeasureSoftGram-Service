@@ -10,7 +10,17 @@ class SupportedSubCharacteristic(models.Model):
     """
     name = models.CharField(max_length=128)
     key = models.CharField(max_length=128, unique=True)
-    description = models.TextField(max_length=512, null=True, blank=True)
+    description = models.TextField(
+        max_length=512,
+        null=True,
+        blank=True,
+    )
+
+    measures = models.ManyToManyField(
+        'SupportedMeasure',
+        related_name='related_subcharacteristics',
+        blank=True,
+    )
 
     def __str__(self):
         return self.name
