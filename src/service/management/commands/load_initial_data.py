@@ -291,7 +291,7 @@ class Command(BaseCommand):
         with contextlib.suppress(IntegrityError):
             models.PreConfig.objects.create(
                 name='Default pre-config',
-                data=staticfiles.DEFAULT_ṔRE_CONFIG,
+                data=staticfiles.DEFAULT_PRE_CONFIG,
             )
 
     def handle(self, *args, **options):
