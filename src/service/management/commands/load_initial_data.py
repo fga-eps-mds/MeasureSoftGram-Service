@@ -29,9 +29,7 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = (
-        "Registra os dados iniciais da aplicação no banco de dados"
-    )
+    help = "Registra os dados iniciais no banco de dados"
 
     def create_suported_measures(self):
         """
@@ -213,6 +211,89 @@ class Command(BaseCommand):
                     fake_calculated_measures.append(fake_calculated_measure)
                 models.CalculatedMeasure.objects.bulk_create(fake_calculated_measures)
 
+    def create_suported_subcharacteristics(self):
+        suported_subcharacteristics = [
+            {
+                "key": "modifiability",
+                "name": "Modifiability",
+                "measures": [
+                    {"key": "duplication_absense"},
+                    {"key": "commented_file_density"},
+                    {"key": "non_complex_file_density"},
+                ],
+            },
+            {
+                "key": "testing_status",
+                "name": "Testing Status",
+                "measures": [
+                    {"key": "test_coverage"},
+                    {"key": "test_builds"},
+                    {"key": "passed_tests"},
+                ],
+            },
+        ]
+
+        for subcharacteristic in suported_subcharacteristics:
+            with contextlib.suppress(IntegrityError):
+                sub_char, _ = models.SupportedSubCharacteristic.objects.get_or_create(
+                    name=subcharacteristic['name'],
+                    key=subcharacteristic['key'],
+                )
+
+                measures_keys = [
+                    measure["key"]
+                    for measure in subcharacteristic["measures"]
+                ]
+
+                measures = models.SupportedMeasure.objects.filter(
+                    key__in=measures_keys,
+                )
+
+                sub_char.measures.set(measures)
+
+    def create_suported_characteristics(self):
+        suported_characteristics = [
+            {
+                "key": "reliability",
+                "name": "Reliability",
+                "subcharacteristics": [
+                    {"key": "testing_status"},
+                ]
+            },
+            {
+                "key": "maintainability",
+                "name": "Maintainability",
+                "subcharacteristics": [
+                    {"key": "modifiability"},
+                ]
+            },
+        ]
+
+        for characteristic in suported_characteristics:
+            with contextlib.suppress(IntegrityError):
+                charact, _ = models.SupportedCharacteristic.objects.get_or_create(
+                    name=characteristic['name'],
+                    key=characteristic['key'],
+                )
+
+                subcharacteristics_keys = [
+                    subcharacteristic["key"]
+                    for subcharacteristic in characteristic["subcharacteristics"]
+                ]
+
+                subcharacteristics = models.SupportedSubCharacteristic.objects.filter(
+                    key__in=subcharacteristics_keys,
+                )
+
+                charact.subcharacteristics.set(subcharacteristics)
+
+    def create_default_pre_config(self):
+        with contextlib.suppress(IntegrityError):
+            models.PreConfig.objects.create(
+                name='Default pre-config',
+                data=staticfiles.DEFAULT_PRE_CONFIG,
+            )
+
     def handle(self, *args, **options):
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
@@ -226,3 +307,8 @@ class Command(BaseCommand):
 
         self.create_suported_measures()
         self.create_fake_calculated_measures()
+
+        self.create_suported_subcharacteristics()
+        self.create_suported_characteristics()
+
+        self.create_default_pre_config()

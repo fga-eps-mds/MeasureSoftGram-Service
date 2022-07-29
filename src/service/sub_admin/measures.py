@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 
 from service import models
 
@@ -53,6 +53,14 @@ class CalculatedMeasureAdmin(admin.ModelAdmin):
 
 @admin.register(models.SupportedMeasure.metrics.through)
 class MetricsMeasuresAssociation(admin.ModelAdmin):
+    def changelist_view(self, request, extra_context=None):
+        msg = ((
+            "Tabela que armazena a relação entre "
+            "as MEDIDAS e suas MÉTRICAS."
+        ))
+        messages.add_message(request, messages.INFO, msg)
+        return super().changelist_view(request, extra_context)
+
     # TODO: Descobrir como renomear essa tabela nas telas de admin
     class Meta:
         verbose_name = "Metrics Measure Association"

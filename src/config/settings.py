@@ -173,7 +173,9 @@ REST_FRAMEWORK = {
     )
 }
 
-CREATE_FAKE_DATA = os.getenv("CREATE_FAKE_DATA", "False").lower() in ("true", "t", "1")
+CREATE_FAKE_DATA = os.getenv(
+    "CREATE_FAKE_DATA", "False"
+).lower() in ("true", "t", "1")
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 

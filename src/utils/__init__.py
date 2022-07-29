@@ -2,7 +2,9 @@ import datetime as dt
 import random
 import string
 from itertools import zip_longest
+from typing import Callable, Iterable, Set
 
+from django.db import models
 from django.utils import timezone
 
 from utils import exceptions
@@ -41,6 +43,7 @@ def get_random_string():
 
 def get_random_qualifier():
     return random.choice(['UTS', 'FIL', 'DIR'])
+
 
 # pylint: disable=too-many-return-statements
 def get_random_value(metric_type): # noqa: max-complexity: 13
@@ -90,6 +93,38 @@ def get_random_value(metric_type): # noqa: max-complexity: 13
     raise exceptions.RandomMetricTypeException(
         'Metric type not supported'
     )
+
+
+def has_unsupported_entity(
+    selected_entities_keys: Iterable[str],
+    model: models.Model,
+) -> Set[str]:
+    """
+    Função que verifica e retorna as entidades que não são suportadas
+
+    Args:
+        selected_entities_keys: Lista de chaves das entidades selecionadas
+        model: Modelo do qual será verificado se as entidades selecionadas
+    """
+
+    selected_entities_set = set(selected_entities_keys)
+    qs = model.objects.filter(key__in=selected_entities_set)
+    supported_entities_set = {entity.key for entity in qs}
+    return selected_entities_set - supported_entities_set
+
+
+@staticmethod
+def validate_entity(
+    selected_entity_set: Iterable[str],
+    fun: Callable[[Iterable[str]], Iterable[str]],
+) -> str:
+    """
+
+    """
+    unsuported: set = fun(selected_entity_set)
+    unsuported: list = [f"`{key}`" for key in unsuported]
+    unsuported: str = ', '.join(unsuported)
+    return unsuported
 
 
 class DateRange:

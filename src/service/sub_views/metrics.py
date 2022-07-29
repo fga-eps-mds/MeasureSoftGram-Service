@@ -61,6 +61,6 @@ class CollectedMetricHistoryModelViewSet(
     )
     """
     queryset = models.SupportedMetric.objects.prefetch_related(
-        'collected_metrics'
+        'collected_metrics',
     )
     serializer_class = serializers.CollectedMetricHistorySerializer

@@ -1,5 +1,9 @@
+from typing import Iterable, Set
+
 from django.db import models
 from django.utils import timezone
+
+import utils
 
 
 class SupportedMeasure(models.Model):
@@ -42,6 +46,22 @@ class SupportedMeasure(models.Model):
             key = supported_metric.key
             metric_params[key] = supported_metric.get_latest_metric_value()
         return metric_params
+
+    @staticmethod
+    def has_unsupported_measures(
+        selected_measures_keys: Iterable[str]
+    ) -> Set[str]:
+        """
+        Verifica se existe alguma medida não suportada, e caso exista é
+        retornado a lista das keys das medidas não suportadas.
+
+        Args:
+            selected_measures_keys: Lista de keys das medidas selecionadas
+        """
+        return utils.has_unsupported_entity(
+            selected_measures_keys,
+            SupportedMeasure,
+        )
 
 
 class CalculatedMeasure(models.Model):
