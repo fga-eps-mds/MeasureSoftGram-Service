@@ -13,6 +13,9 @@ from service.sub_views.metrics import (
     LatestCollectedMetricModelViewSet,
     SupportedMetricModelViewSet,
 )
+from service.sub_views.subcharacteristics import (
+    SupportedSubCharacteristicModelViewSet,
+)
 from service.sub_views.mocked_views import (
     get_mocked_measures,
     get_mocked_measures_history,

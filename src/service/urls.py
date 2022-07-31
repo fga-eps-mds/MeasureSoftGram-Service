@@ -20,6 +20,12 @@ system_router.register(
     basename='supported-measures',
 )
 
+system_router.register(
+    'supported-subcharacteristics',
+    views.SupportedSubCharacteristicModelViewSet,
+    basename='supported-subcharacteristics',
+)
+
 # tem o prefixo `api/v1/organizations/<int>/repository/<int>/`
 repo_router = DefaultRouter()
 
