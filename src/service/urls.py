@@ -61,6 +61,12 @@ repo_router.register(
 )
 
 repo_router.register(
+    'subcharacteristics',
+    views.LatestCalculatedSubCharacteristicModelViewSet,
+    basename='latest-calculated-subcharacteristics',
+)
+
+repo_router.register(
     'current-pre-config',
     views.CurrentPreConfigModelViewSet,
     basename='current-pre-config',

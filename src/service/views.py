@@ -15,6 +15,7 @@ from service.sub_views.metrics import (
 )
 from service.sub_views.subcharacteristics import (
     SupportedSubCharacteristicModelViewSet,
+    LatestCalculatedSubCharacteristicModelViewSet,
 )
 from service.sub_views.mocked_views import (
     get_mocked_measures,
