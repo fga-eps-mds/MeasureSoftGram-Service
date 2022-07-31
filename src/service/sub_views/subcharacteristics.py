@@ -24,3 +24,15 @@ class LatestCalculatedSubCharacteristicModelViewSet(
     """
     queryset = models.SupportedSubCharacteristic.objects.prefetch_related('calculated_subcharacteristics')
     serializer_class = serializers.LatestCalculatedSubCharacteristicSerializer
+
+
+class CalculatedSubCharacteristicHistoryModelViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
+    """
+    ViewSet para recuperar o histórico de subcaracterísticas calculadas
+    """
+    queryset = models.SupportedSubCharacteristic.objects.prefetch_related('calculated_subcharacteristics')
+    serializer_class = serializers.CalculatedSubCharacteristicHistorySerializer

@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 
 from service import models
@@ -53,4 +54,26 @@ class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
             latest = obj.calculated_subcharacteristics.first()
             return CalculatedSubCharacteristicSerializer(latest).data
         except models.SupportedSubCharacteristic.DoesNotExist:
+            return None
+
+
+class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
+    history = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.SupportedSubCharacteristic
+        fields = (
+            'id',
+            'key',
+            'name',
+            'description',
+            'history',
+        )
+
+    def get_history(self, obj: models.SupportedSubCharacteristic):
+        MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
+        try:
+            qs = obj.calculated_subcharacteristics.all()[:MAX]
+            return CalculatedSubCharacteristicSerializer(qs, many=True).data
+        except models.CalculatedSubCharacteristic.DoesNotExist:
             return None

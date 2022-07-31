@@ -49,6 +49,12 @@ repo_router.register(
 )
 
 repo_router.register(
+    'history/subcharacteristics',
+    views.CalculatedSubCharacteristicHistoryModelViewSet,
+    basename='calculated-subcharacteristics-history',
+)
+
+repo_router.register(
     'measures',
     views.LatestCalculatedMeasureModelViewSet,
     basename='latest-calculated-measures',
