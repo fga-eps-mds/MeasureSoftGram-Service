@@ -16,8 +16,8 @@ from service.sub_serializers.metrics import (
 )
 from service.sub_serializers.pre_config import PreConfigSerializer
 from service.sub_serializers.subcharacteristics import (
-    SupportedSubCharacteristicSerializer,
+    CalculatedSubCharacteristicHistorySerializer,
     CalculatedSubCharacteristicSerializer,
     LatestCalculatedSubCharacteristicSerializer,
-    CalculatedSubCharacteristicHistorySerializer,
+    SupportedSubCharacteristicSerializer,
 )
