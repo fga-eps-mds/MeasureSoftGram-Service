@@ -1,4 +1,4 @@
-name: Export de métricas
+name: Export de métricas em releases
 
 on:
   push:
