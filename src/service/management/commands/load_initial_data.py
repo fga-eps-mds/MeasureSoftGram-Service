@@ -81,6 +81,13 @@ class Command(BaseCommand):
                     {"key": "duplicated_lines_density"},
                 ],
             },
+            {
+                "key": "ci_feedback_time",
+                "metrics": [
+                    {"key": "number_of_build_pipelines_in_the_last_x_days"},
+                    {"key": "runtime_sum_of_build_pipelines_in_the_last_x_days"},
+                ],
+            },
         ]
         for measure_data in supported_measures:
             measure_key = measure_data["key"]

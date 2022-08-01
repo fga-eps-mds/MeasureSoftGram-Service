@@ -15,15 +15,10 @@ from utils.exceptions import GithubCollectorParamsException
 
 def get_or_create_supported_metric(
     metric: dict,
-    threshold: int,
 ) -> models.SupportedMetric:
-    m_name = metric['name']
-    m_name = m_name.split(' in the last')[0]
-    m_name += f' in the last {threshold} days'
-
     sup_metric, _ = models.SupportedMetric.objects.get_or_create(
-        name=m_name,
-        key=utils.keyfy(m_name),
+        name=metric['name'],
+        key=metric['key'],
         metric_type=metric['metric_type'],
     )
     return sup_metric
@@ -94,15 +89,7 @@ def import_github_metrics(request):
         if not has_all_params:
             continue
 
-        threshold = get_threshold(data)
-
-        # O nome da métrica está atrelado com o threshold, desse
-        # modo é preciso verificar se a métrica que o usuário está
-        # querendo calcular já existe, e caso não exista, criá-la
-        sup_metric = get_or_create_supported_metric(
-            metric,
-            threshold,
-        )
+        sup_metric = get_or_create_supported_metric(metric)
 
         # Calcula o valor da métrica desejada
         value = calculate_metric_value(metric, data)

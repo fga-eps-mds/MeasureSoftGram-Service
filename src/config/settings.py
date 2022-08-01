@@ -263,7 +263,7 @@ GITHUB_METRICS = [
         },
     },
     {
-        "key": f"number_of_build_pipelines_in_the_last_{pipel_thd}_days",
+        "key": "number_of_build_pipelines_in_the_last_x_days",
         "name": f"Number of build pipelines in the last {pipel_thd} days",
         "metric_type": "INT",
         "api_params": [
@@ -286,7 +286,7 @@ GITHUB_METRICS = [
         },
     },
     {
-        "key": f"runtime_sum_of_build_pipelines_in_the_last_{pipel_thd}_days",
+        "key": "runtime_sum_of_build_pipelines_in_the_last_x_days",
         "name": f"Runtime sum of build pipelines in the last {pipel_thd} days",
         "metric_type": "INT",
         "api_params": [
