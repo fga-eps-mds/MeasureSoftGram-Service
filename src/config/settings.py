@@ -261,7 +261,11 @@ GITHUB_METRICS = [
     },
     {
         "key": "number_of_build_pipelines_in_the_last_x_days",
+<<<<<<< HEAD
         "name": "Number of build pipelines in the last x days",
+=======
+        "name": f"Number of build pipelines in the last {pipel_thd} days",
+>>>>>>> b66f232... #134 - Add ci feedback time measure
         "metric_type": "INT",
         "api_params": [
             'pipelines_repository_url',
