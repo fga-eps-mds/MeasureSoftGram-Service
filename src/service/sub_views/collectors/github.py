@@ -14,11 +14,15 @@ from utils.exceptions import GithubCollectorParamsException
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 5b0a92a2b974a424d95a8ffb1c41ed57d8b13a33
 def get_dynamic_key(key: str, threshold: int) -> str:
     dynamic_key = key.split('_in_the_last')[0]
     dynamic_key += f'_in_the_last_{threshold}_days'
 
     return dynamic_key
+<<<<<<< HEAD
 =======
 def get_or_create_supported_metric(
     metric: dict,
@@ -30,6 +34,8 @@ def get_or_create_supported_metric(
     )
     return sup_metric
 >>>>>>> b66f232... #134 - Add ci feedback time measure
+=======
+>>>>>>> 5b0a92a2b974a424d95a8ffb1c41ed57d8b13a33
 
 
 def get_threshold(data):
