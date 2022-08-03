@@ -79,6 +79,7 @@ class CollectedMetric(models.Model):
         null=True,
         blank=True,
     )
+    dynamic_key = models.CharField(max_length=128, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

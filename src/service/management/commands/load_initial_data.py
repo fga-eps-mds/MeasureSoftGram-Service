@@ -13,7 +13,6 @@ from django.core.management.base import BaseCommand
 from django.db.models import Count
 from django.db.utils import IntegrityError
 from django.utils import timezone
-
 import utils
 
 # Local Imports
@@ -79,6 +78,13 @@ class Command(BaseCommand):
                 "metrics": [
                     {"key": "number_of_files"},
                     {"key": "duplicated_lines_density"},
+                ],
+            },
+            {
+                "key": "ci_feedback_time",
+                "metrics": [
+                    {"key": "number_of_build_pipelines_in_the_last_x_days"},
+                    {"key": "runtime_sum_of_build_pipelines_in_the_last_x_days"},
                 ],
             },
         ]
