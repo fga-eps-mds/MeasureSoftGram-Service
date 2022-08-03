@@ -193,13 +193,10 @@ GITHUB_PIPELINE_METRICS_THRESHOLD = int(
 )
 
 
-issue_thd = GITHUB_ISSUE_METRICS_THRESHOLD
-pipel_thd = GITHUB_PIPELINE_METRICS_THRESHOLD
-
 GITHUB_METRICS = [
     {
-        "key": f"number_of_resolved_issues_in_the_last_{issue_thd}_days",
-        "name": f"Number of resolved issues in the last {issue_thd} days",
+        "key": "number_of_resolved_issues_in_the_last_x_days",
+        "name": "Number of resolved issues in the last x days",
         "metric_type": "INT",
         'api_params': [
             'issues_repository_url',
@@ -219,8 +216,8 @@ GITHUB_METRICS = [
         },
     },
     {
-        "key": f"number_of_issues_with_bug_label_in_the_last_{issue_thd}_days",
-        "name": f"Number of issues with bug label in the last {issue_thd} days",
+        "key": "number_of_issues_with_bug_label_in_the_last_x_days",
+        "name": "Number of issues with bug label in the last x days",
         "metric_type": "INT",
         "api_params": [
             'issues_repository_url',
@@ -242,8 +239,8 @@ GITHUB_METRICS = [
         },
     },
     {
-        "key": f"total_number_of_issues_in_the_last_{issue_thd}_days",
-        "name": f"Total number of issues in the last {issue_thd} days",
+        "key": "total_number_of_issues_in_the_last_x_days",
+        "name": "Total number of issues in the last x days",
         "metric_type": "INT",
         "api_params": [
             'issues_repository_url',
@@ -263,8 +260,8 @@ GITHUB_METRICS = [
         },
     },
     {
-        "key": f"number_of_build_pipelines_in_the_last_{pipel_thd}_days",
-        "name": f"Number of build pipelines in the last {pipel_thd} days",
+        "key": "number_of_build_pipelines_in_the_last_x_days",
+        "name": "Number of build pipelines in the last x days",
         "metric_type": "INT",
         "api_params": [
             'pipelines_repository_url',
@@ -286,8 +283,8 @@ GITHUB_METRICS = [
         },
     },
     {
-        "key": f"runtime_sum_of_build_pipelines_in_the_last_{pipel_thd}_days",
-        "name": f"Runtime sum of build pipelines in the last {pipel_thd} days",
+        "key": "runtime_sum_of_build_pipelines_in_the_last_x_days",
+        "name": "Runtime sum of build pipelines in the last x days",
         "metric_type": "INT",
         "api_params": [
             'pipelines_repository_url',

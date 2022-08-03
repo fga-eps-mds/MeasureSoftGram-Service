@@ -13,20 +13,11 @@ from service.serializers import GithubCollectorParamsSerializer
 from utils.exceptions import GithubCollectorParamsException
 
 
-def get_or_create_supported_metric(
-    metric: dict,
-    threshold: int,
-) -> models.SupportedMetric:
-    m_name = metric['name']
-    m_name = m_name.split(' in the last')[0]
-    m_name += f' in the last {threshold} days'
+def get_dynamic_key(key: str, threshold: int) -> str:
+    dynamic_key = key.split('_in_the_last')[0]
+    dynamic_key += f'_in_the_last_{threshold}_days'
 
-    sup_metric, _ = models.SupportedMetric.objects.get_or_create(
-        name=m_name,
-        key=utils.keyfy(m_name),
-        metric_type=metric['metric_type'],
-    )
-    return sup_metric
+    return dynamic_key
 
 
 def get_threshold(data):
@@ -94,20 +85,18 @@ def import_github_metrics(request):
         if not has_all_params:
             continue
 
+        sup_metric = models.SupportedMetric.objects.get(
+            key=metric['key']
+        )
+
         threshold = get_threshold(data)
 
-        # O nome da métrica está atrelado com o threshold, desse
-        # modo é preciso verificar se a métrica que o usuário está
-        # querendo calcular já existe, e caso não exista, criá-la
-        sup_metric = get_or_create_supported_metric(
-            metric,
-            threshold,
-        )
+        dynamic_key = get_dynamic_key(metric['key'], threshold)
 
         # Calcula o valor da métrica desejada
         value = calculate_metric_value(metric, data)
 
-        sup_metric.collected_metrics.create(value=value)
+        sup_metric.collected_metrics.create(value=value, dynamic_key=dynamic_key)
         new_collected_metrics.append(sup_metric)
 
     serializer = serializers.LatestCollectedMetricSerializer(
