@@ -29,6 +29,7 @@ class CollectedMetricAdmin(admin.ModelAdmin):
         "id",
         "get_metric_key",
         "get_metric_name",
+        "dynamic_key",
         "get_value",
         "created_at",
     )
