@@ -89,6 +89,13 @@ class Command(BaseCommand):
                     {"key": "runtime_sum_of_build_pipelines_in_the_last_x_days"},
                 ],
             },
+            {
+                "key": "team_throughput",
+                "metrics": [
+                    {"key": "number_of_resolved_issues_in_the_last_x_days"},
+                    {"key": "total_number_of_issues_in_the_last_x_days"},
+                ],
+            },
         ]
         for measure_data in supported_measures:
             measure_key = measure_data["key"]
