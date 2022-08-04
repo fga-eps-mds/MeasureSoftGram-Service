@@ -18,6 +18,7 @@ import utils
 
 # Local Imports
 from service import models, staticfiles
+from service.sub_views.collectors.sonarqube import import_sonar_metrics
 from utils import (
     get_random_datetime,
     get_random_qualifier,
@@ -124,6 +125,10 @@ class Command(BaseCommand):
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
 
         self.model_generator(models.SupportedMetric, data['metrics'])
+
+        import_sonar_metrics(staticfiles.SONARQUBE_JSON)
+
+
 
     def create_github_supported_metrics(self):
         github_metrics = [
