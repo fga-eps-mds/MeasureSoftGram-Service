@@ -48,9 +48,10 @@ def get_random_path():
     middle_dirs = ['controllers', 'models', 'serializers', 'views',
                    'forms', 'templatetags', 'commands', 'management']
 
-    file_names = ['app.py', 'config.py', 'views.py', 'serializers.py',
-                  'models.py', 'controllers.py', 'forms.py', 'templatetags.py'
-                  'pre_config.py', 'urls.py', 'models.py', 'admin.py'
+    file_names = [
+        'app.py', 'config.py', 'views.py', 'serializers.py', 'models.py',
+        'controllers.py', 'forms.py', 'templatetags.py' 'pre_config.py',
+        'urls.py', 'models.py', 'admin.py',
     ]
 
     base_dir = random.choice(base_dirs)

@@ -1,3 +1,5 @@
+# flake8: noqa
+# pylint: skip-file
 SONARQUBE_JSON = {
   "paging": {
     "pageIndex": 1,

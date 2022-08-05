@@ -1,5 +1,6 @@
-from typing import Union
 import datetime as dt
+from typing import Union
+
 from django.db import models
 from django.utils import timezone
 

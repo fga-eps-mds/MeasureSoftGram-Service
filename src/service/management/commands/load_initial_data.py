@@ -20,11 +20,11 @@ import utils
 from service import models, staticfiles
 from service.sub_views.collectors.sonarqube import import_sonar_metrics
 from utils import (
-    get_random_datetime,
-    get_random_qualifier,
-    get_random_path,
-    get_random_value,
     exceptions,
+    get_random_datetime,
+    get_random_path,
+    get_random_qualifier,
+    get_random_value,
 )
 
 User = get_user_model()
