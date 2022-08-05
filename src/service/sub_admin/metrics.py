@@ -29,14 +29,17 @@ class CollectedMetricAdmin(admin.ModelAdmin):
         "id",
         "get_metric_key",
         "get_metric_name",
-        "dynamic_key",
         "get_value",
+        "path",
+        "dynamic_key",
         "created_at",
     )
     search_fields = (
         "metric__key",
+        "path",
     )
     list_filter = (
+        "qualifier",
         "metric__metric_type",
         "metric__name",
     )
