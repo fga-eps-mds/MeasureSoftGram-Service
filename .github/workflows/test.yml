@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@master
@@ -53,8 +55,8 @@ jobs:
       - name: Análise de cobertura de testes
         run: |
           pip install coverage==6.4.2
-          coverage run src/manage.py test
-          coverage xml -o coverage.xml
+          coverage run -m pytest src --junitxml=./src/reports/junit.xml
+          coverage xml -o src/reports/coverage.xml
 
       # Análise da base de código
       - name: SonarCloud Scan
@@ -64,10 +66,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # - name: fix code coverage paths
-      #   if: always()
+      # - name: Override Coverage Source Path for Sonar
       #   run: |
-      #     sed -i 's/\/home\/runner\/work\/2021-2-MeasureSoftGram-Service\/2021-2-MeasureSoftGram-Service\//\/github\/workspace\//g' coverage.xml
+      #     sed -i 's/  /home/runner/work/2022-1-MeasureSoftGram-Service/2022-1-MeasureSoftGram-Service ///github/workspace/   /g' coverage.xml
+
+      - name: fix code coverage paths
+        if: always()
+        run: |
+          sed -i 's/\/home\/runner\/work\/2022-1-MeasureSoftGram-Service\/2022-1-MeasureSoftGram-Service/\/github\/workspace\//g' src/reports/coverage.xml
 
       - name: Upload coverage to Codecov
         if: always()
@@ -77,7 +83,7 @@ jobs:
           directory: ./
           env_vars: OS,PYTHON
           fail_ci_if_error: true
-          files: ./coverage.xml
+          files: ./src/reports/coverage.xml
           flags: unittests
-          name: 2021-2-MeasureSoftGram-Service
+          name: 2022-1-MeasureSoftGram-Service
           verbose: true

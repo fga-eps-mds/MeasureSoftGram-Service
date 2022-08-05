@@ -17,7 +17,9 @@ METRICS_SONAR = [
     'test_errors',
     'test_failures',
     'test_execution_time',
-    'security_rating'
+    'security_rating',
+    'test_success_density',
+    'reliability_rating',
 ]
 
 BASE_URL = 'https://sonarcloud.io/api/measures/component_tree?component=fga-eps-mds_'
