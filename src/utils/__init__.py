@@ -37,8 +37,26 @@ def keyfy(str_value):
 
 
 def get_random_string():
-    valid_chars = random.choice(string.ascii_uppercase + string.digits)
-    return ''.join(valid_chars for _ in range(100))
+    alphabet = string.ascii_uppercase + string.digits
+    return ''.join(random.choice(alphabet) for _ in range(100))
+
+
+def get_random_path():
+    base_dirs = ['src', 'test', 'utils', 'apps', 'config', 'templates',
+                 'static', 'media']
+
+    middle_dirs = ['controllers', 'models', 'serializers', 'views',
+                   'forms', 'templatetags', 'commands', 'management']
+
+    file_names = ['app.py', 'config.py', 'views.py', 'serializers.py',
+                  'models.py', 'controllers.py', 'forms.py', 'templatetags.py'
+                  'pre_config.py', 'urls.py', 'models.py', 'admin.py'
+    ]
+
+    base_dir = random.choice(base_dirs)
+    middle_dir = random.choice(middle_dirs)
+    file_name = random.choice(file_names)
+    return f'{base_dir}/{middle_dir}/{file_name}'
 
 
 def get_random_qualifier():

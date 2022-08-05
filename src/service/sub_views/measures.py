@@ -60,10 +60,7 @@ def calculate_measures(request):
         many=True,
     )
 
-    return Response(
-        serializer.data,
-        status=status.HTTP_201_CREATED
-    )
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class SupportedMeasureModelViewSet(
