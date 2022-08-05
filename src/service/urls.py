@@ -20,6 +20,12 @@ system_router.register(
     basename='supported-measures',
 )
 
+system_router.register(
+    'supported-subcharacteristics',
+    views.SupportedSubCharacteristicModelViewSet,
+    basename='supported-subcharacteristics',
+)
+
 # tem o prefixo `api/v1/organizations/<int>/repository/<int>/`
 repo_router = DefaultRouter()
 
@@ -43,6 +49,12 @@ repo_router.register(
 )
 
 repo_router.register(
+    'history/subcharacteristics',
+    views.CalculatedSubCharacteristicHistoryModelViewSet,
+    basename='calculated-subcharacteristics-history',
+)
+
+repo_router.register(
     'measures',
     views.LatestCalculatedMeasureModelViewSet,
     basename='latest-calculated-measures',
@@ -52,6 +64,12 @@ repo_router.register(
     'metrics',
     views.LatestCollectedMetricModelViewSet,
     basename='latest-collected-metrics',
+)
+
+repo_router.register(
+    'subcharacteristics',
+    views.LatestCalculatedSubCharacteristicModelViewSet,
+    basename='latest-calculated-subcharacteristics',
 )
 
 repo_router.register(

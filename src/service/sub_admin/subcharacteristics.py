@@ -54,3 +54,31 @@ class MeasureSubCharacteristicAssociation(admin.ModelAdmin):
         return obj.supportedmeasure.key
     get_measure_key.short_description = "Measure key"
     get_measure_key.admin_order_field = "supportedmeasure__key"
+
+
+@admin.register(models.CalculatedSubCharacteristic)
+class CalculatedSubCharacteristicAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "get_subcharacteristic_key",
+        "get_subcharacteristic_name",
+        "value",
+        "created_at",
+    )
+    search_fields = (
+        "subcharacteristic__key",
+        "subcharacteristic__name",
+    )
+    list_filter = (
+        "subcharacteristic__name",
+    )
+
+    def get_subcharacteristic_key(self, obj):
+        return obj.subcharacteristic.key
+    get_subcharacteristic_key.short_description = "SubCharacteristic key"
+    get_subcharacteristic_key.admin_order_field = "subcharacteristic__key"
+
+    def get_subcharacteristic_name(self, obj):
+        return obj.subcharacteristic.name
+    get_subcharacteristic_name.short_description = "SubCharacteristic name"
+    get_subcharacteristic_name.admin_order_field = "subcharacteristic__name"

@@ -1,6 +1,7 @@
 from typing import Iterable, Set
 
 from django.db import models
+from django.utils import timezone
 
 import utils
 
@@ -65,3 +66,22 @@ class SupportedSubCharacteristic(models.Model):
             selected_subcharacteristics_keys,
             SupportedSubCharacteristic,
         )
+
+
+class CalculatedSubCharacteristic(models.Model):
+    """
+    Tabela que aramazena os valores calculados das subcaracterísticas.
+    """
+    class Meta:
+        ordering = ['-created_at']
+
+    subcharacteristic = models.ForeignKey(
+        SupportedSubCharacteristic,
+        related_name='calculated_subcharacteristics',
+        on_delete=models.CASCADE,
+    )
+    value = models.FloatField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f'Subcharacteristic: {self.subcharacteristic}, Value: {self.value}, Created at: {self.created_at}'
