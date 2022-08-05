@@ -22,8 +22,9 @@ from service.sub_views.collectors.sonarqube import import_sonar_metrics
 from utils import (
     get_random_datetime,
     get_random_qualifier,
-    get_random_string,
+    get_random_path,
     get_random_value,
+    exceptions,
 )
 
 User = get_user_model()
@@ -49,7 +50,6 @@ class Command(BaseCommand):
             {
                 "key": "test_builds",
                 "metrics": [
-                    {"key": "tests"},
                     {"key": "test_execution_time"},
                 ],
             },
@@ -107,19 +107,28 @@ class Command(BaseCommand):
                     name=measure_name,
                 )
 
-                metrics_keys = [
+                metrics_keys = {
                     metric["key"]
                     for metric in measure_data["metrics"]
-                ]
+                }
 
                 metrics = models.SupportedMetric.objects.filter(
                     key__in=metrics_keys,
                 )
+
+                if metrics.count() != len(metrics_keys):
+                    raise exceptions.MissingSupportedMetricException()
+
                 measure.metrics.set(metrics)
 
     def create_supported_metrics(self):
         self.create_sonarqube_supported_metrics()
         self.create_github_supported_metrics()
+
+        models.SupportedMetric.objects.get_or_create(
+            key='number_of_files',
+            name='Number of files',
+        )
 
     def create_sonarqube_supported_metrics(self):
         sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'
@@ -134,8 +143,6 @@ class Command(BaseCommand):
         self.model_generator(models.SupportedMetric, data['metrics'])
 
         import_sonar_metrics(staticfiles.SONARQUBE_JSON)
-
-
 
     def create_github_supported_metrics(self):
         github_metrics = [
@@ -192,7 +199,7 @@ class Command(BaseCommand):
 
                     fake_collected_metric = models.CollectedMetric(
                         metric=supported_metric,
-                        path=get_random_string(),
+                        path=get_random_path(),
                         qualifier=get_random_qualifier(),
                         value=metric_value,
                         created_at=get_random_datetime(start_date, end_date),
