@@ -57,13 +57,11 @@ class Command(BaseCommand):
                 "key": "test_coverage",
                 "metrics": [
                     {"key": "coverage"},
-                    {"key": "number_of_files"},
                 ],
             },
             {
                 "key": "non_complex_file_density",
                 "metrics": [
-                    {"key": "number_of_files"},
                     {"key": "functions"},
                     {"key": "complexity"},
                 ],
@@ -71,14 +69,12 @@ class Command(BaseCommand):
             {
                 "key": "commented_file_density",
                 "metrics": [
-                    {"key": "number_of_files"},
                     {"key": "comment_lines_density"},
                 ],
             },
             {
                 "key": "duplication_absense",
                 "metrics": [
-                    {"key": "number_of_files"},
                     {"key": "duplicated_lines_density"},
                 ],
             },
@@ -124,11 +120,6 @@ class Command(BaseCommand):
     def create_supported_metrics(self):
         self.create_sonarqube_supported_metrics()
         self.create_github_supported_metrics()
-
-        models.SupportedMetric.objects.get_or_create(
-            key='number_of_files',
-            name='Number of files',
-        )
 
     def create_sonarqube_supported_metrics(self):
         sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'
