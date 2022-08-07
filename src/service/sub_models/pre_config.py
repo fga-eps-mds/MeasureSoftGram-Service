@@ -49,6 +49,27 @@ class PreConfig(models.Model):
 
         super().save(*args, **kwargs)
 
+    def get_measure_weight(self, measure_key: str) -> float:
+        """
+        Função que retorna o peso de uma medida.
+
+        Observação: Aqui estou usando um algorítmo O(C * S * M) para
+        simplificar a assinatura da função, pois caso contrário seria
+        necessário passar a haracteristics_key, a subcharacteristics_key e a measure_key. Na pior das hipóteses o C (quantidade de características)
+        será 20, o S (quantidade de subcaracterísticas) será 20 e o M
+        (quantidade de medidas) será 20, o que resulta em um loop de 8000 iterações, o que não é nada.
+        """
+        for characteristic in self.data['characteristics']:
+            for subcharacteristic in characteristic['subcharacteristics']:
+                for measure in subcharacteristic['measures']:
+                    if measure['key'] == measure_key:
+                        # No JSON o peso é um float entre 0 e 100
+                        return measure['weight'] / 100
+
+        raise utils.exceptions.MeasureNotDefinedInPreConfiguration(
+            f'Measure {measure_key} not defined in pre-configuration',
+        )
+
     @staticmethod
     def validate_measures(data: dict):
         """
