@@ -19,6 +19,6 @@ from service.sub_serializers.subcharacteristics import (
     CalculatedSubCharacteristicHistorySerializer,
     CalculatedSubCharacteristicSerializer,
     LatestCalculatedSubCharacteristicSerializer,
-    SupportedSubCharacteristicSerializer,
     SubcharacteristicsCalculationsRequestSerializer,
+    SupportedSubCharacteristicSerializer,
 )
