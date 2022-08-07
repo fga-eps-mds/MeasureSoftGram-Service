@@ -4,3 +4,7 @@ class RandomMetricTypeException(Exception):
 
 class GithubCollectorParamsException(Exception):
     pass
+
+
+class MissingSupportedMetricException(Exception):
+    pass

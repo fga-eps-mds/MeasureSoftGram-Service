@@ -9,12 +9,16 @@ from utils import namefy
 
 @api_view(['POST', 'HEAD', 'OPTIONS'])
 @parser_classes([JSONParser])
-def import_sonar_metrics(request):
+def import_sonar_metrics_view(request):
     """
     Endpoint que recebe um o JSON obtido na API do SonarQube,
     extrai os valores das métricas contidas e salva no banco de dados.
     """
     data = dict(request.data)
+    return import_sonar_metrics(data)
+
+
+def import_sonar_metrics(data):
 
     supported_metrics = {
         supported_metric.key: supported_metric

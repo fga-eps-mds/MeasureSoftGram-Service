@@ -67,7 +67,7 @@ class CalculatedMeasureSerializer(serializers.ModelSerializer):
         model = models.CalculatedMeasure
         fields = (
             'id',
-            'measure',
+            'measure_id',
             'value',
             'created_at',
         )

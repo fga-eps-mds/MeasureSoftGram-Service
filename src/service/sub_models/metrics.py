@@ -1,3 +1,6 @@
+import datetime as dt
+from typing import Union
+
 from django.db import models
 from django.utils import timezone
 
@@ -29,6 +32,7 @@ class SupportedMetric(models.Model):
     metric_type = models.CharField(
         max_length=15,
         choices=SupportedMetricTypes.choices,
+        default=SupportedMetricTypes.FLOAT,
     )
     name = models.CharField(max_length=128)
     description = models.TextField(max_length=512, null=True, blank=True)
@@ -36,13 +40,58 @@ class SupportedMetric(models.Model):
     def __str__(self):
         return self.key
 
-    def get_latest_metric_value(self):
+    def get_latest_metric_value(self) -> Union[float, str, int, bool]:
         """
         Função que recupera o valor mais recente da métrica
         """
         if latest_metric := self.collected_metrics.first():
             return latest_metric.value
         return None
+
+    def get_latest_metric_values(self) -> list:
+        """
+        Função que recupera os valores mais recentes de uma métrica.
+
+        Observe que aqui, diferentemente de `get_latest_metric_value`
+        retornamos uma lista, pois queremos os valores dessa métrica para
+        todos os arquivos do projeto.
+
+        Existem algumas medidas que para calcular é preciso da lista de valores
+        de uma métrica em todos os arquivos. Como por exemplo a medida
+        test_coverage, que precisa da cobertura (metrica coverage) dos
+        vários arquivos quem compõe o repositório.
+        """
+        if latest_metric := self.collected_metrics.first():
+            same_day = latest_metric.created_at
+
+            # Remove hours, minutes and seconds
+            begin = same_day.replace(hour=0, minute=0, second=0, microsecond=0)
+            end = same_day.replace(hour=23, minute=59, second=59, microsecond=0)
+
+            # Métrica de arquivos (inclusive de arquivos vazios)
+            metrics_qs = self.collected_metrics.filter(
+                qualifier='FIL',
+                created_at__gte=begin,
+                created_at__lte=end,
+            )
+
+            # Métrica do número de linhas
+            ncloc_metric = SupportedMetric.objects.get(key='ncloc')
+
+            # Arquivos vazios (sem código relevante)
+            qs = ncloc_metric.collected_metrics.filter(
+                created_at__gte=begin,
+                created_at__lte=end,
+                qualifier='FIL',
+                value=0,
+            ).values_list('path', flat=True)
+
+            empty_files_set = set(qs)
+
+            # Somente os valores dos arquivos que não são vazios
+            return [m.value for m in metrics_qs if m.path not in empty_files_set]
+
+        return []
 
 
 class CollectedMetric(models.Model):

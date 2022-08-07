@@ -18,10 +18,12 @@ import utils
 
 # Local Imports
 from service import models, staticfiles
+from service.sub_views.collectors.sonarqube import import_sonar_metrics
 from utils import (
+    exceptions,
     get_random_datetime,
+    get_random_path,
     get_random_qualifier,
-    get_random_string,
     get_random_value,
 )
 
@@ -48,7 +50,6 @@ class Command(BaseCommand):
             {
                 "key": "test_builds",
                 "metrics": [
-                    {"key": "tests"},
                     {"key": "test_execution_time"},
                 ],
             },
@@ -56,13 +57,11 @@ class Command(BaseCommand):
                 "key": "test_coverage",
                 "metrics": [
                     {"key": "coverage"},
-                    {"key": "number_of_files"},
                 ],
             },
             {
                 "key": "non_complex_file_density",
                 "metrics": [
-                    {"key": "number_of_files"},
                     {"key": "functions"},
                     {"key": "complexity"},
                 ],
@@ -70,14 +69,12 @@ class Command(BaseCommand):
             {
                 "key": "commented_file_density",
                 "metrics": [
-                    {"key": "number_of_files"},
                     {"key": "comment_lines_density"},
                 ],
             },
             {
                 "key": "duplication_absense",
                 "metrics": [
-                    {"key": "number_of_files"},
                     {"key": "duplicated_lines_density"},
                 ],
             },
@@ -86,6 +83,13 @@ class Command(BaseCommand):
                 "metrics": [
                     {"key": "number_of_build_pipelines_in_the_last_x_days"},
                     {"key": "runtime_sum_of_build_pipelines_in_the_last_x_days"},
+                ],
+            },
+            {
+                "key": "team_throughput",
+                "metrics": [
+                    {"key": "number_of_resolved_issues_in_the_last_x_days"},
+                    {"key": "total_number_of_issues_in_the_last_x_days"},
                 ],
             },
         ]
@@ -99,14 +103,18 @@ class Command(BaseCommand):
                     name=measure_name,
                 )
 
-                metrics_keys = [
+                metrics_keys = {
                     metric["key"]
                     for metric in measure_data["metrics"]
-                ]
+                }
 
                 metrics = models.SupportedMetric.objects.filter(
                     key__in=metrics_keys,
                 )
+
+                if metrics.count() != len(metrics_keys):
+                    raise exceptions.MissingSupportedMetricException()
+
                 measure.metrics.set(metrics)
 
     def create_supported_metrics(self):
@@ -124,6 +132,8 @@ class Command(BaseCommand):
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
 
         self.model_generator(models.SupportedMetric, data['metrics'])
+
+        import_sonar_metrics(staticfiles.SONARQUBE_JSON)
 
     def create_github_supported_metrics(self):
         github_metrics = [
@@ -180,7 +190,7 @@ class Command(BaseCommand):
 
                     fake_collected_metric = models.CollectedMetric(
                         metric=supported_metric,
-                        path=get_random_string(),
+                        path=get_random_path(),
                         qualifier=get_random_qualifier(),
                         value=metric_value,
                         created_at=get_random_datetime(start_date, end_date),

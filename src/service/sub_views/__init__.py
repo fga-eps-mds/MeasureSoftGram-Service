@@ -1,5 +1,5 @@
 from .collectors.github import import_github_metrics
-from .collectors.sonarqube import import_sonar_metrics
+from .collectors.sonarqube import import_sonar_metrics_view
 from .metrics import (
     CollectedMetricHistoryModelViewSet,
     CollectedMetricModelViewSet,

@@ -24,6 +24,9 @@
             "args": [
                 "load_initial_data"
             ],
+            "env": {
+                "CREATE_FAKE_DATA": "True"
+            },
             "django": true,
             "justMyCode": true
         }
