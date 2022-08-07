@@ -1,4 +1,4 @@
-from typing import Iterable, Set
+from typing import Iterable, Set, Union
 
 from django.db import models
 from django.utils import timezone
@@ -75,6 +75,15 @@ class SupportedMeasure(models.Model):
             selected_measures_keys,
             SupportedMeasure,
         )
+
+    def get_latest_measure_value(self) -> Union[None, float]:
+        """
+        Função que recupera o valor mais recente da medida caso exista,
+        caso não exista retorna None
+        """
+        if latest_measure := self.calculated_measures.first():
+            return latest_measure.value
+        return None
 
 
 class CalculatedMeasure(models.Model):
