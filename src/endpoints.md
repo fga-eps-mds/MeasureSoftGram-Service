@@ -14,7 +14,7 @@ Metrics
 /api/v1/measures/ OK
 
 #### Lista todas as subcharacteristics suportadas pelo repositório
-/api/v1/subcharacteristics/
+/api/v1/subcharacteristics/ OK
 
 #### Lista todas as characteristics suportadas pelo repositório
 /api/v1/characteristics/
@@ -47,21 +47,6 @@ CLI para importar vários arquivos do SonarQube -> New issue
 
 #### Calcula e retorna o valor atual do **gqm** do repositório
 /api/v1/orgs/1/repositories/1/create/gqm/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ## Endpoints para leitura de dados já calculados/cadastrados (READ-ONLY)
@@ -105,13 +90,13 @@ CLI para importar vários arquivos do SonarQube -> New issue
 ### subcharacteristics
 
 #### Endpoint que retorna uma lista com o valor atual de todas as subcharacteristics associadas com um projeto
-/api/v1/orgs/1/repositories/1/subcharacteristics/
+/api/v1/orgs/1/repositories/1/subcharacteristics/ OK
 
 #### Endpoint que retorna o valor atual de uma subcharacteristic associada a um projeto
-/api/v1/orgs/1/repositories/1/subcharacteristics/1/
+/api/v1/orgs/1/repositories/1/subcharacteristics/1/ OK
 
 #### Endpoint que retorna uma lista com o histórico de valores de uma subcharacteristic de um projeto
-/api/v1/orgs/1/repositories/1/history/subcharacteristics/1/
+/api/v1/orgs/1/repositories/1/history/subcharacteristics/1/ OK
 
 #### Endpoint que retorna o valor atual das subcharacteristics e de seus componentes
 /api/v1/orgs/1/repositories/1/tree/subcharacteristics/
