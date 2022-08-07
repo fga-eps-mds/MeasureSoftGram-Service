@@ -35,6 +35,30 @@ class SupportedSubCharacteristic(models.Model):
             self.key = utils.namefy(self.name)
         super().save(*args, **kwargs)
 
+    def get_latest_measure_params(self, pre_config) -> dict:
+        """
+        Função que recupera os valores mais recentes das
+        medidas que essa medida depende para ser calculada
+
+        TODO: - Melhorar a query para o banco de dados.
+              - Desconfio que aqui esteja rolando vários inner joins
+
+        raises:
+            utils.exceptions.MeasureNotDefinedInPreConfiguration:
+                Caso a uma medida não esteja definida no pre_config
+        """
+        measure_params = {}
+
+        for measure in self.measures.all():
+            measure_params['key'] = measure.key
+            measure_params['value'] = measure.get_latest_measure_value()
+
+            measure_params['weight'] = pre_config.get_measure_weight(
+                measure.key,
+            )
+
+        return measure_params
+
     def has_unsupported_measures(
         self,
         measures_keys: Iterable[str],
@@ -84,4 +108,8 @@ class CalculatedSubCharacteristic(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'Subcharacteristic: {self.subcharacteristic}, Value: {self.value}, Created at: {self.created_at}'
+        return (
+            f'Subcharacteristic: {self.subcharacteristic}, '
+            f'Value: {self.value}, '
+            'Created at: {self.created_at}'
+        )
