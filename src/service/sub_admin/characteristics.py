@@ -54,3 +54,32 @@ class SubCharacteristicCharacteristicAssociation(admin.ModelAdmin):
         return obj.supportedcharacteristic.key
     get_characteristic_key.short_description = "Characteristic key"
     get_characteristic_key.admin_order_field = "supportedcharacteristic__key"
+
+
+@admin.register(models.CalculatedCharacteristic)
+class CalculatedCharacteristicAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "get_characteristic_key",
+        "get_characteristic_name",
+        "value",
+        "created_at",
+    )
+    search_fields = (
+        "characteristic__key",
+        "characteristic__name",
+    )
+    list_filter = (
+        "characteristic__name",
+    )
+
+    def get_characteristic_key(self, obj):
+        return obj.characteristic.key
+    get_characteristic_key.short_description = "Characteristic key"
+    get_characteristic_key.admin_order_field = "characteristic__key"
+
+    def get_characteristic_name(self, obj):
+        return obj.characteristic.name
+    get_characteristic_name.short_description = "Characteristic name"
+    get_characteristic_name.admin_order_field = "characteristic__name"
+

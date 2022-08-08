@@ -27,7 +27,7 @@ class CalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
         model = models.CalculatedSubCharacteristic
         fields = (
             'id',
-            'subcharacteristic',
+            'subcharacteristic_id',
             'value',
             'created_at',
         )

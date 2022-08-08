@@ -1,6 +1,7 @@
 from typing import Iterable, Set
 
 from django.db import models
+from django.utils import timezone
 
 import utils
 
@@ -68,4 +69,30 @@ class SupportedCharacteristic(models.Model):
         return utils.has_unsupported_entity(
             selected_characteristics_keys,
             SupportedCharacteristic,
+        )
+
+
+class CalculatedCharacteristic(models.Model):
+    """
+    Tabela que armazena os valores calculados das características.
+    """
+
+    class Meta:
+        # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
+        # os registros mais recentes vem primeiro (qs.first() == mais recente)
+        ordering = ['-created_at']
+
+    characteristic = models.ForeignKey(
+        SupportedCharacteristic,
+        related_name='calculated_characteristics',
+        on_delete=models.CASCADE,
+    )
+    value = models.FloatField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return (
+            f'Characteristic: {self.characteristic}, '
+            'Value: {self.value}, '
+            'Created at: {self.created_at}'
         )
