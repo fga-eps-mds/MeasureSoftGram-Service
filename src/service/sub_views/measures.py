@@ -13,7 +13,9 @@ def calculate_measures(request):
     Calcula uma medida
     """
     # 1. Valida se os dados foram enviados corretamente
-    serializer = serializers.MeasuresCalculationsRequestSerializer(data=request.data)
+    serializer = serializers.MeasuresCalculationsRequestSerializer(
+        data=request.data,
+    )
     serializer.is_valid(raise_exception=True)
     data = serializer.validated_data
 
@@ -49,10 +51,20 @@ def calculate_measures(request):
     }
 
     # 6. Salvando no banco de dados as medidas calculadas
+
+    calculated_measures = []
+
     measure: models.SupportedMeasure
     for measure in qs:
         value = calculated_values[measure.key]
-        measure.calculated_measures.create(value=value)
+        calculated_measures.append(
+            models.CalculatedMeasure(
+                measure=measure,
+                value=value,
+            )
+        )
+
+    models.CalculatedMeasure.objects.bulk_create(calculated_measures)
 
     # 7. Retornando o resultado
     serializer = serializers.LatestMeasuresCalculationsRequestSerializer(

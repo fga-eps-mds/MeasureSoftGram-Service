@@ -102,5 +102,12 @@ urlpatterns = [
         'organizations/1/repository/1/calculate/measures/',
         views.calculate_measures,
     ),
+
+    path(
+        'organizations/1/repository/1/calculate/subcharacteristics/',
+        views.calculate_subcharacteristics,
+    ),
+
+
     # END REAL Endpoints
 ]

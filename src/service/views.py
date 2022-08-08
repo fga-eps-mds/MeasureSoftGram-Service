@@ -24,4 +24,5 @@ from service.sub_views.subcharacteristics import (
     CalculatedSubCharacteristicHistoryModelViewSet,
     LatestCalculatedSubCharacteristicModelViewSet,
     SupportedSubCharacteristicModelViewSet,
+    calculate_subcharacteristics,
 )

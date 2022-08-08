@@ -8,3 +8,7 @@ class GithubCollectorParamsException(Exception):
 
 class MissingSupportedMetricException(Exception):
     pass
+
+
+class MeasureNotDefinedInPreConfiguration(Exception):
+    pass

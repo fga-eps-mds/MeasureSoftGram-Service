@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework import serializers
 
+import utils
 from service import models
 
 
@@ -77,3 +78,48 @@ class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
             return CalculatedSubCharacteristicSerializer(qs, many=True).data
         except models.CalculatedSubCharacteristic.DoesNotExist:
             return None
+
+
+class SubcharacteristicsCalculationRequestSerializer(serializers.Serializer):
+    """
+    Serializadora usada para solicitar o cálculo de uma subcaracterística
+    """
+    key = serializers.CharField(max_length=255)
+
+
+class SubcharacteristicsCalculationsRequestSerializer(
+    serializers.Serializer
+):
+    """
+    Serializadora usada para solicitar o cálculo de várias subcaracterísticas
+
+    Aqui estou definindo uma lista de objetos pois é provável que no futuro
+    outros parâmetros além de nome sejam necessários, e deste modo a evolução
+    da API será somente a adição de novas chaves em
+    SubcharacteristicsCalculationRequestSerializer
+    """
+    subcharacteristics = serializers.ListField(
+        child=SubcharacteristicsCalculationRequestSerializer(),
+        required=True,
+    )
+
+    def validate(self, attrs):
+        """
+        Valida se todas as subcaracterísticas solicitadas são suportadas
+        """
+        subcharacteristics_keys = [
+            subchar['key'] for subchar in attrs['subcharacteristics']
+        ]
+
+        unsuported_subchars: str = utils.validate_entity(
+            subcharacteristics_keys,
+            models.SupportedSubCharacteristic.has_unsupported_subcharacteristics
+        )
+
+        if unsuported_subchars:
+            raise serializers.ValidationError((
+                "The following subcharacteristics are "
+                f"not supported: {unsuported_subchars}"
+            ))
+
+        return attrs
