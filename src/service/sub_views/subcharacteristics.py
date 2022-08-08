@@ -47,7 +47,7 @@ def calculate_subcharacteristics(request):
             'measures': measure_params,
         })
 
-    response = clients.CoreClient().calculate_subcharacteristic(core_params)
+    response = clients.CoreClient.calculate_subcharacteristic(core_params)
 
     if response.ok is False:
         return Response(response.text, status=response.status_code)

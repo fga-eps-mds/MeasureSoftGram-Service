@@ -23,6 +23,34 @@ class SupportedCharacteristic(models.Model):
         blank=True,
     )
 
+    def get_latest_subcharacteristics_params(self, pre_config: dict) -> dict:
+        """
+        Função que recupera os valores mais recentes das subcaracterísticas
+        que essa características depende para ser calculada
+
+        TODO: - Melhorar a query para o banco de dados.
+              - Desconfio que aqui esteja rolando vários inner joins
+
+        raises:
+            utils.exceptions.SubCharacteristicNotDefinedInPreConfiguration:
+                Caso a uma subcaracterísticas não esteja definida no pre_config
+        """
+        subchars_params = []
+
+        for subcharacteristic in self.subcharacteristics.all():
+
+            key = subcharacteristic.key
+            weight = pre_config.get_subcharacteristic_weight(key)
+            value = subcharacteristic.get_latest_subcharacteristic_value()
+
+            subchars_params.append({
+                "key": key,
+                "value": value,
+                "weight": weight,
+            })
+
+        return subchars_params
+
     def has_unsupported_subcharacteristics(
         self,
         subcharacteristics_keys: Iterable[str],

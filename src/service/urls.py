@@ -126,6 +126,10 @@ urlpatterns = [
         views.calculate_subcharacteristics,
     ),
 
+    path(
+        'organizations/1/repository/1/calculate/characteristics/',
+        views.calculate_characteristics,
+    ),
 
     # END REAL Endpoints
 ]

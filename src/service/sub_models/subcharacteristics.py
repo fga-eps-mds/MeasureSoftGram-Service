@@ -1,4 +1,4 @@
-from typing import Iterable, Set
+from typing import Iterable, Set, Union
 
 from django.db import models
 from django.utils import timezone
@@ -34,6 +34,14 @@ class SupportedSubCharacteristic(models.Model):
         if not self.key:
             self.key = utils.namefy(self.name)
         super().save(*args, **kwargs)
+
+    def get_latest_subcharacteristic_value(self) -> Union[float, None]:
+        """
+        Metodo que recupera o valor mais recente da subcaracterística
+        """
+        if latest_subchar := self.calculated_subcharacteristics.first():
+            return latest_subchar.value
+        return None
 
     def get_latest_measure_params(self, pre_config) -> dict:
         """

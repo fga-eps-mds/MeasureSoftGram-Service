@@ -82,4 +82,3 @@ class CalculatedCharacteristicAdmin(admin.ModelAdmin):
         return obj.characteristic.name
     get_characteristic_name.short_description = "Characteristic name"
     get_characteristic_name.admin_order_field = "characteristic__name"
-
