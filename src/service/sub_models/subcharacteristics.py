@@ -47,17 +47,17 @@ class SupportedSubCharacteristic(models.Model):
             utils.exceptions.MeasureNotDefinedInPreConfiguration:
                 Caso a uma medida não esteja definida no pre_config
         """
-        measure_params = {}
+        measures_params = []
 
         for measure in self.measures.all():
-            measure_params['key'] = measure.key
-            measure_params['value'] = measure.get_latest_measure_value()
+            weight = pre_config.get_measure_weight(measure.key)
+            measures_params.append({
+                "key": measure.key,
+                "value": measure.get_latest_measure_value(),
+                "weight": weight,
+            })
 
-            measure_params['weight'] = pre_config.get_measure_weight(
-                measure.key,
-            )
-
-        return measure_params
+        return measures_params
 
     def has_unsupported_measures(
         self,
