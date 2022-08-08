@@ -20,6 +20,7 @@ from service.sub_views.mocked_views import (
     get_specific_mocked_measure,
 )
 from service.sub_views.pre_config import CurrentPreConfigModelViewSet
+from service.sub_views.sqc import SQCModelViewSet
 from service.sub_views.subcharacteristics import (
     CalculatedSubCharacteristicHistoryModelViewSet,
     LatestCalculatedSubCharacteristicModelViewSet,

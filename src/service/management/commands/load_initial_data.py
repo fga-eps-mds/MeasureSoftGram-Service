@@ -311,6 +311,24 @@ class Command(BaseCommand):
                 data=staticfiles.DEFAULT_PRE_CONFIG,
             )
 
+    def create_fake_sqc_data(self):
+        if settings.CREATE_FAKE_DATA is False:
+            return
+
+        qs = models.SQC.objects.all()
+
+        MIN_NUMBER = 50
+
+        if qs.count() >= MIN_NUMBER:
+            return
+
+        models.SQC.objects.bulk_create([
+            models.SQC(
+                value=get_random_value('PERCENT'),
+            )
+            for _ in range(MIN_NUMBER - qs.count())
+        ])
+
     def handle(self, *args, **options):
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
@@ -329,3 +347,5 @@ class Command(BaseCommand):
         self.create_suported_characteristics()
 
         self.create_default_pre_config()
+
+        self.create_fake_sqc_data()
