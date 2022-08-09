@@ -10,5 +10,17 @@ class MissingSupportedMetricException(Exception):
     pass
 
 
-class MeasureNotDefinedInPreConfiguration(Exception):
+class EntityNotDefinedInPreConfiguration(Exception):
+    pass
+
+
+class MeasureNotDefinedInPreConfiguration(
+    EntityNotDefinedInPreConfiguration,
+):
+    pass
+
+
+class SubCharacteristicNotDefinedInPreConfiguration(
+    EntityNotDefinedInPreConfiguration
+):
     pass

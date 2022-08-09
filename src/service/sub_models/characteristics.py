@@ -1,6 +1,7 @@
 from typing import Iterable, Set
 
 from django.db import models
+from django.utils import timezone
 
 import utils
 
@@ -21,6 +22,34 @@ class SupportedCharacteristic(models.Model):
         related_name='related_characteristics',
         blank=True,
     )
+
+    def get_latest_subcharacteristics_params(self, pre_config: dict) -> dict:
+        """
+        Função que recupera os valores mais recentes das subcaracterísticas
+        que essa características depende para ser calculada
+
+        TODO: - Melhorar a query para o banco de dados.
+              - Desconfio que aqui esteja rolando vários inner joins
+
+        raises:
+            utils.exceptions.SubCharacteristicNotDefinedInPreConfiguration:
+                Caso a uma subcaracterísticas não esteja definida no pre_config
+        """
+        subchars_params = []
+
+        for subcharacteristic in self.subcharacteristics.all():
+
+            key = subcharacteristic.key
+            weight = pre_config.get_subcharacteristic_weight(key)
+            value = subcharacteristic.get_latest_subcharacteristic_value()
+
+            subchars_params.append({
+                "key": key,
+                "value": value,
+                "weight": weight,
+            })
+
+        return subchars_params
 
     def has_unsupported_subcharacteristics(
         self,
@@ -68,4 +97,30 @@ class SupportedCharacteristic(models.Model):
         return utils.has_unsupported_entity(
             selected_characteristics_keys,
             SupportedCharacteristic,
+        )
+
+
+class CalculatedCharacteristic(models.Model):
+    """
+    Tabela que armazena os valores calculados das características.
+    """
+
+    class Meta:
+        # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
+        # os registros mais recentes vem primeiro (qs.first() == mais recente)
+        ordering = ['-created_at']
+
+    characteristic = models.ForeignKey(
+        SupportedCharacteristic,
+        related_name='calculated_characteristics',
+        on_delete=models.CASCADE,
+    )
+    value = models.FloatField()
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return (
+            f'Characteristic: {self.characteristic}, '
+            'Value: {self.value}, '
+            'Created at: {self.created_at}'
         )

@@ -1,5 +1,12 @@
 
 # Do not delete this imports
+from service.sub_serializers.characteristics import (
+    CalculatedCharacteristicHistorySerializer,
+    CalculatedCharacteristicSerializer,
+    CharacteristicsCalculationsRequestSerializer,
+    LatestCalculatedCharacteristicSerializer,
+    SupportedCharacteristicSerializer,
+)
 from service.sub_serializers.github import GithubCollectorParamsSerializer
 from service.sub_serializers.measures import (
     CalculatedMeasureHistorySerializer,
