@@ -341,11 +341,10 @@ class Command(BaseCommand):
         )
 
     def create_default_pre_config(self):
-        with contextlib.suppress(IntegrityError):
-            models.PreConfig.objects.create(
-                name='Default pre-config',
-                data=staticfiles.DEFAULT_PRE_CONFIG,
-            )
+        models.PreConfig.objects.get_or_create(
+            name='Default pre-config',
+            data=staticfiles.DEFAULT_PRE_CONFIG,
+        )
 
     def create_fake_sqc_data(self):
         if settings.CREATE_FAKE_DATA is False:
