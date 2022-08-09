@@ -22,6 +22,7 @@ from service.sub_serializers.metrics import (
     SupportedMetricSerializer,
 )
 from service.sub_serializers.pre_config import PreConfigSerializer
+from service.sub_serializers.sqc import SQCSerializer
 from service.sub_serializers.subcharacteristics import (
     CalculatedSubCharacteristicHistorySerializer,
     CalculatedSubCharacteristicSerializer,

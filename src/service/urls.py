@@ -96,6 +96,12 @@ repo_router.register(
     basename='current-pre-config',
 )
 
+repo_router.register(
+    'sqc',
+    views.SQCModelViewSet,
+    basename='sqc-viewset',
+)
+
 
 urlpatterns = [
 
