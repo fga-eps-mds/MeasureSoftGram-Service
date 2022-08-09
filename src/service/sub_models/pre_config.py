@@ -72,6 +72,17 @@ class PreConfig(models.Model):
             f'Measure {measure_key} not defined in pre-configuration',
         )
 
+    def get_subcharacteristic_weight(self, subcharacteristic_key: str) -> float:
+        for characteristic in self.data['characteristics']:
+            for subcharacteristic in characteristic['subcharacteristics']:
+                if subcharacteristic['key'] == subcharacteristic_key:
+                    return subcharacteristic['weight'] / 100
+
+        raise utils.exceptions.SubCharacteristicNotDefinedInPreConfiguration((
+            f'Subcharacteristic {subcharacteristic_key} '
+            'not defined in pre-configuration',
+        ))
+
     @staticmethod
     def validate_measures(data: dict):
         """

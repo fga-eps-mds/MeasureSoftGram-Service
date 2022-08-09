@@ -1,4 +1,4 @@
-from typing import Iterable, Set
+from typing import Iterable, Set, Union
 
 from django.db import models
 from django.utils import timezone
@@ -35,6 +35,14 @@ class SupportedSubCharacteristic(models.Model):
             self.key = utils.namefy(self.name)
         super().save(*args, **kwargs)
 
+    def get_latest_subcharacteristic_value(self) -> Union[float, None]:
+        """
+        Metodo que recupera o valor mais recente da subcaracterística
+        """
+        if latest_subchar := self.calculated_subcharacteristics.first():
+            return latest_subchar.value
+        return None
+
     def get_latest_measure_params(self, pre_config) -> dict:
         """
         Função que recupera os valores mais recentes das
@@ -47,17 +55,17 @@ class SupportedSubCharacteristic(models.Model):
             utils.exceptions.MeasureNotDefinedInPreConfiguration:
                 Caso a uma medida não esteja definida no pre_config
         """
-        measure_params = {}
+        measures_params = []
 
         for measure in self.measures.all():
-            measure_params['key'] = measure.key
-            measure_params['value'] = measure.get_latest_measure_value()
+            weight = pre_config.get_measure_weight(measure.key)
+            measures_params.append({
+                "key": measure.key,
+                "value": measure.get_latest_measure_value(),
+                "weight": weight,
+            })
 
-            measure_params['weight'] = pre_config.get_measure_weight(
-                measure.key,
-            )
-
-        return measure_params
+        return measures_params
 
     def has_unsupported_measures(
         self,

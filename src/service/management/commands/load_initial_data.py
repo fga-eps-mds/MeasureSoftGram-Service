@@ -145,13 +145,8 @@ class Command(BaseCommand):
         ]
 
         for metric in github_metrics:
-            try:
+            with contextlib.suppress(IntegrityError):
                 metric.save()
-            except IntegrityError:
-                db_metric = models.SupportedMetric.objects.get(key=metric.key)
-                db_metric.metric_type = metric.metric_type
-                db_metric.name = metric.name
-                db_metric.save()
 
     def model_generator(self, model, metrics):
         for metric in metrics:
@@ -163,70 +158,71 @@ class Command(BaseCommand):
                     metric_type=metric['type'],
                 )
 
-    def create_fake_collected_metrics(self):
+    @staticmethod
+    def create_fake_calculated_entity(qs, calculated_entity_factory, bulk_create_klass):
         if settings.CREATE_FAKE_DATA is False:
             return
+
+        end_date = timezone.now()
+        start_date = end_date - dt.timedelta(days=90)
+
+        MIN_NUMBER_OF_CALCULATED_ENTITIES = 50
+        MIN_NUMBER = MIN_NUMBER_OF_CALCULATED_ENTITIES
+
+        fake_calculated_entities = []
+
+        for entity in qs:
+            if entity.qty <= MIN_NUMBER:
+                created_at = get_random_datetime(start_date, end_date)
+                for _ in range(MIN_NUMBER - entity.qty):
+                    fake_calculated_entities.append(
+                        calculated_entity_factory(entity, created_at),
+                    )
+
+        bulk_create_klass.objects.bulk_create(fake_calculated_entities)
+
+    def create_fake_collected_metrics(self):
 
         qs = models.SupportedMetric.objects.annotate(
-            collected_qty=Count('collected_metrics')
+            qty=Count('collected_metrics')
         )
 
-        end_date = timezone.now()
-        start_date = end_date - dt.timedelta(days=90)
+        def calculated_entity_factory(entity, created_at):
+            metric_type = entity.metric_type
+            value = get_random_value(metric_type)
 
-        MIN_NUMBER_OF_COLLECTED_METRICS = 50
-        MIN_METRICS = MIN_NUMBER_OF_COLLECTED_METRICS
+            return models.CollectedMetric(
+                metric=entity,
+                path=get_random_path(),
+                qualifier=get_random_qualifier(),
+                value=value,
+                created_at=created_at,
+            )
 
-        for supported_metric in qs:
-            if supported_metric.collected_qty <= MIN_METRICS:
-                fake_collected_metrics = []
-
-                for _ in range(MIN_METRICS - supported_metric.collected_qty):
-                    metric_type = supported_metric.metric_type
-                    metric_value = get_random_value(metric_type)
-
-                    # if supported_metric in git_metrics:
-                    #     metric_value = git_metrics[supported_metric]
-
-                    fake_collected_metric = models.CollectedMetric(
-                        metric=supported_metric,
-                        path=get_random_path(),
-                        qualifier=get_random_qualifier(),
-                        value=metric_value,
-                        created_at=get_random_datetime(start_date, end_date),
-                    )
-
-                    fake_collected_metrics.append(fake_collected_metric)
-                models.CollectedMetric.objects.bulk_create(fake_collected_metrics)
+        self.create_fake_calculated_entity(
+            qs,
+            calculated_entity_factory,
+            models.CollectedMetric,
+        )
 
     def create_fake_calculated_measures(self):
-        if settings.CREATE_FAKE_DATA is False:
-            return
 
         qs = models.SupportedMeasure.objects.annotate(
-            calculated_qty=Count('calculated_measures'),
+            qty=Count('calculated_measures'),
         )
 
-        end_date = timezone.now()
-        start_date = end_date - dt.timedelta(days=90)
+        def calculated_entity_factory(entity, created_at):
+            return models.CalculatedMeasure(
+                measure=entity,
+                value=get_random_value('PERCENT'),
+                created_at=created_at,
+            )
 
-        MIN_NUMBER_OF_CALCULATED_MEASURES = 50
-        MIN_MEASURES = MIN_NUMBER_OF_CALCULATED_MEASURES
-
-        for supported_measure in qs:
-            if supported_measure.calculated_qty <= MIN_MEASURES:
-                fake_calculated_measures = []
-
-                for _ in range(MIN_MEASURES - supported_measure.calculated_qty):
-                    metric_value = get_random_value('PERCENT')
-
-                    fake_calculated_measure = models.CalculatedMeasure(
-                        measure=supported_measure,
-                        value=metric_value,
-                        created_at=get_random_datetime(start_date, end_date),
-                    )
-                    fake_calculated_measures.append(fake_calculated_measure)
-                models.CalculatedMeasure.objects.bulk_create(fake_calculated_measures)
+        self.create_fake_calculated_entity(
+            qs,
+            calculated_entity_factory,
+            models.CalculatedMeasure,
+        )
 
     def create_suported_subcharacteristics(self):
         suported_subcharacteristics = [
@@ -252,7 +248,9 @@ class Command(BaseCommand):
 
         for subcharacteristic in suported_subcharacteristics:
             with contextlib.suppress(IntegrityError):
-                sub_char, _ = models.SupportedSubCharacteristic.objects.get_or_create(
+                klass = models.SupportedSubCharacteristic
+
+                sub_char, _ = klass.objects.get_or_create(
                     name=subcharacteristic['name'],
                     key=subcharacteristic['key'],
                 )
@@ -288,7 +286,9 @@ class Command(BaseCommand):
 
         for characteristic in suported_characteristics:
             with contextlib.suppress(IntegrityError):
-                charact, _ = models.SupportedCharacteristic.objects.get_or_create(
+                klass = models.SupportedCharacteristic
+
+                charact, _ = klass.objects.get_or_create(
                     name=characteristic['name'],
                     key=characteristic['key'],
                 )
@@ -303,6 +303,42 @@ class Command(BaseCommand):
                 )
 
                 charact.subcharacteristics.set(subcharacteristics)
+
+    def create_fake_calculated_characteristics(self):
+        qs = models.SupportedCharacteristic.objects.annotate(
+            qty=Count('calculated_characteristics'),
+        )
+
+        def calculated_entity_factory(entity, created_at):
+            return models.CalculatedCharacteristic(
+                characteristic=entity,
+                value=get_random_value('PERCENT'),
+                created_at=created_at,
+            )
+
+        self.create_fake_calculated_entity(
+            qs,
+            calculated_entity_factory,
+            models.CalculatedCharacteristic,
+        )
+
+    def create_fake_calculated_subcharacteristics(self):
+        qs = models.SupportedSubCharacteristic.objects.annotate(
+            qty=Count('calculated_subcharacteristics'),
+        )
+
+        def calculated_entity_factory(entity, created_at):
+            return models.CalculatedSubCharacteristic(
+                subcharacteristic=entity,
+                value=get_random_value('PERCENT'),
+                created_at=created_at,
+            )
+
+        self.create_fake_calculated_entity(
+            qs,
+            calculated_entity_factory,
+            models.CalculatedSubCharacteristic,
+        )
 
     def create_default_pre_config(self):
         with contextlib.suppress(IntegrityError):
@@ -326,6 +362,9 @@ class Command(BaseCommand):
         self.create_fake_calculated_measures()
 
         self.create_suported_subcharacteristics()
+        self.create_fake_calculated_subcharacteristics()
+
         self.create_suported_characteristics()
+        self.create_fake_calculated_characteristics()
 
         self.create_default_pre_config()

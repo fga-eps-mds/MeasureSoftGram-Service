@@ -38,7 +38,7 @@ def calculate_measures(request):
 
     # 5. Solicitação do cáculo ao serviço core
     # TODO: Se alguma métrica ter sido recentemente calculada não recalculá-la
-    response = clients.CoreClient().calculate_measure(core_params)
+    response = clients.CoreClient.calculate_measure(core_params)
 
     if response.ok is False:
         return Response(response.text, status=response.status_code)
