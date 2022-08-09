@@ -33,7 +33,7 @@ echo '======= RUNNING MIGRATIONS'
 python3 manage.py migrate
 
 # echo '======= PREPOPULATING THE DATABASE'
-# python3 manage.py load_initial_data
+python3 manage.py load_initial_data
 
 echo '======= RUNNING SERVER'
 python3 manage.py runserver 0.0.0.0:80
