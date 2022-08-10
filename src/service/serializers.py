@@ -7,6 +7,9 @@ from service.sub_serializers.characteristics import (
     LatestCalculatedCharacteristicSerializer,
     SupportedCharacteristicSerializer,
 )
+from service.sub_serializers.entity_tree import (
+    CharacteristicEntityRelationshipTreeSerializer,
+)
 from service.sub_serializers.github import GithubCollectorParamsSerializer
 from service.sub_serializers.measures import (
     CalculatedMeasureHistorySerializer,
@@ -29,7 +32,4 @@ from service.sub_serializers.subcharacteristics import (
     LatestCalculatedSubCharacteristicSerializer,
     SubcharacteristicsCalculationsRequestSerializer,
     SupportedSubCharacteristicSerializer,
-)
-from service.sub_serializers.entity_tree import (
-    CharacteristicEntityRelationshipTreeSerializer,
 )
