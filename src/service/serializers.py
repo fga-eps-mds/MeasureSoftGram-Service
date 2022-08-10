@@ -30,3 +30,6 @@ from service.sub_serializers.subcharacteristics import (
     SubcharacteristicsCalculationsRequestSerializer,
     SupportedSubCharacteristicSerializer,
 )
+from service.sub_serializers.entity_tree import (
+    CharacteristicEntityRelationshipTreeSerializer,
+)

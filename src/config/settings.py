@@ -56,6 +56,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'simple_history',
     'corsheaders',
+    'debug_toolbar',
 ]
 
 APPLICATION_APPS = [
@@ -75,6 +76,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -197,6 +199,11 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = int(os.getenv(
     "100000",
 ))
 
+
+if DEBUG:
+    import socket  # only if you haven't already imported this
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
 
 GITHUB_METRICS = [
     {

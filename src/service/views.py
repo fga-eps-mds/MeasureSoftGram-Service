@@ -33,3 +33,7 @@ from service.sub_views.subcharacteristics import (
     SupportedSubCharacteristicModelViewSet,
     calculate_subcharacteristics,
 )
+
+from service.sub_views.entity_tree import (
+    entity_relationship_tree,
+)
