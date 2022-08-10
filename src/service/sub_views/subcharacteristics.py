@@ -24,6 +24,9 @@ def calculate_subcharacteristics(request):
     ]
     qs = models.SupportedSubCharacteristic.objects.filter(
         key__in=subcharacteristics_keys
+    ).prefetch_related(
+        'measures',
+        'measures__calculated_measures',
     )
 
     pre_config = models.PreConfig.objects.first()
@@ -46,7 +49,6 @@ def calculate_subcharacteristics(request):
             'key': subchar.key,
             'measures': measure_params,
         })
-
     response = clients.CoreClient.calculate_subcharacteristic(core_params)
 
     if response.ok is False:

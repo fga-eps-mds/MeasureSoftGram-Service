@@ -24,6 +24,9 @@ def calculate_characteristics(request):
     ]
     qs = models.SupportedCharacteristic.objects.filter(
         key__in=characteristics_keys
+    ).prefetch_related(
+        'subcharacteristics',
+        'subcharacteristics__calculated_subcharacteristics',
     )
 
     # 3. Create Core request
