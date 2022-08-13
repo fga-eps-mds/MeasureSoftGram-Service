@@ -13,3 +13,10 @@ class CurrentPreConfigModelViewSet(
         latest_pre_config = models.PreConfig.objects.first()
         serializer = serializers.PreConfigSerializer(latest_pre_config)
         return Response(serializer.data, status.HTTP_200_OK)
+
+
+class CreatePreConfigModelViewSet(
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = serializers.PreConfigSerializer

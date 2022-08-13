@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from service import models
+from utils.exceptions import InvalidPreConfigException
 
 
 class PreConfigSerializer(serializers.ModelSerializer):
@@ -20,36 +21,20 @@ class PreConfigSerializer(serializers.ModelSerializer):
         if self.instance:
             raise ValueError("It's not allowed to edit a pre-configuration")
 
-        models.PreConfig.validate_measures(
-            attrs['data'],
-        )
+        data = attrs['data']
 
-        models.PreConfig.validate_measures_weights(
-            attrs['data'],
-        )
+        try:
+            models.PreConfig.validate_measures(data)
+            models.PreConfig.validate_measures_weights(data)
+            models.PreConfig.validate_subcharacteristics(data)
+            models.PreConfig.validate_subcharacteristics_measures_relation(data)
+            models.PreConfig.validate_subcharacteristics_weights(data)
+            models.PreConfig.validate_characteristics(data)
+            models.PreConfig.validate_characteristics_subcharacteristics_relation(data)
+            models.PreConfig.validate_characteristics_weights(data)
+            models.PreConfig.same_as_current_preconfig(data)
 
-        models.PreConfig.validate_subcharacteristics(
-            attrs['data'],
-        )
-
-        models.PreConfig.validate_subcharacteristics_measures_relation(
-            attrs['data'],
-        )
-
-        models.PreConfig.validate_subcharacteristics_weights(
-            attrs['data'],
-        )
-
-        models.PreConfig.validate_characteristics(
-            attrs['data'],
-        )
-
-        models.PreConfig.validate_characteristics_subcharacteristics_relation(
-            attrs['data'],
-        )
-
-        models.PreConfig.validate_characteristics_weights(
-            attrs['data'],
-        )
+        except InvalidPreConfigException as exc:
+            raise serializers.ValidationError(exc) from exc
 
         return attrs

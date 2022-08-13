@@ -10,7 +10,11 @@ class MissingSupportedMetricException(Exception):
     pass
 
 
-class EntityNotDefinedInPreConfiguration(Exception):
+class EntityNotDefinedInPreConfiguration(ValueError):
+    """
+    Exceção criada quando uma entidade é procurada em uma pré-configuração,
+    mas esta entidade não foi selecionada na pré-configuração.
+    """
     pass
 
 
@@ -23,4 +27,8 @@ class MeasureNotDefinedInPreConfiguration(
 class SubCharacteristicNotDefinedInPreConfiguration(
     EntityNotDefinedInPreConfiguration
 ):
+    pass
+
+
+class InvalidPreConfigException(ValueError):
     pass
