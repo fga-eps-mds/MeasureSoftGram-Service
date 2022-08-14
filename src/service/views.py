@@ -29,7 +29,7 @@ from service.sub_views.pre_config import (
     CreatePreConfigModelViewSet,
     CurrentPreConfigModelViewSet,
 )
-from service.sub_views.sqc import SQCModelViewSet
+from service.sub_views.sqc import SQCModelViewSet, calculate_sqc
 from service.sub_views.subcharacteristics import (
     CalculatedSubCharacteristicHistoryModelViewSet,
     LatestCalculatedSubCharacteristicModelViewSet,
