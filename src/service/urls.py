@@ -91,9 +91,15 @@ repo_router.register(
 )
 
 repo_router.register(
-    'current-pre-config',
+    'current/pre-config',
     views.CurrentPreConfigModelViewSet,
     basename='current-pre-config',
+)
+
+repo_router.register(
+    'create/pre-config',
+    views.CreatePreConfigModelViewSet,
+    basename='create-pre-config',
 )
 
 repo_router.register(
