@@ -2,7 +2,6 @@
 import requests
 from django.conf import settings
 from requests.adapters import HTTPAdapter, Retry
-from rest_framework import status
 
 
 class CoreClient:
@@ -34,4 +33,9 @@ class CoreClient:
     @staticmethod
     def calculate_characteristic(params):
         url = f'{CoreClient.HOST}/calculate-characteristics/'
+        return CoreClient.make_post_request(url, params)
+
+    @staticmethod
+    def calculate_sqc(params):
+        url = f'{CoreClient.HOST}/calculate-sqc/'
         return CoreClient.make_post_request(url, params)
