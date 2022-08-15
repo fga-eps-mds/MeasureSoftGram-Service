@@ -1,15 +1,23 @@
 from django.db import models
 
 
-def is_the_same_call(prev_call: dict, current_call: dict):
+def is_the_same_call(current_call: dict, prev_call: dict):
+
+    prev_kwargs = [(k, set(v)) for k, v in prev_call['kwargs'].items()]
+    prev_kwargs.sort()
+
+    current_kwargs = [(k, set(v)) for k, v in current_call['kwargs'].items()]
+    current_kwargs.sort()
+
     return (
-        prev_call['name'] == current_call['name'] and
+        prev_call['model_name'] == current_call['model_name'] and
+        prev_call['function_name'] == current_call['function_name'] and
         prev_call['args'] == current_call['args'] and
-        set(prev_call['kwargs']) == set(current_call['kwargs'])
+        prev_kwargs == current_kwargs
     )
 
 
-class CachedManager(models.Manager):
+class CacheManager(models.Manager):
     """
     Esse cached manager foi feito pensando específicamente para as
     supported entities, pois essas tabelas mudam com quase nenhuma frequencia
@@ -19,20 +27,25 @@ class CachedManager(models.Manager):
     difícil detecção. Como por exemplo queryset de filtros incorretos.
     """
 
-    last_call = {'name': None, "args": None, "kwargs": None, "return": None}
+    last_call = {
+        "function_name": None, "args": None,
+        "kwargs": {}, "return": None, "model_name": None,
+    }
 
     def filter(self, *args, **kwargs):
         call = {
-            'name': 'filter',
+            'function_name': 'filter',
             'args': args,
             'kwargs': kwargs,
+            'model_name': self.model.__name__,
         }
-        if is_the_same_call(call, CachedManager.last_call):
+
+        if is_the_same_call(call, CacheManager.last_call):
             return self.last_call['return']
 
         qs = super().filter(*args, **kwargs)
 
         call['return'] = qs
-        CachedManager.last_call = call
+        CacheManager.last_call = call
 
         return qs

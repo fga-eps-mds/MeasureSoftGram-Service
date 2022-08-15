@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 import utils
-from service.managers import CachedManager
+from service.managers import CacheManager
 
 
 class SupportedCharacteristic(models.Model):
@@ -12,7 +12,7 @@ class SupportedCharacteristic(models.Model):
     Classe que abstrai uma característica suportada pelo sistema.
     """
 
-    objects = CachedManager()
+    objects = CacheManager()
 
     name = models.CharField(max_length=128)
     key = models.CharField(max_length=128, unique=True)

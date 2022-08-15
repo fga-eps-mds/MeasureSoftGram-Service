@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 import utils
-from service.managers import CachedManager
+from service.managers import CacheManager
 
 
 class SupportedMeasure(models.Model):
@@ -16,7 +16,7 @@ class SupportedMeasure(models.Model):
     calcular uma medida
     """
 
-    objects = CachedManager()
+    objects = CacheManager()
 
     key = models.CharField(max_length=128, unique=True)
     name = models.CharField(max_length=128)
