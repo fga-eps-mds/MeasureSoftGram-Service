@@ -110,6 +110,11 @@ urlpatterns = [
     path('organizations/1/repository/1/', views.get_mocked_repository),
 
     path(
+        'organizations/1/repository/1/entity-relationship-tree/',
+        views.pre_config_entity_relationship_tree,
+    ),
+
+    path(
         'organizations/1/repository/1/import/sonarqube-metrics/',
         views.import_sonar_metrics_view
     ),

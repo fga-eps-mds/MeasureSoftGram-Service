@@ -26,3 +26,10 @@ def entity_relationship_tree(request):
     )
 
     return Response(serializer.data)
+
+
+@api_view(['GET', 'HEAD', 'OPTIONS'])
+def pre_config_entity_relationship_tree(request):
+    current_pre_config = models.PreConfig.objects.first()
+    entity_tree = serializers.pre_config_to_entity_tree(current_pre_config)
+    return Response(entity_tree)

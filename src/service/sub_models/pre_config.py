@@ -83,6 +83,36 @@ class PreConfig(models.Model):
             'not defined in pre-configuration',
         ))
 
+    def get_characteristics_qs(self):
+        characteristics_keys = [
+            charac['key']
+            for charac in self.data["characteristics"]
+        ]
+        return SupportedCharacteristic.objects.filter(
+            key__in=characteristics_keys,
+        )
+
+    def get_subcharacteristics_qs(self):
+        subcharacteristics_keys = [
+            subcharac['key']
+            for charac in self.data["characteristics"]
+            for subcharac in charac['subcharacteristics']
+        ]
+        return SupportedSubCharacteristic.objects.filter(
+            key__in=subcharacteristics_keys,
+        )
+
+    def get_measures_qs(self):
+        measures_keys = [
+            measure['key']
+            for charac in self.data["characteristics"]
+            for subcharac in charac['subcharacteristics']
+            for measure in subcharac['measures']
+        ]
+        return SupportedMeasure.objects.filter(
+            key__in=measures_keys,
+        )
+
     @staticmethod
     def validate_measures(data: dict):
         """
