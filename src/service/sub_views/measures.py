@@ -21,7 +21,12 @@ def calculate_measures(request):
 
     # 2. Obtenção das medidas suportadas pelo serviço
     measure_keys = [measure['key'] for measure in data['measures']]
-    qs = models.SupportedMeasure.objects.filter(key__in=measure_keys)
+    qs = models.SupportedMeasure.objects.filter(
+        key__in=measure_keys
+    ).prefetch_related(
+        'metrics',
+        'metrics__collected_metrics',
+    )
 
     # 3. Criação do dicionário que será enviado para o serviço `core`
     core_params = {'measures': []}
