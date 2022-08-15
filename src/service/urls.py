@@ -111,7 +111,14 @@ repo_router.register(
 
 urlpatterns = [
 
+    path('entity-relationship-tree/', views.entity_relationship_tree),
+
     path('organizations/1/repository/1/', views.get_mocked_repository),
+
+    path(
+        'organizations/1/repository/1/entity-relationship-tree/',
+        views.pre_config_entity_relationship_tree,
+    ),
 
     path(
         'organizations/1/repository/1/import/sonarqube-metrics/',
