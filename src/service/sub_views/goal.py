@@ -13,3 +13,10 @@ class CurrentGoalModelViewSet(
         latest_goal = models.Goal.objects.first()
         serializer = serializers.GoalSerializer(latest_goal)
         return Response(serializer.data, status.HTTP_200_OK)
+
+
+class CreateGoalModelViewSet(
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = serializers.GoalSerializer
