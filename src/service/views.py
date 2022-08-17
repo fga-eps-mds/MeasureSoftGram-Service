@@ -11,6 +11,7 @@ from service.sub_views.entity_tree import (
     entity_relationship_tree,
     pre_config_entity_relationship_tree,
 )
+from service.sub_views.goal import CurrentGoalModelViewSet
 from service.sub_views.measures import (
     CalculatedMeasureHistoryModelViewSet,
     LatestCalculatedMeasureModelViewSet,

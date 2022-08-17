@@ -6,6 +6,7 @@ from service.sub_admin.characteristics import (
     CalculatedCharacteristicAdmin,
     SupportedCharacteristicAdmin,
 )
+from service.sub_admin.goal import GoalAdmin
 
 # Do not delete this imports
 from service.sub_admin.measures import CalculatedMeasureAdmin, SupportedMeasureAdmin

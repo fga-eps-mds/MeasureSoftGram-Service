@@ -4,6 +4,7 @@ from service.sub_models.characteristics import (
     CalculatedCharacteristic,
     SupportedCharacteristic,
 )
+from service.sub_models.goal import Goal
 
 # Do not delete this imports
 from service.sub_models.measures import CalculatedMeasure, SupportedMeasure

@@ -97,6 +97,12 @@ repo_router.register(
 )
 
 repo_router.register(
+    'current/goal',
+    views.CurrentGoalModelViewSet,
+    basename='current-goal',
+)
+
+repo_router.register(
     'create/pre-config',
     views.CreatePreConfigModelViewSet,
     basename='create-pre-config',
