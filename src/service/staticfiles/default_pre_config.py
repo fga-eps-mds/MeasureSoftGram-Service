@@ -4,11 +4,11 @@ DEFAULT_PRE_CONFIG = {
   "characteristics": [
     {
       "key": "reliability",
-      "weight": 50.0,
+      "weight": 50,
       "subcharacteristics": [
         {
           "key": "testing_status",
-          "weight": 100.0,
+          "weight": 100,
           "measures": [
             {
               "key": "passed_tests",
@@ -28,11 +28,11 @@ DEFAULT_PRE_CONFIG = {
     },
     {
       "key": "maintainability",
-      "weight": 50.0,
+      "weight": 50,
       "subcharacteristics": [
         {
           "key": "modifiability",
-          "weight": 100.0,
+          "weight": 100,
           "measures": [
             {
               "key": "non_complex_file_density",

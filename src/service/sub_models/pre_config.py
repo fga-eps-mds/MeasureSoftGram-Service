@@ -84,11 +84,15 @@ class PreConfig(models.Model):
             'not defined in pre-configuration',
         ))
 
-    def get_characteristics_qs(self):
-        characteristics_keys = [
+    def get_characteristics_keys(self):
+        return [
             charac['key']
             for charac in self.data["characteristics"]
         ]
+
+    def get_characteristics_qs(self):
+        characteristics_keys = self.get_characteristics_keys()
+
         return SupportedCharacteristic.objects.filter(
             key__in=characteristics_keys,
         )

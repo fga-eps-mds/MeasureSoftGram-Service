@@ -18,6 +18,7 @@ import utils
 
 # Local Imports
 from service import models, staticfiles
+from service.management.commands.utils import create_suported_characteristics
 from service.sub_views.collectors.sonarqube import import_sonar_metrics
 from utils import (
     exceptions,
@@ -283,26 +284,7 @@ class Command(BaseCommand):
                 ]
             },
         ]
-
-        for characteristic in suported_characteristics:
-            with contextlib.suppress(IntegrityError):
-                klass = models.SupportedCharacteristic
-
-                charact, _ = klass.objects.get_or_create(
-                    name=characteristic['name'],
-                    key=characteristic['key'],
-                )
-
-                subcharacteristics_keys = [
-                    subcharacteristic["key"]
-                    for subcharacteristic in characteristic["subcharacteristics"]
-                ]
-
-                subcharacteristics = models.SupportedSubCharacteristic.objects.filter(
-                    key__in=subcharacteristics_keys,
-                )
-
-                charact.subcharacteristics.set(subcharacteristics)
+        create_suported_characteristics(suported_characteristics)
 
     def create_fake_calculated_characteristics(self):
         qs = models.SupportedCharacteristic.objects.annotate(

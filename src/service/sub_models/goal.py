@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Iterable
 
 from django.db import models
 from django.utils import timezone
@@ -25,3 +25,113 @@ class Goal(models.Model):
 
         self.validate_goal(self.data)
         return super().save(*args, **kwargs)
+
+
+class Equalizer:
+    """
+    Classe que implementa a lógica de modificação dos pesos no equalizador
+    """
+    BALANCE_MATRIX = {
+        'functional_suitability': {
+            '+': {
+                'usability',
+                'reliability',
+                'maintainability',
+            },
+            '-': {
+                'performance_efficiency',
+                'security',
+            },
+        },
+        'performance_efficiency': {
+            '+': set(),
+            '-': {
+                'functional_suitability',
+                'usability',
+                'compatibility',
+                'security',
+                'maintainability',
+                'portability',
+            },
+        },
+        'usability': {
+            '+': {
+                'functional_suitability',
+                'reliability',
+            },
+            '-': {
+                'performance_efficiency',
+            },
+        },
+        'compatibility': {
+            '+': {'portability'},
+            '-': {'security'},
+        },
+        'reliability': {
+            '+': {'functional_suitability', 'usability', 'maintainability'},
+            '-': set(),
+        },
+        'security': {
+            '+': {'reliability'},
+            '-': {'performance_efficiency', 'usability', 'compatibility'},
+        },
+        'maintainability': {
+            '+': {
+                'functional_suitability',
+                'compatibility',
+                'reliability',
+                'portability',
+            },
+            '-': {
+                'performance_efficiency',
+            },
+        },
+        'portability': {
+            '+': {
+                'compatibility',
+                'maintainability',
+            },
+            '-': {
+                'performance_efficiency',
+            },
+        },
+    }
+
+    def __init__(self, entities_keys: Iterable[str]):
+        self.default_setup = {entity_key: 50 for entity_key in entities_keys}
+
+        # self.default_setup = {
+        #     'functional_suitability': 50,
+        #     'performance_efficiency': 50,
+        #     'security': 50,
+
+        #     # 'usability': 50,
+        #     # 'compatibility': 50,
+        #     # 'reliability': 50,
+        #     # 'maintainability': 50,
+        #     # 'portability': 50,
+        # }
+
+    def update(self, entity_key: str, delta: int):
+        self.default_setup[entity_key] += delta
+
+        for related_entity in self.BALANCE_MATRIX[entity_key]['+']:
+            if related_entity in self.default_setup:
+                self.default_setup[related_entity] += delta
+
+                self.default_setup[related_entity] = max(
+                    0,
+                    min(100, self.default_setup[related_entity]),
+                )
+
+        for related_entity in self.BALANCE_MATRIX[entity_key]['-']:
+            if related_entity in self.default_setup:
+                self.default_setup[related_entity] += (-1 * delta)
+
+                self.default_setup[related_entity] = max(
+                    0,
+                    min(100, self.default_setup[related_entity]),
+                )
+
+    def get_goal(self):
+        return self.default_setup
