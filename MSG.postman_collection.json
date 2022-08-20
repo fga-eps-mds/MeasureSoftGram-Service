@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "b9b9a474-ed9c-43e0-a3d3-9aa6289bb53f",
+		"_postman_id": "65740c36-e7e7-4c20-8d3c-007e9777093f",
 		"name": "MSG",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "10503200"
+		"_exporter_id": "19457632"
 	},
 	"item": [
 		{
@@ -603,7 +603,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/current-pre-config/",
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/current/pre-config/",
 											"host": [
 												"{{MSG_SERVICE_HOST}}"
 											],
@@ -614,7 +614,57 @@
 												"1",
 												"repository",
 												"1",
-												"current-pre-config",
+												"current",
+												"pre-config",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Entities Relationship Tree",
+							"item": [
+								{
+									"name": "List entity relationship tree",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/entity-relationship-tree/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"entity-relationship-tree",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "List Pre-Config entity relationship tree",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/entity-relationship-tree/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"entity-relationship-tree",
 												""
 											]
 										}
@@ -895,6 +945,84 @@
 									"response": []
 								}
 							]
+						},
+						{
+							"name": "Pre Config",
+							"item": [
+								{
+									"name": "Create a new pré-config",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"Nova pré-config\",\n    \"data\": {\n        \"characteristics\": [\n            {\n                \"key\": \"reliability\",\n                \"weight\": 51.0,\n                \"subcharacteristics\": [\n                    {\n                        \"key\": \"testing_status\",\n                        \"weight\": 100.0,\n                        \"measures\": [\n                            {\n                                \"key\": \"passed_tests\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"test_builds\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"test_coverage\",\n                                \"weight\": 34\n                            }\n                        ]\n                    }\n                ]\n            },\n            {\n                \"key\": \"maintainabilityy\",\n                \"weight\": 49.0,\n                \"subcharacteristics\": [\n                    {\n                        \"key\": \"modifiability\",\n                        \"weight\": 100.0,\n                        \"measures\": [\n                            {\n                                \"key\": \"non_complex_file_density\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"commented_file_density\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"duplication_absense\",\n                                \"weight\": 34\n                            }\n                        ]\n                    }\n                ]\n            }\n        ]\n    }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/create/pre-config/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"create",
+												"pre-config",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Goal",
+							"item": [
+								{
+									"name": "Create a Goal",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"release_name\": \"v1.0.0\",\n    \"start_at\": \"2022-08-19\",\n    \"end_at\": \"2022-09-19\",\n    \"changes\": [\n        {\n            \"characteristic_key\": \"functional_suitability\",\n            \"delta\": 10\n        },\n        {\n            \"characteristic_key\": \"performance_efficiency\",\n            \"delta\": -10\n        },\n        {\n            \"characteristic_key\": \"security\",\n            \"delta\": 40\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/create/goal/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"repository",
+												"1",
+												"create",
+												"goal",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
 					]
 				}
@@ -937,7 +1065,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \n}",
+							"raw": "{\n    \"subcharacteristics\": [\n        {\n            \"key\": \"modifiability\",\n            \"measures\": [\n                {\n                    \"key\": \"on_complex_file_densit\",\n                    \"value\": 0.675,\n                    \"weight\": 50\n                },\n                {\n                    \"key\": \"commented_file_density\",\n                    \"value\": 0.2275,\n                    \"weight\": 30\n                },\n                {\n                    \"key\": \"duplication_absense\",\n                    \"value\": 0.75,\n                    \"weight\": 20\n                }\n            ]\n        },\n        {\n            \"key\": \"testing_status\",\n            \"measures\": [\n                {\n                    \"key\": \"passed_tests\",\n                    \"value\": 1.0,\n                    \"weight\": 33\n                },\n                {\n                    \"key\": \"test_builds\",\n                    \"value\": 0.00178,\n                    \"weight\": 33\n                },\n                {\n                    \"key\": \"test_coverage\",\n                    \"value\": 0.25,\n                    \"weight\": 34\n                }\n            ]\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
