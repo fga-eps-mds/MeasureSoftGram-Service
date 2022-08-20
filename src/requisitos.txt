@@ -1,0 +1,58 @@
+- As características definidas na metas devem estar presentes na pré-configuração
+- Os pesos das metas devem estar entre 0 e 100
+-
+
+
+
+FS = Functional Suitability
+PE = Performance Efficiency
+US = Usability
+
+
+FS:PE = -1
+PE:US = -1
+FS:US = +1
+
+
+{
+    "FS": {
+        "+": ['US', 'RE', 'MA'],
+        "-": ['PE', 'SE'],
+    },
+
+    "PE": {
+        "+": [],
+        "-": ['FS', 'US', 'CO', 'SE', 'MA', 'PO'],
+    },
+
+    "US": {
+        "+": ['FS', 'RE'],
+        "-": ['PE',],
+    },
+}
+
+
+{
+    "PS": 50,
+    "PE": 50,
+    "US": 50,
+    "FS": 50,
+    "MA": 50,
+    "SE": 50,
+    "PO": 50,
+    "CO": 50,
+}
+
+JAH PROCESSOU [FS, ]
+LISTA DE PROCESSAMENTO [PE, SE]
+
+{
+    "RE": 60,
+    "US": 60,
+    "MA": 60,
+    "FS": 60,
+    "SE": 40,
+    "PO": 50
+    "PE": 40,
+    "CO": 50
+}
