@@ -31,6 +31,7 @@ class Equalizer:
     """
     Classe que implementa a lógica de modificação dos pesos no equalizador
     """
+    # TODO: Só as das pré-configuração
     BALANCE_MATRIX = {
         'functional_suitability': {
             '+': {
@@ -112,25 +113,31 @@ class Equalizer:
         #     # 'portability': 50,
         # }
 
+    @staticmethod
+    def force_min_max(value):
+        return max(0, min(100, value))
+
     def update(self, entity_key: str, delta: int):
         self.default_setup[entity_key] += delta
+
+        self.default_setup[entity_key] = self.force_min_max(
+            self.default_setup[entity_key],
+        )
 
         for related_entity in self.BALANCE_MATRIX[entity_key]['+']:
             if related_entity in self.default_setup:
                 self.default_setup[related_entity] += delta
 
-                self.default_setup[related_entity] = max(
-                    0,
-                    min(100, self.default_setup[related_entity]),
+                self.default_setup[related_entity] = self.force_min_max(
+                    self.default_setup[related_entity],
                 )
 
         for related_entity in self.BALANCE_MATRIX[entity_key]['-']:
             if related_entity in self.default_setup:
                 self.default_setup[related_entity] += (-1 * delta)
 
-                self.default_setup[related_entity] = max(
-                    0,
-                    min(100, self.default_setup[related_entity]),
+                self.default_setup[related_entity] = self.force_min_max(
+                    self.default_setup[related_entity],
                 )
 
     def get_goal(self):
