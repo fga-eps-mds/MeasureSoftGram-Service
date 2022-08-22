@@ -26,6 +26,12 @@ class PreConfig(models.Model):
     name = models.CharField(max_length=128, null=True, blank=True)
     data = models.JSONField()
 
+    repository = models.ForeignKey(
+        to='service.Repository',
+        related_name='pre_configs',
+        on_delete=models.CASCADE,
+    )
+
     def __str__(self):
         return f'ID: {self.id}, Name: {self.name}'
 

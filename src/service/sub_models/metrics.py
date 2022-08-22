@@ -131,6 +131,12 @@ class CollectedMetric(models.Model):
     dynamic_key = models.CharField(max_length=128, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
+    repository = models.ForeignKey(
+        to='service.Repository',
+        related_name='calculated_metrics',
+        on_delete=models.CASCADE,
+    )
+
     def __str__(self):
         return (
             f'Metric: {self.metric}, Value: {self.value}, '

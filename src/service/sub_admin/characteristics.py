@@ -71,6 +71,7 @@ class CalculatedCharacteristicAdmin(admin.ModelAdmin):
     )
     list_filter = (
         "characteristic__name",
+        "repository",
     )
 
     def get_characteristic_key(self, obj):

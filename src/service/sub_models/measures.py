@@ -107,6 +107,12 @@ class CalculatedMeasure(models.Model):
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
 
+    repository = models.ForeignKey(
+        to='service.Repository',
+        related_name='calculated_measures',
+        on_delete=models.CASCADE,
+    )
+
     def __str__(self) -> str:
         return (
             f'Measure: {self.measure}, Value: {self.value}, '

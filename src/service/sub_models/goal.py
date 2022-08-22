@@ -15,6 +15,12 @@ class Goal(models.Model):
     release_name = models.CharField(max_length=255)
     data = models.JSONField()
 
+    repository = models.ForeignKey(
+        to='service.Repository',
+        related_name='goals',
+        on_delete=models.CASCADE,
+    )
+
     @staticmethod
     def validate_goal(goal_dict: Dict[str, int]):
         return True

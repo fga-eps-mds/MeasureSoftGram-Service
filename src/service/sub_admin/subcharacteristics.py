@@ -71,6 +71,7 @@ class CalculatedSubCharacteristicAdmin(admin.ModelAdmin):
     )
     list_filter = (
         "subcharacteristic__name",
+        "repository",
     )
 
     def get_subcharacteristic_key(self, obj):

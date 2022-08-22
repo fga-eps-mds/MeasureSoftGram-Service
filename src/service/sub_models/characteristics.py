@@ -108,7 +108,6 @@ class CalculatedCharacteristic(models.Model):
     """
     Tabela que armazena os valores calculados das características.
     """
-
     class Meta:
         # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
         # os registros mais recentes vem primeiro (qs.first() == mais recente)
@@ -121,6 +120,12 @@ class CalculatedCharacteristic(models.Model):
     )
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
+
+    repository = models.ForeignKey(
+        to='service.Repository',
+        related_name='calculated_characteristics',
+        on_delete=models.CASCADE,
+    )
 
     def __str__(self):
         return (

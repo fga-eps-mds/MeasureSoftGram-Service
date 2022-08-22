@@ -14,3 +14,6 @@ class GoalAdmin(admin.ModelAdmin):
     search_fields = (
         "release_name",
     )
+    list_filter = (
+        "repository",
+    )

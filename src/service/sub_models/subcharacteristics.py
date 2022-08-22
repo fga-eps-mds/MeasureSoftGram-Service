@@ -118,6 +118,12 @@ class CalculatedSubCharacteristic(models.Model):
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
 
+    repository = models.ForeignKey(
+        to='service.Repository',
+        related_name='calculated_subcharacteristics',
+        on_delete=models.CASCADE,
+    )
+
     def __str__(self):
         return (
             f'Subcharacteristic: {self.subcharacteristic}, '

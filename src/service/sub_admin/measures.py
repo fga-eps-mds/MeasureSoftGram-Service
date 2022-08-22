@@ -38,6 +38,7 @@ class CalculatedMeasureAdmin(admin.ModelAdmin):
     )
     list_filter = (
         "measure__name",
+        "repository",
     )
 
     def get_measure_name(self, obj):

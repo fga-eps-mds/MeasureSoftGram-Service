@@ -13,3 +13,6 @@ class PreConfigAdmin(admin.ModelAdmin):
     search_fields = (
         "name",
     )
+    list_filter = (
+        "repository",
+    )

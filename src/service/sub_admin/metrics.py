@@ -42,6 +42,7 @@ class CollectedMetricAdmin(admin.ModelAdmin):
         "qualifier",
         "metric__metric_type",
         "metric__name",
+        "repository",
     )
 
     def get_metric_name(self, obj: models.CollectedMetric):

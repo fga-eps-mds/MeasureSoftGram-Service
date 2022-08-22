@@ -10,3 +10,6 @@ class SQCAdmin(admin.ModelAdmin):
         "value",
         "created_at",
     )
+    list_filter = (
+        "repository",
+    )
