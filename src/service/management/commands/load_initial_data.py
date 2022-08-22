@@ -19,6 +19,7 @@ import utils
 # Local Imports
 from service import models, staticfiles
 from service.management.commands.utils import create_suported_characteristics
+from service.sub_models.organization import Organization
 from service.sub_views.collectors.sonarqube import import_sonar_metrics
 from utils import (
     exceptions,
@@ -344,6 +345,190 @@ class Command(BaseCommand):
             for _ in range(MIN_NUMBER - qs.count())
         ])
 
+    def create_fake_organizations(self):
+        if settings.CREATE_FAKE_DATA is False:
+            return
+
+        organizations = [
+            models.Organization(
+                name='fga-eps-mds',
+                description=((
+                    "Organização que agrupa os "
+                    "projetos de EPS e MDS da FGA."
+                )),
+            ),
+            models.Organization(
+                name='UnBArqDsw2021',
+                description=((
+                    "Organização que agrupa os "
+                    "projetos de Arquitetura e Desenvolvimento de "
+                    "Software do semestre 2021.01"
+                )),
+            ),
+            models.Organization(
+                name='IHC-FGA-2020',
+                description=((
+                    "Organização que agrupa os projetos da" "disciplina de Interação Humano Computador"
+                )),
+            ),
+        ]
+
+        for organization in organizations:
+            with contextlib.suppress(IntegrityError):
+                organization.save()
+
+    def create_fake_projects(self):
+        if settings.CREATE_FAKE_DATA is False:
+            return
+
+        organizations = models.Organization.objects.all()
+
+        organizations = {
+            organization.name: organization
+            for organization in organizations
+        }
+
+        projects = [
+            models.Project(
+                name='Animalesco',
+                description=(
+                    "Uma aplicação para realizar o controle e "
+                    "acompanhamento para com a saúde dos pets. "
+                    "Os usuários, após se registrarem, podem "
+                    "realizar o cadastro dos seus pets e a partir "
+                    "disso fazer o acompanhamento do bichinho de "
+                    "maneira digital."
+                ),
+                organization=organizations['UnBArqDsw2021'],
+            ),
+            models.Project(
+                name='BCE UnB',
+                description=(
+                    "Este projeto possui o objetivo de analisar o "
+                    "site da BCE, se propondo a sugerir melhorias "
+                    "nos serviços de empréstimo de livros, "
+                    "com base nos conceitos aprendidos na "
+                    "discplina de IHC."
+                ),
+                organization=organizations['IHC-FGA-2020'],
+            ),
+            models.Project(
+                name='MeasureSoftGram',
+                description=(
+                    "Este projeto que visa a construção de um "
+                    "sistema de análise quantitativa da qualidade "
+                    "de um sistema de software."
+                ),
+                organization=organizations['fga-eps-mds'],
+            ),
+            models.Project(
+                name='Acacia',
+                description=(
+                    "Este projeto que visa a construção de um "
+                    "sistema de colaboração de colheita de "
+                    "árvores frutíferas em ambiente urbano."
+                ),
+                organization=organizations['fga-eps-mds'],
+            ),
+        ]
+
+        for project in projects:
+            with contextlib.suppress(IntegrityError):
+                project.save()
+
+    def create_fake_repositories(self):
+        if settings.CREATE_FAKE_DATA is False:
+            return
+
+        projects = models.Project.objects.all()
+
+        projects = {
+            project.name: project
+            for project in projects
+        }
+
+        repositories = [
+            models.Repository(
+                name='2019.2-Acacia',
+                description=(
+                    "Repositório do backend do projeto Acacia."
+                ),
+                project=projects['Acacia'],
+            ),
+            models.Repository(
+                name='2019.2-Acacia-Frontend',
+                description=(
+                    "Repositório do frontend do projeto Acacia."
+                ),
+                project=projects['Acacia'],
+            ),
+            models.Repository(
+                name='2019.2-Acacia-Frontend',
+                description=(
+                    "Repositório do frontend do projeto Acacia."
+                ),
+                project=projects['Acacia'],
+            ),
+            models.Repository(
+                name='2020.1-BCE',
+                description=(
+                    "Repositório do projeto BCE UnB."
+                ),
+                project=projects['BCE UnB'],
+            ),
+            models.Repository(
+                name='2021.1_G01_Animalesco_BackEnd',
+                description=(
+                    "Repositório do backend do projeto Animalesco."
+                ),
+                project=projects['Animalesco'],
+            ),
+            models.Repository(
+                name='2021.1_G01_Animalesco_FrontEnd',
+                description=(
+                    "Repositório do frontend "
+                    "do projeto Animalesco."
+                ),
+                project=projects['Animalesco'],
+            ),
+            models.Repository(
+                name='2022-1-MeasureSoftGram-Service',
+                description=(
+                    "Repositório do backend do projeto "
+                    "MeasureSoftGram."
+                ),
+                project=projects['MeasureSoftGram'],
+            ),
+            models.Repository(
+                name='2022-1-MeasureSoftGram-Core',
+                description=(
+                    "Repositório da API do modelo matemático "
+                    "do projeto MeasureSoftGram"
+                ),
+                project=projects['MeasureSoftGram'],
+            ),
+            models.Repository(
+                name='2022-1-MeasureSoftGram-Front',
+                description=(
+                    "Repositório do frontend da projeto "
+                    "MeasureSoftGram"
+                ),
+                project=projects['MeasureSoftGram'],
+            ),
+            models.Repository(
+                name='2022-1-MeasureSoftGram-CLI',
+                description=(
+                    "Repositório do CLI da projeto "
+                    "MeasureSoftGram"
+                ),
+                project=projects['MeasureSoftGram'],
+            ),
+        ]
+
+        for repository in repositories:
+            with contextlib.suppress(IntegrityError):
+                repository.save()
+
     def handle(self, *args, **options):
         User = get_user_model()
         with contextlib.suppress(IntegrityError):
@@ -352,6 +537,10 @@ class Command(BaseCommand):
                 email=os.getenv('SUPERADMIN_EMAIL', '"admin@admin.com"'),
                 password=os.getenv('SUPERADMIN_PASSWORD', 'admin'),
             )
+
+        self.create_fake_organizations()
+        self.create_fake_projects()
+        self.create_fake_repositories()
 
         self.create_supported_metrics()
         self.create_fake_collected_metrics()
