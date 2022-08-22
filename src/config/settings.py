@@ -60,6 +60,7 @@ THIRD_PARTY_APPS = [
 ]
 
 APPLICATION_APPS = [
+    'accounts',
     'service',
     'utils',
 ]
@@ -199,6 +200,7 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = int(os.getenv(
     "100000",
 ))
 
+AUTH_USER_MODEL = "accounts.CustomUser"
 
 if DEBUG:
     import socket  # only if you haven't already imported this

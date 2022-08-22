@@ -15,5 +15,3 @@ from service.sub_models.subcharacteristics import (
     CalculatedSubCharacteristic,
     SupportedSubCharacteristic,
 )
-
-User = get_user_model()

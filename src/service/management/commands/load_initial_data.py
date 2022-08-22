@@ -28,8 +28,6 @@ from utils import (
     get_random_value,
 )
 
-User = get_user_model()
-
 
 class Command(BaseCommand):
     help = "Registra os dados iniciais no banco de dados"
@@ -347,6 +345,7 @@ class Command(BaseCommand):
         ])
 
     def handle(self, *args, **options):
+        User = get_user_model()
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
                 username=os.getenv('SUPERADMIN_USERNAME', 'admin'),
