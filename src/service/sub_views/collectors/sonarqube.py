@@ -18,7 +18,13 @@ def import_sonar_metrics_view(request):
     return import_sonar_metrics(data)
 
 
-def import_sonar_metrics(data):
+def import_sonar_metrics(data, only_create_supported_metrics=False):
+    """
+    Refatorar essa função para separar a criação das
+    métricas da criação dos dados das métricas.
+
+    TODO: Refatorar essa função
+    """
 
     supported_metrics = {
         supported_metric.key: supported_metric
@@ -50,6 +56,9 @@ def import_sonar_metrics(data):
 
             in_memory_metric = CollectedMetric(**obj)
             collected_metrics.append(in_memory_metric)
+
+    if only_create_supported_metrics:
+        return
 
     saved_metrics = CollectedMetric.objects.bulk_create(collected_metrics)
 

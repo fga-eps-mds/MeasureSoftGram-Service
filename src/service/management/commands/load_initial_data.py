@@ -133,7 +133,10 @@ class Command(BaseCommand):
 
         self.model_generator(models.SupportedMetric, data['metrics'])
 
-        import_sonar_metrics(staticfiles.SONARQUBE_JSON)
+        import_sonar_metrics(
+            staticfiles.SONARQUBE_JSON,
+            only_create_supported_metrics=True,
+        )
 
     def create_github_supported_metrics(self):
         github_metrics = [
@@ -181,7 +184,7 @@ class Command(BaseCommand):
 
         bulk_create_klass.objects.bulk_create(fake_calculated_entities)
 
-    def create_fake_collected_metrics(self):
+    def create_fake_collected_metrics(self, repository):
 
         qs = models.SupportedMetric.objects.annotate(
             qty=Count('collected_metrics')
@@ -197,6 +200,7 @@ class Command(BaseCommand):
                 qualifier=get_random_qualifier(),
                 value=value,
                 created_at=created_at,
+                repository=repository,
             )
 
         self.create_fake_calculated_entity(
@@ -205,7 +209,7 @@ class Command(BaseCommand):
             models.CollectedMetric,
         )
 
-    def create_fake_calculated_measures(self):
+    def create_fake_calculated_measures(self, repository):
 
         qs = models.SupportedMeasure.objects.annotate(
             qty=Count('calculated_measures'),
@@ -216,6 +220,7 @@ class Command(BaseCommand):
                 measure=entity,
                 value=get_random_value('PERCENT'),
                 created_at=created_at,
+                repository=repository,
             )
 
         self.create_fake_calculated_entity(
@@ -285,7 +290,7 @@ class Command(BaseCommand):
         ]
         create_suported_characteristics(suported_characteristics)
 
-    def create_fake_calculated_characteristics(self):
+    def create_fake_calculated_characteristics(self, repository):
         qs = models.SupportedCharacteristic.objects.annotate(
             qty=Count('calculated_characteristics'),
         )
@@ -295,6 +300,7 @@ class Command(BaseCommand):
                 characteristic=entity,
                 value=get_random_value('PERCENT'),
                 created_at=created_at,
+                repository=repository,
             )
 
         self.create_fake_calculated_entity(
@@ -303,7 +309,7 @@ class Command(BaseCommand):
             models.CalculatedCharacteristic,
         )
 
-    def create_fake_calculated_subcharacteristics(self):
+    def create_fake_calculated_subcharacteristics(self, repository):
         qs = models.SupportedSubCharacteristic.objects.annotate(
             qty=Count('calculated_subcharacteristics'),
         )
@@ -313,6 +319,7 @@ class Command(BaseCommand):
                 subcharacteristic=entity,
                 value=get_random_value('PERCENT'),
                 created_at=created_at,
+                repository=repository,
             )
 
         self.create_fake_calculated_entity(
@@ -321,13 +328,14 @@ class Command(BaseCommand):
             models.CalculatedSubCharacteristic,
         )
 
-    def create_default_pre_config(self):
+    def create_default_pre_config(self, repository):
         models.PreConfig.objects.get_or_create(
             name='Default pre-config',
             data=staticfiles.DEFAULT_PRE_CONFIG,
+            repository=repository,
         )
 
-    def create_fake_sqc_data(self):
+    def create_fake_sqc_data(self, repository):
         if settings.CREATE_FAKE_DATA is False:
             return
 
@@ -341,6 +349,7 @@ class Command(BaseCommand):
         models.SQC.objects.bulk_create([
             models.SQC(
                 value=get_random_value('PERCENT'),
+                repository=repository,
             )
             for _ in range(MIN_NUMBER - qs.count())
         ])
@@ -543,17 +552,16 @@ class Command(BaseCommand):
         self.create_fake_repositories()
 
         self.create_supported_metrics()
-        self.create_fake_collected_metrics()
-
         self.create_suported_measures()
-        self.create_fake_calculated_measures()
-
         self.create_suported_subcharacteristics()
-        self.create_fake_calculated_subcharacteristics()
-
         self.create_suported_characteristics()
-        self.create_fake_calculated_characteristics()
 
-        self.create_default_pre_config()
+        repositories = models.Repository.objects.all()
 
-        self.create_fake_sqc_data()
+        for repository in repositories:
+            self.create_fake_collected_metrics(repository)
+            self.create_fake_calculated_measures(repository)
+            self.create_fake_calculated_subcharacteristics(repository)
+            self.create_fake_calculated_characteristics(repository)
+            self.create_default_pre_config(repository)
+            self.create_fake_sqc_data(repository)
