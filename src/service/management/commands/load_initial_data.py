@@ -124,11 +124,14 @@ class Command(BaseCommand):
     def create_sonarqube_supported_metrics(self):
         sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'
 
-        request = requests.get(sonar_endpoint)
+        try:
+            request = requests.get(sonar_endpoint)
 
-        if request.ok:
-            data = request.json()
-        else:
+            if request.ok:
+                data = request.json()
+            else:
+                data = staticfiles.SONARQUBE_AVAILABLE_METRICS
+        except Exception:
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
 
         self.model_generator(models.SupportedMetric, data['metrics'])
@@ -386,7 +389,7 @@ class Command(BaseCommand):
             with contextlib.suppress(IntegrityError):
                 organization.save()
 
-    def create_fake_projects(self):
+    def create_fake_products(self):
         if settings.CREATE_FAKE_DATA is False:
             return
 
@@ -397,8 +400,8 @@ class Command(BaseCommand):
             for organization in organizations
         }
 
-        projects = [
-            models.Project(
+        products = [
+            models.Product(
                 name='Animalesco',
                 description=(
                     "Uma aplicação para realizar o controle e "
@@ -410,7 +413,7 @@ class Command(BaseCommand):
                 ),
                 organization=organizations['UnBArqDsw2021'],
             ),
-            models.Project(
+            models.Product(
                 name='BCE UnB',
                 description=(
                     "Este projeto possui o objetivo de analisar o "
@@ -421,7 +424,7 @@ class Command(BaseCommand):
                 ),
                 organization=organizations['IHC-FGA-2020'],
             ),
-            models.Project(
+            models.Product(
                 name='MeasureSoftGram',
                 description=(
                     "Este projeto que visa a construção de um "
@@ -430,7 +433,7 @@ class Command(BaseCommand):
                 ),
                 organization=organizations['fga-eps-mds'],
             ),
-            models.Project(
+            models.Product(
                 name='Acacia',
                 description=(
                     "Este projeto que visa a construção de um "
@@ -441,19 +444,19 @@ class Command(BaseCommand):
             ),
         ]
 
-        for project in projects:
+        for product in products:
             with contextlib.suppress(IntegrityError):
-                project.save()
+                product.save()
 
     def create_fake_repositories(self):
         if settings.CREATE_FAKE_DATA is False:
             return
 
-        projects = models.Project.objects.all()
+        products = models.Product.objects.all()
 
-        projects = {
-            project.name: project
-            for project in projects
+        products = {
+            product.name: product
+            for product in products
         }
 
         repositories = [
@@ -462,35 +465,35 @@ class Command(BaseCommand):
                 description=(
                     "Repositório do backend do projeto Acacia."
                 ),
-                project=projects['Acacia'],
+                product=products['Acacia'],
             ),
             models.Repository(
                 name='2019.2-Acacia-Frontend',
                 description=(
                     "Repositório do frontend do projeto Acacia."
                 ),
-                project=projects['Acacia'],
+                product=products['Acacia'],
             ),
             models.Repository(
                 name='2019.2-Acacia-Frontend',
                 description=(
                     "Repositório do frontend do projeto Acacia."
                 ),
-                project=projects['Acacia'],
+                product=products['Acacia'],
             ),
             models.Repository(
                 name='2020.1-BCE',
                 description=(
                     "Repositório do projeto BCE UnB."
                 ),
-                project=projects['BCE UnB'],
+                product=products['BCE UnB'],
             ),
             models.Repository(
                 name='2021.1_G01_Animalesco_BackEnd',
                 description=(
                     "Repositório do backend do projeto Animalesco."
                 ),
-                project=projects['Animalesco'],
+                product=products['Animalesco'],
             ),
             models.Repository(
                 name='2021.1_G01_Animalesco_FrontEnd',
@@ -498,7 +501,7 @@ class Command(BaseCommand):
                     "Repositório do frontend "
                     "do projeto Animalesco."
                 ),
-                project=projects['Animalesco'],
+                product=products['Animalesco'],
             ),
             models.Repository(
                 name='2022-1-MeasureSoftGram-Service',
@@ -506,7 +509,7 @@ class Command(BaseCommand):
                     "Repositório do backend do projeto "
                     "MeasureSoftGram."
                 ),
-                project=projects['MeasureSoftGram'],
+                product=products['MeasureSoftGram'],
             ),
             models.Repository(
                 name='2022-1-MeasureSoftGram-Core',
@@ -514,7 +517,7 @@ class Command(BaseCommand):
                     "Repositório da API do modelo matemático "
                     "do projeto MeasureSoftGram"
                 ),
-                project=projects['MeasureSoftGram'],
+                product=products['MeasureSoftGram'],
             ),
             models.Repository(
                 name='2022-1-MeasureSoftGram-Front',
@@ -522,7 +525,7 @@ class Command(BaseCommand):
                     "Repositório do frontend da projeto "
                     "MeasureSoftGram"
                 ),
-                project=projects['MeasureSoftGram'],
+                product=products['MeasureSoftGram'],
             ),
             models.Repository(
                 name='2022-1-MeasureSoftGram-CLI',
@@ -530,7 +533,7 @@ class Command(BaseCommand):
                     "Repositório do CLI da projeto "
                     "MeasureSoftGram"
                 ),
-                project=projects['MeasureSoftGram'],
+                product=products['MeasureSoftGram'],
             ),
         ]
 
@@ -548,7 +551,7 @@ class Command(BaseCommand):
             )
 
         self.create_fake_organizations()
-        self.create_fake_projects()
+        self.create_fake_products()
         self.create_fake_repositories()
 
         self.create_supported_metrics()
