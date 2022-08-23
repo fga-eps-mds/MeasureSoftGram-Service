@@ -15,7 +15,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(models.Project)
+@admin.register(models.Product)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -41,5 +41,5 @@ class RepositoryAdmin(admin.ModelAdmin):
         "name",
     )
     list_filter = (
-        "project",
+        "product",
     )

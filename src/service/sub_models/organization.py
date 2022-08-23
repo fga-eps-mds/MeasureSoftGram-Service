@@ -22,7 +22,15 @@ class Organization(models.Model):
         return self.name
 
 
-class Project(models.Model):
+class Product(models.Model):
+    """
+    Produto de software é a abstração de um
+    software que está sendo desenvolvido/mantido
+
+    Observação: Anteriormente se chamava Project, mas o cliente achou
+    melhor mudar esse nome, pois uma vez que o projeto é finalizado o
+    resultado é o produto de software.
+    """
     class Meta:
         unique_together = (('name', 'organization'),)
 
@@ -35,7 +43,7 @@ class Project(models.Model):
     organization = models.ForeignKey(
         Organization,
         on_delete=models.CASCADE,
-        related_name='projects',
+        related_name='products',
     )
 
     def __str__(self):
@@ -49,7 +57,7 @@ class Repository(models.Model):
     repositório do backend e do frontend.
     """
     class Meta:
-        unique_together = (('name', 'project'),)
+        unique_together = (('name', 'product'),)
         verbose_name_plural = 'Repositories'
 
     name = models.CharField(max_length=128)
@@ -58,8 +66,8 @@ class Repository(models.Model):
         null=True,
         blank=True,
     )
-    project = models.ForeignKey(
-        Project,
+    product = models.ForeignKey(
+        Product,
         on_delete=models.CASCADE,
         related_name='repositories',
     )
