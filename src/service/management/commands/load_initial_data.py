@@ -19,7 +19,7 @@ import utils
 # Local Imports
 from service import models, staticfiles
 from service.management.commands.utils import create_suported_characteristics
-from service.sub_models.organization import Organization
+from organizations.models import Organization
 from service.sub_views.collectors.sonarqube import import_sonar_metrics
 from utils import (
     exceptions,
@@ -362,14 +362,14 @@ class Command(BaseCommand):
             return
 
         organizations = [
-            models.Organization(
+            Organization(
                 name='fga-eps-mds',
                 description=((
                     "Organização que agrupa os "
                     "projetos de EPS e MDS da FGA."
                 )),
             ),
-            models.Organization(
+            Organization(
                 name='UnBArqDsw2021',
                 description=((
                     "Organização que agrupa os "
@@ -377,7 +377,7 @@ class Command(BaseCommand):
                     "Software do semestre 2021.01"
                 )),
             ),
-            models.Organization(
+            Organization(
                 name='IHC-FGA-2020',
                 description=((
                     "Organização que agrupa os projetos da" "disciplina de Interação Humano Computador"
@@ -393,7 +393,7 @@ class Command(BaseCommand):
         if settings.CREATE_FAKE_DATA is False:
             return
 
-        organizations = models.Organization.objects.all()
+        = models.Organization.objects.all()
 
         organizations = {
             organization.name: organization

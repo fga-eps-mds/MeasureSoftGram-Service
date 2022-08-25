@@ -16,7 +16,7 @@ class Goal(models.Model):
     data = models.JSONField()
 
     repository = models.ForeignKey(
-        to='service.Repository',
+        to='organizations.Repository',
         related_name='goals',
         on_delete=models.CASCADE,
     )

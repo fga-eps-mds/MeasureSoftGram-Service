@@ -15,7 +15,7 @@ class SQC(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     repository = models.ForeignKey(
-        to='service.Repository',
+        to='organizations.Repository',
         related_name='calculated_sqcs',
         on_delete=models.CASCADE,
     )

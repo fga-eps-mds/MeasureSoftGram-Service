@@ -1,25 +1,32 @@
 from django.contrib import admin
 
-from service import models
+from organizations.models import (
+    Organization,
+    Product,
+    Repository,
+)
 
 
-@admin.register(models.Organization)
+@admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
+        "key",
         "description",
     )
     search_fields = (
         "name",
+        "key",
     )
 
 
-@admin.register(models.Product)
+@admin.register(Product)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
+        "key",
         "description",
     )
     search_fields = (
@@ -30,11 +37,12 @@ class ProjectAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(models.Repository)
+@admin.register(Repository)
 class RepositoryAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
+        "key",
         "description",
     )
     search_fields = (
@@ -42,4 +50,5 @@ class RepositoryAdmin(admin.ModelAdmin):
     )
     list_filter = (
         "product",
+        "product__organization",
     )

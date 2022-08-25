@@ -27,7 +27,7 @@ class PreConfig(models.Model):
     data = models.JSONField()
 
     repository = models.ForeignKey(
-        to='service.Repository',
+        to='organizations.Repository',
         related_name='pre_configs',
         on_delete=models.CASCADE,
     )
