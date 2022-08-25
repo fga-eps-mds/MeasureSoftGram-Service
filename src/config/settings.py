@@ -63,6 +63,7 @@ APPLICATION_APPS = [
     'accounts',
     'organizations',
     'metrics',
+    'measures',
 
     'utils',
     # 'service',

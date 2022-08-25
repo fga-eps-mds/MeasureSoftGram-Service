@@ -2,7 +2,11 @@ from django.conf import settings
 from rest_framework import serializers
 
 import utils
-from service import models
+
+from measures.models import (
+    SupportedMeasure,
+    CalculatedMeasure,
+)
 
 
 class SupportedMeasureSerializer(serializers.ModelSerializer):
@@ -10,7 +14,7 @@ class SupportedMeasureSerializer(serializers.ModelSerializer):
     Serializadora para uma medida suportada
     """
     class Meta:
-        model = models.SupportedMeasure
+        model = SupportedMeasure
         fields = (
             'id',
             'key',
@@ -32,7 +36,8 @@ class MeasuresCalculationsRequestSerializer(serializers.Serializer):
 
     Aqui estou definindo uma lista de objetos pois é provável que no futuro
     outros parâmetros além de nome sejam necessários, e deste modo a evolução
-    da API será somente a adição de novas chaves em MeasureCalculationRequestSerializer
+    da API será somente a adição de novas chaves em
+    MeasureCalculationRequestSerializer
     """
     measures = serializers.ListField(
         child=MeasureCalculationRequestSerializer(),
@@ -47,7 +52,7 @@ class MeasuresCalculationsRequestSerializer(serializers.Serializer):
 
         unsuported_measures: str = utils.validate_entity(
             measure_keys,
-            models.SupportedMeasure.has_unsupported_measures,
+            SupportedMeasure.has_unsupported_measures,
         )
 
         if unsuported_measures:
@@ -64,7 +69,7 @@ class CalculatedMeasureSerializer(serializers.ModelSerializer):
     Serializadora usada para serializar as medidas calculadas
     """
     class Meta:
-        model = models.CalculatedMeasure
+        model = CalculatedMeasure
         fields = (
             'id',
             'measure_id',
@@ -82,7 +87,7 @@ class LatestMeasuresCalculationsRequestSerializer(serializers.ModelSerializer):
     latest = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.SupportedMeasure
+        model = SupportedMeasure
         fields = (
             'id',
             'key',
@@ -91,24 +96,19 @@ class LatestMeasuresCalculationsRequestSerializer(serializers.ModelSerializer):
             'latest',
         )
 
-    def get_latest(self, obj: models.SupportedMeasure):
+    def get_latest(self, obj: SupportedMeasure):
         try:
             latest = obj.calculated_measures.first()
             return CalculatedMeasureSerializer(latest).data
-        except models.CollectedMetric.DoesNotExist:
+        except CalculatedMeasure.DoesNotExist:
             return None
 
 
 class CalculatedMeasureHistorySerializer(serializers.ModelSerializer):
-    # history = CalculatedMeasureSerializer(
-    #     source='calculated_measures',
-    #     many=True,
-    # )
-
     history = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.SupportedMetric
+        model = SupportedMeasure
         fields = (
             'id',
             'key',
@@ -117,11 +117,11 @@ class CalculatedMeasureHistorySerializer(serializers.ModelSerializer):
             'history',
         )
 
-    def get_history(self, obj: models.SupportedMeasure):
+    def get_history(self, obj: SupportedMeasure):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
         try:
             # Os últimos 10 registros criados em ordem decrescente
             qs = obj.calculated_measures.all()[:MAX]
             return CalculatedMeasureSerializer(qs, many=True).data
-        except models.CalculatedMeasure.DoesNotExist:
+        except CalculatedMeasure.DoesNotExist:
             return None

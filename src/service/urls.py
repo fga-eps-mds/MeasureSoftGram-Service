@@ -9,18 +9,6 @@ app_name = 'service'
 system_router = DefaultRouter()
 
 system_router.register(
-    'supported-metrics',
-    views.SupportedMetricModelViewSet,
-    basename='supported-metrics',
-)
-
-system_router.register(
-    'supported-measures',
-    views.SupportedMeasureModelViewSet,
-    basename='supported-measures',
-)
-
-system_router.register(
     'supported-subcharacteristics',
     views.SupportedSubCharacteristicModelViewSet,
     basename='supported-subcharacteristics',
@@ -36,24 +24,6 @@ system_router.register(
 router = DefaultRouter()
 
 router.register(
-    'create/metrics',
-    views.CollectedMetricModelViewSet,
-    basename='collected-metrics',
-)
-
-router.register(
-    'history/metrics',
-    views.CollectedMetricHistoryModelViewSet,
-    basename='collected-metrics-history',
-)
-
-router.register(
-    'history/measures',
-    views.CalculatedMeasureHistoryModelViewSet,
-    basename='collected-measures-history',
-)
-
-router.register(
     'history/subcharacteristics',
     views.CalculatedSubCharacteristicHistoryModelViewSet,
     basename='calculated-subcharacteristics-history',
@@ -65,17 +35,7 @@ router.register(
     basename='calculated-characteristics-history',
 )
 
-router.register(
-    'measures',
-    views.LatestCalculatedMeasureModelViewSet,
-    basename='latest-calculated-measures',
-)
 
-router.register(
-    'metrics',
-    views.LatestCollectedMetricModelViewSet,
-    basename='latest-collected-metrics',
-)
 
 router.register(
     'subcharacteristics',
@@ -124,8 +84,6 @@ urlpatterns = [
 
     path('entity-relationship-tree/', views.entity_relationship_tree),
 
-    path('organizations/1/repository/1/', views.get_mocked_repository),
-
     path(
         'organizations/1/repository/1/entity-relationship-tree/',
         views.pre_config_entity_relationship_tree,
@@ -146,10 +104,6 @@ urlpatterns = [
     # path('', include(router.urls)),
     # path('', include(org_router.urls)),
 
-    path(
-        'organizations/1/repository/1/calculate/measures/',
-        views.calculate_measures,
-    ),
 
     path(
         'organizations/1/repository/1/calculate/subcharacteristics/',

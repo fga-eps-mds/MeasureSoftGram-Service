@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 import utils
-from service.managers import CacheManager
+from utils.managers import CacheManager
 
 
 class SupportedSubCharacteristic(models.Model):

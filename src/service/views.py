@@ -12,24 +12,6 @@ from service.sub_views.entity_tree import (
     pre_config_entity_relationship_tree,
 )
 from service.sub_views.goal import CreateGoalModelViewSet, CurrentGoalModelViewSet
-from service.sub_views.measures import (
-    CalculatedMeasureHistoryModelViewSet,
-    LatestCalculatedMeasureModelViewSet,
-    SupportedMeasureModelViewSet,
-    calculate_measures,
-)
-from service.sub_views.metrics import (
-    CollectedMetricHistoryModelViewSet,
-    CollectedMetricModelViewSet,
-    LatestCollectedMetricModelViewSet,
-    SupportedMetricModelViewSet,
-)
-from service.sub_views.mocked_views import (
-    get_mocked_measures,
-    get_mocked_measures_history,
-    get_mocked_repository,
-    get_specific_mocked_measure,
-)
 from service.sub_views.pre_config import (
     CreatePreConfigModelViewSet,
     CurrentPreConfigModelViewSet,

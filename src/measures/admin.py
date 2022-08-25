@@ -1,9 +1,12 @@
 from django.contrib import admin, messages
 
-from service import models
+from measures.models import (
+    SupportedMeasure,
+    CalculatedMeasure,
+)
 
 
-@admin.register(models.SupportedMeasure)
+@admin.register(SupportedMeasure)
 class SupportedMeasureAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -23,7 +26,7 @@ class SupportedMeasureAdmin(admin.ModelAdmin):
         return queryset
 
 
-@admin.register(models.CalculatedMeasure)
+@admin.register(CalculatedMeasure)
 class CalculatedMeasureAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -52,8 +55,13 @@ class CalculatedMeasureAdmin(admin.ModelAdmin):
     get_measure_key.admin_order_field = "measure__key"
 
 
-@admin.register(models.SupportedMeasure.metrics.through)
+@admin.register(SupportedMeasure.metrics.through)
 class MetricsMeasuresAssociation(admin.ModelAdmin):
+    """
+    Tabela administrativa para permitir a visualização
+    das associações entre medidas e métricas.
+    """
+
     def changelist_view(self, request, extra_context=None):
         msg = ((
             "Tabela que armazena a relação entre "

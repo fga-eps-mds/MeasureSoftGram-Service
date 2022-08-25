@@ -17,7 +17,8 @@ from django.utils import timezone
 import utils
 
 # Local Imports
-from service import models, staticfiles
+from utils import staticfiles
+from service import models
 from service.management.commands.utils import create_suported_characteristics
 from organizations.models import Organization
 from service.sub_views.collectors.sonarqube import import_sonar_metrics

@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 import utils
-from service.managers import CacheManager
+from utils.managers import CacheManager
 
 
 class SupportedMeasure(models.Model):
@@ -28,7 +28,7 @@ class SupportedMeasure(models.Model):
 
     # Métricas que estão associadas no cálculo dessa medida
     metrics = models.ManyToManyField(
-        'SupportedMetric',
+        'metrics.SupportedMetric',
         related_name='related_measures',
         blank=True,
     )

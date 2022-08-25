@@ -19,12 +19,62 @@ from metrics.views import (
     CollectedMetricHistoryModelViewSet,
 )
 
+from measures.views import (
+    SupportedMeasureModelViewSet,
+    CalculateMeasuresViewSet,
+    LatestCalculatedMeasureModelViewSet,
+    CalculatedMeasureHistoryModelViewSet,
+)
+
+
+def register_supported_entities_endpoints(router):
+    router.register('supported-metrics', SupportedMetricModelViewSet)
+    router.register('supported-measures', SupportedMeasureModelViewSet)
+
+def register_repository_actions_endpoints(router):
+    router.register(
+        'collect/metrics',
+        CollectedMetricModelViewSet,
+    )
+
+    router.register(
+        'calculate/measures',
+        CalculateMeasuresViewSet,
+        basename='calculate-measures',
+    )
+
+def register_latest_values_endpoints(router):
+    router.register(
+        'latest-values/metrics',
+        LatestCollectedMetricModelViewSet,
+        basename='latest-collected-metrics',
+    )
+
+    router.register(
+        'latest-values/measures',
+        LatestCalculatedMeasureModelViewSet,
+        basename='latest-calculated-measures',
+    )
+
+def register_historic_values_endpoints(router):
+    router.register(
+        'historical-values/metrics',
+        CollectedMetricHistoryModelViewSet,
+        basename='metrics-historical-values',
+    )
+
+    router.register(
+        'historical-values/measures',
+        CalculatedMeasureHistoryModelViewSet,
+        basename='measures-historical-values',
+    )
+
 
 main_router = routers.DefaultRouter()
 
-main_router.register('organizations', OrganizationViewSet)
-main_router.register('supported-metrics', SupportedMetricModelViewSet)
+register_supported_entities_endpoints(main_router)
 
+main_router.register('organizations', OrganizationViewSet)
 
 org_router = routers.NestedDefaultRouter(
     main_router,
@@ -48,23 +98,9 @@ repo_router = routers.NestedDefaultRouter(
     lookup='repository',
 )
 
-repo_router.register(
-    'collect/metrics',
-    CollectedMetricModelViewSet,
-)
-
-repo_router.register(
-    'latest-values/metrics',
-    LatestCollectedMetricModelViewSet,
-    basename='latest-collected-metrics',
-)
-
-repo_router.register(
-    'historical-values/metrics',
-    CollectedMetricHistoryModelViewSet,
-    basename='metrics-historical-values',
-)
-
+register_repository_actions_endpoints(repo_router)
+register_latest_values_endpoints(repo_router)
+register_historic_values_endpoints(repo_router)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
