@@ -1,5 +1,5 @@
 from django.urls import include, path
-from rest_framework_nested.routers import DefaultRouter
+from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
 
 from service import views
 
@@ -33,88 +33,87 @@ system_router.register(
 )
 
 # tem o prefixo `api/v1/organizations/<int>/repository/<int>/`
-repo_router = DefaultRouter()
+router = DefaultRouter()
 
-
-repo_router.register(
+router.register(
     'create/metrics',
     views.CollectedMetricModelViewSet,
     basename='collected-metrics',
 )
 
-repo_router.register(
+router.register(
     'history/metrics',
     views.CollectedMetricHistoryModelViewSet,
     basename='collected-metrics-history',
 )
 
-repo_router.register(
+router.register(
     'history/measures',
     views.CalculatedMeasureHistoryModelViewSet,
     basename='collected-measures-history',
 )
 
-repo_router.register(
+router.register(
     'history/subcharacteristics',
     views.CalculatedSubCharacteristicHistoryModelViewSet,
     basename='calculated-subcharacteristics-history',
 )
 
-repo_router.register(
+router.register(
     'history/characteristics',
     views.CalculatedCharacteristicHistoryModelViewSet,
     basename='calculated-characteristics-history',
 )
 
-repo_router.register(
+router.register(
     'measures',
     views.LatestCalculatedMeasureModelViewSet,
     basename='latest-calculated-measures',
 )
 
-repo_router.register(
+router.register(
     'metrics',
     views.LatestCollectedMetricModelViewSet,
     basename='latest-collected-metrics',
 )
 
-repo_router.register(
+router.register(
     'subcharacteristics',
     views.LatestCalculatedSubCharacteristicModelViewSet,
     basename='latest-calculated-subcharacteristics',
 )
 
-repo_router.register(
+router.register(
     'characteristics',
     views.LatestCalculatedCharacteristicModelViewSet,
     basename='latest-calculated-characteristics',
 )
 
-repo_router.register(
+router.register(
     'current/pre-config',
     views.CurrentPreConfigModelViewSet,
     basename='current-pre-config',
 )
 
-repo_router.register(
+router.register(
     'current/goal',
     views.CurrentGoalModelViewSet,
     basename='current-goal',
 )
 
-repo_router.register(
+router.register(
     'create/goal',
     views.CreateGoalModelViewSet,
     basename='create-goal',
 )
 
-repo_router.register(
+router.register(
     'create/pre-config',
     views.CreatePreConfigModelViewSet,
     basename='create-pre-config',
 )
 
-repo_router.register(
+router.register(
     'sqc',
     views.SQCModelViewSet,
     basename='sqc-viewset',
@@ -143,9 +142,9 @@ urlpatterns = [
     ),
 
     # BEGIN REAL Endpoints
-    path('', include(system_router.urls)),
-
-    path('organizations/1/repository/1/', include(repo_router.urls)),
+    # path('', include(system_router.urls)),
+    # path('', include(router.urls)),
+    # path('', include(org_router.urls)),
 
     path(
         'organizations/1/repository/1/calculate/measures/',

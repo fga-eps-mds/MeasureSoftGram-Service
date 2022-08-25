@@ -62,7 +62,7 @@ THIRD_PARTY_APPS = [
 APPLICATION_APPS = [
     'accounts',
     'organizations',
-    # 'metrics',
+    'metrics',
 
     'utils',
     # 'service',

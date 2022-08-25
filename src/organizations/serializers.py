@@ -107,6 +107,8 @@ class ProductSerializer(serializers.ModelSerializer):
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.SerializerMethodField()
     product = serializers.SerializerMethodField()
+    latest_values = serializers.SerializerMethodField()
+    historical_values = serializers.SerializerMethodField()
 
     class Meta:
         model = Repository
@@ -117,6 +119,8 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "key",
             "description",
             "product",
+            "latest_values",
+            "historical_values",
         )
         extra_kwargs = {
             "key": {"read_only": True},
@@ -150,3 +154,49 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             },
             request=self.context["request"],
         )
+
+    def metrics_latest_values_url(self, obj):
+        """
+        Gera a URL dos últimos valores coletados desse repositório
+        """
+        return reverse(
+            "latest-collected-metrics-list",
+            kwargs={
+                "repository_pk": obj.id,
+                "organization_pk": obj.product.organization.id,
+                "product_pk": obj.product.id,
+            },
+            request=self.context["request"],
+        )
+
+    def get_latest_values(self, obj: Repository):
+        """
+        Gera a URL dos últimos valores coletados desse repositório
+        """
+        return {
+            'metrics': self.metrics_latest_values_url(obj),
+            # 'measures': self.measures_latest_values(obj),
+            # ...
+        }
+
+    def metrics_historical_values_url(self, obj: Repository):
+        """
+        Gera a URL dos valores coletados históricos desse repositório
+        """
+        return reverse(
+            "metrics-historical-values-list",
+            kwargs={
+                "repository_pk": obj.id,
+                "organization_pk": obj.product.organization.id,
+                "product_pk": obj.product.id,
+            },
+            request=self.context["request"],
+        )
+
+    def get_historical_values(self, obj: Repository):
+        """
+        Gera a URL dos valores coletados históricos desse repositório
+        """
+        return {
+            'metrics': self.metrics_historical_values_url(obj),
+        }
