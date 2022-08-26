@@ -13,6 +13,7 @@ from organizations.serializers import (
     ProductSerializer,
     RepositorySerializer,
     RepositorySQCLatestValueSerializer,
+    RepositoriesSQCHistorySerializer,
 )
 
 
@@ -54,3 +55,16 @@ class RepositoriesSQCLatestValueViewSet(
     def get_queryset(self):
         product = get_object_or_404(Product, id=self.kwargs['product_pk'])
         return Repository.objects.filter(product=product)
+
+
+class RepositoriesSQCHistoryViewSet(
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    serializer_class = RepositoriesSQCHistorySerializer
+
+    def get_queryset(self):
+        product = get_object_or_404(Product, id=self.kwargs['product_pk'])
+        qs = Repository.objects.filter(product=product)
+        # qs.prefetch_related('calculated_sqcs')
+        return qs

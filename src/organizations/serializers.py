@@ -1,7 +1,10 @@
+from django.conf import settings
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from organizations.models import Organization, Product, Repository
+from sqc.models import SQC
 from sqc.serializers import SQCSerializer
 
 
@@ -160,12 +163,17 @@ class ProductSerializer(serializers.ModelSerializer):
             obj, "repositories-sqcs-list",
         )
 
+        repositories_sqc_historical_values_url = self.reverse_product_resource(
+            obj, "repositories-sqc-historical-values-list",
+        )
+
         return {
             'create a new repository': create_a_new_repository_url,
             'get current goal': current_goal_url,
             'get current pre-config': current_pre_config_url,
             'get pre-config entity relationship tree': pre_config_entity_relationship_tree_url,
             'get all repositories latest sqcs': repositories_latest_sqcs_url,
+            'get all repositories sqc historical values': repositories_sqc_historical_values_url,
             'create a new goal': create_a_new_goal_url,
             'create a new pre-config': create_a_pre_config_url,
         }
@@ -375,3 +383,40 @@ class RepositorySQCLatestValueSerializer(serializers.ModelSerializer):
             },
             request=self.context["request"],
         )
+
+
+class RepositoriesSQCHistorySerializer(serializers.ModelSerializer):
+    history = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Repository
+        fields = (
+            "id",
+            "url",
+            "name",
+            "history"
+        )
+
+
+    def get_url(self, obj):
+        """
+        Retorna a URL desse produto
+        """
+        return reverse(
+            "product-detail",
+            kwargs={
+                "pk": obj.id,
+                "organization_pk": obj.product.organization.id,
+            },
+            request=self.context["request"],
+        )
+
+    def get_history(self, obj: Repository):
+        MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
+
+        try:
+            qs = obj.calculated_sqcs.all()[:MAX]
+            return SQCSerializer(qs, many=True).data
+        except SQC.DoesNotExist:
+            return None

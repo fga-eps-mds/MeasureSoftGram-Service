@@ -33,6 +33,7 @@ from organizations.views import (
     ProductViewSet,
     RepositoryViewSet,
     RepositoriesSQCLatestValueViewSet,
+    RepositoriesSQCHistoryViewSet,
 )
 from pre_configs.views import CreatePreConfigModelViewSet, CurrentPreConfigModelViewSet
 from sqc.views import (
@@ -224,6 +225,12 @@ prod_router.register(
     'repositories-sqcs',
     RepositoriesSQCLatestValueViewSet,
     basename='repositories-sqcs',
+)
+
+prod_router.register(
+    'repositories-sqc-historical-values',
+    RepositoriesSQCHistoryViewSet,
+    basename='repositories-sqc-historical-values',
 )
 
 register_goals_endpoints(prod_router)
