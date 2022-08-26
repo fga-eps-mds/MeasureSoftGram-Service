@@ -222,9 +222,9 @@ prod_router.register(
 )
 
 prod_router.register(
-    'repositories-sqcs',
+    'repositories-sqc-latest-values',
     RepositoriesSQCLatestValueViewSet,
-    basename='repositories-sqcs',
+    basename='repositories-sqc-latest-values',
 )
 
 prod_router.register(

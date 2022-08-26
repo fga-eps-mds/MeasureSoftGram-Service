@@ -54,7 +54,13 @@ class RepositoriesSQCLatestValueViewSet(
 
     def get_queryset(self):
         product = get_object_or_404(Product, id=self.kwargs['product_pk'])
-        return Repository.objects.filter(product=product)
+        qs = Repository.objects.filter(product=product)
+        qs = qs.prefetch_related(
+            'calculated_sqcs',
+            'product',
+            'product__organization',
+        )
+        return qs
 
 
 class RepositoriesSQCHistoryViewSet(
@@ -66,5 +72,9 @@ class RepositoriesSQCHistoryViewSet(
     def get_queryset(self):
         product = get_object_or_404(Product, id=self.kwargs['product_pk'])
         qs = Repository.objects.filter(product=product)
-        # qs.prefetch_related('calculated_sqcs')
+        qs = qs.prefetch_related(
+            'calculated_sqcs',
+            'product',
+            'product__organization',
+        )
         return qs

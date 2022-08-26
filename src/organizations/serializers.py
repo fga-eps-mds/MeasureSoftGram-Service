@@ -160,7 +160,7 @@ class ProductSerializer(serializers.ModelSerializer):
         )
 
         repositories_latest_sqcs_url = self.reverse_product_resource(
-            obj, "repositories-sqcs-list",
+            obj, "repositories-sqc-latest-values-list",
         )
 
         repositories_sqc_historical_values_url = self.reverse_product_resource(
