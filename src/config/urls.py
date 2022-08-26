@@ -44,6 +44,9 @@ from sqc.views import (
     CalculateSQC,
 )
 
+from collectors.github.view import ImportGithubMetricsViewSet
+from collectors.sonarqube.view import ImportSonarQubeMetricsViewSet
+
 
 def register_supported_entities_endpoints(router):
     router.register('supported-metrics', SupportedMetricModelViewSet)
@@ -139,6 +142,20 @@ def register_historic_values_endpoints(router):
         basename='sqc-historical-values',
     )
 
+def register_collectors_endpoints(router):
+    router.register(
+        'collectors/github',
+        ImportGithubMetricsViewSet,
+        basename='github-collector',
+    )
+
+    router.register(
+        'collectors/sonarqube',
+        ImportSonarQubeMetricsViewSet,
+        basename='sonarqube-collector',
+    )
+
+
 main_router = routers.DefaultRouter()
 
 register_supported_entities_endpoints(main_router)
@@ -170,6 +187,7 @@ repo_router = routers.NestedDefaultRouter(
 register_repository_actions_endpoints(repo_router)
 register_latest_values_endpoints(repo_router)
 register_historic_values_endpoints(repo_router)
+register_collectors_endpoints(repo_router)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

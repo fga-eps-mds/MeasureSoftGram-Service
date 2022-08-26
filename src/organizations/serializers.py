@@ -189,11 +189,21 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             obj, "calculate-characteristics-list",
         )
 
+        github_collector_url = self.reverse_repository_resource(
+            obj, "github-collector-list",
+        )
+
+        sonarqube_collector_url = self.reverse_repository_resource(
+            obj, "sonarqube-collector-list",
+        )
+
         return {
             'collect metric': collect_metric_url,
             'calculate measures': calculate_measures_url,
             'calculate subcharacteristics': calculate_subcharacteristics_url,
             'calculate characteristics': calculate_characteristics_url,
+            'import metrics from github': github_collector_url,
+            'import metrics from SonarQube JSON': sonarqube_collector_url,
         }
 
     def get_historical_values(self, obj: Repository):

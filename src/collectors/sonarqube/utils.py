@@ -1,21 +1,7 @@
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import JSONParser
-from rest_framework.response import Response
-
-from service.models import CollectedMetric, SupportedMetric
-from service.serializers import CollectedMetricSerializer
 from utils import namefy
 
-
-@api_view(['POST', 'HEAD', 'OPTIONS'])
-@parser_classes([JSONParser])
-def import_sonar_metrics_view(request):
-    """
-    Endpoint que recebe um o JSON obtido na API do SonarQube,
-    extrai os valores das métricas contidas e salva no banco de dados.
-    """
-    data = dict(request.data)
-    return import_sonar_metrics(data)
+from metrics.models import SupportedMetric, CollectedMetric
+from metrics.serializers import CollectedMetricSerializer
 
 
 def import_sonar_metrics(data, only_create_supported_metrics=False):
@@ -25,7 +11,6 @@ def import_sonar_metrics(data, only_create_supported_metrics=False):
 
     TODO: Refatorar essa função
     """
-
     supported_metrics = {
         supported_metric.key: supported_metric
         for supported_metric in SupportedMetric.objects.all()
@@ -58,9 +43,8 @@ def import_sonar_metrics(data, only_create_supported_metrics=False):
             collected_metrics.append(in_memory_metric)
 
     if only_create_supported_metrics:
-        return
+        return {}
 
     saved_metrics = CollectedMetric.objects.bulk_create(collected_metrics)
 
-    json_data = CollectedMetricSerializer(saved_metrics, many=True).data
-    return Response(json_data)
+    return CollectedMetricSerializer(saved_metrics, many=True).data

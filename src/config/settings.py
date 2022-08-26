@@ -72,6 +72,8 @@ APPLICATION_APPS = [
 
     'pre_configs',
 
+    'collectors',
+
     'utils',
     # 'service',
 ]

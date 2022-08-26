@@ -1,5 +1,5 @@
-from django.urls import include, path
-from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
+from django.urls import path
+from rest_framework_nested.routers import DefaultRouter
 
 from service import views
 

@@ -7,7 +7,7 @@ interajam com essa classe, que abstrai a API do GitHub.
 import concurrent
 import concurrent.futures
 import datetime as dt
-from typing import Iterable, List, Tuple
+from typing import Iterable, List
 
 import requests
 
@@ -43,35 +43,6 @@ class GithubMetricCollector:
     @staticmethod
     def str_to_datetime(date_str):
         return dt.datetime.strptime(date_str, GITHUB_DATETIME_STR_FORMAT)
-
-    # TODO: Mover para core
-    # def get_team_throughput(self, start_date, end_date):
-    #     date_now = dt.datetime.now().strftime(GITHUB_DATETIME_STR_FORMAT)
-    #     issues = len(self.get_issues(start_date, end_date, ""))
-    #     closedIssues = len(self.get_issues("", date_now, "state=closed"))
-    #     return closedIssues/issues
-
-    # def get_resolved_issues_throughput(self, start_date, end_date):
-
-    #     # Todas as issues criadas dentro do período de tempo com o estado closed
-    #     closed_issues = self.get_issues(start_date, end_date, "state=closed")
-
-    #    a = list(
-    #        filter(
-    #            lambda issue: (
-    #                issue["closed_at"] > start_date and
-    #                issue["closed_at"] < end_date
-    #            ),
-    #            closed_issues
-    #        )
-    #    )
-    #
-    #     return len(a) / len(closed_issues)
-
-    # def get_issue_type_timeframe(self, start_date, end_date, type):
-    #     total_issues = len(self.get_issues(start_date, end_date, ""))
-    #     issues = len(self.get_issues(start_date, end_date, f"label={type}"))
-    #     return issues/total_issues
 
     def get_number_of_issues_resolved_in_the_last_x_days(
         self,
@@ -302,15 +273,3 @@ class GithubMetricCollector:
         )
 
         return github_response.json()
-
-
-# if __name__ == '__main__':
-#     obj = GithubMetricCollector(
-#         'https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Doc/',
-#     )
-
-#     value = obj.get_number_of_issues_resolved_in_the_last_x_days(
-#         x=90,
-#     )
-
-#     print('value:', value)

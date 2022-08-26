@@ -4,4 +4,3 @@ from service.sub_serializers.entity_tree import (
 )
 from service.sub_serializers.github import GithubCollectorParamsSerializer
 from service.sub_serializers.goal import GoalSerializer
-from service.sub_serializers.sqc import SQCSerializer

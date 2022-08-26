@@ -1,19 +1,12 @@
-"""
-Views que realiza a coleta de métricas no repositório github
-"""
-from django.conf import settings
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import JSONParser
-from rest_framework.response import Response
+from collectors.github import GithubMetricCollector
 
-import utils
-from service import models, serializers
-from service.collectors import GithubMetricCollector
-from service.serializers import GithubCollectorParamsSerializer
 from utils.exceptions import GithubCollectorParamsException
 
 
 def get_dynamic_key(key: str, threshold: int) -> str:
+    """
+    Retorna a key genérica com o threshold, retornando assim a key dinâmica
+    """
     dynamic_key = key.split('_in_the_last')[0]
     dynamic_key += f'_in_the_last_{threshold}_days'
     return dynamic_key
@@ -64,43 +57,3 @@ def calculate_metric_value(metric, data):
     method = getattr(collector, params_map['metric_method']['method_name'])
     method_params = get_collector_metric_method_params(params_map, data)
     return method(**method_params)
-
-
-@api_view(['POST', 'HEAD', 'OPTIONS'])
-@parser_classes([JSONParser])
-def import_github_metrics(request):
-    serializer = GithubCollectorParamsSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    data = serializer.validated_data
-
-    new_collected_metrics = []
-
-    # TODO: Parallelize this for loop
-    for metric in settings.GITHUB_METRICS:
-        has_all_params = all(
-            param in data for param in metric['api_params']
-        )
-
-        if not has_all_params:
-            continue
-
-        sup_metric = models.SupportedMetric.objects.get(
-            key=metric['key']
-        )
-
-        threshold = get_threshold(data)
-
-        dynamic_key = get_dynamic_key(metric['key'], threshold)
-
-        # Calcula o valor da métrica desejada
-        value = calculate_metric_value(metric, data)
-
-        sup_metric.collected_metrics.create(value=value, dynamic_key=dynamic_key)
-        new_collected_metrics.append(sup_metric)
-
-    serializer = serializers.LatestCollectedMetricSerializer(
-        new_collected_metrics,
-        many=True,
-    )
-
-    return Response({'calculated_metrics': serializer.data})
