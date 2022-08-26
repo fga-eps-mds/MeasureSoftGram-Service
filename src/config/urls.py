@@ -44,8 +44,18 @@ from sqc.views import (
     CalculateSQC,
 )
 
+from pre_configs.views import (
+    CreatePreConfigModelViewSet,
+    CurrentPreConfigModelViewSet,
+)
+
 from collectors.github.view import ImportGithubMetricsViewSet
 from collectors.sonarqube.view import ImportSonarQubeMetricsViewSet
+
+from goals.views import (
+    CurrentGoalModelViewSet,
+    CreateGoalModelViewSet,
+)
 
 
 def register_supported_entities_endpoints(router):
@@ -155,6 +165,33 @@ def register_collectors_endpoints(router):
         basename='sonarqube-collector',
     )
 
+def register_goals_endpoints(router):
+    router.register(
+        'current/goal',
+        CurrentGoalModelViewSet,
+        basename='current-goal',
+    )
+
+    router.register(
+        'create/goal',
+        CreateGoalModelViewSet,
+        basename='create-goal',
+    )
+
+def register_preconfigs_endpoints(router):
+    router.register(
+        'current/pre-config',
+        CurrentPreConfigModelViewSet,
+        basename='current-pre-config',
+    )
+
+    router.register(
+        'create/pre-config',
+        CreatePreConfigModelViewSet,
+        basename='create-pre-config',
+    )
+
+
 
 main_router = routers.DefaultRouter()
 
@@ -176,6 +213,9 @@ prod_router = routers.NestedDefaultRouter(
     lookup='product',
 )
 
+register_goals_endpoints(prod_router)
+register_preconfigs_endpoints(prod_router)
+
 prod_router.register('repositories', RepositoryViewSet)
 
 repo_router = routers.NestedDefaultRouter(
@@ -188,6 +228,8 @@ register_repository_actions_endpoints(repo_router)
 register_latest_values_endpoints(repo_router)
 register_historic_values_endpoints(repo_router)
 register_collectors_endpoints(repo_router)
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),

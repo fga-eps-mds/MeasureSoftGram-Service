@@ -14,5 +14,5 @@ class PreConfigAdmin(admin.ModelAdmin):
         "name",
     )
     list_filter = (
-        "repository",
+        "product",
     )

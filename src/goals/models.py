@@ -5,6 +5,10 @@ from django.utils import timezone
 
 
 class Goal(models.Model):
+    """
+    Tabela que armazena os objetivos de qualidade
+    de um projeto na perspectiva de qualidade
+    """
 
     class Meta:
         ordering = ('-created_at',)

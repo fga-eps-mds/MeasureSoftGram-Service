@@ -71,6 +71,7 @@ APPLICATION_APPS = [
     'sqc',
 
     'pre_configs',
+    'goals',
 
     'collectors',
 

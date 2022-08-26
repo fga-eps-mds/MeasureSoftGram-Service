@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from service import models
+from goals.models import Goal
 
 
-@admin.register(models.Goal)
+@admin.register(Goal)
 class GoalAdmin(admin.ModelAdmin):
     list_display = (
         'id',

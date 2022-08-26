@@ -4,9 +4,9 @@ from django.utils import timezone
 import utils
 from utils.exceptions import InvalidPreConfigException
 
-# from characteristics.models import SupportedCharacteristic
-# from subcharacteristics.models import SupportedSubCharacteristic
 from measures.models import SupportedMeasure
+from subcharacteristics.models import SupportedSubCharacteristic
+from characteristics.models import SupportedCharacteristic
 
 
 
@@ -28,8 +28,8 @@ class PreConfig(models.Model):
     name = models.CharField(max_length=128, null=True, blank=True)
     data = models.JSONField()
 
-    repository = models.ForeignKey(
-        to='organizations.Repository',
+    product = models.ForeignKey(
+        to='organizations.Product',
         related_name='pre_configs',
         on_delete=models.CASCADE,
     )

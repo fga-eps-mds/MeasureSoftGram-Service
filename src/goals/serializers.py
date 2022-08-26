@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from service import models
+from goals.models import Goal, Equalizer
+from pre_configs.models import PreConfig
 
 
 class CharacteristicDeltaSerializer(serializers.Serializer):
@@ -16,12 +17,16 @@ class CharacteristicDeltaSerializer(serializers.Serializer):
 
 
 class GoalSerializer(serializers.ModelSerializer):
-    # Write Only Field
+    """
+    Serializadora usada para serializar um Goal (meta).
+
+    O campo changes é usado somente na criação de novos goals (metas)
+    """
     changes = CharacteristicDeltaSerializer(many=True, write_only=True)
     data = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.Goal
+        model = Goal
         fields = (
             'id',
             'release_name',
@@ -43,7 +48,7 @@ class GoalSerializer(serializers.ModelSerializer):
         repositório, pois será necessário fazer um fitro na tabela PreConfig
         pelo id do repositório.
         """
-        pre_config = models.PreConfig.objects.first()
+        pre_config = PreConfig.objects.first()
         return pre_config.get_characteristics_keys()
 
     def is_valid(self, raise_exception=False):
@@ -74,7 +79,7 @@ class GoalSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         selected_characteristics_keys = self.get_pre_config_characteristics()
 
-        equalizer = models.Equalizer(selected_characteristics_keys)
+        equalizer = Equalizer(selected_characteristics_keys)
 
         data = self.validated_data
         changes = data.get('changes', [])

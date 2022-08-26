@@ -12,6 +12,7 @@ class OrganizationSerializer(
     serializers.HyperlinkedModelSerializer
 ):
     products = serializers.SerializerMethodField()
+    actions = serializers.SerializerMethodField()
 
     class Meta:
         model = Organization
@@ -22,6 +23,7 @@ class OrganizationSerializer(
             "key",
             "description",
             "products",
+            "actions",
         )
         extra_kwargs = {
             "key": {"read_only": True},
@@ -45,10 +47,27 @@ class OrganizationSerializer(
             products_urls.append(url)
         return products_urls
 
+    def get_actions(self, obj: Organization):
+        """
+        Retorna as URLs das actions de uma organization.
+        """
+        create_a_new_product_url = reverse(
+            "product-list",
+            kwargs={
+                "organization_pk": obj.id,
+            },
+            request=self.context["request"],
+        )
+
+        return {
+            'create a new product': create_a_new_product_url
+        }
+
 
 class ProductSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
     repositories = serializers.SerializerMethodField()
+    actions = serializers.SerializerMethodField()
 
     organization = serializers.HyperlinkedRelatedField(
         view_name="organization-detail",
@@ -65,6 +84,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "organization",
             "description",
             "repositories",
+            "actions",
         )
         extra_kwargs = {
             "key": {"read_only": True},
@@ -102,6 +122,63 @@ class ProductSerializer(serializers.ModelSerializer):
             )
             repositories_urls.append(url)
         return repositories_urls
+
+    def get_actions(self, obj: Product):
+        """
+        Retorna o valor atuais das entidades associadas a um produto
+        """
+        create_a_new_repository_url = reverse(
+            "repository-list",
+            kwargs={
+                "product_pk": obj.id,
+                "organization_pk": obj.organization.id,
+            },
+            request=self.context["request"],
+        )
+
+        current_goal_url = reverse(
+            "current-goal-list",
+            kwargs={
+                "product_pk": obj.id,
+                "organization_pk": obj.organization.id,
+            },
+            request=self.context["request"],
+        )
+
+        create_a_new_goal_url = reverse(
+            "create-goal-list",
+            kwargs={
+                "product_pk": obj.id,
+                "organization_pk": obj.organization.id,
+            },
+            request=self.context["request"],
+        )
+
+        current_pre_config_url = reverse(
+            "current-pre-config-list",
+            kwargs={
+                "product_pk": obj.id,
+                "organization_pk": obj.organization.id,
+            },
+            request=self.context["request"],
+        )
+
+        create_a_pre_config_url = reverse(
+            "create-pre-config-list",
+            kwargs={
+                "product_pk": obj.id,
+                "organization_pk": obj.organization.id,
+            },
+            request=self.context["request"],
+        )
+
+        return {
+            'create a new repository': create_a_new_repository_url,
+            'get current goal': current_goal_url,
+            'get current pre-config': current_pre_config_url,
+            'create a new goal': create_a_new_goal_url,
+            'create a new pre-config': create_a_pre_config_url,
+        }
 
 
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
@@ -172,7 +249,6 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         """
         Lista todas as ações que podem ser feitas no repositório
         """
-
         collect_metric_url = self.reverse_repository_resource(
             obj, "collectedmetric-list"
         )
@@ -189,6 +265,10 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             obj, "calculate-characteristics-list",
         )
 
+        calculate_sqc_url = self.reverse_repository_resource(
+            obj, "calculate-sqc-list",
+        )
+
         github_collector_url = self.reverse_repository_resource(
             obj, "github-collector-list",
         )
@@ -202,6 +282,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             'calculate measures': calculate_measures_url,
             'calculate subcharacteristics': calculate_subcharacteristics_url,
             'calculate characteristics': calculate_characteristics_url,
+            'calculate sqc': calculate_sqc_url,
             'import metrics from github': github_collector_url,
             'import metrics from SonarQube JSON': sonarqube_collector_url,
         }
@@ -226,11 +307,16 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             obj, "characteristics-historical-values-list",
         )
 
+        sqc_historical_values_url = self.reverse_repository_resource(
+            obj, "sqc-historical-values-list",
+        )
+
         return {
             'metrics': metrics_historical_values_url,
             'measures': measures_historical_values_url,
             'subcharacteristics': subcharacteristics_historical_values_url,
             'characteristics': characteristics_historical_values_url,
+            'sqc': sqc_historical_values_url,
         }
 
     def get_latest_values(self, obj: Repository):
@@ -254,9 +340,14 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             obj, "latest-calculated-characteristics-list",
         )
 
+        sqc_latest_values_url = self.reverse_repository_resource(
+            obj, "latest-calculated-sqc-list",
+        )
+
         return {
             'metrics': metrics_historical_values_url,
             'measures': measures_latest_values_url,
             'subcharacteristics': subcharacteristics_latest_values_url,
             'characteristics': characteristics_latest_values_url,
+            'sqc': sqc_latest_values_url,
         }
