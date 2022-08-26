@@ -95,10 +95,7 @@ class CalculateMeasuresViewSet(
         CalculatedMeasure.objects.bulk_create(calculated_measures)
 
         # 7. Retornando o resultado
-        serializer = LatestMeasuresCalculationsRequestSerializer(
-            qs,
-            many=True,
-        )
+        serializer = LatestMeasuresCalculationsRequestSerializer(qs, many=True)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

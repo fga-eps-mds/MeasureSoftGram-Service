@@ -1,11 +1,9 @@
-from cgitb import lookup
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
 from rest_framework_nested import routers
 
-# import service.urls as ser_urls
 from organizations.views import (
     OrganizationViewSet,
     ProductViewSet,
@@ -26,10 +24,32 @@ from measures.views import (
     CalculatedMeasureHistoryModelViewSet,
 )
 
+from subcharacteristics.views import (
+    CalculateSubCharacteristicViewSet,
+    CalculatedSubCharacteristicHistoryModelViewSet,
+    SupportedSubCharacteristicModelViewSet,
+    LatestCalculatedSubCharacteristicModelViewSet,
+)
+
+from characteristics.views import (
+    CalculateCharacteristicViewSet,
+    SupportedCharacteristicModelViewSet,
+    LatestCalculatedCharacteristicModelViewSet,
+    CalculatedCharacteristicHistoryModelViewSet,
+)
+
+from sqc.views import (
+    CalculatedSQCHistoryModelViewSet,
+    LatestCalculatedSQCViewSet,
+    CalculateSQC,
+)
+
 
 def register_supported_entities_endpoints(router):
     router.register('supported-metrics', SupportedMetricModelViewSet)
     router.register('supported-measures', SupportedMeasureModelViewSet)
+    router.register('supported-subcharacteristics', SupportedSubCharacteristicModelViewSet)
+    router.register('supported-characteristics', SupportedCharacteristicModelViewSet)
 
 def register_repository_actions_endpoints(router):
     router.register(
@@ -43,6 +63,20 @@ def register_repository_actions_endpoints(router):
         basename='calculate-measures',
     )
 
+    router.register(
+        'calculate/subcharacteristics',
+        CalculateSubCharacteristicViewSet,
+        basename='calculate-subcharacteristics',
+    )
+
+    router.register(
+        'calculate/characteristics',
+        CalculateCharacteristicViewSet,
+        basename='calculate-characteristics',
+    )
+
+    router.register('calculate/sqc', CalculateSQC, basename='calculate-sqc')
+
 def register_latest_values_endpoints(router):
     router.register(
         'latest-values/metrics',
@@ -54,6 +88,24 @@ def register_latest_values_endpoints(router):
         'latest-values/measures',
         LatestCalculatedMeasureModelViewSet,
         basename='latest-calculated-measures',
+    )
+
+    router.register(
+        'latest-values/subcharacteristics',
+        LatestCalculatedSubCharacteristicModelViewSet,
+        basename='latest-calculated-subcharacteristics',
+    )
+
+    router.register(
+        'latest-values/characteristics',
+        LatestCalculatedCharacteristicModelViewSet,
+        basename='latest-calculated-characteristics',
+    )
+
+    router.register(
+        'latest-values/sqc',
+        LatestCalculatedSQCViewSet,
+        basename='latest-calculated-sqc',
     )
 
 def register_historic_values_endpoints(router):
@@ -69,6 +121,23 @@ def register_historic_values_endpoints(router):
         basename='measures-historical-values',
     )
 
+    router.register(
+        'historical-values/subcharacteristics',
+        CalculatedSubCharacteristicHistoryModelViewSet,
+        basename='subcharacteristics-historical-values',
+    )
+
+    router.register(
+        'historical-values/characteristics',
+        CalculatedCharacteristicHistoryModelViewSet,
+        basename='characteristics-historical-values',
+    )
+
+    router.register(
+        'historical-values/sqc',
+        CalculatedSQCHistoryModelViewSet,
+        basename='sqc-historical-values',
+    )
 
 main_router = routers.DefaultRouter()
 

@@ -2,10 +2,12 @@ from django.db import models
 from django.utils import timezone
 
 import utils
-from service.sub_models.characteristics import SupportedCharacteristic
-from service.sub_models.measures import SupportedMeasure
-from service.sub_models.subcharacteristics import SupportedSubCharacteristic
 from utils.exceptions import InvalidPreConfigException
+
+# from characteristics.models import SupportedCharacteristic
+# from subcharacteristics.models import SupportedSubCharacteristic
+from measures.models import SupportedMeasure
+
 
 
 class PreConfig(models.Model):
@@ -319,9 +321,9 @@ class PreConfig(models.Model):
             raise InvalidPreConfigException("The sum of weights of characteristics is not 100")
 
     @staticmethod
-    def same_as_current_preconfig(data: dict):
+    def is_different_than_the_current_preconfig(data: dict):
         """
-        Verifica se a pré-configuração é a mesma que a pré-configuração atual
+        Verifica se a pré-configuração é diferente da pré-configuração atual
         """
         current_preconfig = PreConfig.objects.first()
 

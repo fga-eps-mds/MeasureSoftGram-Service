@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from service import models
+from sqc.models import SQC
 
 
-@admin.register(models.SQC)
+@admin.register(SQC)
 class SQCAdmin(admin.ModelAdmin):
     list_display = (
         "id",

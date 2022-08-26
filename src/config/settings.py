@@ -30,6 +30,7 @@ SECRET_KEY = os.getenv(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -62,8 +63,14 @@ THIRD_PARTY_APPS = [
 APPLICATION_APPS = [
     'accounts',
     'organizations',
+
     'metrics',
     'measures',
+    'subcharacteristics',
+    'characteristics',
+    'sqc',
+
+    'pre_configs',
 
     'utils',
     # 'service',

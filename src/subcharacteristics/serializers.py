@@ -2,7 +2,11 @@ from django.conf import settings
 from rest_framework import serializers
 
 import utils
-from service import models
+
+from subcharacteristics.models import (
+    SupportedSubCharacteristic,
+    CalculatedSubCharacteristic,
+)
 
 
 class SupportedSubCharacteristicSerializer(serializers.ModelSerializer):
@@ -10,7 +14,7 @@ class SupportedSubCharacteristicSerializer(serializers.ModelSerializer):
     Serializadora para uma subcaracterística suportada
     """
     class Meta:
-        model = models.SupportedSubCharacteristic
+        model = SupportedSubCharacteristic
         fields = (
             'id',
             'key',
@@ -24,7 +28,7 @@ class CalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
     Serializadora usada para serializar as subcaracterísticas calculadas
     """
     class Meta:
-        model = models.CalculatedSubCharacteristic
+        model = CalculatedSubCharacteristic
         fields = (
             'id',
             'subcharacteristic_id',
@@ -41,7 +45,7 @@ class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
     latest = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.SupportedSubCharacteristic
+        model = SupportedSubCharacteristic
         fields = (
             'id',
             'key',
@@ -50,11 +54,11 @@ class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
             'latest',
         )
 
-    def get_latest(self, obj: models.SupportedSubCharacteristic):
+    def get_latest(self, obj: SupportedSubCharacteristic):
         try:
             latest = obj.calculated_subcharacteristics.first()
             return CalculatedSubCharacteristicSerializer(latest).data
-        except models.SupportedSubCharacteristic.DoesNotExist:
+        except SupportedSubCharacteristic.DoesNotExist:
             return None
 
 
@@ -62,7 +66,7 @@ class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
     history = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.SupportedSubCharacteristic
+        model = SupportedSubCharacteristic
         fields = (
             'id',
             'key',
@@ -71,23 +75,23 @@ class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
             'history',
         )
 
-    def get_history(self, obj: models.SupportedSubCharacteristic):
+    def get_history(self, obj: SupportedSubCharacteristic):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
         try:
             qs = obj.calculated_subcharacteristics.all()[:MAX]
             return CalculatedSubCharacteristicSerializer(qs, many=True).data
-        except models.CalculatedSubCharacteristic.DoesNotExist:
+        except CalculatedSubCharacteristic.DoesNotExist:
             return None
 
 
-class SubcharacteristicsCalculationRequestSerializer(serializers.Serializer):
+class SubCharacteristicsCalculationRequestSerializer(serializers.Serializer):
     """
     Serializadora usada para solicitar o cálculo de uma subcaracterística
     """
     key = serializers.CharField(max_length=255)
 
 
-class SubcharacteristicsCalculationsRequestSerializer(
+class SubCharacteristicsCalculationsRequestSerializer(
     serializers.Serializer
 ):
     """
@@ -96,10 +100,10 @@ class SubcharacteristicsCalculationsRequestSerializer(
     Aqui estou definindo uma lista de objetos pois é provável que no futuro
     outros parâmetros além de nome sejam necessários, e deste modo a evolução
     da API será somente a adição de novas chaves em
-    SubcharacteristicsCalculationRequestSerializer
+    SubCharacteristicsCalculationRequestSerializer
     """
     subcharacteristics = serializers.ListField(
-        child=SubcharacteristicsCalculationRequestSerializer(),
+        child=SubCharacteristicsCalculationRequestSerializer(),
         required=True,
     )
 
@@ -113,7 +117,7 @@ class SubcharacteristicsCalculationsRequestSerializer(
 
         unsuported_subchars: str = utils.validate_entity(
             subcharacteristics_keys,
-            models.SupportedSubCharacteristic.has_unsupported_subcharacteristics
+            SupportedSubCharacteristic.has_unsupported_subcharacteristics
         )
 
         if unsuported_subchars:

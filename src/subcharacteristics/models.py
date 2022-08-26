@@ -22,7 +22,7 @@ class SupportedSubCharacteristic(models.Model):
     )
 
     measures = models.ManyToManyField(
-        'SupportedMeasure',
+        'measures.SupportedMeasure',
         related_name='related_subcharacteristics',
         blank=True,
     )

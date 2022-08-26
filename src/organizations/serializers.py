@@ -157,83 +157,9 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             request=self.context["request"],
         )
 
-    def metrics_latest_values_url(self, obj):
-        """
-        Gera a URL dos últimos valores coletados
-        das métricas associadas ao repositório
-        """
+    def reverse_repository_resource(self, obj: Repository, viewname: str):
         return reverse(
-            "latest-collected-metrics-list",
-            kwargs={
-                "repository_pk": obj.id,
-                "organization_pk": obj.product.organization.id,
-                "product_pk": obj.product.id,
-            },
-            request=self.context["request"],
-        )
-
-    def collect_metric_url(self, obj):
-        """
-        Retorna a URL de `collect/metric` de um repositório
-        """
-        return reverse(
-            "collectedmetric-list",
-            kwargs={
-                "repository_pk": obj.id,
-                "organization_pk": obj.product.organization.id,
-                "product_pk": obj.product.id,
-            },
-            request=self.context["request"],
-        )
-
-    def calculate_measures_url(self, obj):
-        """
-        Retorna a URL de `collect/metric` de um repositório
-        """
-        return reverse(
-            "calculate-measures-list",
-            kwargs={
-                "repository_pk": obj.id,
-                "organization_pk": obj.product.organization.id,
-                "product_pk": obj.product.id,
-            },
-            request=self.context["request"],
-        )
-
-    def measures_latest_values(self, obj):
-        """
-        Gera a URL dos últimos valores calculados das medidas associadas ao repositório
-        """
-        return reverse(
-            "latest-calculated-measures-list",
-            kwargs={
-                "repository_pk": obj.id,
-                "organization_pk": obj.product.organization.id,
-                "product_pk": obj.product.id,
-            },
-            request=self.context["request"],
-        )
-
-    def metrics_historical_values_url(self, obj: Repository):
-        """
-        Gera a URL dos valores coletados históricos desse repositório
-        """
-        return reverse(
-            "metrics-historical-values-list",
-            kwargs={
-                "repository_pk": obj.id,
-                "organization_pk": obj.product.organization.id,
-                "product_pk": obj.product.id,
-            },
-            request=self.context["request"],
-        )
-
-    def measures_historical_values_url(self, obj: Repository):
-        """
-        Gera a URL dos valores coletados históricos desse repositório
-        """
-        return reverse(
-            "measures-historical-values-list",
+            viewname,
             kwargs={
                 "repository_pk": obj.id,
                 "organization_pk": obj.product.organization.id,
@@ -246,25 +172,81 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         """
         Lista todas as ações que podem ser feitas no repositório
         """
+
+        collect_metric_url = self.reverse_repository_resource(
+            obj, "collectedmetric-list"
+        )
+
+        calculate_measures_url = self.reverse_repository_resource(
+            obj, "calculate-measures-list",
+        )
+
+        calculate_subcharacteristics_url = self.reverse_repository_resource(
+            obj, "calculate-subcharacteristics-list",
+        )
+
+        calculate_characteristics_url = self.reverse_repository_resource(
+            obj, "calculate-characteristics-list",
+        )
+
         return {
-            'collect metric': self.collect_metric_url(obj),
-            'calculate measures': self.calculate_measures_url(obj),
+            'collect metric': collect_metric_url,
+            'calculate measures': calculate_measures_url,
+            'calculate subcharacteristics': calculate_subcharacteristics_url,
+            'calculate characteristics': calculate_characteristics_url,
         }
 
     def get_historical_values(self, obj: Repository):
         """
         Gera a URL dos valores coletados históricos desse repositório
         """
+        metrics_historical_values_url = self.reverse_repository_resource(
+            obj, "metrics-historical-values-list",
+        )
+
+        measures_historical_values_url = self.reverse_repository_resource(
+            obj, "measures-historical-values-list",
+        )
+
+        subcharacteristics_historical_values_url = self.reverse_repository_resource(
+            obj, "subcharacteristics-historical-values-list",
+        )
+
+        characteristics_historical_values_url = self.reverse_repository_resource(
+            obj, "characteristics-historical-values-list",
+        )
+
         return {
-            'metrics': self.metrics_historical_values_url(obj),
-            'measures': self.measures_historical_values_url(obj),
+            'metrics': metrics_historical_values_url,
+            'measures': measures_historical_values_url,
+            'subcharacteristics': subcharacteristics_historical_values_url,
+            'characteristics': characteristics_historical_values_url,
         }
 
     def get_latest_values(self, obj: Repository):
         """
         Gera a URL dos últimos valores coletados desse repositório
         """
+
+        metrics_historical_values_url = self.reverse_repository_resource(
+            obj, "latest-collected-metrics-list"
+        )
+
+        measures_latest_values_url = self.reverse_repository_resource(
+            obj, "latest-calculated-measures-list",
+        )
+
+        subcharacteristics_latest_values_url = self.reverse_repository_resource(
+            obj, "latest-calculated-subcharacteristics-list",
+        )
+
+        characteristics_latest_values_url = self.reverse_repository_resource(
+            obj, "latest-calculated-characteristics-list",
+        )
+
         return {
-            'metrics': self.metrics_latest_values_url(obj),
-            'measures': self.measures_latest_values(obj),
+            'metrics': metrics_historical_values_url,
+            'measures': measures_latest_values_url,
+            'subcharacteristics': subcharacteristics_latest_values_url,
+            'characteristics': characteristics_latest_values_url,
         }

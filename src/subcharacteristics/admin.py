@@ -1,9 +1,12 @@
 from django.contrib import admin, messages
 
-from service import models
+from subcharacteristics.models import (
+    SupportedSubCharacteristic,
+    CalculatedSubCharacteristic,
+)
 
 
-@admin.register(models.SupportedSubCharacteristic)
+@admin.register(SupportedSubCharacteristic)
 class SupportedSubCharacteristicAdmin(admin.ModelAdmin):
     list_display = (
         "id",
@@ -17,7 +20,7 @@ class SupportedSubCharacteristicAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(models.SupportedSubCharacteristic.measures.through)
+@admin.register(SupportedSubCharacteristic.measures.through)
 class MeasureSubCharacteristicAssociation(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
         msg = ((
@@ -56,7 +59,7 @@ class MeasureSubCharacteristicAssociation(admin.ModelAdmin):
     get_measure_key.admin_order_field = "supportedmeasure__key"
 
 
-@admin.register(models.CalculatedSubCharacteristic)
+@admin.register(CalculatedSubCharacteristic)
 class CalculatedSubCharacteristicAdmin(admin.ModelAdmin):
     list_display = (
         "id",

@@ -2,7 +2,11 @@ from django.conf import settings
 from rest_framework import serializers
 
 import utils
-from service import models
+
+from characteristics.models import (
+    SupportedCharacteristic,
+    CalculatedCharacteristic,
+)
 
 
 class SupportedCharacteristicSerializer(serializers.ModelSerializer):
@@ -10,7 +14,7 @@ class SupportedCharacteristicSerializer(serializers.ModelSerializer):
     Serializadora para uma característica suportada
     """
     class Meta:
-        model = models.SupportedCharacteristic
+        model = SupportedCharacteristic
         fields = (
             'id',
             'key',
@@ -24,7 +28,7 @@ class CalculatedCharacteristicSerializer(serializers.ModelSerializer):
     Serializadora usada para serializar as características calculadas
     """
     class Meta:
-        model = models.CalculatedCharacteristic
+        model = CalculatedCharacteristic
         fields = (
             'id',
             'characteristic_id',
@@ -41,7 +45,7 @@ class LatestCalculatedCharacteristicSerializer(serializers.ModelSerializer):
     latest = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.SupportedCharacteristic
+        model = SupportedCharacteristic
         fields = (
             'id',
             'key',
@@ -50,11 +54,11 @@ class LatestCalculatedCharacteristicSerializer(serializers.ModelSerializer):
             'latest',
         )
 
-    def get_latest(self, obj: models.SupportedCharacteristic):
+    def get_latest(self, obj: SupportedCharacteristic):
         try:
             latest = obj.calculated_characteristics.first()
             return CalculatedCharacteristicSerializer(latest).data
-        except models.SupportedCharacteristic.DoesNotExist:
+        except SupportedCharacteristic.DoesNotExist:
             return None
 
 
@@ -62,7 +66,7 @@ class CalculatedCharacteristicHistorySerializer(serializers.ModelSerializer):
     history = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.SupportedCharacteristic
+        model = SupportedCharacteristic
         fields = (
             'id',
             'key',
@@ -71,12 +75,12 @@ class CalculatedCharacteristicHistorySerializer(serializers.ModelSerializer):
             'history',
         )
 
-    def get_history(self, obj: models.SupportedCharacteristic):
+    def get_history(self, obj: SupportedCharacteristic):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
         try:
             qs = obj.calculated_characteristics.all()[:MAX]
             return CalculatedCharacteristicSerializer(qs, many=True).data
-        except models.CalculatedCharacteristic.DoesNotExist:
+        except CalculatedCharacteristic.DoesNotExist:
             return None
 
 
@@ -112,7 +116,7 @@ class CharacteristicsCalculationsRequestSerializer(serializers.Serializer):
 
         unsuported_chars: str = utils.validate_entity(
             characteristics_keys,
-            models.SupportedCharacteristic.has_unsupported_characteristics
+            SupportedCharacteristic.has_unsupported_characteristics
         )
 
         if unsuported_chars:

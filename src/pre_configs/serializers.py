@@ -1,12 +1,13 @@
 from rest_framework import serializers
 
-from service import models
 from utils.exceptions import InvalidPreConfigException
+
+from pre_configs.models import PreConfig
 
 
 class PreConfigSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.PreConfig
+        model = PreConfig
         fields = (
             'id',
             'name',
@@ -24,15 +25,15 @@ class PreConfigSerializer(serializers.ModelSerializer):
         data = attrs['data']
 
         try:
-            models.PreConfig.validate_measures(data)
-            models.PreConfig.validate_measures_weights(data)
-            models.PreConfig.validate_subcharacteristics(data)
-            models.PreConfig.validate_subcharacteristics_measures_relation(data)
-            models.PreConfig.validate_subcharacteristics_weights(data)
-            models.PreConfig.validate_characteristics(data)
-            models.PreConfig.validate_characteristics_subcharacteristics_relation(data)
-            models.PreConfig.validate_characteristics_weights(data)
-            models.PreConfig.same_as_current_preconfig(data)
+            PreConfig.validate_measures(data)
+            PreConfig.validate_measures_weights(data)
+            PreConfig.validate_subcharacteristics(data)
+            PreConfig.validate_subcharacteristics_measures_relation(data)
+            PreConfig.validate_subcharacteristics_weights(data)
+            PreConfig.validate_characteristics(data)
+            PreConfig.validate_characteristics_subcharacteristics_relation(data)
+            PreConfig.validate_characteristics_weights(data)
+            PreConfig.is_different_than_the_current_preconfig(data)
 
         except InvalidPreConfigException as exc:
             raise serializers.ValidationError(exc) from exc

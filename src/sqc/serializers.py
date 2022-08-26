@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from service import models
+from sqc.models import SQC
 
 
 class SQCSerializer(serializers.ModelSerializer):
@@ -8,7 +8,7 @@ class SQCSerializer(serializers.ModelSerializer):
     Serializadora usada para serializar as medidas calculadas
     """
     class Meta:
-        model = models.SQC
+        model = SQC
         fields = (
             'id',
             'value',

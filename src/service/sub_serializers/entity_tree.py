@@ -61,6 +61,7 @@ def pre_config_to_entity_tree(pre_config: models.PreConfig):
     def qs_to_dict(qs):
         return {obj.key: obj for obj in qs}
 
+    # TODO: Mudar essas chamadas para chamar outras funções
     characteristics_qs = pre_config.get_characteristics_qs()
     subcharacteristics_qs = pre_config.get_subcharacteristics_qs()
     measures_qs = pre_config.get_measures_qs()

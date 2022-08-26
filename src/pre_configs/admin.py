@@ -1,9 +1,9 @@
 from django.contrib import admin
 
-from service import models
+from pre_configs.models import PreConfig
 
 
-@admin.register(models.PreConfig)
+@admin.register(PreConfig)
 class PreConfigAdmin(admin.ModelAdmin):
     list_display = (
         "id",
