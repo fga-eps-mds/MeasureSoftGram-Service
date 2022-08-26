@@ -18,7 +18,7 @@ class LatestCalculatedSQCViewSet(
 
     def list(self, request, *args, **kwargs):
         latest_sqc = SQC.objects.first()
-        serializer = self.get_serializer(latest_sqc, many=True)
+        serializer = self.get_serializer(latest_sqc)
         return Response(serializer.data)
 
 
