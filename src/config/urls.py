@@ -57,12 +57,23 @@ from goals.views import (
     CreateGoalModelViewSet,
 )
 
+from entity_trees.views import (
+    SupportedEntitiesRelationshipTreeViewSet,
+    PreConfigEntitiesRelationshipTreeViewSet,
+)
+
 
 def register_supported_entities_endpoints(router):
     router.register('supported-metrics', SupportedMetricModelViewSet)
     router.register('supported-measures', SupportedMeasureModelViewSet)
     router.register('supported-subcharacteristics', SupportedSubCharacteristicModelViewSet)
     router.register('supported-characteristics', SupportedCharacteristicModelViewSet)
+
+    router.register(
+        'entity-relationship-tree',
+        SupportedEntitiesRelationshipTreeViewSet,
+        basename='entity-relationship-tree',
+    )
 
 def register_repository_actions_endpoints(router):
     router.register(
@@ -211,6 +222,12 @@ prod_router = routers.NestedDefaultRouter(
     org_router,
     'products',
     lookup='product',
+)
+
+prod_router.register(
+    'entity-relationship-tree',
+    PreConfigEntitiesRelationshipTreeViewSet,
+    basename='pre-config-entity-relationship-tree',
 )
 
 register_goals_endpoints(prod_router)

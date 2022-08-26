@@ -72,6 +72,7 @@ APPLICATION_APPS = [
 
     'pre_configs',
     'goals',
+    'entity_trees',
 
     'collectors',
 

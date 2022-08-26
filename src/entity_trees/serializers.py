@@ -1,8 +1,14 @@
-
 from rest_framework import serializers
 
-from service import models
-from service import serializers as service_serializers
+from characteristics.models import SupportedCharacteristic
+from characteristics.serializers import SupportedCharacteristicSerializer
+
+from subcharacteristics.serializers import SupportedSubCharacteristicSerializer
+
+from measures.serializers import SupportedMeasureSerializer
+
+from pre_configs.models import PreConfig
+
 
 
 class CharacteristicEntityRelationshipTreeSerializer(
@@ -15,7 +21,7 @@ class CharacteristicEntityRelationshipTreeSerializer(
     subcharacteristics = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.SupportedCharacteristic
+        model = SupportedCharacteristic
         fields = (
             'id',
             'name',
@@ -24,7 +30,7 @@ class CharacteristicEntityRelationshipTreeSerializer(
             'subcharacteristics',
         )
 
-    def get_subcharacteristics(self, obj: models.SupportedCharacteristic):
+    def get_subcharacteristics(self, obj: SupportedCharacteristic):
         return SubCharacteristicEntityRelationshipTreeSerializer(
             obj.subcharacteristics.all(),
             many=True,
@@ -37,7 +43,7 @@ class SubCharacteristicEntityRelationshipTreeSerializer(
     measures = serializers.SerializerMethodField()
 
     class Meta:
-        model = models.SupportedCharacteristic
+        model = SupportedCharacteristic
         fields = (
             'id',
             'name',
@@ -46,22 +52,23 @@ class SubCharacteristicEntityRelationshipTreeSerializer(
             'measures',
         )
 
-    def get_measures(self, obj: models.SupportedCharacteristic):
-        return service_serializers.SupportedMeasureSerializer(
+    def get_measures(self, obj: SupportedCharacteristic):
+        return SupportedMeasureSerializer(
             obj.measures.all(),
             many=True,
         ).data
 
 
-def pre_config_to_entity_tree(pre_config: models.PreConfig):
+def pre_config_to_entity_tree(pre_config: PreConfig):
     """
+    Serializadora que converte uma pré-configuração em uma árvore de entidades
+
     Retorna a árvore de relacionamentos entre as entidades de acordo com
     as entidades selecionadas na pre configuração.
     """
     def qs_to_dict(qs):
         return {obj.key: obj for obj in qs}
 
-    # TODO: Mudar essas chamadas para chamar outras funções
     characteristics_qs = pre_config.get_characteristics_qs()
     subcharacteristics_qs = pre_config.get_subcharacteristics_qs()
     measures_qs = pre_config.get_measures_qs()
@@ -73,14 +80,14 @@ def pre_config_to_entity_tree(pre_config: models.PreConfig):
     data = []
 
     for charac in pre_config.data['characteristics']:
-        c_data = service_serializers.SupportedCharacteristicSerializer(
+        c_data = SupportedCharacteristicSerializer(
             characteristics_dict[charac['key']],
         ).data
 
         c_data['subcharacteristics'] = []
 
         for subcharac in charac['subcharacteristics']:
-            s_data = service_serializers.SupportedSubCharacteristicSerializer(
+            s_data = SupportedSubCharacteristicSerializer(
                 subcharacteristics_dict[subcharac['key']],
             ).data
 
@@ -88,7 +95,7 @@ def pre_config_to_entity_tree(pre_config: models.PreConfig):
 
             for measure in subcharac['measures']:
 
-                m_data = service_serializers.SupportedMeasureSerializer(
+                m_data = SupportedMeasureSerializer(
                     measures_dict[measure['key']],
                 ).data
 

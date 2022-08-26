@@ -8,9 +8,7 @@ from organizations.models import (
 )
 
 
-class OrganizationSerializer(
-    serializers.HyperlinkedModelSerializer
-):
+class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     products = serializers.SerializerMethodField()
     actions = serializers.SerializerMethodField()
 
@@ -123,59 +121,49 @@ class ProductSerializer(serializers.ModelSerializer):
             repositories_urls.append(url)
         return repositories_urls
 
+    def reverse_product_resource(self, obj: Product, viewname: str):
+        return reverse(
+            viewname,
+            kwargs={
+                "product_pk": obj.id,
+                "organization_pk": obj.organization.id,
+            },
+            request=self.context["request"],
+        )
+
     def get_actions(self, obj: Product):
         """
         Retorna o valor atuais das entidades associadas a um produto
         """
-        create_a_new_repository_url = reverse(
-            "repository-list",
-            kwargs={
-                "product_pk": obj.id,
-                "organization_pk": obj.organization.id,
-            },
-            request=self.context["request"],
+        create_a_new_repository_url = self.reverse_product_resource(
+            obj, "repository-list"
         )
 
-        current_goal_url = reverse(
-            "current-goal-list",
-            kwargs={
-                "product_pk": obj.id,
-                "organization_pk": obj.organization.id,
-            },
-            request=self.context["request"],
+        current_goal_url = self.reverse_product_resource(
+            obj, "current-goal-list"
         )
 
-        create_a_new_goal_url = reverse(
-            "create-goal-list",
-            kwargs={
-                "product_pk": obj.id,
-                "organization_pk": obj.organization.id,
-            },
-            request=self.context["request"],
+        create_a_new_goal_url = self.reverse_product_resource(
+            obj, "create-goal-list"
         )
 
-        current_pre_config_url = reverse(
-            "current-pre-config-list",
-            kwargs={
-                "product_pk": obj.id,
-                "organization_pk": obj.organization.id,
-            },
-            request=self.context["request"],
+        current_pre_config_url = self.reverse_product_resource(
+            obj, "current-pre-config-list"
         )
 
-        create_a_pre_config_url = reverse(
-            "create-pre-config-list",
-            kwargs={
-                "product_pk": obj.id,
-                "organization_pk": obj.organization.id,
-            },
-            request=self.context["request"],
+        create_a_pre_config_url = self.reverse_product_resource(
+            obj, "create-pre-config-list"
+        )
+
+        pre_config_entity_relationship_tree_url = self.reverse_product_resource(
+            obj, "pre-config-entity-relationship-tree-list"
         )
 
         return {
             'create a new repository': create_a_new_repository_url,
             'get current goal': current_goal_url,
             'get current pre-config': current_pre_config_url,
+            'get pre-config entity relationship tree': pre_config_entity_relationship_tree_url,
             'create a new goal': create_a_new_goal_url,
             'create a new pre-config': create_a_pre_config_url,
         }
