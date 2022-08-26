@@ -185,7 +185,12 @@ class Command(BaseCommand):
                 )
 
     @staticmethod
-    def create_fake_calculated_entity(qs, calculated_entity_factory, bulk_create_klass):
+    def create_fake_calculated_entity(
+        qs,
+        calculated_entity_factory,
+        bulk_create_klass,
+        get_entity_qty,
+    ):
         if settings.CREATE_FAKE_DATA is False:
             return
 
@@ -198,9 +203,11 @@ class Command(BaseCommand):
         fake_calculated_entities = []
 
         for entity in qs:
-            if entity.qty <= MIN_NUMBER:
-                created_at = get_random_datetime(start_date, end_date)
-                for _ in range(MIN_NUMBER - entity.qty):
+            qty = get_entity_qty(entity)
+
+            if qty < MIN_NUMBER:
+                for _ in range(MIN_NUMBER - qty):
+                    created_at = get_random_datetime(start_date, end_date)
                     fake_calculated_entities.append(
                         calculated_entity_factory(entity, created_at),
                     )
@@ -208,10 +215,7 @@ class Command(BaseCommand):
         bulk_create_klass.objects.bulk_create(fake_calculated_entities)
 
     def create_fake_collected_metrics(self, repository):
-
-        qs = SupportedMetric.objects.annotate(
-            qty=Count('collected_metrics')
-        )
+        qs = SupportedMetric.objects.all()
 
         def calculated_entity_factory(entity, created_at):
             metric_type = entity.metric_type
@@ -226,17 +230,21 @@ class Command(BaseCommand):
                 repository=repository,
             )
 
+        def get_entity_qty(entity):
+            return entity.collected_metrics.filter(
+                repository=repository,
+            ).count()
+
         self.create_fake_calculated_entity(
             qs,
             calculated_entity_factory,
             CollectedMetric,
+            get_entity_qty,
         )
 
     def create_fake_calculated_measures(self, repository):
 
-        qs = SupportedMeasure.objects.annotate(
-            qty=Count('calculated_measures'),
-        )
+        qs = SupportedMeasure.objects.all()
 
         def calculated_entity_factory(entity, created_at):
             return CalculatedMeasure(
@@ -246,10 +254,16 @@ class Command(BaseCommand):
                 repository=repository,
             )
 
+        def get_entity_qty(entity):
+            return entity.calculated_measures.filter(
+                repository=repository,
+            ).count()
+
         self.create_fake_calculated_entity(
             qs,
             calculated_entity_factory,
             CalculatedMeasure,
+            get_entity_qty,
         )
 
     def create_suported_subcharacteristics(self):
@@ -329,10 +343,16 @@ class Command(BaseCommand):
                 repository=repository,
             )
 
+        def get_entity_qty(entity):
+            return entity.calculated_characteristics.filter(
+                repository=repository,
+            ).count()
+
         self.create_fake_calculated_entity(
             qs,
             calculated_entity_factory,
             CalculatedCharacteristic,
+            get_entity_qty,
         )
 
     def create_fake_calculated_subcharacteristics(self, repository):
@@ -348,10 +368,16 @@ class Command(BaseCommand):
                 repository=repository,
             )
 
+        def get_entity_qty(entity):
+            return entity.calculated_subcharacteristics.filter(
+                repository=repository,
+            ).count()
+
         self.create_fake_calculated_entity(
             qs,
             calculated_entity_factory,
             CalculatedSubCharacteristic,
+            get_entity_qty,
         )
 
     def create_default_pre_config(self, product):
@@ -372,7 +398,7 @@ class Command(BaseCommand):
         if settings.CREATE_FAKE_DATA is False:
             return
 
-        qs = SQC.objects.all()
+        qs = SQC.objects.filter(repository=repository)
 
         MIN_NUMBER = 50
 

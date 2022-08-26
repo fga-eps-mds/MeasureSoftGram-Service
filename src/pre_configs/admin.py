@@ -9,6 +9,7 @@ class PreConfigAdmin(admin.ModelAdmin):
         "id",
         "name",
         "created_at",
+        "product",
     )
     search_fields = (
         "name",

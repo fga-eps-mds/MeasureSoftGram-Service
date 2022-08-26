@@ -28,7 +28,12 @@ from metrics.views import (
     LatestCollectedMetricModelViewSet,
     SupportedMetricModelViewSet,
 )
-from organizations.views import OrganizationViewSet, ProductViewSet, RepositoryViewSet
+from organizations.views import (
+    OrganizationViewSet,
+    ProductViewSet,
+    RepositoryViewSet,
+    RepositoriesSQCLatestValueViewSet,
+)
 from pre_configs.views import CreatePreConfigModelViewSet, CurrentPreConfigModelViewSet
 from sqc.views import (
     CalculatedSQCHistoryModelViewSet,
@@ -213,6 +218,12 @@ prod_router.register(
     'entity-relationship-tree',
     PreConfigEntitiesRelationshipTreeViewSet,
     basename='pre-config-entity-relationship-tree',
+)
+
+prod_router.register(
+    'repositories-sqcs',
+    RepositoriesSQCLatestValueViewSet,
+    basename='repositories-sqcs',
 )
 
 register_goals_endpoints(prod_router)

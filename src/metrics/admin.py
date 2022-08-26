@@ -39,10 +39,10 @@ class CollectedMetricAdmin(admin.ModelAdmin):
         "path",
     )
     list_filter = (
+        "repository",
         "qualifier",
         "metric__metric_type",
         "metric__name",
-        "repository",
     )
 
     def get_metric_name(self, obj: CollectedMetric):

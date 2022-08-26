@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from organizations.models import Organization, Product, Repository
+from sqc.serializers import SQCSerializer
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
@@ -54,7 +55,7 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         return {
-            'create a new product': create_a_new_product_url
+            'create a new product': create_a_new_product_url,
         }
 
 
@@ -155,11 +156,16 @@ class ProductSerializer(serializers.ModelSerializer):
             obj, "pre-config-entity-relationship-tree-list"
         )
 
+        repositories_latest_sqcs_url = self.reverse_product_resource(
+            obj, "repositories-sqcs-list",
+        )
+
         return {
             'create a new repository': create_a_new_repository_url,
             'get current goal': current_goal_url,
             'get current pre-config': current_pre_config_url,
             'get pre-config entity relationship tree': pre_config_entity_relationship_tree_url,
+            'get all repositories latest sqcs': repositories_latest_sqcs_url,
             'create a new goal': create_a_new_goal_url,
             'create a new pre-config': create_a_pre_config_url,
         }
@@ -335,3 +341,37 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             'characteristics': characteristics_latest_values_url,
             'sqc': sqc_latest_values_url,
         }
+
+
+class RepositorySQCLatestValueSerializer(serializers.ModelSerializer):
+    """
+    Serialização do último valor coletado de SQC
+    """
+    current_sqc = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Repository
+        fields = (
+            "id",
+            "url",
+            "name",
+            "current_sqc"
+        )
+
+    def get_current_sqc(self, repository: Repository):
+        sqc = repository.calculated_sqcs.first()
+        return SQCSerializer(sqc).data if sqc else {}
+
+    def get_url(self, obj):
+        """
+        Retorna a URL desse produto
+        """
+        return reverse(
+            "product-detail",
+            kwargs={
+                "pk": obj.id,
+                "organization_pk": obj.product.organization.id,
+            },
+            request=self.context["request"],
+        )

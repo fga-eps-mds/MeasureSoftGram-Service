@@ -13,8 +13,12 @@ class LatestCalculatedSQCViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    queryset = SQC.objects.all()
     serializer_class = SQCSerializer
+
+    def get_queryset(self):
+        return SQC.objects.filter(
+            repository=self.kwargs['repository_pk'],
+        )
 
     def list(self, request, *args, **kwargs):
         latest_sqc = SQC.objects.first()
@@ -30,8 +34,12 @@ class CalculatedSQCHistoryModelViewSet(
     """
     ViewSet para cadastrar as medidas coletadas
     """
-    queryset = SQC.objects.all()
     serializer_class = SQCSerializer
+
+    def get_queryset(self):
+        return SQC.objects.filter(
+            repository=self.kwargs['repository_pk'],
+        )
 
 
 class CalculateSQC(
