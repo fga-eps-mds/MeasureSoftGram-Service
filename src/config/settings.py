@@ -77,7 +77,6 @@ APPLICATION_APPS = [
     'collectors',
 
     'utils',
-    # 'service',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + APPLICATION_APPS

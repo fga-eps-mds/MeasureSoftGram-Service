@@ -18,10 +18,42 @@ import utils
 
 # Local Imports
 from utils import staticfiles
-from service import models
-from service.management.commands.utils import create_suported_characteristics
+from .utils import create_suported_characteristics
+
 from organizations.models import Organization
-from service.sub_views.collectors.sonarqube import import_sonar_metrics
+from collectors.sonarqube.utils import import_sonar_metrics
+
+from organizations.models import (
+    Organization,
+    Product,
+    Repository,
+)
+
+from metrics.models import (
+    SupportedMetric,
+    CollectedMetric,
+)
+
+from measures.models import (
+    SupportedMeasure,
+    CalculatedMeasure,
+)
+
+from subcharacteristics.models import (
+    SupportedSubCharacteristic,
+    CalculatedSubCharacteristic,
+)
+
+from characteristics.models import (
+    SupportedCharacteristic,
+    CalculatedCharacteristic,
+)
+
+from sqc.models import SQC
+
+from pre_configs.models import PreConfig
+
+
 from utils import (
     exceptions,
     get_random_datetime,
@@ -99,7 +131,7 @@ class Command(BaseCommand):
             with contextlib.suppress(IntegrityError):
                 measure_name = utils.namefy(measure_key)
 
-                measure, _ = models.SupportedMeasure.objects.get_or_create(
+                measure, _ = SupportedMeasure.objects.get_or_create(
                     key=measure_key,
                     name=measure_name,
                 )
@@ -109,7 +141,7 @@ class Command(BaseCommand):
                     for metric in measure_data["metrics"]
                 }
 
-                metrics = models.SupportedMetric.objects.filter(
+                metrics = SupportedMetric.objects.filter(
                     key__in=metrics_keys,
                 )
 
@@ -135,7 +167,7 @@ class Command(BaseCommand):
         except Exception:
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
 
-        self.model_generator(models.SupportedMetric, data['metrics'])
+        self.model_generator(SupportedMetric, data['metrics'])
 
         import_sonar_metrics(
             staticfiles.SONARQUBE_JSON,
@@ -144,7 +176,7 @@ class Command(BaseCommand):
 
     def create_github_supported_metrics(self):
         github_metrics = [
-            models.SupportedMetric(
+            SupportedMetric(
                 key=metric['key'],
                 name=metric['name'],
                 metric_type=metric['metric_type'],
@@ -190,7 +222,7 @@ class Command(BaseCommand):
 
     def create_fake_collected_metrics(self, repository):
 
-        qs = models.SupportedMetric.objects.annotate(
+        qs = SupportedMetric.objects.annotate(
             qty=Count('collected_metrics')
         )
 
@@ -198,7 +230,7 @@ class Command(BaseCommand):
             metric_type = entity.metric_type
             value = get_random_value(metric_type)
 
-            return models.CollectedMetric(
+            return CollectedMetric(
                 metric=entity,
                 path=get_random_path(),
                 qualifier=get_random_qualifier(),
@@ -210,17 +242,17 @@ class Command(BaseCommand):
         self.create_fake_calculated_entity(
             qs,
             calculated_entity_factory,
-            models.CollectedMetric,
+            CollectedMetric,
         )
 
     def create_fake_calculated_measures(self, repository):
 
-        qs = models.SupportedMeasure.objects.annotate(
+        qs = SupportedMeasure.objects.annotate(
             qty=Count('calculated_measures'),
         )
 
         def calculated_entity_factory(entity, created_at):
-            return models.CalculatedMeasure(
+            return CalculatedMeasure(
                 measure=entity,
                 value=get_random_value('PERCENT'),
                 created_at=created_at,
@@ -230,7 +262,7 @@ class Command(BaseCommand):
         self.create_fake_calculated_entity(
             qs,
             calculated_entity_factory,
-            models.CalculatedMeasure,
+            CalculatedMeasure,
         )
 
     def create_suported_subcharacteristics(self):
@@ -257,7 +289,7 @@ class Command(BaseCommand):
 
         for subcharacteristic in suported_subcharacteristics:
             with contextlib.suppress(IntegrityError):
-                klass = models.SupportedSubCharacteristic
+                klass = SupportedSubCharacteristic
 
                 sub_char, _ = klass.objects.get_or_create(
                     name=subcharacteristic['name'],
@@ -269,7 +301,7 @@ class Command(BaseCommand):
                     for measure in subcharacteristic["measures"]
                 ]
 
-                measures = models.SupportedMeasure.objects.filter(
+                measures = SupportedMeasure.objects.filter(
                     key__in=measures_keys,
                 )
 
@@ -295,12 +327,12 @@ class Command(BaseCommand):
         create_suported_characteristics(suported_characteristics)
 
     def create_fake_calculated_characteristics(self, repository):
-        qs = models.SupportedCharacteristic.objects.annotate(
+        qs = SupportedCharacteristic.objects.annotate(
             qty=Count('calculated_characteristics'),
         )
 
         def calculated_entity_factory(entity, created_at):
-            return models.CalculatedCharacteristic(
+            return CalculatedCharacteristic(
                 characteristic=entity,
                 value=get_random_value('PERCENT'),
                 created_at=created_at,
@@ -310,16 +342,16 @@ class Command(BaseCommand):
         self.create_fake_calculated_entity(
             qs,
             calculated_entity_factory,
-            models.CalculatedCharacteristic,
+            CalculatedCharacteristic,
         )
 
     def create_fake_calculated_subcharacteristics(self, repository):
-        qs = models.SupportedSubCharacteristic.objects.annotate(
+        qs = SupportedSubCharacteristic.objects.annotate(
             qty=Count('calculated_subcharacteristics'),
         )
 
         def calculated_entity_factory(entity, created_at):
-            return models.CalculatedSubCharacteristic(
+            return CalculatedSubCharacteristic(
                 subcharacteristic=entity,
                 value=get_random_value('PERCENT'),
                 created_at=created_at,
@@ -329,11 +361,11 @@ class Command(BaseCommand):
         self.create_fake_calculated_entity(
             qs,
             calculated_entity_factory,
-            models.CalculatedSubCharacteristic,
+            CalculatedSubCharacteristic,
         )
 
     def create_default_pre_config(self, repository):
-        models.PreConfig.objects.get_or_create(
+        PreConfig.objects.get_or_create(
             name='Default pre-config',
             data=staticfiles.DEFAULT_PRE_CONFIG,
             repository=repository,
@@ -343,15 +375,15 @@ class Command(BaseCommand):
         if settings.CREATE_FAKE_DATA is False:
             return
 
-        qs = models.SQC.objects.all()
+        qs = SQC.objects.all()
 
         MIN_NUMBER = 50
 
         if qs.count() >= MIN_NUMBER:
             return
 
-        models.SQC.objects.bulk_create([
-            models.SQC(
+        SQC.objects.bulk_create([
+            SQC(
                 value=get_random_value('PERCENT'),
                 repository=repository,
             )
@@ -394,7 +426,7 @@ class Command(BaseCommand):
         if settings.CREATE_FAKE_DATA is False:
             return
 
-        = models.Organization.objects.all()
+        = Organization.objects.all()
 
         organizations = {
             organization.name: organization
@@ -402,7 +434,7 @@ class Command(BaseCommand):
         }
 
         products = [
-            models.Product(
+            Product(
                 name='Animalesco',
                 description=(
                     "Uma aplicação para realizar o controle e "
@@ -414,7 +446,7 @@ class Command(BaseCommand):
                 ),
                 organization=organizations['UnBArqDsw2021'],
             ),
-            models.Product(
+            Product(
                 name='BCE UnB',
                 description=(
                     "Este projeto possui o objetivo de analisar o "
@@ -425,7 +457,7 @@ class Command(BaseCommand):
                 ),
                 organization=organizations['IHC-FGA-2020'],
             ),
-            models.Product(
+            Product(
                 name='MeasureSoftGram',
                 description=(
                     "Este projeto que visa a construção de um "
@@ -434,7 +466,7 @@ class Command(BaseCommand):
                 ),
                 organization=organizations['fga-eps-mds'],
             ),
-            models.Product(
+            Product(
                 name='Acacia',
                 description=(
                     "Este projeto que visa a construção de um "
@@ -453,7 +485,7 @@ class Command(BaseCommand):
         if settings.CREATE_FAKE_DATA is False:
             return
 
-        products = models.Product.objects.all()
+        products = Product.objects.all()
 
         products = {
             product.name: product
@@ -461,42 +493,42 @@ class Command(BaseCommand):
         }
 
         repositories = [
-            models.Repository(
+            Repository(
                 name='2019.2-Acacia',
                 description=(
                     "Repositório do backend do projeto Acacia."
                 ),
                 product=products['Acacia'],
             ),
-            models.Repository(
+            Repository(
                 name='2019.2-Acacia-Frontend',
                 description=(
                     "Repositório do frontend do projeto Acacia."
                 ),
                 product=products['Acacia'],
             ),
-            models.Repository(
+            Repository(
                 name='2019.2-Acacia-Frontend',
                 description=(
                     "Repositório do frontend do projeto Acacia."
                 ),
                 product=products['Acacia'],
             ),
-            models.Repository(
+            Repository(
                 name='2020.1-BCE',
                 description=(
                     "Repositório do projeto BCE UnB."
                 ),
                 product=products['BCE UnB'],
             ),
-            models.Repository(
+            Repository(
                 name='2021.1_G01_Animalesco_BackEnd',
                 description=(
                     "Repositório do backend do projeto Animalesco."
                 ),
                 product=products['Animalesco'],
             ),
-            models.Repository(
+            Repository(
                 name='2021.1_G01_Animalesco_FrontEnd',
                 description=(
                     "Repositório do frontend "
@@ -504,7 +536,7 @@ class Command(BaseCommand):
                 ),
                 product=products['Animalesco'],
             ),
-            models.Repository(
+            Repository(
                 name='2022-1-MeasureSoftGram-Service',
                 description=(
                     "Repositório do backend do projeto "
@@ -512,7 +544,7 @@ class Command(BaseCommand):
                 ),
                 product=products['MeasureSoftGram'],
             ),
-            models.Repository(
+            Repository(
                 name='2022-1-MeasureSoftGram-Core',
                 description=(
                     "Repositório da API do modelo matemático "
@@ -520,7 +552,7 @@ class Command(BaseCommand):
                 ),
                 product=products['MeasureSoftGram'],
             ),
-            models.Repository(
+            Repository(
                 name='2022-1-MeasureSoftGram-Front',
                 description=(
                     "Repositório do frontend da projeto "
@@ -528,7 +560,7 @@ class Command(BaseCommand):
                 ),
                 product=products['MeasureSoftGram'],
             ),
-            models.Repository(
+            Repository(
                 name='2022-1-MeasureSoftGram-CLI',
                 description=(
                     "Repositório do CLI da projeto "
@@ -560,7 +592,7 @@ class Command(BaseCommand):
         self.create_suported_subcharacteristics()
         self.create_suported_characteristics()
 
-        repositories = models.Repository.objects.all()
+        repositories = Repository.objects.all()
 
         for repository in repositories:
             self.create_fake_collected_metrics(repository)
