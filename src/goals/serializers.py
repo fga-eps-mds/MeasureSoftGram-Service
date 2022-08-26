@@ -51,8 +51,8 @@ class GoalSerializer(serializers.ModelSerializer):
         pre_config = PreConfig.objects.first()
         return pre_config.get_characteristics_keys()
 
-    def is_valid(self, raise_exception=False):
-        valid_format = super().is_valid(raise_exception)
+
+    def all_characteristics_are_defined_in_the_pre_config(self) -> bool:
         selected_characteristics_keys = set(
             self.get_pre_config_characteristics(),
         )
@@ -62,11 +62,23 @@ class GoalSerializer(serializers.ModelSerializer):
             change["characteristic_key"] for change in changes
         }
 
-        valid_data = characteristics_keys.issubset(
+        issubset = characteristics_keys.issubset(
             selected_characteristics_keys,
         )
 
-        is_valid = valid_format and valid_data
+        return issubset
+
+
+    def is_valid(self, raise_exception=False):
+        valid_format = super().is_valid(raise_exception)
+
+        selected_characteristics_keys = set(
+            self.get_pre_config_characteristics(),
+        )
+
+        issubset = self.all_characteristics_are_defined_in_the_pre_config()
+
+        is_valid = valid_format and issubset
 
         if not is_valid and raise_exception:
             raise serializers.ValidationError((
@@ -91,4 +103,4 @@ class GoalSerializer(serializers.ModelSerializer):
             )
 
         self.validated_data.pop('changes')
-        return super().save(data=equalizer.get_goal())
+        return super().save(data=equalizer.get_goal(), **kwargs)

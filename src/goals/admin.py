@@ -15,5 +15,5 @@ class GoalAdmin(admin.ModelAdmin):
         "release_name",
     )
     list_filter = (
-        "repository",
+        "product",
     )

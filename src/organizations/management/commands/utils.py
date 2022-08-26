@@ -1,15 +1,21 @@
+import datetime as dt
 import contextlib
 import random
 
 from django.db.utils import IntegrityError
+from django.utils import timezone
 
-from service import models
+from utils import exceptions
+
+from characteristics.models import SupportedCharacteristic
+from subcharacteristics.models import SupportedSubCharacteristic
+from pre_configs.models import PreConfig
 
 
 def create_suported_characteristics(suported_characteristics):
     for characteristic in suported_characteristics:
         with contextlib.suppress(IntegrityError):
-            klass = models.SupportedCharacteristic
+            klass = SupportedCharacteristic
 
             charact, _ = klass.objects.get_or_create(
                 name=characteristic['name'],
@@ -21,9 +27,12 @@ def create_suported_characteristics(suported_characteristics):
                 for subcharacteristic in characteristic["subcharacteristics"]
             ]
 
-            subcharacteristics = models.SupportedSubCharacteristic.objects.filter(
+            subcharacteristics = SupportedSubCharacteristic.objects.filter(
                 key__in=subcharacteristics_keys,
             )
+
+            if subcharacteristics.count() != len(subcharacteristics_keys):
+                raise exceptions.MissingSupportedSubCharacteristicError()
 
             charact.subcharacteristics.set(subcharacteristics)
 
@@ -38,7 +47,7 @@ def force_the_sum_to_equal_100(entities_data: dict):
     return entities_data
 
 
-def get_measures(subcharacteristic: models.SupportedSubCharacteristic):
+def get_measures(subcharacteristic: SupportedSubCharacteristic):
     measures = subcharacteristic.measures.all()
     weight = 100 // measures.count()
     data = [{'key': measure.key, 'weight': weight} for measure in measures]
@@ -46,7 +55,7 @@ def get_measures(subcharacteristic: models.SupportedSubCharacteristic):
     return data
 
 
-def get_subcharacteristics(characteristic: models.SupportedCharacteristic):
+def get_subcharacteristics(characteristic: SupportedCharacteristic):
     data = []
 
     subcharacteristics = characteristic.subcharacteristics.all()
@@ -73,7 +82,7 @@ def create_a_preconfig(characteristics_keys):
     Observação: A pré-configuração utiliza todoas as subcaracterísticas,
     medidas e métricas associadas com a arvore das características.
     """
-    characteristics = models.SupportedCharacteristic.objects.filter(
+    characteristics = SupportedCharacteristic.objects.filter(
         key__in=characteristics_keys,
     )
 
@@ -90,9 +99,47 @@ def create_a_preconfig(characteristics_keys):
     data = force_the_sum_to_equal_100(data)
     preconfig = {'characteristics': data}
 
-    preconfig = models.PreConfig.objects.create(
+    preconfig = PreConfig.objects.create(
         name='custom pre-config',
         data=preconfig,
     )
 
     return preconfig
+
+def get_random_start_at():
+    return timezone.now() - dt.timedelta(days=random.randint(1, 90))
+
+def get_random_end_at():
+    return timezone.now() + dt.timedelta(days=random.randint(1, 90))
+
+
+def get_random_changes(characteristics_keys):
+    changes = []
+    for _ in range(random.randint(5, 15)):
+        changes.append({
+            'characteristic_key': random.choice(characteristics_keys),
+            'delta': random.randint(-50, 50),
+        })
+    return changes
+
+
+def get_random_goal_data(pre_config: PreConfig):
+    """
+    Função que gera um objetivo aleatório com base na pré-configuração passada
+    no parâmetro.
+    """
+    characteristics_keys = [
+        obj["key"]
+        for obj in pre_config.data['characteristics']
+    ]
+
+    major = random.randint(0, 9)
+    minor = random.randint(0, 9)
+    patch = random.randint(0, 9)
+
+    return {
+        'release_name': f'v{major}.{minor}.{patch}',
+        'start_at': get_random_start_at(),
+        'end_at': get_random_end_at(),
+        "changes": get_random_changes(characteristics_keys),
+    }

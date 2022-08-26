@@ -1,4 +1,5 @@
 # Python Imports
+import logging
 import contextlib
 import datetime as dt
 import os
@@ -18,7 +19,10 @@ import utils
 
 # Local Imports
 from utils import staticfiles
-from .utils import create_suported_characteristics
+from .utils import (
+    create_suported_characteristics,
+    get_random_goal_data,
+)
 
 from organizations.models import Organization
 from collectors.sonarqube.utils import import_sonar_metrics
@@ -53,6 +57,8 @@ from sqc.models import SQC
 
 from pre_configs.models import PreConfig
 
+from goals.serializers import GoalSerializer
+
 
 from utils import (
     exceptions,
@@ -61,6 +67,9 @@ from utils import (
     get_random_qualifier,
     get_random_value,
 )
+
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -136,6 +145,8 @@ class Command(BaseCommand):
                     name=measure_name,
                 )
 
+                logger.info(f"Creating supported measure {measure_key}")
+
                 metrics_keys = {
                     metric["key"]
                     for metric in measure_data["metrics"]
@@ -149,6 +160,10 @@ class Command(BaseCommand):
                     raise exceptions.MissingSupportedMetricException()
 
                 measure.metrics.set(metrics)
+                logger.info((
+                    f"Metrics {','.join(metrics_keys)} "
+                    f"were associated to {measure_key}"
+                ))
 
     def create_supported_metrics(self):
         self.create_sonarqube_supported_metrics()
@@ -305,6 +320,9 @@ class Command(BaseCommand):
                     key__in=measures_keys,
                 )
 
+                if measures.count() != len(measures_keys):
+                    raise exceptions.MissingSupportedMeasureException()
+
                 sub_char.measures.set(measures)
 
     def create_suported_characteristics(self):
@@ -364,12 +382,19 @@ class Command(BaseCommand):
             CalculatedSubCharacteristic,
         )
 
-    def create_default_pre_config(self, repository):
+    def create_default_pre_config(self, product):
         PreConfig.objects.get_or_create(
             name='Default pre-config',
             data=staticfiles.DEFAULT_PRE_CONFIG,
-            repository=repository,
+            product=product,
         )
+
+    def create_a_goal(self, product: Product):
+        pre_config = product.pre_configs.first()
+        data = get_random_goal_data(pre_config)
+        serializer = GoalSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(product=product)
 
     def create_fake_sqc_data(self, repository):
         if settings.CREATE_FAKE_DATA is False:
@@ -426,7 +451,7 @@ class Command(BaseCommand):
         if settings.CREATE_FAKE_DATA is False:
             return
 
-        = Organization.objects.all()
+        organizations = Organization.objects.all()
 
         organizations = {
             organization.name: organization
@@ -599,5 +624,10 @@ class Command(BaseCommand):
             self.create_fake_calculated_measures(repository)
             self.create_fake_calculated_subcharacteristics(repository)
             self.create_fake_calculated_characteristics(repository)
-            self.create_default_pre_config(repository)
             self.create_fake_sqc_data(repository)
+
+        products = Product.objects.all()
+
+        for product in products:
+            self.create_default_pre_config(product)
+            self.create_a_goal(product)

@@ -1,8 +1,11 @@
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
 
 from goals.models import Goal
 from goals.serializers import GoalSerializer
+
+from organizations.models import Product
 
 
 class CurrentGoalModelViewSet(
@@ -21,3 +24,10 @@ class CreateGoalModelViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = GoalSerializer
+
+    def perform_create(self, serializer):
+        product = get_object_or_404(
+            Product,
+            id=self.kwargs['product_pk'],
+        )
+        serializer.save(product=product)

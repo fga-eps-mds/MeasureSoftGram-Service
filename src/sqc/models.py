@@ -8,6 +8,8 @@ class SQC(models.Model):
     """
     class Meta:
         ordering = ['-created_at']
+        verbose_name = 'SQC'
+        verbose_name_plural = 'SQC'
 
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
