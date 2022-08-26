@@ -1,7 +1,7 @@
 # Python Imports
-import logging
 import contextlib
 import datetime as dt
+import logging
 import os
 
 # 3rd Party Imports
@@ -16,58 +16,30 @@ from django.db.utils import IntegrityError
 from django.utils import timezone
 
 import utils
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
+from collectors.sonarqube.utils import import_sonar_metrics
+from goals.serializers import GoalSerializer
+from measures.models import CalculatedMeasure, SupportedMeasure
+from metrics.models import CollectedMetric, SupportedMetric
+from organizations.models import Organization, Product, Repository
+from pre_configs.models import PreConfig
+from sqc.models import SQC
+from subcharacteristics.models import (
+    CalculatedSubCharacteristic,
+    SupportedSubCharacteristic,
+)
 
 # Local Imports
-from utils import staticfiles
-from .utils import (
-    create_suported_characteristics,
-    get_random_goal_data,
-)
-
-from organizations.models import Organization
-from collectors.sonarqube.utils import import_sonar_metrics
-
-from organizations.models import (
-    Organization,
-    Product,
-    Repository,
-)
-
-from metrics.models import (
-    SupportedMetric,
-    CollectedMetric,
-)
-
-from measures.models import (
-    SupportedMeasure,
-    CalculatedMeasure,
-)
-
-from subcharacteristics.models import (
-    SupportedSubCharacteristic,
-    CalculatedSubCharacteristic,
-)
-
-from characteristics.models import (
-    SupportedCharacteristic,
-    CalculatedCharacteristic,
-)
-
-from sqc.models import SQC
-
-from pre_configs.models import PreConfig
-
-from goals.serializers import GoalSerializer
-
-
 from utils import (
     exceptions,
     get_random_datetime,
     get_random_path,
     get_random_qualifier,
     get_random_value,
+    staticfiles,
 )
 
+from .utils import create_suported_characteristics, get_random_goal_data
 
 logger = logging.getLogger(__name__)
 

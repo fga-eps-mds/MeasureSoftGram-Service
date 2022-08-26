@@ -1,9 +1,6 @@
 from django.contrib import admin, messages
 
-from characteristics.models import (
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 
 
 @admin.register(SupportedCharacteristic)

@@ -9,12 +9,10 @@ from rest_framework import mixins, viewsets
 from rest_framework.response import Response
 
 from characteristics.models import SupportedCharacteristic
-
 from entity_trees.serializers import (
     CharacteristicEntityRelationshipTreeSerializer,
     pre_config_to_entity_tree,
 )
-
 from pre_configs.models import PreConfig
 
 

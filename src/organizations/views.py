@@ -1,8 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.generics import get_object_or_404
 
-from organizations import models
-from organizations import serializers
+from organizations import models, serializers
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):

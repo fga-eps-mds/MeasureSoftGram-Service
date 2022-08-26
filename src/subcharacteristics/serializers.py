@@ -2,10 +2,9 @@ from django.conf import settings
 from rest_framework import serializers
 
 import utils
-
 from subcharacteristics.models import (
-    SupportedSubCharacteristic,
     CalculatedSubCharacteristic,
+    SupportedSubCharacteristic,
 )
 
 

@@ -1,22 +1,16 @@
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
-from utils.clients import CoreClient
-from utils.exceptions import SubCharacteristicNotDefinedInPreConfiguration
-
-from characteristics.models import (
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
-
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from characteristics.serializers import (
+    CalculatedCharacteristicHistorySerializer,
     CharacteristicsCalculationsRequestSerializer,
     LatestCalculatedCharacteristicSerializer,
     SupportedCharacteristicSerializer,
-    CalculatedCharacteristicHistorySerializer,
 )
-
 from pre_configs.models import PreConfig
+from utils.clients import CoreClient
+from utils.exceptions import SubCharacteristicNotDefinedInPreConfiguration
 
 
 class CalculateCharacteristicViewSet(

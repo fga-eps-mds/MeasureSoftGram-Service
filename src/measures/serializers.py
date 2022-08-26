@@ -2,11 +2,7 @@ from django.conf import settings
 from rest_framework import serializers
 
 import utils
-
-from measures.models import (
-    SupportedMeasure,
-    CalculatedMeasure,
-)
+from measures.models import CalculatedMeasure, SupportedMeasure
 
 
 class SupportedMeasureSerializer(serializers.ModelSerializer):

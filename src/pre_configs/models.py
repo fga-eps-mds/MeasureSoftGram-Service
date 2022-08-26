@@ -2,12 +2,10 @@ from django.db import models
 from django.utils import timezone
 
 import utils
-from utils.exceptions import InvalidPreConfigException
-
+from characteristics.models import SupportedCharacteristic
 from measures.models import SupportedMeasure
 from subcharacteristics.models import SupportedSubCharacteristic
-from characteristics.models import SupportedCharacteristic
-
+from utils.exceptions import InvalidPreConfigException
 
 
 class PreConfig(models.Model):

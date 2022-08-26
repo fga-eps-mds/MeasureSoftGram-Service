@@ -1,14 +1,13 @@
 from rest_framework import mixins, viewsets
 from rest_framework.generics import get_object_or_404
 
-from metrics.models import SupportedMetric, CollectedMetric
+from metrics.models import CollectedMetric, SupportedMetric
 from metrics.serializers import (
-    SupportedMetricSerializer,
     CollectedMetricHistorySerializer,
-    LatestCollectedMetricSerializer,
     CollectedMetricSerializer,
+    LatestCollectedMetricSerializer,
+    SupportedMetricSerializer,
 )
-
 from organizations.models import Repository
 
 

@@ -2,11 +2,7 @@ from django.conf import settings
 from rest_framework import serializers
 
 import utils
-
-from characteristics.models import (
-    SupportedCharacteristic,
-    CalculatedCharacteristic,
-)
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 
 
 class SupportedCharacteristicSerializer(serializers.ModelSerializer):

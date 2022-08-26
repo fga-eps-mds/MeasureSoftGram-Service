@@ -2,7 +2,7 @@ import datetime as dt
 
 from django.contrib import admin
 
-from metrics.models import SupportedMetric, CollectedMetric
+from metrics.models import CollectedMetric, SupportedMetric
 
 
 @admin.register(SupportedMetric)

@@ -1,5 +1,4 @@
 from collectors.github import GithubMetricCollector
-
 from utils.exceptions import GithubCollectorParamsException
 
 

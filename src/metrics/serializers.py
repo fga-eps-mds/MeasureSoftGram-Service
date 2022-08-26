@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import reverse_lazy
 from rest_framework import serializers
 
-from metrics.models import SupportedMetric, CollectedMetric
+from metrics.models import CollectedMetric, SupportedMetric
 
 
 class SupportedMetricSerializer(serializers.ModelSerializer):

@@ -1,7 +1,6 @@
-from utils import namefy
-
-from metrics.models import SupportedMetric, CollectedMetric
+from metrics.models import CollectedMetric, SupportedMetric
 from metrics.serializers import CollectedMetricSerializer
+from utils import namefy
 
 
 def import_sonar_metrics(data, only_create_supported_metrics=False):

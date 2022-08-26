@@ -1,65 +1,45 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
-
 from rest_framework_nested import routers
-
-from organizations.views import (
-    OrganizationViewSet,
-    ProductViewSet,
-    RepositoryViewSet,
-)
-
-from metrics.views import (
-    SupportedMetricModelViewSet,
-    CollectedMetricModelViewSet,
-    LatestCollectedMetricModelViewSet,
-    CollectedMetricHistoryModelViewSet,
-)
-
-from measures.views import (
-    SupportedMeasureModelViewSet,
-    CalculateMeasuresViewSet,
-    LatestCalculatedMeasureModelViewSet,
-    CalculatedMeasureHistoryModelViewSet,
-)
-
-from subcharacteristics.views import (
-    CalculateSubCharacteristicViewSet,
-    CalculatedSubCharacteristicHistoryModelViewSet,
-    SupportedSubCharacteristicModelViewSet,
-    LatestCalculatedSubCharacteristicModelViewSet,
-)
 
 from characteristics.views import (
     CalculateCharacteristicViewSet,
-    SupportedCharacteristicModelViewSet,
-    LatestCalculatedCharacteristicModelViewSet,
     CalculatedCharacteristicHistoryModelViewSet,
+    LatestCalculatedCharacteristicModelViewSet,
+    SupportedCharacteristicModelViewSet,
 )
-
-from sqc.views import (
-    CalculatedSQCHistoryModelViewSet,
-    LatestCalculatedSQCViewSet,
-    CalculateSQC,
-)
-
-from pre_configs.views import (
-    CreatePreConfigModelViewSet,
-    CurrentPreConfigModelViewSet,
-)
-
 from collectors.github.view import ImportGithubMetricsViewSet
 from collectors.sonarqube.view import ImportSonarQubeMetricsViewSet
-
-from goals.views import (
-    CurrentGoalModelViewSet,
-    CreateGoalModelViewSet,
-)
-
 from entity_trees.views import (
-    SupportedEntitiesRelationshipTreeViewSet,
     PreConfigEntitiesRelationshipTreeViewSet,
+    SupportedEntitiesRelationshipTreeViewSet,
+)
+from goals.views import CreateGoalModelViewSet, CurrentGoalModelViewSet
+from measures.views import (
+    CalculatedMeasureHistoryModelViewSet,
+    CalculateMeasuresViewSet,
+    LatestCalculatedMeasureModelViewSet,
+    SupportedMeasureModelViewSet,
+)
+from metrics.views import (
+    CollectedMetricHistoryModelViewSet,
+    CollectedMetricModelViewSet,
+    LatestCollectedMetricModelViewSet,
+    SupportedMetricModelViewSet,
+)
+from organizations.views import OrganizationViewSet, ProductViewSet, RepositoryViewSet
+from pre_configs.views import CreatePreConfigModelViewSet, CurrentPreConfigModelViewSet
+from sqc.views import (
+    CalculatedSQCHistoryModelViewSet,
+    CalculateSQC,
+    LatestCalculatedSQCViewSet,
+)
+from subcharacteristics.views import (
+    CalculatedSubCharacteristicHistoryModelViewSet,
+    CalculateSubCharacteristicViewSet,
+    LatestCalculatedSubCharacteristicModelViewSet,
+    SupportedSubCharacteristicModelViewSet,
 )
 
 
@@ -74,6 +54,7 @@ def register_supported_entities_endpoints(router):
         SupportedEntitiesRelationshipTreeViewSet,
         basename='entity-relationship-tree',
     )
+
 
 def register_repository_actions_endpoints(router):
     router.register(
@@ -100,6 +81,7 @@ def register_repository_actions_endpoints(router):
     )
 
     router.register('calculate/sqc', CalculateSQC, basename='calculate-sqc')
+
 
 def register_latest_values_endpoints(router):
     router.register(
@@ -132,6 +114,7 @@ def register_latest_values_endpoints(router):
         basename='latest-calculated-sqc',
     )
 
+
 def register_historic_values_endpoints(router):
     router.register(
         'historical-values/metrics',
@@ -163,6 +146,7 @@ def register_historic_values_endpoints(router):
         basename='sqc-historical-values',
     )
 
+
 def register_collectors_endpoints(router):
     router.register(
         'collectors/github',
@@ -175,6 +159,7 @@ def register_collectors_endpoints(router):
         ImportSonarQubeMetricsViewSet,
         basename='sonarqube-collector',
     )
+
 
 def register_goals_endpoints(router):
     router.register(
@@ -189,6 +174,7 @@ def register_goals_endpoints(router):
         basename='create-goal',
     )
 
+
 def register_preconfigs_endpoints(router):
     router.register(
         'current/pre-config',
@@ -201,7 +187,6 @@ def register_preconfigs_endpoints(router):
         CreatePreConfigModelViewSet,
         basename='create-pre-config',
     )
-
 
 
 main_router = routers.DefaultRouter()
@@ -245,7 +230,6 @@ register_repository_actions_endpoints(repo_router)
 register_latest_values_endpoints(repo_router)
 register_historic_values_endpoints(repo_router)
 register_collectors_endpoints(repo_router)
-
 
 
 urlpatterns = [

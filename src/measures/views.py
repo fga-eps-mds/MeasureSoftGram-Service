@@ -1,22 +1,17 @@
 from rest_framework import mixins, status, viewsets
-from rest_framework.views import APIView
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from utils.clients import CoreClient
-
-from measures.models import (
-    SupportedMeasure,
-    CalculatedMeasure,
-)
-
+from measures.models import CalculatedMeasure, SupportedMeasure
 from measures.serializers import (
-    MeasuresCalculationsRequestSerializer,
-    LatestMeasuresCalculationsRequestSerializer,
-    SupportedMeasureSerializer,
     CalculatedMeasureHistorySerializer,
+    LatestMeasuresCalculationsRequestSerializer,
+    MeasuresCalculationsRequestSerializer,
+    SupportedMeasureSerializer,
 )
+from utils.clients import CoreClient
 
 
 class CalculateMeasuresViewSet(
@@ -41,7 +36,7 @@ class CalculateMeasuresViewSet(
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
-            # 2. Obtenção das medidas suportadas pelo serviço
+        # 2. Obtenção das medidas suportadas pelo serviço
         measure_keys = [measure['key'] for measure in data['measures']]
         qs = SupportedMeasure.objects.filter(
             key__in=measure_keys

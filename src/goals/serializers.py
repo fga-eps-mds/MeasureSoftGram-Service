@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from goals.models import Goal, Equalizer
+from goals.models import Equalizer, Goal
 from pre_configs.models import PreConfig
 
 
@@ -51,7 +51,6 @@ class GoalSerializer(serializers.ModelSerializer):
         pre_config = PreConfig.objects.first()
         return pre_config.get_characteristics_keys()
 
-
     def all_characteristics_are_defined_in_the_pre_config(self) -> bool:
         selected_characteristics_keys = set(
             self.get_pre_config_characteristics(),
@@ -68,13 +67,8 @@ class GoalSerializer(serializers.ModelSerializer):
 
         return issubset
 
-
     def is_valid(self, raise_exception=False):
         valid_format = super().is_valid(raise_exception)
-
-        selected_characteristics_keys = set(
-            self.get_pre_config_characteristics(),
-        )
 
         issubset = self.all_characteristics_are_defined_in_the_pre_config()
 

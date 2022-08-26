@@ -1,15 +1,12 @@
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
-from utils.clients import CoreClient
-
-from pre_configs.models import PreConfig
-
-from sqc.models import SQC
-from sqc.serializers import SQCSerializer
-
 from measures.models import SupportedMeasure
 from metrics.models import SupportedMetric
+from pre_configs.models import PreConfig
+from sqc.models import SQC
+from sqc.serializers import SQCSerializer
+from utils.clients import CoreClient
 
 
 class LatestCalculatedSQCViewSet(

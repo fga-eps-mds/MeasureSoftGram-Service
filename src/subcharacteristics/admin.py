@@ -1,8 +1,8 @@
 from django.contrib import admin, messages
 
 from subcharacteristics.models import (
-    SupportedSubCharacteristic,
     CalculatedSubCharacteristic,
+    SupportedSubCharacteristic,
 )
 
 

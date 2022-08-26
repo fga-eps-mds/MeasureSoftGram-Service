@@ -1,8 +1,7 @@
 from rest_framework import serializers
 
-from utils.exceptions import InvalidPreConfigException
-
 from pre_configs.models import PreConfig
+from utils.exceptions import InvalidPreConfigException
 
 
 class PreConfigSerializer(serializers.ModelSerializer):

@@ -1,15 +1,14 @@
-import datetime as dt
 import contextlib
+import datetime as dt
 import random
 
 from django.db.utils import IntegrityError
 from django.utils import timezone
 
-from utils import exceptions
-
 from characteristics.models import SupportedCharacteristic
-from subcharacteristics.models import SupportedSubCharacteristic
 from pre_configs.models import PreConfig
+from subcharacteristics.models import SupportedSubCharacteristic
+from utils import exceptions
 
 
 def create_suported_characteristics(suported_characteristics):
@@ -106,8 +105,10 @@ def create_a_preconfig(characteristics_keys):
 
     return preconfig
 
+
 def get_random_start_at():
     return timezone.now() - dt.timedelta(days=random.randint(1, 90))
+
 
 def get_random_end_at():
     return timezone.now() + dt.timedelta(days=random.randint(1, 90))

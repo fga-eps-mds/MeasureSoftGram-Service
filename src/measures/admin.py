@@ -1,9 +1,6 @@
 from django.contrib import admin, messages
 
-from measures.models import (
-    SupportedMeasure,
-    CalculatedMeasure,
-)
+from measures.models import CalculatedMeasure, SupportedMeasure
 
 
 @admin.register(SupportedMeasure)

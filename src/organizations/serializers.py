@@ -1,11 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from organizations.models import (
-    Organization,
-    Product,
-    Repository,
-)
+from organizations.models import Organization, Product, Repository
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
