@@ -436,14 +436,16 @@ class Command(BaseCommand):
             Organization(
                 name='IHC-FGA-2020',
                 description=((
-                    "Organização que agrupa os projetos da" "disciplina de Interação Humano Computador"
+                    "Organização que agrupa os projetos da disciplina de "
+                    "Interação Humano Computador"
                 )),
             ),
         ]
 
         for organization in organizations:
-            with contextlib.suppress(IntegrityError):
-                organization.save()
+            if Organization.objects.filter(name=organization.name).exists():
+                continue
+            organization.save()
 
     def create_fake_products(self):
         if settings.CREATE_FAKE_DATA is False:
@@ -501,8 +503,12 @@ class Command(BaseCommand):
         ]
 
         for product in products:
-            with contextlib.suppress(IntegrityError):
-                product.save()
+            if Product.objects.filter(
+                name=product.name,
+                organization=product.organization,
+            ).exists():
+                continue
+            product.save()
 
     def create_fake_repositories(self):
         if settings.CREATE_FAKE_DATA is False:
@@ -594,8 +600,12 @@ class Command(BaseCommand):
         ]
 
         for repository in repositories:
-            with contextlib.suppress(IntegrityError):
-                repository.save()
+            if Repository.objects.filter(
+                name=repository.name,
+                product=repository.product,
+            ).exists():
+                continue
+            repository.save()
 
     def handle(self, *args, **options):
         User = get_user_model()
@@ -606,14 +616,14 @@ class Command(BaseCommand):
                 password=os.getenv('SUPERADMIN_PASSWORD', 'admin'),
             )
 
-        self.create_fake_organizations()
-        self.create_fake_products()
-        self.create_fake_repositories()
-
         self.create_supported_metrics()
         self.create_suported_measures()
         self.create_suported_subcharacteristics()
         self.create_suported_characteristics()
+
+        self.create_fake_organizations()
+        self.create_fake_products()
+        self.create_fake_repositories()
 
         repositories = Repository.objects.all()
 

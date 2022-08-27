@@ -1,5 +1,4 @@
 from django.conf import settings
-
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -397,7 +396,6 @@ class RepositoriesSQCHistorySerializer(serializers.ModelSerializer):
             "name",
             "history"
         )
-
 
     def get_url(self, obj):
         """

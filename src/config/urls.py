@@ -31,9 +31,9 @@ from metrics.views import (
 from organizations.views import (
     OrganizationViewSet,
     ProductViewSet,
-    RepositoryViewSet,
-    RepositoriesSQCLatestValueViewSet,
     RepositoriesSQCHistoryViewSet,
+    RepositoriesSQCLatestValueViewSet,
+    RepositoryViewSet,
 )
 from pre_configs.views import CreatePreConfigModelViewSet, CurrentPreConfigModelViewSet
 from sqc.views import (

@@ -54,4 +54,4 @@ class ImportGithubMetricsViewSet(
             many=True,
         )
 
-        return Response({'calculated_metrics': serializer.data})
+        return Response({'collected metrics': serializer.data})

@@ -1,8 +1,6 @@
 from rest_framework import mixins, status, viewsets
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import JSONParser
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from measures.models import CalculatedMeasure, SupportedMeasure
 from measures.serializers import (
@@ -11,6 +9,7 @@ from measures.serializers import (
     MeasuresCalculationsRequestSerializer,
     SupportedMeasureSerializer,
 )
+from organizations.models import Repository
 from utils.clients import CoreClient
 
 
@@ -23,6 +22,14 @@ class CalculateMeasuresViewSet(
     """
 
     serializer_class = MeasuresCalculationsRequestSerializer
+
+    def get_repository(self):
+        return get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
 
     def create(self, request, *args, **kwargs):
         """
@@ -87,7 +94,9 @@ class CalculateMeasuresViewSet(
                 )
             )
 
-        CalculatedMeasure.objects.bulk_create(calculated_measures)
+        repository = self.get_repository()
+
+        repository.calculated_measures.bulk_create(calculated_measures)
 
         # 7. Retornando o resultado
         serializer = LatestMeasuresCalculationsRequestSerializer(qs, many=True)
@@ -106,9 +115,23 @@ class SupportedMeasureModelViewSet(
     serializer_class = SupportedMeasureSerializer
 
 
+class RepositoryMeasuresMixin:
+    def get_queryset(self):
+        repository = get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
+        qs = repository.calculated_measures.all()
+        qs = qs.values_list('measure', flat=True).distinct()
+        return SupportedMeasure.objects.filter(id__in=qs)
+
+
 class LatestCalculatedMeasureModelViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    RepositoryMeasuresMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -123,6 +146,7 @@ class LatestCalculatedMeasureModelViewSet(
 class CalculatedMeasureHistoryModelViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    RepositoryMeasuresMixin,
     viewsets.GenericViewSet,
 ):
     """

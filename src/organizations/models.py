@@ -1,7 +1,11 @@
 from uuid import uuid4
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.text import slugify
+
+from pre_configs.models import PreConfig
+from utils import staticfiles
 
 
 class Organization(models.Model):
@@ -65,8 +69,21 @@ class Product(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        if self.key:
+            return super().save(*args, **kwargs)
+
         self.key = slugify(self.name)
-        return super().save(*args, **kwargs)
+
+        if Product.objects.filter(key=self.key).exists():
+            random_num = uuid4().hex[:6]
+            self.key = f'{self.key}-{random_num}'
+
+        super().save(*args, **kwargs)
+        PreConfig.objects.get_or_create(
+            name='Default pre-config',
+            data=staticfiles.DEFAULT_PRE_CONFIG,
+            product=self
+        )
 
 
 class Repository(models.Model):

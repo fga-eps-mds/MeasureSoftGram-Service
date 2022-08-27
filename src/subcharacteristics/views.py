@@ -1,7 +1,9 @@
 from rest_framework import mixins, status, viewsets
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 import utils
+from organizations.models import Repository
 from pre_configs.models import PreConfig
 from subcharacteristics.models import (
     CalculatedSubCharacteristic,
@@ -21,6 +23,14 @@ class CalculateSubCharacteristicViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = SubCharacteristicsCalculationsRequestSerializer
+
+    def get_repository(self):
+        return get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
 
     def create(self, request, *args, **kwargs):
         serializer = SubCharacteristicsCalculationsRequestSerializer(
@@ -86,8 +96,9 @@ class CalculateSubCharacteristicViewSet(
                     value=value,
                 )
             )
+        repository = self.get_repository()
 
-        CalculatedSubCharacteristic.objects.bulk_create(
+        repository.calculated_subcharacteristics.bulk_create(
             calculated_subcharacteristics
         )
 
@@ -108,9 +119,23 @@ class SupportedSubCharacteristicModelViewSet(
     serializer_class = SupportedSubCharacteristicSerializer
 
 
+class RepositorySubCharacteristicMixin:
+    def get_queryset(self):
+        repository = get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
+        qs = repository.calculated_subcharacteristics.all()
+        qs = qs.values_list('subcharacteristic', flat=True).distinct()
+        return SupportedSubCharacteristic.objects.filter(id__in=qs)
+
+
 class LatestCalculatedSubCharacteristicModelViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    RepositorySubCharacteristicMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -123,6 +148,7 @@ class LatestCalculatedSubCharacteristicModelViewSet(
 class CalculatedSubCharacteristicHistoryModelViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    RepositorySubCharacteristicMixin,
     viewsets.GenericViewSet,
 ):
     """

@@ -22,9 +22,32 @@ class SupportedMetricModelViewSet(
     serializer_class = SupportedMetricSerializer
 
 
+class RepositoryMetricsMixin:
+    def perform_create(self, serializer):
+        repository = get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
+        serializer.save(repository=repository)
+
+    def get_queryset(self):
+        repository = get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
+        qs = repository.collected_metrics.all()
+        qs = qs.values_list('metric', flat=True).distinct()
+        return SupportedMetric.objects.filter(id__in=qs)
+
+
 class CollectedMetricModelViewSet(
     mixins.CreateModelMixin,
-    viewsets.GenericViewSet
+    RepositoryMetricsMixin,
+    viewsets.GenericViewSet,
 ):
     """
     ViewSet para cadastrar as métricas coletadas
@@ -32,17 +55,11 @@ class CollectedMetricModelViewSet(
     queryset = CollectedMetric.objects.all()
     serializer_class = CollectedMetricSerializer
 
-    def perform_create(self, serializer):
-        repository = get_object_or_404(
-            Repository,
-            id=self.kwargs['repository_pk'],
-        )
-        serializer.save(repository=repository)
-
 
 class LatestCollectedMetricModelViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    RepositoryMetricsMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -71,6 +88,7 @@ class LatestCollectedMetricModelViewSet(
 class CollectedMetricHistoryModelViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    RepositoryMetricsMixin,
     viewsets.GenericViewSet,
 ):
     """

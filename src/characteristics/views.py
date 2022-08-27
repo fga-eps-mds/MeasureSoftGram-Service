@@ -1,4 +1,5 @@
 from rest_framework import mixins, status, viewsets
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
@@ -8,6 +9,7 @@ from characteristics.serializers import (
     LatestCalculatedCharacteristicSerializer,
     SupportedCharacteristicSerializer,
 )
+from organizations.models import Repository
 from pre_configs.models import PreConfig
 from utils.clients import CoreClient
 from utils.exceptions import SubCharacteristicNotDefinedInPreConfiguration
@@ -18,6 +20,14 @@ class CalculateCharacteristicViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = CharacteristicsCalculationsRequestSerializer
+
+    def get_repository(self):
+        return get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
 
     def create(self, request, *args, **kwargs):
         # 1. Get validated data
@@ -88,7 +98,9 @@ class CalculateCharacteristicViewSet(
                 )
             )
 
-        CalculatedCharacteristic.objects.bulk_create(
+        repository = self.get_repository()
+
+        repository.calculated_characteristics.bulk_create(
             calculated_characteristics,
         )
 
@@ -109,9 +121,23 @@ class SupportedCharacteristicModelViewSet(
     serializer_class = SupportedCharacteristicSerializer
 
 
+class RepositoryCharacteristicMixin:
+    def get_queryset(self):
+        repository = get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
+        qs = repository.calculated_characteristics.all()
+        qs = qs.values_list('characteristic', flat=True).distinct()
+        return SupportedCharacteristic.objects.filter(id__in=qs)
+
+
 class LatestCalculatedCharacteristicModelViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    RepositoryCharacteristicMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -122,10 +148,22 @@ class LatestCalculatedCharacteristicModelViewSet(
     )
     serializer_class = LatestCalculatedCharacteristicSerializer
 
+    def get_queryset(self):
+        repository = get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
+        qs = repository.calculated_characteristics.all()
+        qs = qs.values_list('characteristic', flat=True).distinct()
+        return SupportedCharacteristic.objects.filter(id__in=qs)
+
 
 class CalculatedCharacteristicHistoryModelViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    RepositoryCharacteristicMixin,
     viewsets.GenericViewSet,
 ):
     """

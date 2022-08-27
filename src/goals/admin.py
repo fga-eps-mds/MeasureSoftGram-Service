@@ -10,6 +10,7 @@ class GoalAdmin(admin.ModelAdmin):
         'release_name',
         'start_at',
         'end_at',
+        'product',
     )
     search_fields = (
         "release_name",

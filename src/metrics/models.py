@@ -148,7 +148,7 @@ class CollectedMetric(models.Model):
 
     repository = models.ForeignKey(
         to='organizations.Repository',
-        related_name='calculated_metrics',
+        related_name='collected_metrics',
         on_delete=models.CASCADE,
     )
 

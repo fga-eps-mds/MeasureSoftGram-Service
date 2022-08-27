@@ -1,8 +1,10 @@
 from rest_framework import mixins, status, viewsets
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from measures.models import SupportedMeasure
 from metrics.models import SupportedMetric
+from organizations.models import Repository
 from pre_configs.models import PreConfig
 from sqc.models import SQC
 from sqc.serializers import SQCSerializer
@@ -16,9 +18,13 @@ class LatestCalculatedSQCViewSet(
     serializer_class = SQCSerializer
 
     def get_queryset(self):
-        return SQC.objects.filter(
-            repository=self.kwargs['repository_pk'],
+        repository = get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
         )
+        return repository.calculated_sqcs.all()
 
     def list(self, request, *args, **kwargs):
         latest_sqc = SQC.objects.first()
@@ -37,9 +43,13 @@ class CalculatedSQCHistoryModelViewSet(
     serializer_class = SQCSerializer
 
     def get_queryset(self):
-        return SQC.objects.filter(
-            repository=self.kwargs['repository_pk'],
+        repository = get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
         )
+        return repository.calculated_sqcs.all()
 
 
 class CalculateSQC(
@@ -47,6 +57,14 @@ class CalculateSQC(
     viewsets.GenericViewSet,
 ):
     serializer_class = SQCSerializer
+
+    def get_repository(self):
+        return get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
 
     def create(self, request, *args, **kwargs):
         pre_config = PreConfig.objects.first()
@@ -79,9 +97,9 @@ class CalculateSQC(
 
         data = response.json()
 
-        sqc = SQC.objects.create(
-            value=data['value'],
-        )
+        repository = self.get_repository()
+
+        sqc = repository.calculated_sqcs.create(value=data['value'])
 
         serializer = SQCSerializer(sqc)
 
