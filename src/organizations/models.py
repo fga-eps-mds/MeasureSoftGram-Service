@@ -1,3 +1,4 @@
+from uuid import uuid4
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.text import slugify
@@ -21,7 +22,14 @@ class Organization(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        self.key = slugify(self.name)
+        # A KEY é gerada somente na criação do objeto
+        if not self.key:
+            self.key = slugify(self.name)
+
+            if Organization.objects.filter(key=self.key).exists():
+                random_num = uuid4().hex[:6]
+                self.key = f'{self.key}-{random_num}'
+
         return super().save(*args, **kwargs)
 
     def __str__(self):

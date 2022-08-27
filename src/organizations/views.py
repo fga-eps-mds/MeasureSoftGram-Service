@@ -18,6 +18,14 @@ from organizations.serializers import (
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
+    """
+    Endpoint das organizações
+
+    * `GET`: Lista todas as organizações
+    * `POST`: Cria uma nova organização
+    * `PUT` ou `PATCH`: Atualiza uma organização
+    * `DELETE`: Deleta uma organização
+    """
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
 
