@@ -243,13 +243,13 @@ GITHUB_METRICS = [
         },
     },
     {
-        "key": "number_of_issues_with_bug_label_in_the_last_x_days",
-        "name": "Number of issues with bug label in the last x days",
+        "key": "number_of_resolved_issues_with_US_label_in_the_last_x_days",
+        "name": "Number of resolved issues with US label in the last x days",
         "metric_type": "INT",
-        "api_params": [
+        'api_params': [
             'issues_repository_url',
             'issues_metrics_x_days',
-            'issue_labels',
+            'user_story_label',
         ],
         'methods_params_map': {
             '__init__': {
@@ -257,10 +257,56 @@ GITHUB_METRICS = [
                 'token': 'github_token',
             },
             'metric_method': {
-                'method_name': 'get_number_of_issues_with_such_labels_in_the_last_x_days',
+                'method_name': 'get_number_of_issues_resolved_in_the_last_x_days',
                 'method_params': {
                     'x': 'issues_metrics_x_days',
-                    'labels': 'issue_labels',
+                    'label': 'user_story_label',
+                }
+            }
+        },
+    },
+    {
+        "key": "number_of_issues_with_bug_label_in_the_last_x_days",
+        "name": "Number of issues with bug label in the last x days",
+        "metric_type": "INT",
+        "api_params": [
+            'issues_repository_url',
+            'issues_metrics_x_days',
+            'bug_label',
+        ],
+        'methods_params_map': {
+            '__init__': {
+                'url': 'issues_repository_url',
+                'token': 'github_token',
+            },
+            'metric_method': {
+                'method_name': 'get_total_number_of_issues_in_the_last_x_days',
+                'method_params': {
+                    'x': 'issues_metrics_x_days',
+                    'label': 'bug_label',
+                }
+            }
+        },
+    },
+    {
+        "key": "total_number_of_issues_with_US_label_in_the_last_x_days",
+        "name": "Total number of issues with US label in the last x days",
+        "metric_type": "INT",
+        "api_params": [
+            'issues_repository_url',
+            'issues_metrics_x_days',
+            'user_story_label',
+        ],
+        'methods_params_map': {
+            '__init__': {
+                'url': 'issues_repository_url',
+                'token': 'github_token',
+            },
+            'metric_method': {
+                'method_name': 'get_total_number_of_issues_in_the_last_x_days',
+                'method_params': {
+                    'x': 'issues_metrics_x_days',
+                    'label': 'user_story_label',
                 }
             }
         },

@@ -47,6 +47,7 @@ class GithubMetricCollector:
     def get_number_of_issues_resolved_in_the_last_x_days(
         self,
         x: int,
+        label: str = '',
     ) -> int:
         """
         metric: number of issues resolved in the last x days
@@ -54,9 +55,12 @@ class GithubMetricCollector:
         if not isinstance(x, int):
             raise ValueError('x must be an integer')
 
+        if not isinstance(label, str):
+            raise ValueError('label must be a string')
+
         date_range = DateRange.create_from_today(x)
 
-        return len(self.get_issues(date_range, "state=closed"))
+        return len(self.get_issues(date_range, f"state=closed&labels={label}"))
 
     def get_number_of_issues_with_such_labels_in_the_last_x_days(
         self,
@@ -79,15 +83,20 @@ class GithubMetricCollector:
     def get_total_number_of_issues_in_the_last_x_days(
         self,
         x: int,
+        label: str = ''
     ) -> int:
         """
         metric: total number of issues in a given timeframe
         """
+        if not isinstance(x, int):
+            raise ValueError('x must be an integer')
+
+        if not isinstance(label, str):
+            raise ValueError('label must be a string')
+
         date_range = DateRange.create_from_today(x)
 
-        issues = self.get_issues(date_range)
-
-        return len(issues)
+        return len(self.get_issues(date_range, f"labels={label}"))
 
     def __get_all_build_pipelines_executed_in_the_last_x_days(
         self,
