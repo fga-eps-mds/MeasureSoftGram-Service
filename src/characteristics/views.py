@@ -87,6 +87,7 @@ class CalculateCharacteristicViewSet(
         # 5. Salvando o resultado
 
         calculated_characteristics = []
+        repository = self.get_repository()
 
         for characteristic in qs:
             value = calculated_values[characteristic.key]
@@ -95,14 +96,11 @@ class CalculateCharacteristicViewSet(
                 CalculatedCharacteristic(
                     characteristic=characteristic,
                     value=value,
+                    repository=repository,
                 )
             )
 
-        repository = self.get_repository()
-
-        repository.calculated_characteristics.bulk_create(
-            calculated_characteristics,
-        )
+        CalculatedCharacteristic.objects.bulk_create(calculated_characteristics)
 
         # 6. Retornando o resultado
         serializer = LatestCalculatedCharacteristicSerializer(qs, many=True)
@@ -135,9 +133,9 @@ class RepositoryCharacteristicMixin:
 
 
 class LatestCalculatedCharacteristicModelViewSet(
+    RepositoryCharacteristicMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    RepositoryCharacteristicMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -161,9 +159,9 @@ class LatestCalculatedCharacteristicModelViewSet(
 
 
 class CalculatedCharacteristicHistoryModelViewSet(
+    RepositoryCharacteristicMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    RepositoryCharacteristicMixin,
     viewsets.GenericViewSet,
 ):
     """

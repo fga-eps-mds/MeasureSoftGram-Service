@@ -40,6 +40,11 @@ class MeasuresCalculationsRequestSerializer(serializers.Serializer):
         required=True,
     )
 
+    def validate_measures(self, value):
+        if not value:
+            raise serializers.ValidationError('No measures were provided')
+        return value
+
     def validate(self, attrs):
         """
         Valida se todas as medidas solicitadas são suportadas

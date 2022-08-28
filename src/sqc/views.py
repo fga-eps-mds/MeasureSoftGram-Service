@@ -67,9 +67,13 @@ class CalculateSQC(
         )
 
     def create(self, request, *args, **kwargs):
-        pre_config = PreConfig.objects.first()
+        repository: Repository = self.get_repository()
+        pre_config = repository.product.pre_configs.first()
 
-        qs = SupportedMeasure.objects.all().prefetch_related(
+        qs = repository.calculated_measures.all()
+        qs = qs.values_list('measure', flat=True).distinct()
+        qs = SupportedMeasure.objects.filter(id__in=qs)
+        qs = qs.prefetch_related(
             'metrics',
             'metrics__collected_metrics',
         )
@@ -97,10 +101,7 @@ class CalculateSQC(
 
         data = response.json()
 
-        repository = self.get_repository()
-
-        sqc = repository.calculated_sqcs.create(value=data['value'])
+        sqc = SQC.objects.create(repository=repository, value=data['value'])
 
         serializer = SQCSerializer(sqc)
-
         return Response(serializer.data, status=status.HTTP_201_CREATED)

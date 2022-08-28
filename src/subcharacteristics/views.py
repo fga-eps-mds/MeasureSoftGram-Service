@@ -86,6 +86,8 @@ class CalculateSubCharacteristicViewSet(
 
         calculated_subcharacteristics = []
 
+        repository = self.get_repository()
+
         subchar: SupportedSubCharacteristic
         for subchar in qs:
             value = calculated_values[subchar.key]
@@ -94,11 +96,11 @@ class CalculateSubCharacteristicViewSet(
                 CalculatedSubCharacteristic(
                     subcharacteristic=subchar,
                     value=value,
+                    repository=repository,
                 )
             )
-        repository = self.get_repository()
 
-        repository.calculated_subcharacteristics.bulk_create(
+        CalculatedSubCharacteristic.objects.bulk_create(
             calculated_subcharacteristics
         )
 
@@ -133,9 +135,9 @@ class RepositorySubCharacteristicMixin:
 
 
 class LatestCalculatedSubCharacteristicModelViewSet(
+    RepositorySubCharacteristicMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    RepositorySubCharacteristicMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -146,9 +148,9 @@ class LatestCalculatedSubCharacteristicModelViewSet(
 
 
 class CalculatedSubCharacteristicHistoryModelViewSet(
+    RepositorySubCharacteristicMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    RepositorySubCharacteristicMixin,
     viewsets.GenericViewSet,
 ):
     """

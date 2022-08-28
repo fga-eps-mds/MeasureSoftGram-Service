@@ -158,6 +158,7 @@ class Command(BaseCommand):
 
         import_sonar_metrics(
             staticfiles.SONARQUBE_JSON,
+            None,
             only_create_supported_metrics=True,
         )
 

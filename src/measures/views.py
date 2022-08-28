@@ -84,6 +84,8 @@ class CalculateMeasuresViewSet(
 
         calculated_measures = []
 
+        repository = self.get_repository()
+
         measure: SupportedMeasure
         for measure in qs:
             value = calculated_values[measure.key]
@@ -91,12 +93,11 @@ class CalculateMeasuresViewSet(
                 CalculatedMeasure(
                     measure=measure,
                     value=value,
+                    repository=repository,
                 )
             )
 
-        repository = self.get_repository()
-
-        repository.calculated_measures.bulk_create(calculated_measures)
+        CalculatedMeasure.objects.bulk_create(calculated_measures)
 
         # 7. Retornando o resultado
         serializer = LatestMeasuresCalculationsRequestSerializer(qs, many=True)
@@ -129,9 +130,9 @@ class RepositoryMeasuresMixin:
 
 
 class LatestCalculatedMeasureModelViewSet(
+    RepositoryMeasuresMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    RepositoryMeasuresMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -144,9 +145,9 @@ class LatestCalculatedMeasureModelViewSet(
 
 
 class CalculatedMeasureHistoryModelViewSet(
+    RepositoryMeasuresMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    RepositoryMeasuresMixin,
     viewsets.GenericViewSet,
 ):
     """

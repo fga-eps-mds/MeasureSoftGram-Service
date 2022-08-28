@@ -3,7 +3,11 @@ from metrics.serializers import CollectedMetricSerializer
 from utils import namefy
 
 
-def import_sonar_metrics(data, only_create_supported_metrics=False):
+def import_sonar_metrics(
+    data,
+    repository,
+    only_create_supported_metrics=False,
+):
     """
     Refatorar essa função para separar a criação das
     métricas da criação dos dados das métricas.
@@ -43,6 +47,9 @@ def import_sonar_metrics(data, only_create_supported_metrics=False):
 
     if only_create_supported_metrics:
         return {}
+
+    for collected_metric in collected_metrics:
+        collected_metric.repository = repository
 
     saved_metrics = CollectedMetric.objects.bulk_create(collected_metrics)
 

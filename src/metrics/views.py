@@ -45,8 +45,8 @@ class RepositoryMetricsMixin:
 
 
 class CollectedMetricModelViewSet(
-    mixins.CreateModelMixin,
     RepositoryMetricsMixin,
+    mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -57,9 +57,9 @@ class CollectedMetricModelViewSet(
 
 
 class LatestCollectedMetricModelViewSet(
+    RepositoryMetricsMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    RepositoryMetricsMixin,
     viewsets.GenericViewSet,
 ):
     """
@@ -86,9 +86,9 @@ class LatestCollectedMetricModelViewSet(
 
 
 class CollectedMetricHistoryModelViewSet(
+    RepositoryMetricsMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    RepositoryMetricsMixin,
     viewsets.GenericViewSet,
 ):
     """
