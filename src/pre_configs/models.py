@@ -62,7 +62,7 @@ class PreConfig(models.Model):
 
         Observação: Aqui estou usando um algorítmo O(C * S * M) para
         simplificar a assinatura da função, pois caso contrário seria
-        necessário passar a haracteristics_key, a subcharacteristics_key e a
+        necessário passar a characteristics_key, a subcharacteristics_key e a
         measure_key. Na pior das hipóteses o C (quantidade de características)
         será 20, o S (quantidade de subcaracterísticas) será 20 e o M
         (quantidade de medidas) será 20, o que resulta em um loop de 8000
@@ -72,8 +72,7 @@ class PreConfig(models.Model):
             for subcharacteristic in characteristic['subcharacteristics']:
                 for measure in subcharacteristic['measures']:
                     if measure['key'] == measure_key:
-                        # No JSON o peso é um float entre 0 e 100
-                        return measure['weight'] / 100
+                        return measure['weight']
 
         raise utils.exceptions.MeasureNotDefinedInPreConfiguration(
             f'Measure {measure_key} not defined in pre-configuration',
@@ -83,7 +82,7 @@ class PreConfig(models.Model):
         for characteristic in self.data['characteristics']:
             for subcharacteristic in characteristic['subcharacteristics']:
                 if subcharacteristic['key'] == subcharacteristic_key:
-                    return subcharacteristic['weight'] / 100
+                    return subcharacteristic['weight']
 
         raise utils.exceptions.SubCharacteristicNotDefinedInPreConfiguration((
             f'Subcharacteristic {subcharacteristic_key} '

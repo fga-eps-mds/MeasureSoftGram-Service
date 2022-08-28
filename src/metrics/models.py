@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Set
 
 from django.db import models
 from django.utils import timezone
@@ -41,12 +41,22 @@ class SupportedMetric(models.Model):
     def __str__(self):
         return self.key
 
-    def get_latest_metric_value(self) -> Union[float, str, int, bool]:
+    def get_latest_metric_value(self) -> Union[float, str, int, bool, list]:
         """
         Função que recupera o valor mais recente da métrica
         """
+        # Métricas que o parâmetro é uma lista de valores
+        listed_values: Set[str] = {
+            'coverage', 'complexity', 'functions',
+            'comment_lines_density', 'duplicated_lines_density'
+        }
+
+        if self.key in listed_values:
+            return self.get_latest_metric_values()
+
         if latest_metric := self.collected_metrics.first():
             return latest_metric.value
+
         return None
 
     def get_latest_metric_values(self) -> list:

@@ -66,10 +66,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      # - name: Override Coverage Source Path for Sonar
-      #   run: |
-      #     sed -i 's/  /home/runner/work/2022-1-MeasureSoftGram-Service/2022-1-MeasureSoftGram-Service ///github/workspace/   /g' coverage.xml
-
       - name: fix code coverage paths
         if: always()
         run: |

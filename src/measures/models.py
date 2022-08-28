@@ -47,20 +47,9 @@ class SupportedMeasure(models.Model):
         """
         metric_params = {}
 
-        # Métricas que o parâmetro é uma lista de valores
-        listed_values: Set[str] = {
-            'coverage', 'complexity', 'functions',
-            'comment_lines_density', 'duplicated_lines_density'
-        }
-
         for supported_metric in self.metrics.all():
             key = supported_metric.key
-
-            if key in listed_values:
-                metric_params[key] = supported_metric.get_latest_metric_values()
-
-            else:
-                metric_params[key] = supported_metric.get_latest_metric_value()
+            metric_params[key] = supported_metric.get_latest_metric_value()
 
         return metric_params
 
