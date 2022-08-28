@@ -1,6 +1,6 @@
 GQM
 characteristics
-Subcharacteristics:
+SubCharacteristics:
 Measures
 Metrics
 

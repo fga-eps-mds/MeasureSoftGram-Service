@@ -52,9 +52,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: ⭐⭐⭐⭐ Análise do código com o linter `pylint`
-        run: |
-          pip install pylint-django==2.5.3
-          cd src && pylint $(git ls-files '*.py')
+      # - name: ⭐⭐⭐⭐ Análise do código com o linter `pylint`
+      #   run: |
+      #     pip install pylint-django==2.4.4
+      #     cd src && pylint $(git ls-files '*.py')
 
 

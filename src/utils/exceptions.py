@@ -10,6 +10,14 @@ class MissingSupportedMetricException(Exception):
     pass
 
 
+class MissingSupportedMeasureException(Exception):
+    pass
+
+
+class MissingSupportedSubCharacteristicError(Exception):
+    pass
+
+
 class EntityNotDefinedInPreConfiguration(ValueError):
     """
     Exceção criada quando uma entidade é procurada em uma pré-configuração,
