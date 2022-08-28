@@ -10,546 +10,123 @@
 			"name": "Service",
 			"item": [
 				{
-					"name": "Read",
+					"name": "Supported Entities",
 					"item": [
 						{
-							"name": "Repository",
-							"item": [
-								{
-									"name": "Repository detail",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												""
-											]
-										}
-									},
-									"response": []
+							"name": "List suported Metrics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{MSG_SERVICE_HOST}}/api/v1/supported-metrics/",
+									"host": [
+										"{{MSG_SERVICE_HOST}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"supported-metrics",
+										""
+									]
 								}
-							]
+							},
+							"response": []
 						},
 						{
-							"name": "Metrics",
-							"item": [
-								{
-									"name": "List suported Metrics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/supported-metrics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"supported-metrics",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the current value of all metrics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/metrics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"metrics",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the current value of a metric",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/metrics/78/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"metrics",
-												"78",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the history of values for all metrics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/metrics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"history",
-												"metrics",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the history of values for a metric",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/metrics/78/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"history",
-												"metrics",
-												"78",
-												""
-											]
-										}
-									},
-									"response": []
+							"name": "List supported measures",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{MSG_SERVICE_HOST}}/api/v1/supported-measures/",
+									"host": [
+										"{{MSG_SERVICE_HOST}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"supported-measures",
+										""
+									]
 								}
-							]
+							},
+							"response": []
 						},
 						{
-							"name": "Measures",
-							"item": [
-								{
-									"name": "List supported measures",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/supported-measures/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"supported-measures",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the current value of all measures",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/measures/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"measures",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the current value of a measure",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/measures/1/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"measures",
-												"1",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the history of values for all measures",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/measures/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"history",
-												"measures",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the history of values for a measure",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/measures/1/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"history",
-												"measures",
-												"1",
-												""
-											]
-										}
-									},
-									"response": []
+							"name": "List supported subcharacteristics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{MSG_SERVICE_HOST}}/api/v1/supported-subcharacteristics/",
+									"host": [
+										"{{MSG_SERVICE_HOST}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"supported-subcharacteristics",
+										""
+									]
 								}
-							]
+							},
+							"response": []
 						},
 						{
-							"name": "Subcharacteristics",
-							"item": [
-								{
-									"name": "List supported subcharacteristics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/supported-subcharacteristics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"supported-subcharacteristics",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the current value of all subcharacteristics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/subcharacteristics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"subcharacteristics",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the current value of a subcharacteristics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/subcharacteristics/1/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"subcharacteristics",
-												"1",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the history of values for all subcharacteristics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/subcharacteristics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"history",
-												"subcharacteristics",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the history of values for a subcharacteristics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/subcharacteristics/1/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"history",
-												"subcharacteristics",
-												"1",
-												""
-											]
-										}
-									},
-									"response": []
+							"name": "List supported characteristics",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{MSG_SERVICE_HOST}}/api/v1/supported-characteristics/",
+									"host": [
+										"{{MSG_SERVICE_HOST}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"supported-characteristics",
+										""
+									]
 								}
-							]
+							},
+							"response": []
 						},
 						{
-							"name": "Characteristics",
-							"item": [
-								{
-									"name": "List supported characteristics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/supported-characteristics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"supported-characteristics",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the current value of all characteristics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/characteristics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"characteristics",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the current value of a characteristics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/characteristics/1/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"characteristics",
-												"1",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the history of values for all characteristics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/characteristics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"history",
-												"characteristics",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "List the history of values for a characteristics",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/history/characteristics/1/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"history",
-												"characteristics",
-												"1",
-												""
-											]
-										}
-									},
-									"response": []
+							"name": "Get entity relationship tree",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{MSG_SERVICE_HOST}}/api/v1/entity-relationship-tree/",
+									"host": [
+										"{{MSG_SERVICE_HOST}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"entity-relationship-tree",
+										""
+									]
 								}
-							]
-						},
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Organizations",
+					"item": [
 						{
-							"name": "SQC",
+							"name": "CRUD",
 							"item": [
 								{
-									"name": "Lists the value of all SQCs already calculated",
+									"name": "Lista as organizações",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/sqc/",
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/",
 											"host": [
 												"{{MSG_SERVICE_HOST}}"
 											],
@@ -557,10 +134,6 @@
 												"api",
 												"v1",
 												"organizations",
-												"1",
-												"repository",
-												"1",
-												"sqc",
 												""
 											]
 										}
@@ -568,12 +141,21 @@
 									"response": []
 								},
 								{
-									"name": "Gets the value of a specific SQC",
+									"name": "Cria uma nova organização",
 									"request": {
-										"method": "GET",
+										"method": "POST",
 										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"Pagar-me\",\n    \"description\": \"Organização da empresa Pagar-me\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
 										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/sqc/1/",
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/",
 											"host": [
 												"{{MSG_SERVICE_HOST}}"
 											],
@@ -581,66 +163,6 @@
 												"api",
 												"v1",
 												"organizations",
-												"1",
-												"repository",
-												"1",
-												"sqc",
-												"1",
-												""
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "Pre Config",
-							"item": [
-								{
-									"name": "Get current pré-config",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/current/pre-config/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"current",
-												"pre-config",
-												""
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "Entities Relationship Tree",
-							"item": [
-								{
-									"name": "List entity relationship tree",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/entity-relationship-tree/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"entity-relationship-tree",
 												""
 											]
 										}
@@ -648,12 +170,24 @@
 									"response": []
 								},
 								{
-									"name": "List Pre-Config entity relationship tree",
+									"name": "Detalha uma organização",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
 									"request": {
 										"method": "GET",
 										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
 										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/entity-relationship-tree/",
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/",
 											"host": [
 												"{{MSG_SERVICE_HOST}}"
 											],
@@ -661,10 +195,58 @@
 												"api",
 												"v1",
 												"organizations",
-												"1",
-												"repository",
-												"1",
-												"entity-relationship-tree",
+												"4",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Atualiza o nome da organização",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"Fintech Pargar-me\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Apaga uma organização",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
 												""
 											]
 										}
@@ -676,13 +258,982 @@
 					]
 				},
 				{
-					"name": "Write",
+					"name": "Products",
 					"item": [
 						{
-							"name": "Collectors",
+							"name": "CRUD",
 							"item": [
 								{
-									"name": "Import SonarQube JSON",
+									"name": "Lista produtos",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Create produto",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"morpheus-dream\",\n    \"description\": \"Sistema de geração de filmes aleatórios\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Detalha um produto",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Atualiza um produto",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"morpheus-dream\",\n    \"description\": \"Sistema distribuído de geração de filmes aleatórios\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Apaga um produto",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Ações",
+							"item": [
+								{
+									"name": "Current Pré-config",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/current/pre-config/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"current",
+												"pre-config",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Create Pré-config",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"Nova pre-config da release V5.1.0\",\n    \"data\": {\n        \"characteristics\": [\n            {\n                \"key\": \"reliability\",\n                \"weight\": 60,\n                \"subcharacteristics\": [\n                    {\n                        \"key\": \"testing_status\",\n                        \"weight\": 100,\n                        \"measures\": [\n                            {\n                                \"key\": \"passed_tests\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"test_builds\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"test_coverage\",\n                                \"weight\": 34\n                            }\n                        ]\n                    }\n                ]\n            },\n            {\n                \"key\": \"maintainability\",\n                \"weight\": 40,\n                \"subcharacteristics\": [\n                    {\n                        \"key\": \"modifiability\",\n                        \"weight\": 100,\n                        \"measures\": [\n                            {\n                                \"key\": \"non_complex_file_density\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"commented_file_density\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"duplication_absense\",\n                                \"weight\": 34\n                            }\n                        ]\n                    }\n                ]\n            }\n        ]\n    }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/create/pre-config/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"create",
+												"pre-config",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Current Goal",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/current/goal/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"current",
+												"goal",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Create Goal",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"release_name\": \"v5.0.0\",\n    \"start_at\": \"2023-01-31\",\n    \"end_at\": \"2023-04-30\",\n    \"changes\": [\n        { \"characteristic_key\": \"reliability\", \"delta\": 10 },\n        { \"characteristic_key\": \"reliability\", \"delta\": 7 },\n        { \"characteristic_key\": \"maintainability\", \"delta\": -5 }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/create/goal/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"create",
+												"goal",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Current repositories SQCs",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories-sqc-latest-values/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories-sqc-latest-values",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Historic repositories SQCs",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories-sqc-latest-values/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories-sqc-latest-values",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Repositories",
+					"item": [
+						{
+							"name": "CRUD",
+							"item": [
+								{
+									"name": "Lista repositórios",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Cria um repositório",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"dashboard-morpheus-dream\",\n    \"description\": \"Frontend do produto `morpheus-dream`\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Detalha um repositório",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Atualiza um repositório",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"dashboard-morpheus-dream\",\n    \"description\": \"Dashboard do sistema morpheus-dream\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Apaga um repositório",
+									"request": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Valores mais recentes",
+							"item": [
+								{
+									"name": "Valor mais recente das métricas",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/latest-values/metrics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"latest-values",
+												"metrics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Valor mais recente das medidas",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/latest-values/measures/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"latest-values",
+												"measures",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Valor mais recente das subcharacteristics",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/latest-values/subcharacteristics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"latest-values",
+												"subcharacteristics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Valor mais recente das characteristics",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/latest-values/characteristics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"latest-values",
+												"characteristics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Valor mais recente da SQC",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/latest-values/measures/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"latest-values",
+												"measures",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Valores históricos",
+							"item": [
+								{
+									"name": "Valores históricos das métricas",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/historical-values/metrics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"historical-values",
+												"metrics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Valores históricos das medidas",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/historical-values/measures/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"historical-values",
+												"measures",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Valores históricos das subcharacteristics",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/historical-values/subcharacteristics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"historical-values",
+												"subcharacteristics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Valores históricos das characteristics",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/historical-values/characteristics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"historical-values",
+												"characteristics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Valores históricos da SQC",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/historical-values/sqc/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"historical-values",
+												"sqc",
+												""
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Actions",
+							"item": [
+								{
+									"name": "Coletar uma métrica manualmente",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"metric_id\": 1,\n    \"value\": 10\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/collect/metrics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"collect",
+												"metrics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Calcular medidas",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"measures\": [\n        {\"key\": \"passed_tests\"},\n        {\"key\": \"test_builds\"},\n        {\"key\": \"test_coverage\"},\n        {\"key\": \"non_complex_file_density\"},\n        {\"key\": \"commented_file_density\"},\n        {\"key\": \"duplication_absense\"},\n        {\"key\": \"ci_feedback_time\"},\n        {\"key\": \"team_throughput\"}\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/products/3/repositories/6/calculate/measures/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"products",
+												"3",
+												"repositories",
+												"6",
+												"calculate",
+												"measures",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Calcular subcharacteristics",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"subcharacteristics\": [\n        {\"key\": \"modifiability\"},\n        {\"key\": \"testing_status\"}\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/products/3/repositories/6/calculate/subcharacteristics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"products",
+												"3",
+												"repositories",
+												"6",
+												"calculate",
+												"subcharacteristics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Calcular characteristics",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"characteristics\": [\n        {\"key\": \"reliability\"},\n        {\"key\": \"maintainability\"}\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/products/3/repositories/6/calculate/characteristics/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"products",
+												"3",
+												"repositories",
+												"6",
+												"calculate",
+												"characteristics",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Calcular SQC",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/products/3/repositories/6/calculate/sqc/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"products",
+												"3",
+												"repositories",
+												"6",
+												"calculate",
+												"sqc",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Import metrics from github",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"github_token\": \"{{GITHUB_TOKEN}}\",\n    \"issues_repository_url\": \"https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Doc\",\n    \"pipelines_repository_url\": \"https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Service\",\n    \"issues_metrics_x_days\": 7,\n    \"pipeline_metrics_x_days\": 90,\n    \"issue_labels\": [\"bug\", \"problema\"],\n    \"build_pipeline_names\": [\"Run Tests\", \"build\"]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/products/3/repositories/6/collectors/github/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"1",
+												"products",
+												"3",
+												"repositories",
+												"6",
+												"collectors",
+												"github",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Import metrics from SonarQube JSON",
 									"request": {
 										"method": "POST",
 										"header": [],
@@ -696,7 +1247,7 @@
 											}
 										},
 										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/import/sonarqube-metrics/",
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/products/3/repositories/6/collectors/sonarqube/",
 											"host": [
 												"{{MSG_SERVICE_HOST}}"
 											],
@@ -705,317 +1256,12 @@
 												"v1",
 												"organizations",
 												"1",
-												"repository",
-												"1",
-												"import",
-												"sonarqube-metrics",
-												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Collect metrics from Github Repository",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \n    \"github_token\": \"{{GITHUB_TOKEN}}\",\n    \"issues_repository_url\": \"https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Doc\",\n    \"pipelines_repository_url\": \"https://github.com/fga-eps-mds/2022-1-MeasureSoftGram-Service\",\n    \"issues_metrics_x_days\": 7,\n    \"pipeline_metrics_x_days\": 90,\n    \"issue_labels\": [\"bug\", \"problema\"],\n    \"build_pipeline_names\": [\"Run Tests\", \"build\"]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/import/github-metrics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"import",
-												"github-metrics",
-												""
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "Metrics",
-							"item": [
-								{
-									"name": "Colleted a metric",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"metric_id\": 78,\n    \"value\": 14\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/create/metrics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"create",
-												"metrics",
-												""
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "Measures",
-							"item": [
-								{
-									"name": "Calculate measures",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"measures\": [\n        { \"key\": \"passed_tests\" },\n        { \"key\": \"test_builds\" },\n        { \"key\": \"test_coverage\" },\n        { \"key\": \"commented_file_density\" },\n        { \"key\": \"duplication_absense\" },\n        { \"key\": \"non_complex_file_density\" },\n        { \"key\": \"team_throughput\" },\n        { \"key\": \"ci_feedback_time\" }\n    ]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/calculate/measures/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"calculate",
-												"measures",
-												""
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "Subcharacteristics",
-							"item": [
-								{
-									"name": "Calculate subcharacteristics",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"subcharacteristics\": [\n        { \"key\": \"testing_status\" },\n        { \"key\": \"modifiability\" }\n    ]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/calculate/subcharacteristics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"calculate",
-												"subcharacteristics",
-												""
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "Characteristics",
-							"item": [
-								{
-									"name": "Calculate characteristics",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"characteristics\": [\n        { \"key\": \"maintainability\" },\n        { \"key\": \"reliability\" }\n    ]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/calculate/characteristics/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"calculate",
-												"characteristics",
-												""
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "SQC",
-							"item": [
-								{
-									"name": "Calculate SQC",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/calculate/sqc/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"calculate",
-												"sqc",
-												""
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "Pre Config",
-							"item": [
-								{
-									"name": "Create a new pré-config",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"name\": \"Nova pré-config\",\n    \"data\": {\n        \"characteristics\": [\n            {\n                \"key\": \"reliability\",\n                \"weight\": 51.0,\n                \"subcharacteristics\": [\n                    {\n                        \"key\": \"testing_status\",\n                        \"weight\": 100.0,\n                        \"measures\": [\n                            {\n                                \"key\": \"passed_tests\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"test_builds\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"test_coverage\",\n                                \"weight\": 34\n                            }\n                        ]\n                    }\n                ]\n            },\n            {\n                \"key\": \"maintainabilityy\",\n                \"weight\": 49.0,\n                \"subcharacteristics\": [\n                    {\n                        \"key\": \"modifiability\",\n                        \"weight\": 100.0,\n                        \"measures\": [\n                            {\n                                \"key\": \"non_complex_file_density\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"commented_file_density\",\n                                \"weight\": 33\n                            },\n                            {\n                                \"key\": \"duplication_absense\",\n                                \"weight\": 34\n                            }\n                        ]\n                    }\n                ]\n            }\n        ]\n    }\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/create/pre-config/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"create",
-												"pre-config",
-												""
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "Goal",
-							"item": [
-								{
-									"name": "Create a Goal",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"release_name\": \"v1.0.0\",\n    \"start_at\": \"2022-08-19\",\n    \"end_at\": \"2022-09-19\",\n    \"changes\": [\n        {\n            \"characteristic_key\": \"functional_suitability\",\n            \"delta\": 10\n        },\n        {\n            \"characteristic_key\": \"performance_efficiency\",\n            \"delta\": -10\n        },\n        {\n            \"characteristic_key\": \"security\",\n            \"delta\": 40\n        }\n    ]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/1/repository/1/create/goal/",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"1",
-												"repository",
-												"1",
-												"create",
-												"goal",
+												"products",
+												"3",
+												"repositories",
+												"6",
+												"collectors",
+												"sonarqube",
 												""
 											]
 										}
