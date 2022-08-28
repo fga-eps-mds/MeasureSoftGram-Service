@@ -1,10 +1,9 @@
 from rest_framework import mixins, viewsets
-from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
 
 from collectors.sonarqube.serializers import SonarQubeJSONSerializer
 from collectors.sonarqube.utils import import_sonar_metrics
-
 from organizations.models import Repository
 
 

@@ -4,16 +4,14 @@ Views que realiza a coleta de métricas no repositório github
 import concurrent.futures
 
 from django.conf import settings
-
 from rest_framework import mixins, viewsets
-from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
 
 from collectors.github import utils
 from collectors.github.serializers import GithubCollectorParamsSerializer
 from metrics.models import SupportedMetric
 from metrics.serializers import LatestCollectedMetricSerializer
-
 from organizations.models import Repository
 
 
