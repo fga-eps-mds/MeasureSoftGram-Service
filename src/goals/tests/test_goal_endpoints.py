@@ -2,17 +2,19 @@ from urllib import request
 
 from django.core.management import call_command
 from django.test import TestCase
-from service.management.commands.utils import (
+from organizations.management.commands.utils import (
     create_a_preconfig,
     create_suported_characteristics,
 )
+
+from organizations.models import Product, Repository
 
 
 class GoalEndpointsTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls) -> None:
-        call_command("load_initial_data")
+        call_command("load_initial_data", "--fake-data=True")
 
     def setUp(self):
         characteristics = [
@@ -40,7 +42,13 @@ class GoalEndpointsTestCase(TestCase):
         ]
         create_suported_characteristics(characteristics)
         characteristics_keys = [item["key"] for item in characteristics]
-        create_a_preconfig(characteristics_keys=characteristics_keys)
+
+        self.product = Product.objects.last()
+
+        create_a_preconfig(
+            characteristics_keys=characteristics_keys,
+            product=self.product,
+        )
 
     def validate_goal_request(
         self,
@@ -48,11 +56,21 @@ class GoalEndpointsTestCase(TestCase):
         expected_status_code,
         expected_data=None,
     ):
+        o_id = self.product.organization.id
+        p_id = self.product.id
+
+        url = (
+            f'/api/v1/organizations/{o_id}/'
+            f'products/{p_id}/'
+            'create/goal/'
+        )
+
         response = self.client.post(
-            '/api/v1/organizations/1/repository/1/create/goal/',
+            url,
             request_data,
             content_type='application/json',
         )
+
         self.assertEqual(response.status_code, expected_status_code)
 
         if response.status_code == 201:

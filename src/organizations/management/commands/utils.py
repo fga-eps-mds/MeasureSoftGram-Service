@@ -73,7 +73,7 @@ def get_subcharacteristics(characteristic: SupportedCharacteristic):
     return data
 
 
-def create_a_preconfig(characteristics_keys):
+def create_a_preconfig(characteristics_keys, product):
     """
     Função que gera uma pré-configuração com pesos divididos
     igualmente com base nas características passadas no parâmetro.
@@ -101,6 +101,7 @@ def create_a_preconfig(characteristics_keys):
     preconfig = PreConfig.objects.create(
         name='custom pre-config',
         data=preconfig,
+        product=product,
     )
 
     return preconfig

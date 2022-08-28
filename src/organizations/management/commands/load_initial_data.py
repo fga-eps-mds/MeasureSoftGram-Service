@@ -47,6 +47,15 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = "Registra os dados iniciais no banco de dados"
 
+    def add_arguments(self, parser):
+        # Create fake data
+        parser.add_argument(
+            '--fake-data',
+            type=bool,
+            default=False,
+            help='Create fake data',
+        )
+
     def create_suported_measures(self):
         """
         Função que popula banco de dados com todas as medidas que são
@@ -185,14 +194,14 @@ class Command(BaseCommand):
                     metric_type=metric['type'],
                 )
 
-    @staticmethod
     def create_fake_calculated_entity(
+        self,
         qs,
         calculated_entity_factory,
         bulk_create_klass,
         get_entity_qty,
     ):
-        if settings.CREATE_FAKE_DATA is False:
+        if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
             return
 
         end_date = timezone.now()
@@ -396,7 +405,7 @@ class Command(BaseCommand):
         serializer.save(product=product)
 
     def create_fake_sqc_data(self, repository):
-        if settings.CREATE_FAKE_DATA is False:
+        if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
             return
 
         qs = SQC.objects.filter(repository=repository)
@@ -415,7 +424,7 @@ class Command(BaseCommand):
         ])
 
     def create_fake_organizations(self):
-        if settings.CREATE_FAKE_DATA is False:
+        if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
             return
 
         organizations = [
@@ -449,7 +458,7 @@ class Command(BaseCommand):
             organization.save()
 
     def create_fake_products(self):
-        if settings.CREATE_FAKE_DATA is False:
+        if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
             return
 
         organizations = Organization.objects.all()
@@ -512,7 +521,7 @@ class Command(BaseCommand):
             product.save()
 
     def create_fake_repositories(self):
-        if settings.CREATE_FAKE_DATA is False:
+        if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
             return
 
         products = Product.objects.all()
@@ -608,7 +617,9 @@ class Command(BaseCommand):
                 continue
             repository.save()
 
-    def handle(self, *args, **options):
+    def handle(self, *args, **kwargs):
+        self.fake_data = kwargs.get("fake_data")
+
         User = get_user_model()
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
