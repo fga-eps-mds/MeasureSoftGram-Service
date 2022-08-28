@@ -1,4 +1,4 @@
-from typing import Union, Set
+from typing import Set, Union
 
 from django.db import models
 from django.utils import timezone
