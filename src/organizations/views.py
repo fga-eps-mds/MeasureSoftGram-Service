@@ -28,7 +28,11 @@ class OrganizationViewSet(viewsets.ModelViewSet):
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all()\
+                              .order_by('-id')\
+                              .select_related('organization')
+                            #   .prefetch_related('repositories', 'organization')
+
     serializer_class = ProductSerializer
 
     def get_organization(self):
@@ -38,8 +42,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        organization = self.get_organization()
-        return Product.objects.filter(organization=organization)
+        qs = Product.objects.all()\
+                            .order_by('-id')\
+                            .select_related('organization')\
+                            .prefetch_related('repositories')
+
+        return qs.filter(organization=self.kwargs['organization_pk'])
 
     def perform_create(self, serializer):
         organization = self.get_organization()
