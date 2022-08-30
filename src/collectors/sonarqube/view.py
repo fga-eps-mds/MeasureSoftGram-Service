@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from collectors.sonarqube.serializers import SonarQubeJSONSerializer
 from collectors.sonarqube.utils import import_sonar_metrics
+from metrics.models import SupportedMetric
 from organizations.models import Repository
 
 
@@ -16,6 +17,7 @@ class ImportSonarQubeMetricsViewSet(
     A importação de métricas do sonarqube deveria ser uma tarefa assíncrona.
     """
     serializer_class = SonarQubeJSONSerializer
+    queryset = SupportedMetric.objects.all()
 
     def get_repository(self):
         return get_object_or_404(

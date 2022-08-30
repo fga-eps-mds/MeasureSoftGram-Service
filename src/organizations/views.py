@@ -67,6 +67,7 @@ class RepositoriesSQCLatestValueViewSet(
     Lista o SQC mais recente dos repositórios de um produto
     """
     serializer_class = RepositorySQCLatestValueSerializer
+    queryset = Repository.objects.all()
 
     def get_queryset(self):
         product = get_object_or_404(Product, id=self.kwargs['product_pk'])
@@ -84,6 +85,7 @@ class RepositoriesSQCHistoryViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = RepositoriesSQCHistorySerializer
+    queryset = Repository.objects.all()
 
     def get_queryset(self):
         product = get_object_or_404(Product, id=self.kwargs['product_pk'])

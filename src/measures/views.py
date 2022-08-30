@@ -22,6 +22,7 @@ class CalculateMeasuresViewSet(
     """
 
     serializer_class = MeasuresCalculationsRequestSerializer
+    queryset = CalculatedMeasure.objects.all()
 
     def get_repository(self):
         return get_object_or_404(

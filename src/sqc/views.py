@@ -17,17 +17,21 @@ class LatestCalculatedSQCViewSet(
 ):
     serializer_class = SQCSerializer
 
-    def get_queryset(self):
-        repository = get_object_or_404(
+    def get_repository(self):
+        return get_object_or_404(
             Repository,
             id=self.kwargs['repository_pk'],
             product_id=self.kwargs['product_pk'],
             product__organization_id=self.kwargs['organization_pk'],
         )
+
+    def get_queryset(self):
+        repository = self.get_repository()
         return repository.calculated_sqcs.all()
 
     def list(self, request, *args, **kwargs):
-        latest_sqc = SQC.objects.first()
+        repository = self.get_repository()
+        latest_sqc = repository.calculated_sqcs.first()
         serializer = self.get_serializer(latest_sqc)
         return Response(serializer.data)
 
@@ -41,6 +45,14 @@ class CalculatedSQCHistoryModelViewSet(
     ViewSet para cadastrar as medidas coletadas
     """
     serializer_class = SQCSerializer
+
+    def get_repository(self):
+        return get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
 
     def get_queryset(self):
         repository = get_object_or_404(
