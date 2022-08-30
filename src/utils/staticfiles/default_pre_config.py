@@ -4,7 +4,7 @@ DEFAULT_PRE_CONFIG = {
   "characteristics": [
     {
       "key": "reliability",
-      "weight": 50,
+      "weight": 33,
       "subcharacteristics": [
         {
           "key": "testing_status",
@@ -28,7 +28,7 @@ DEFAULT_PRE_CONFIG = {
     },
     {
       "key": "maintainability",
-      "weight": 50,
+      "weight": 33,
       "subcharacteristics": [
         {
           "key": "modifiability",
@@ -45,6 +45,22 @@ DEFAULT_PRE_CONFIG = {
             {
               "key": "duplication_absense",
               "weight": 34
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "functional_suitability",
+      "weight": 34.0,
+      "subcharacteristics": [
+        {
+          "key": "functional_completeness",
+          "weight": 100.0,
+          "measures": [
+            {
+              "key": "team_throughput",
+              "weight": 100.0
             }
           ]
         }
