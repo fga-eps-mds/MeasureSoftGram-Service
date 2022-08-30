@@ -1,23 +1,13 @@
 from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
 
-from organizations.management.commands.load_initial_data import (
-     Command as LoadInitialDataCommand
-)
+from utils.tests import APITestCaseExpanded
+
 
 from organizations.models import Organization
 
 
-
-class OrganizationsViewsTestCase(APITestCase):
-
-    @classmethod
-    def setUpTestData(cls) -> None:
-        command = LoadInitialDataCommand()
-        command.create_supported_metrics()
-        command.create_suported_measures()
-        command.create_suported_subcharacteristics()
-        command.create_suported_characteristics()
+class OrganizationsViewsTestCase(APITestCaseExpanded):
 
     def test_create_a_new_organization(self):
         url = reverse("organization-list")
@@ -37,16 +27,6 @@ class OrganizationsViewsTestCase(APITestCase):
 
         self.assertEqual(qs.exists(), True)
         self.assertEqual(qs.count(), 1)
-
-    def get_organization(
-        self,
-        name="Test Organization",
-        description="Test Organization Description",
-    ):
-        return Organization.objects.create(
-            name=name,
-            description=description,
-        )
 
     def compare_organization_data(self, data, org):
         self.assertEqual(data["id"], org.id)
@@ -93,7 +73,8 @@ class OrganizationsViewsTestCase(APITestCase):
         url = reverse("organization-detail", args=[org.id])
         response = self.client.delete(url, format="json")
         self.assertEqual(response.status_code, 204)
-        self.assertEqual(Organization.objects.filter(id=org.id).exists(), False)
+        qs = Organization.objects.filter(id=org.id).exists()
+        self.assertEqual(qs, False)
 
     def test_list_all_existing_organizations(self):
         self.get_organization(name="Test Organization 1")
@@ -132,11 +113,7 @@ class OrganizationsViewsTestCase(APITestCase):
 
     def test_if_an_organizations_product_urls_list_is_returned(self):
         org: Organization = self.get_organization()
-
-        org.products.create(
-            name="Test Product",
-            description="Test Product Description",
-        )
+        self.create_organization_product(org)
 
         url = reverse("organization-detail", args=[org.id])
         response = self.client.get(url, format="json")
@@ -161,11 +138,7 @@ class OrganizationsViewsTestCase(APITestCase):
 
     def test_if_create_product_action_url_is_working(self):
         org: Organization = self.get_organization()
-
-        org.products.create(
-            name="Test Product",
-            description="Test Product Description",
-        )
+        self.create_organization_product(org)
 
         url = reverse("organization-detail", args=[org.id])
         response = self.client.get(url, format="json")
