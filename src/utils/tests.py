@@ -1,17 +1,58 @@
 from rest_framework.test import APITestCase
-from django.core.management import call_command
 
+from organizations.management.commands.load_initial_data import (
+     Command as LoadInitialDataCommand
+)
+
+from organizations.models import Organization
 
 from utils import chunkify
 
 
-class TestCaseExpanded(APITestCase):
+class APITestCaseExpanded(APITestCase):
     """
     Classe que agrupa rotinas e métodos que vários tests cases usam
     """
     @classmethod
     def setUpTestData(cls) -> None:
-        call_command("load_initial_data")
+        command = LoadInitialDataCommand()
+        command.create_supported_metrics()
+        command.create_suported_measures()
+        command.create_suported_subcharacteristics()
+        command.create_suported_characteristics()
+
+        # from django.core.management import call_command
+        # call_command("load_initial_data")
+
+    def get_organization(
+        self,
+        name="Test Organization",
+        description="Test Organization Description",
+    ):
+        return Organization.objects.create(
+            name=name,
+            description=description,
+        )
+
+    def create_organization_product(
+        self,
+        org: Organization,
+        name="Test Product",
+        description="Test Product Description",
+
+    ):
+        return org.products.create(name=name, description=description)
+
+    def create_product_repository(
+        self,
+        product,
+        name="Test Repository",
+        description="Test Repository Description",
+    ):
+        return product.repositories.create(
+            name=name,
+            description=description,
+        )
 
     def validate_key(self, key):
         """
