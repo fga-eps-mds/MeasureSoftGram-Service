@@ -54,6 +54,18 @@ class APITestCaseExpanded(APITestCase):
             description=description,
         )
 
+    def get_goal_data(self):
+        return {
+            "release_name": "v1.0",
+            "start_at": "2020-01-01",
+            "end_at": "2021-01-01",
+            "changes": [
+                {"characteristic_key": "reliability", "delta": 1},
+                {"characteristic_key": "maintainability", "delta": 1},
+                {"characteristic_key": "functional_suitability", "delta": 1},
+            ]
+        }
+
     def validate_key(self, key):
         """
         Função auxiliar para validar se a key das

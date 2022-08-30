@@ -13,6 +13,9 @@ class PreConfigSerializer(serializers.ModelSerializer):
             'data',
             'created_at',
         )
+        extra_kwargs = {
+            'created_at': {'read_only': True},
+        }
 
     def validate(self, attrs):
         """
