@@ -1,11 +1,9 @@
 from rest_framework.test import APITestCase
 
 from organizations.management.commands.load_initial_data import (
-     Command as LoadInitialDataCommand
+    Command as LoadInitialDataCommand,
 )
-
 from organizations.models import Organization
-
 from utils import chunkify
 
 

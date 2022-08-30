@@ -1,10 +1,7 @@
-from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
 
-from utils.tests import APITestCaseExpanded
-
-
 from organizations.models import Organization
+from utils.tests import APITestCaseExpanded
 
 
 class OrganizationsViewsTestCase(APITestCaseExpanded):

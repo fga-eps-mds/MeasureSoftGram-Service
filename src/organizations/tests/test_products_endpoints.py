@@ -1,10 +1,9 @@
 from typing import Dict
+
 from rest_framework.reverse import reverse
 
-from utils.tests import APITestCaseExpanded
-
-
 from organizations.models import Organization, Product
+from utils.tests import APITestCaseExpanded
 
 
 class ProductsViewsSetCase(APITestCaseExpanded):
@@ -88,13 +87,12 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         qs = Product.objects.filter(id=product.id).exists()
         self.assertEqual(qs, False)
 
-    def test_if_existing_product_is_being_listed(self):
+    def test_if_existing_products_is_being_listed(self):
         org = self.get_organization()
 
         self.create_organization_product(org, name="Test Product 1")
         self.create_organization_product(org, name="Test Product 2")
         self.create_organization_product(org, name="Test Product 3")
-
 
         url = reverse("product-list", args=[org.id])
         response = self.client.get(url, format="json")
@@ -131,14 +129,10 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         self.assertEqual(key, "produto-do-dagrao")
         self.assertEqual(product.key, "produto-do-dagrao")
 
-    def test_if_an_organizations_product_urls_list_is_returned(self):
+    def test_if_an_product_repositories_urls_list_is_returned(self):
         org = self.get_organization()
-        product = self.create_organization_product(
-            org,
-            name="Test Product",
-            description="Test Product Description",
-        )
-        repository = self.create_product_repository(product)
+        product = self.create_organization_product(org)
+        self.create_product_repository(product)
 
         url = reverse("product-detail", args=[org.id, product.id])
         response = self.client.get(url, format="json")
@@ -147,19 +141,18 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         data = response.json()
 
         self.assertIsInstance(data["repositories"], list)
-        # self.assertEqual(len(data["repositories"]), 1)
+        self.assertEqual(len(data["repositories"]), 1)
 
-        # product_url = data["repos"][0]
+        url = data["repositories"][0]
+        self.assertIsInstance(url, str)
 
-        # self.assertIsInstance(product_url, str)
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 200)
 
-        # response = self.client.get(product_url, format="json")
-        # self.assertEqual(response.status_code, 200)
+        data = response.json()
 
-        # data = response.json()
-
-        # self.assertEqual(data["name"], "Test Product")
-        # self.assertEqual(data["description"], "Test Product Description")
+        self.assertEqual(data["name"], "Test Repository")
+        self.assertEqual(data["description"], "Test Repository Description")
 
     def assert_action_in_action_data(
         self,
