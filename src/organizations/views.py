@@ -30,8 +30,8 @@ class OrganizationViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()\
                               .order_by('-id')\
-                              .select_related('organization')
-                            #   .prefetch_related('repositories', 'organization')
+                              .select_related('organization')\
+                              .prefetch_related('repositories')
 
     serializer_class = ProductSerializer
 
