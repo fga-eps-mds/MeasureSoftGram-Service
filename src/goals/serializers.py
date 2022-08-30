@@ -76,7 +76,7 @@ class GoalSerializer(serializers.ModelSerializer):
 
         if not is_valid and raise_exception:
             raise serializers.ValidationError((
-                "It is not allowed to create goals with subcharacteristics "
+                "It is not allowed to create goals with characteristics "
                 "that were not selected in the pre-configuration."
             ))
 
