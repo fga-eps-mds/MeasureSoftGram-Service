@@ -20,7 +20,10 @@ class OrganizationViewSet(viewsets.ModelViewSet):
     * `PUT` ou `PATCH`: Atualiza uma organização
     * `DELETE`: Deleta uma organização
     """
-    queryset = Organization.objects.all()
+    queryset = Organization.objects.all()\
+                                   .order_by('-id')\
+                                   .prefetch_related('products')
+
     serializer_class = OrganizationSerializer
 
 
