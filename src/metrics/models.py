@@ -4,7 +4,6 @@ from django.db import models
 from django.utils import timezone
 
 
-
 class SupportedMetric(models.Model):
     """
     Métricas suportadas pelo sistema.

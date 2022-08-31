@@ -2,11 +2,11 @@ from unittest import mock
 
 from rest_framework.reverse import reverse
 
+from characteristics.models import SupportedCharacteristic
 from measures.models import SupportedMeasure
 from metrics.models import SupportedMetric
-from subcharacteristics.models import SupportedSubCharacteristic
-from characteristics.models import SupportedCharacteristic
 from organizations.models import Repository
+from subcharacteristics.models import SupportedSubCharacteristic
 from utils.mocks import Mocks
 from utils.tests import APITestCaseExpanded
 

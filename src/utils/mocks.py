@@ -36,7 +36,6 @@ class Mocks:
         }
         return IResponse(_json=_json, _status_code=_status_code)
 
-
     @staticmethod
     def calculate_measure(params):
         return Mocks.calculate_entity(params, 'measures')
