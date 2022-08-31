@@ -110,7 +110,7 @@ class OrganizationsViewsTestCase(APITestCaseExpanded):
 
     def test_if_an_organizations_product_urls_list_is_returned(self):
         org: Organization = self.get_organization()
-        self.create_organization_product(org)
+        self.get_product(org)
 
         url = reverse("organization-detail", args=[org.id])
         response = self.client.get(url, format="json")
@@ -135,7 +135,7 @@ class OrganizationsViewsTestCase(APITestCaseExpanded):
 
     def test_if_create_product_action_url_is_working(self):
         org: Organization = self.get_organization()
-        self.create_organization_product(org)
+        self.get_product(org)
 
         url = reverse("organization-detail", args=[org.id])
         response = self.client.get(url, format="json")

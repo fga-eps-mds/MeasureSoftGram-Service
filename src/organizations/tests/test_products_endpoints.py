@@ -35,7 +35,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
     def test_if_existing_product_is_being_listed(self):
         org = self.get_organization()
-        product = self.create_organization_product(org)
+        product = self.get_product(org)
 
         url = reverse("product-list", args=[org.id])
         response = self.client.get(url, format="json")
@@ -47,7 +47,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
     def test_update_a_existing_product(self):
         org = self.get_organization()
-        product = self.create_organization_product(org)
+        product = self.get_product(org)
         url = reverse("product-detail", args=[org.id, product.id])
         data = {
             "name": "Test Product Updated",
@@ -63,7 +63,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
     def test_patch_update_a_existing_product(self):
         org = self.get_organization()
-        product = self.create_organization_product(org)
+        product = self.get_product(org)
         url = reverse("product-detail", args=[org.id, product.id])
         data = {
             "name": "Test Product Updated",
@@ -79,7 +79,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
     def test_delete_a_existing_product(self):
         org = self.get_organization()
-        product = self.create_organization_product(org)
+        product = self.get_product(org)
         url = reverse("product-detail", args=[org.id, product.id])
         response = self.client.delete(url, format="json")
 
@@ -90,9 +90,9 @@ class ProductsViewsSetCase(APITestCaseExpanded):
     def test_if_existing_products_is_being_listed(self):
         org = self.get_organization()
 
-        self.create_organization_product(org, name="Test Product 1")
-        self.create_organization_product(org, name="Test Product 2")
-        self.create_organization_product(org, name="Test Product 3")
+        self.get_product(org, name="Test Product 1")
+        self.get_product(org, name="Test Product 2")
+        self.get_product(org, name="Test Product 3")
 
         url = reverse("product-list", args=[org.id])
         response = self.client.get(url, format="json")
@@ -116,7 +116,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         "produto do dagrão!" -> "produto-do-dagrao"
         """
         org = self.get_organization()
-        product = self.create_organization_product(
+        product = self.get_product(
             org,
             name="produto do dagrão!",
         )
@@ -131,8 +131,8 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
     def test_if_an_product_repositories_urls_list_is_returned(self):
         org = self.get_organization()
-        product = self.create_organization_product(org)
-        self.create_product_repository(product)
+        product = self.get_product(org)
+        self.get_repository(product)
 
         url = reverse("product-detail", args=[org.id, product.id])
         response = self.client.get(url, format="json")
@@ -167,7 +167,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
     def test_if_create_product_action_url_is_working(self):
         org: Organization = self.get_organization()
-        product = self.create_organization_product(org)
+        product = self.get_product(org)
         url = reverse("product-detail", args=[org.id, product.id])
 
         response = self.client.get(url, format="json")
@@ -202,7 +202,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
     def get_product_actions(self) -> Dict[str, str]:
         org: Organization = self.get_organization()
-        product = self.create_organization_product(org)
+        product = self.get_product(org)
         url = reverse("product-detail", args=[org.id, product.id])
         response = self.client.get(url, format="json")
         data = response.json()

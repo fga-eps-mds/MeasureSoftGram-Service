@@ -32,7 +32,7 @@ class APITestCaseExpanded(APITestCase):
             description=description,
         )
 
-    def create_organization_product(
+    def get_product(
         self,
         org: Organization,
         name="Test Product",
@@ -41,7 +41,7 @@ class APITestCaseExpanded(APITestCase):
     ):
         return org.products.create(name=name, description=description)
 
-    def create_product_repository(
+    def get_repository(
         self,
         product,
         name="Test Repository",
