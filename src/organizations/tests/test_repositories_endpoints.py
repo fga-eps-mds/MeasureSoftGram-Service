@@ -4,6 +4,8 @@ from rest_framework.reverse import reverse
 
 from measures.models import SupportedMeasure
 from metrics.models import SupportedMetric
+from subcharacteristics.models import SupportedSubCharacteristic
+from characteristics.models import SupportedCharacteristic
 from organizations.models import Repository
 from utils.mocks import Mocks
 from utils.tests import APITestCaseExpanded
@@ -267,4 +269,44 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         ]
         data = {'measures': measures_keys}
         response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+    @mock.patch(
+        "utils.clients.core_service.CoreClient.calculate_subcharacteristic",
+        side_effect=Mocks.calculate_subcharacteristic,
+    )
+    def test_if_calculate_subcharacteristics_action_url_is_working(self, *a, **k):
+        actions_urls = self.get_repository_urls('actions')
+        url = actions_urls['calculate subcharacteristics']
+        keys = [
+            {'key': subcharacteristic.key}
+            for subcharacteristic in SupportedSubCharacteristic.objects.all()
+        ]
+        data = {'subcharacteristics': keys}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+    @mock.patch(
+        "utils.clients.core_service.CoreClient.calculate_characteristic",
+        side_effect=Mocks.calculate_characteristic,
+    )
+    def test_if_calculate_characteristics_action_url_is_working(self, *a, **k):
+        actions_urls = self.get_repository_urls('actions')
+        url = actions_urls['calculate characteristics']
+        keys = [
+            {'key': characteristic.key}
+            for characteristic in SupportedCharacteristic.objects.all()
+        ]
+        data = {'characteristics': keys}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+    @mock.patch(
+        "utils.clients.core_service.CoreClient.calculate_sqc",
+        side_effect=Mocks.calculate_sqc,
+    )
+    def test_if_calculate_sqc_action_url_is_working(self, *a, **k):
+        actions_urls = self.get_repository_urls('actions')
+        url = actions_urls['calculate sqc']
+        response = self.client.post(url)
         self.assertEqual(response.status_code, 201)

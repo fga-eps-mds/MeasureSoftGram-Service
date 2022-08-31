@@ -24,13 +24,33 @@ class IResponse:
 
 
 class Mocks:
+
     @staticmethod
-    def calculate_measure(params):
+    def calculate_entity(params, entity_name):
         _status_code = int(os.getenv("RESPONSE_HTTP_STATUS_CODE", "200"))
         _json = {
-            'measures': [
-                {'key': measure['key'], 'value': random.random()}
-                for measure in params['measures']
+            entity_name: [
+                {'key': entity['key'], 'value': random.random()}
+                for entity in params[entity_name]
             ]
         }
         return IResponse(_json=_json, _status_code=_status_code)
+
+
+    @staticmethod
+    def calculate_measure(params):
+        return Mocks.calculate_entity(params, 'measures')
+
+    @staticmethod
+    def calculate_subcharacteristic(params):
+        return Mocks.calculate_entity(params, 'subcharacteristics')
+
+    @staticmethod
+    def calculate_characteristic(params):
+        return Mocks.calculate_entity(params, 'characteristics')
+
+    @staticmethod
+    def calculate_sqc(params):
+        _status_code = int(os.getenv("RESPONSE_HTTP_STATUS_CODE", "200"))
+        _json = {"value": random.random()}
+        return IResponse(_json, _status_code)
