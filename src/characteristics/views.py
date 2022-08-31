@@ -20,6 +20,7 @@ class CalculateCharacteristicViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = CharacteristicsCalculationsRequestSerializer
+    queryset = SupportedCharacteristic.objects.all()
 
     def get_repository(self):
         return get_object_or_404(

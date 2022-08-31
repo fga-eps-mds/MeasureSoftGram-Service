@@ -17,17 +17,21 @@ class LatestCalculatedSQCViewSet(
 ):
     serializer_class = SQCSerializer
 
-    def get_queryset(self):
-        repository = get_object_or_404(
+    def get_repository(self):
+        return get_object_or_404(
             Repository,
             id=self.kwargs['repository_pk'],
             product_id=self.kwargs['product_pk'],
             product__organization_id=self.kwargs['organization_pk'],
         )
+
+    def get_queryset(self):
+        repository = self.get_repository()
         return repository.calculated_sqcs.all()
 
     def list(self, request, *args, **kwargs):
-        latest_sqc = SQC.objects.first()
+        repository = self.get_repository()
+        latest_sqc = repository.calculated_sqcs.first()
         serializer = self.get_serializer(latest_sqc)
         return Response(serializer.data)
 
@@ -41,6 +45,14 @@ class CalculatedSQCHistoryModelViewSet(
     ViewSet para cadastrar as medidas coletadas
     """
     serializer_class = SQCSerializer
+
+    def get_repository(self):
+        return get_object_or_404(
+            Repository,
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
+        )
 
     def get_queryset(self):
         repository = get_object_or_404(
@@ -71,23 +83,42 @@ class CalculateSQC(
         pre_config = repository.product.pre_configs.first()
 
         qs = repository.calculated_measures.all()
-        qs = qs.values_list('measure', flat=True).distinct()
-        qs = SupportedMeasure.objects.filter(id__in=qs)
+        measures_ids = set(qs.values_list('measure', flat=True).distinct())
+
+        qs = SupportedMeasure.objects.filter(id__in=measures_ids)
         qs = qs.prefetch_related(
             'metrics',
             'metrics__collected_metrics',
         )
 
         metrics_data = []
+        smallest_list_size = None
 
         for measure in qs:
+            metrics = measure.metrics.all()
+
             metric: SupportedMetric
-            for metric in measure.metrics.all():
+            for metric in metrics:
+                value = metric.get_latest_metric_value(repository)
+
+                if isinstance(value, list):
+                    smallest_list_size = min(
+                        smallest_list_size or len(value),
+                        len(value),
+                    )
+
                 metrics_data.append({
                     'key': metric.key,
-                    'value': metric.get_latest_metric_value(),
+                    'value': metric.get_latest_metric_value(repository),
                     'measure_key': measure.key,
                 })
+
+        # TODO: Isso é um workaround para o problema de
+        # métricas de uma medida com trabalhos diferentes
+        if smallest_list_size:
+            for metric in metrics_data:
+                if isinstance(metric['value'], list):
+                    metric['value'] = metric['value'][:smallest_list_size]
 
         core_params = {
             'pre_config': pre_config.data,

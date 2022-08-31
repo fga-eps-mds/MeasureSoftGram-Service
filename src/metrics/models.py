@@ -41,7 +41,10 @@ class SupportedMetric(models.Model):
     def __str__(self):
         return self.key
 
-    def get_latest_metric_value(self) -> Union[float, str, int, bool, list]:
+    def get_latest_metric_value(
+        self,
+        repository,
+    ) -> Union[float, str, int, bool, list]:
         """
         Função que recupera o valor mais recente da métrica
         """
@@ -52,14 +55,18 @@ class SupportedMetric(models.Model):
         }
 
         if self.key in listed_values:
-            return self.get_latest_metric_values()
+            return self.get_latest_metric_values(repository)
 
-        if latest_metric := self.collected_metrics.first():
+        latest_metric = self.collected_metrics.filter(
+            repository=repository,
+        ).first()
+
+        if latest_metric:
             return latest_metric.value
 
         return None
 
-    def get_latest_metric_values(self) -> list:
+    def get_latest_metric_values(self, repository) -> list:
         """
         Função que recupera os valores mais recentes de uma métrica.
 
@@ -72,7 +79,11 @@ class SupportedMetric(models.Model):
         test_coverage, que precisa da cobertura (metrica coverage) dos
         vários arquivos quem compõe o repositório.
         """
-        if latest_metric := self.collected_metrics.first():
+        latest_metric = self.collected_metrics.filter(
+            repository=repository,
+        ).first()
+
+        if latest_metric:
             same_day = latest_metric.created_at
 
             # Remove hours, minutes and seconds
@@ -84,6 +95,7 @@ class SupportedMetric(models.Model):
                 qualifier='FIL',
                 created_at__gte=begin,
                 created_at__lte=end,
+                repository=repository,
             )
 
             # Métrica do número de linhas
@@ -95,6 +107,7 @@ class SupportedMetric(models.Model):
                 created_at__lte=end,
                 qualifier='FIL',
                 value=0,
+                repository=repository,
             ).values_list('path', flat=True)
 
             empty_files_set = set(qs)

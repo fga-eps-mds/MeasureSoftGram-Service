@@ -12,20 +12,19 @@ from organizations.serializers import (
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
-    """
-    Endpoint das organizações
+    queryset = Organization.objects.all()\
+                                   .order_by('-id')\
+                                   .prefetch_related('products')
 
-    * `GET`: Lista todas as organizações
-    * `POST`: Cria uma nova organização
-    * `PUT` ou `PATCH`: Atualiza uma organização
-    * `DELETE`: Deleta uma organização
-    """
-    queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all()\
+                              .order_by('-id')\
+                              .select_related('organization')\
+                              .prefetch_related('repositories')
+
     serializer_class = ProductSerializer
 
     def get_organization(self):
@@ -35,31 +34,47 @@ class ProductViewSet(viewsets.ModelViewSet):
         )
 
     def get_queryset(self):
-        organization = self.get_organization()
-        return Product.objects.filter(organization=organization)
+        qs = Product.objects.all()\
+                            .order_by('-id')\
+                            .select_related('organization')\
+                            .prefetch_related('repositories')
+
+        return qs.filter(organization=self.kwargs['organization_pk'])
 
     def perform_create(self, serializer):
-        organization = self.get_organization()
-        serializer.save(organization=organization)
+        serializer.save(organization_id=self.kwargs['organization_pk'])
 
 
-class RepositoryViewSet(viewsets.ModelViewSet):
+class RepositoryViewSetMixin:
+    def get_product(self):
+        return get_object_or_404(
+            Product,
+            id=self.kwargs['product_pk'],
+            organization_id=self.kwargs['organization_pk'],
+        )
+
+
+class RepositoryViewSet(
+    RepositoryViewSetMixin,
+    viewsets.ModelViewSet,
+):
     serializer_class = RepositorySerializer
     queryset = Repository.objects.all()
 
     def perform_create(self, serializer):
-        product = get_object_or_404(
-            Product,
-            id=self.kwargs['product_pk'],
-        )
+        product = self.get_product()
         serializer.save(product=product)
 
     def get_queryset(self):
-        product = get_object_or_404(Product, id=self.kwargs['product_pk'])
-        return Repository.objects.filter(product=product)
+        qs = Repository.objects.all()\
+                               .order_by('-id')\
+                               .select_related('product')
+
+        return qs.filter(product=self.kwargs['product_pk'])
 
 
 class RepositoriesSQCLatestValueViewSet(
+    RepositoryViewSetMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
@@ -67,10 +82,12 @@ class RepositoriesSQCLatestValueViewSet(
     Lista o SQC mais recente dos repositórios de um produto
     """
     serializer_class = RepositorySQCLatestValueSerializer
+    queryset = Repository.objects.all()
 
     def get_queryset(self):
-        product = get_object_or_404(Product, id=self.kwargs['product_pk'])
-        qs = Repository.objects.filter(product=product)
+        product = self.get_product()
+        qs = product.repositories.all()
+        qs = qs.order_by('-id')
         qs = qs.prefetch_related(
             'calculated_sqcs',
             'product',
@@ -80,14 +97,16 @@ class RepositoriesSQCLatestValueViewSet(
 
 
 class RepositoriesSQCHistoryViewSet(
+    RepositoryViewSetMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = RepositoriesSQCHistorySerializer
+    queryset = Repository.objects.all()
 
     def get_queryset(self):
-        product = get_object_or_404(Product, id=self.kwargs['product_pk'])
-        qs = Repository.objects.filter(product=product)
+        product = self.get_product()
+        qs = product.repositories.all()
         qs = qs.prefetch_related(
             'calculated_sqcs',
             'product',

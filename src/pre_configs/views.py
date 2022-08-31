@@ -11,9 +11,16 @@ class CurrentPreConfigModelViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
+    queryset = PreConfig.objects.all()
+    serializer_class = PreConfigSerializer
+
+    def get_product(self):
+        return get_object_or_404(Product, id=self.kwargs['product_pk'])
+
     def list(self, request, *args, **kwargs):
         # first() == mais recente == pre configuração atual
-        latest_pre_config = PreConfig.objects.first()
+        product = self.get_product()
+        latest_pre_config = product.pre_configs.first()
         serializer = PreConfigSerializer(latest_pre_config)
         return Response(serializer.data, status.HTTP_200_OK)
 
@@ -23,10 +30,11 @@ class CreatePreConfigModelViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = PreConfigSerializer
+    queryset = PreConfig.objects.all()
+
+    def get_product(self):
+        return get_object_or_404(Product, id=self.kwargs['product_pk'])
 
     def perform_create(self, serializer):
-        product = get_object_or_404(
-            Product,
-            id=self.kwargs['product_pk'],
-        )
+        product = self.get_product()
         serializer.save(product=product)

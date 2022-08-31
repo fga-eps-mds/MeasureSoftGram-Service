@@ -12,6 +12,9 @@ class CurrentGoalModelViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
+    queryset = Goal.objects.all()
+    serializer_class = GoalSerializer
+
     def this_product_does_not_have_a_goal_reponse(self, product):
         create_a_new_goal_url = reverse(
             'create-goal-list',
@@ -52,6 +55,7 @@ class CreateGoalModelViewSet(
     viewsets.GenericViewSet,
 ):
     serializer_class = GoalSerializer
+    queryset = Goal.objects.all()
 
     def perform_create(self, serializer):
         product = get_object_or_404(

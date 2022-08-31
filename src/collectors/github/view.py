@@ -48,6 +48,7 @@ class ImportGithubMetricsViewSet(
     A importação de métricas do github deveria ser uma tarefa assíncrona.
     """
     serializer_class = GithubCollectorParamsSerializer
+    queryset = SupportedMetric.objects.all()
 
     def get_repository(self):
         return get_object_or_404(

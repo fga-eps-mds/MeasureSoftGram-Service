@@ -36,7 +36,7 @@ class SupportedMeasure(models.Model):
     def __str__(self):
         return self.name
 
-    def get_latest_metric_params(self):
+    def get_latest_metric_params(self, repository):
         """
         Função que recupera os valores mais recentes das
         métricas que essa medida depende para ser calculada
@@ -49,7 +49,9 @@ class SupportedMeasure(models.Model):
 
         for supported_metric in self.metrics.all():
             key = supported_metric.key
-            metric_params[key] = supported_metric.get_latest_metric_value()
+            metric_params[key] = supported_metric.get_latest_metric_value(
+                repository,
+            )
 
         return metric_params
 

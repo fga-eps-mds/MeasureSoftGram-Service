@@ -14,3 +14,8 @@ class SQCSerializer(serializers.ModelSerializer):
             'value',
             'created_at',
         )
+        read_only_fields = (
+            'id',
+            'value',
+            'created_at',
+        )
