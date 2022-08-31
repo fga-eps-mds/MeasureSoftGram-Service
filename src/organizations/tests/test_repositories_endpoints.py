@@ -1,8 +1,11 @@
+from unittest import mock
+
 from rest_framework.reverse import reverse
 
-from organizations.models import Organization, Product, Repository
-from metrics.models import SupportedMetric
 from measures.models import SupportedMeasure
+from metrics.models import SupportedMetric
+from organizations.models import Repository
+from utils.mocks import Mocks
 from utils.tests import APITestCaseExpanded
 
 
@@ -251,14 +254,17 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
 
-    # TODO: Mocar as requisições para o core
-    # def test_if_calculate_measures_action_url_is_working(self):
-    #     actions_urls = self.get_repository_urls('actions')
-    #     url = actions_urls['calculate measures']
-    #     measures_keys = [
-    #         {'key': measure.key}
-    #         for measure in SupportedMeasure.objects.all()
-    #     ]
-    #     data = {'measures': measures_keys}
-    #     response = self.client.post(url, data, format='json')
-    #     self.assertEqual(response.status_code, 201)
+    @mock.patch(
+        "utils.clients.core_service.CoreClient.calculate_measure",
+        side_effect=Mocks.calculate_measure,
+    )
+    def test_if_calculate_measures_action_url_is_working(self, *a, **k):
+        actions_urls = self.get_repository_urls('actions')
+        url = actions_urls['calculate measures']
+        measures_keys = [
+            {'key': measure.key}
+            for measure in SupportedMeasure.objects.all()
+        ]
+        data = {'measures': measures_keys}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
