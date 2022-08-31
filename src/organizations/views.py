@@ -12,14 +12,6 @@ from organizations.serializers import (
 
 
 class OrganizationViewSet(viewsets.ModelViewSet):
-    """
-    Endpoint das organizações
-
-    * `GET`: Lista todas as organizações
-    * `POST`: Cria uma nova organização
-    * `PUT` ou `PATCH`: Atualiza uma organização
-    * `DELETE`: Deleta uma organização
-    """
     queryset = Organization.objects.all()\
                                    .order_by('-id')\
                                    .prefetch_related('products')
@@ -50,27 +42,39 @@ class ProductViewSet(viewsets.ModelViewSet):
         return qs.filter(organization=self.kwargs['organization_pk'])
 
     def perform_create(self, serializer):
-        organization = self.get_organization()
-        serializer.save(organization=organization)
+        serializer.save(organization_id=self.kwargs['organization_pk'])
 
 
-class RepositoryViewSet(viewsets.ModelViewSet):
+class RepositoryViewSetMixin:
+    def get_product(self):
+        return get_object_or_404(
+            Product,
+            id=self.kwargs['product_pk'],
+            organization_id=self.kwargs['organization_pk'],
+        )
+
+
+class RepositoryViewSet(
+    RepositoryViewSetMixin,
+    viewsets.ModelViewSet,
+):
     serializer_class = RepositorySerializer
     queryset = Repository.objects.all()
 
     def perform_create(self, serializer):
-        product = get_object_or_404(
-            Product,
-            id=self.kwargs['product_pk'],
-        )
+        product = self.get_product()
         serializer.save(product=product)
 
     def get_queryset(self):
-        product = get_object_or_404(Product, id=self.kwargs['product_pk'])
-        return Repository.objects.filter(product=product)
+        qs = Repository.objects.all()\
+                               .order_by('-id')\
+                               .select_related('product')
+
+        return qs.filter(product=self.kwargs['product_pk'])
 
 
 class RepositoriesSQCLatestValueViewSet(
+    RepositoryViewSetMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
@@ -81,8 +85,9 @@ class RepositoriesSQCLatestValueViewSet(
     queryset = Repository.objects.all()
 
     def get_queryset(self):
-        product = get_object_or_404(Product, id=self.kwargs['product_pk'])
-        qs = Repository.objects.filter(product=product)
+        product = self.get_product()
+        qs = product.repositories.all()
+        qs = qs.order_by('-id')
         qs = qs.prefetch_related(
             'calculated_sqcs',
             'product',
@@ -92,6 +97,7 @@ class RepositoriesSQCLatestValueViewSet(
 
 
 class RepositoriesSQCHistoryViewSet(
+    RepositoryViewSetMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
@@ -99,8 +105,8 @@ class RepositoriesSQCHistoryViewSet(
     queryset = Repository.objects.all()
 
     def get_queryset(self):
-        product = get_object_or_404(Product, id=self.kwargs['product_pk'])
-        qs = Repository.objects.filter(product=product)
+        product = self.get_product()
+        qs = product.repositories.all()
         qs = qs.prefetch_related(
             'calculated_sqcs',
             'product',

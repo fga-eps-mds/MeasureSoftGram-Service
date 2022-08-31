@@ -28,6 +28,13 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         self.assertEqual(qs.exists(), True)
         self.assertEqual(qs.count(), 1)
 
+        product = qs.first()
+
+        self.assertEqual(product.name, "Test Product")
+        self.assertEqual(product.description, "Test Product Description")
+
+        self.assertEqual(product.organization, org)
+
     def compare_product_data(self, data, product):
         self.assertEqual(data["id"], product.id)
         self.assertEqual(data["name"], product.name)
@@ -44,6 +51,27 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
         data = response.json()["results"]
         self.compare_product_data(data[0], product)
+
+    def test_if_only_organization_products_is_being_listed(self):
+        org1 = self.get_organization(name="Organization 1")
+        org2 = self.get_organization(name="Organization 2")
+
+        self.get_product(org1, name="Test Product 1")
+        self.get_product(org1, name="Test Product 2")
+
+        self.get_product(org2, name="Test Product 3")
+
+        url = reverse("product-list", args=[org2.id])
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()
+
+        self.assertEqual(data['count'], 1)
+        self.assertEqual(len(data['results']), data['count'])
+        product = data['results'][0]
+
+        self.assertEqual(product['name'], "Test Product 3")
 
     def test_update_a_existing_product(self):
         org = self.get_organization()
@@ -86,6 +114,18 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         self.assertEqual(response.status_code, 204)
         qs = Product.objects.filter(id=product.id).exists()
         self.assertEqual(qs, False)
+
+        url = reverse("product-detail", args=[org.id, product.id])
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 404)
+
+        url = reverse("product-list", args=[org.id])
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()
+
+        self.assertEqual(data['count'], 0)
 
     def test_if_existing_products_is_being_listed(self):
         org = self.get_organization()
