@@ -83,23 +83,42 @@ class CalculateSQC(
         pre_config = repository.product.pre_configs.first()
 
         qs = repository.calculated_measures.all()
-        qs = qs.values_list('measure', flat=True).distinct()
-        qs = SupportedMeasure.objects.filter(id__in=qs)
+        measures_ids = set(qs.values_list('measure', flat=True).distinct())
+
+        qs = SupportedMeasure.objects.filter(id__in=measures_ids)
         qs = qs.prefetch_related(
             'metrics',
             'metrics__collected_metrics',
         )
 
         metrics_data = []
+        smallest_list_size = None
 
         for measure in qs:
+            metrics = measure.metrics.all()
+
             metric: SupportedMetric
-            for metric in measure.metrics.all():
+            for metric in metrics:
+                value = metric.get_latest_metric_value(repository)
+
+                if isinstance(value, list):
+                    smallest_list_size = min(
+                        smallest_list_size or len(value),
+                        len(value),
+                    )
+
                 metrics_data.append({
                     'key': metric.key,
-                    'value': metric.get_latest_metric_value(),
+                    'value': metric.get_latest_metric_value(repository),
                     'measure_key': measure.key,
                 })
+
+        # TODO: Isso é um workaround para o problema de
+        # métricas de uma medida com trabalhos diferentes
+        if smallest_list_size:
+            for metric in metrics_data:
+                if isinstance(metric['value'], list):
+                    metric['value'] = metric['value'][:smallest_list_size]
 
         core_params = {
             'pre_config': pre_config.data,

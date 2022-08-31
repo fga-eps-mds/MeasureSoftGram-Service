@@ -57,9 +57,12 @@ class CalculateMeasuresViewSet(
         core_params = {'measures': []}
 
         # 4. Obtenção das métricas necessárias para calcular as medidas
+
+        repository = self.get_repository()
+
         measure: SupportedMeasure
         for measure in qs:
-            metric_params = measure.get_latest_metric_params()
+            metric_params = measure.get_latest_metric_params(repository)
 
             core_params['measures'].append({
                 'key': measure.key,
@@ -84,8 +87,6 @@ class CalculateMeasuresViewSet(
         # 6. Salvando no banco de dados as medidas calculadas
 
         calculated_measures = []
-
-        repository = self.get_repository()
 
         measure: SupportedMeasure
         for measure in qs:
