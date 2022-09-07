@@ -76,7 +76,7 @@ class CalculateCharacteristicViewSet(
         response = CoreClient.calculate_characteristic(core_params)
 
         if response.ok is False:
-            return Response(response.text, status=response.status_code)
+            return Response(response.json(), status=response.status_code)
 
         data = response.json()
 

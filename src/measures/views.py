@@ -75,7 +75,7 @@ class CalculateMeasuresViewSet(
         response = CoreClient.calculate_measure(core_params)
 
         if response.ok is False:
-            return Response(response.text, status=response.status_code)
+            return Response(response.json(), status=response.status_code)
 
         data = response.json()
 
