@@ -48,7 +48,8 @@ class GoalSerializer(serializers.ModelSerializer):
         repositório, pois será necessário fazer um fitro na tabela PreConfig
         pelo id do repositório.
         """
-        pre_config = PreConfig.objects.first()
+        product = self.get_product()
+        pre_config = product.pre_configs.first()
         return pre_config.get_characteristics_keys()
 
     def all_characteristics_are_defined_in_the_pre_config(self) -> bool:
@@ -84,17 +85,20 @@ class GoalSerializer(serializers.ModelSerializer):
 
         return is_valid
 
+    def get_product(self):
+        product = None
+
+        if view := self.context.get('view', None):
+            product = view.get_product()
+
+        return product
+
     def check_if_it_is_the_same_as_the_current_goal(
         self,
         valid_format=True,
         raise_exception=False,
     ):
-        view = self.context.get('view', None)
-
-        if not view:
-            return True
-
-        product = view.get_product()
+        product = self.get_product()
         current_goal = product.goals.first()
 
         if not current_goal:

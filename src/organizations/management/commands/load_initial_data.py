@@ -415,6 +415,12 @@ class Command(BaseCommand):
         pre_config = product.pre_configs.first()
         data = get_random_goal_data(pre_config)
         serializer = GoalSerializer(data=data)
+
+        class MockView:
+            def get_product():
+                return product
+
+        serializer.context['view'] = MockView
         serializer.is_valid(raise_exception=True)
         serializer.save(product=product)
 
