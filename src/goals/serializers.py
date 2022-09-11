@@ -67,9 +67,11 @@ class GoalSerializer(serializers.ModelSerializer):
 
         return issubset
 
-    def is_valid(self, raise_exception=False):
-        valid_format = super().is_valid(raise_exception)
-
+    def check_if_all_characteristics_are_defined_in_the_pre_config(
+        self,
+        valid_format=True,
+        raise_exception=False,
+    ):
         issubset = self.all_characteristics_are_defined_in_the_pre_config()
 
         is_valid = valid_format and issubset
@@ -82,9 +84,61 @@ class GoalSerializer(serializers.ModelSerializer):
 
         return is_valid
 
-    def save(self, **kwargs):
-        selected_characteristics_keys = self.get_pre_config_characteristics()
+    def check_if_it_is_the_same_as_the_current_goal(
+        self,
+        valid_format=True,
+        raise_exception=False,
+    ):
+        view = self.context['view']
+        product = view.get_product()
+        current_goal = product.goals.first()
 
+        if not current_goal:
+            return True
+
+        start_at: str = current_goal.start_at.strftime('%Y-%m-%d')
+        end_at: str = current_goal.end_at.strftime('%Y-%m-%d')
+        data: dict = self.changes_to_data()
+
+        is_the_same = (
+            current_goal.release_name == self.initial_data.get('release_name')
+            and start_at == self.initial_data.get('start_at')
+            and end_at == self.initial_data.get('end_at')
+            and current_goal.data == data
+        )
+
+        if is_the_same and raise_exception:
+            raise serializers.ValidationError((
+                "It is not allowed to create goals that are the same as the "
+                "current goal."
+            ))
+
+        is_valid = not is_the_same
+        return is_valid and valid_format
+
+    def is_valid(self, raise_exception=False):
+        valid_format = super().is_valid(raise_exception)
+
+        is_valid_1 = self.check_if_all_characteristics_are_defined_in_the_pre_config(
+            valid_format=valid_format,
+            raise_exception=raise_exception,
+        )
+
+        is_valid_2 = self.check_if_it_is_the_same_as_the_current_goal(
+            valid_format=valid_format,
+            raise_exception=raise_exception,
+        )
+
+        if not (is_valid_1 and is_valid_2) and raise_exception:
+            raise serializers.ValidationError("The goal is not valid.")
+
+        return is_valid_1 and is_valid_2
+
+    def changes_to_data(self):
+        """
+        Essa função converte o campo changes para o formato de dados
+        """
+        selected_characteristics_keys = self.get_pre_config_characteristics()
         equalizer = Equalizer(selected_characteristics_keys)
 
         data = self.validated_data
@@ -96,5 +150,9 @@ class GoalSerializer(serializers.ModelSerializer):
                 change["delta"],
             )
 
+        return equalizer.get_goal()
+
+    def save(self, **kwargs):
+        data = self.changes_to_data()
         self.validated_data.pop('changes')
-        return super().save(data=equalizer.get_goal(), **kwargs)
+        return super().save(data=data, **kwargs)

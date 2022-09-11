@@ -21,6 +21,18 @@
             "justMyCode": false,
         },
         {
+            "name": "Debug test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "test",
+                "goals.tests.test_goal_endpoints.GoalEndpointsTestCase.tests_if_a_valid_request_with_no_changes_sets_all_weights_to_50",
+            ],
+            "django": true,
+            "justMyCode": false,
+        },
+        {
             "name": "Django CMD: load_initial_data",
             "type": "python",
             "request": "launch",

@@ -57,10 +57,13 @@ class CreateGoalModelViewSet(
     serializer_class = GoalSerializer
     queryset = Goal.objects.all()
 
-    def perform_create(self, serializer):
-        product = get_object_or_404(
+    def get_product(self):
+        return get_object_or_404(
             Product,
             id=self.kwargs['product_pk'],
             organization_id=self.kwargs['organization_pk'],
         )
+
+    def perform_create(self, serializer):
+        product = self.get_product()
         serializer.save(product=product)

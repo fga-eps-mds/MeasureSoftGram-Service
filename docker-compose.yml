@@ -26,7 +26,6 @@ services:
       dockerfile: ./docker/service.Dockerfile
     command: ["./start_service.sh"]
     networks:
-      - measuresoftgram
       - msg-service-network
     ports:
       - "8080:80" # Main port
@@ -42,10 +41,6 @@ services:
 
 
 networks:
-  # Bridge used to talk with `core` service
-  measuresoftgram:
-    external: true
-
   # Bridge used to `service` talk to the right postgres `db` service
   msg-service-network:
     name: msg-service-network
