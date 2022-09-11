@@ -89,7 +89,11 @@ class GoalSerializer(serializers.ModelSerializer):
         valid_format=True,
         raise_exception=False,
     ):
-        view = self.context['view']
+        view = self.context.get('view', None)
+
+        if not view:
+            return True
+
         product = view.get_product()
         current_goal = product.goals.first()
 
