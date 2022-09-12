@@ -37,7 +37,9 @@ ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'https://measuresoftgram.herokuapp.com',
+    'http://measuresoftgram.herokuapp.com',
     'https://stg-measuresoftgram.herokuapp.com',
+    'http://stg-measuresoftgram.herokuapp.com',
 ]
 
 
@@ -57,7 +59,6 @@ THIRD_PARTY_APPS = [
     'simple_history',
     'corsheaders',
     'debug_toolbar',
-    'corsheaders',
 ]
 
 APPLICATION_APPS = [
@@ -91,7 +92,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
 ]
 
