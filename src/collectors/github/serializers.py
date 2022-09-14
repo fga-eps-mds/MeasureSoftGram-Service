@@ -41,14 +41,14 @@ class GithubCollectorParamsSerializer(serializers.Serializer):
     issues_metrics_x_days = serializers.IntegerField(required=False)
     pipeline_metrics_x_days = serializers.IntegerField(required=False)
 
-    bug_label = serializers.CharField(
-        max_length=50,
-        required=False,
-        help_text=(
-            'Label used to identify a bug in the given repository.'
-            'For example: BUG'
-        )
-    )
+    # bug_label = serializers.CharField(
+    #     max_length=50,
+    #     required=False,
+    #     help_text=(
+    #         'Label used to identify a bug in the given repository.'
+    #         'For example: BUG'
+    #     )
+    # )
 
     user_story_label = serializers.CharField(
         max_length=50,
@@ -110,4 +110,4 @@ class GithubCollectorParamsSerializer(serializers.Serializer):
                 'supported_metrics': metrics_required_params,
             })
 
-        return
+        return attrs

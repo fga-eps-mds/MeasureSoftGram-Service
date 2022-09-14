@@ -12,7 +12,7 @@ from typing import Iterable, List
 import requests
 
 from utils import DateRange, chunkify
-from utils.decoratos import lru_cache_time
+from utils.decorators import lru_cache_time
 
 GITHUB_DATETIME_STR_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 GIT_API_URL = 'https://api.github.com/repos'
