@@ -127,7 +127,8 @@ class GithubMetricCollector:
             )
 
             # TODO: workflow_runs devia sempre está na response_json
-            if ('workflow_runs' not in response_json or
+            if (
+                'workflow_runs' not in response_json or
                 response_json['workflow_runs'] == []
             ):
                 break
