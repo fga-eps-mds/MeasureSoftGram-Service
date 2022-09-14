@@ -125,7 +125,11 @@ class GithubMetricCollector:
             response_json = self.request_git_api(
                 f'actions/runs?per_page=100&page={page}'
             )
-            if response_json['workflow_runs'] == []:
+
+            # TODO: workflow_runs devia sempre está na response_json
+            if ('workflow_runs' not in response_json or
+                response_json['workflow_runs'] == []
+            ):
                 break
 
             page += 1
