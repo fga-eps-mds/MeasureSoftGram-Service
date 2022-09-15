@@ -69,16 +69,15 @@ class Product(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if self.key:
-            return super().save(*args, **kwargs)
+        if not self.key:
+            self.key = slugify(self.name)
 
-        self.key = slugify(self.name)
-
-        if Product.objects.filter(key=self.key).exists():
-            random_num = uuid4().hex[:6]
-            self.key = f'{self.key}-{random_num}'
+            if Product.objects.filter(key=self.key).exists():
+                random_num = uuid4().hex[:6]
+                self.key = f'{self.key}-{random_num}'
 
         super().save(*args, **kwargs)
+
         PreConfig.objects.get_or_create(
             name='Default pre-config',
             data=staticfiles.DEFAULT_PRE_CONFIG,

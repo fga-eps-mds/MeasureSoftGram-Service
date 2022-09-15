@@ -15,7 +15,10 @@ class CurrentPreConfigModelViewSet(
     serializer_class = PreConfigSerializer
 
     def get_product(self):
-        return get_object_or_404(Product, id=self.kwargs['product_pk'])
+        return get_object_or_404(
+            Product,
+            id=self.kwargs['product_pk'],
+        )
 
     def list(self, request, *args, **kwargs):
         # first() == mais recente == pre configuração atual
@@ -33,7 +36,10 @@ class CreatePreConfigModelViewSet(
     queryset = PreConfig.objects.all()
 
     def get_product(self):
-        return get_object_or_404(Product, id=self.kwargs['product_pk'])
+        return get_object_or_404(
+            Product,
+            id=self.kwargs['product_pk'],
+        )
 
     def perform_create(self, serializer):
         product = self.get_product()

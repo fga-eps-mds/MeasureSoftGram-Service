@@ -3,8 +3,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 import utils
-from organizations.models import Repository
-from pre_configs.models import PreConfig
+from organizations.models import Product, Repository
 from subcharacteristics.models import (
     CalculatedSubCharacteristic,
     SupportedSubCharacteristic,
@@ -32,6 +31,13 @@ class CalculateSubCharacteristicViewSet(
             product__organization_id=self.kwargs['organization_pk'],
         )
 
+    def get_product(self):
+        return get_object_or_404(
+            Product,
+            id=self.kwargs['product_pk'],
+            organization_id=self.kwargs['organization_pk'],
+        )
+
     def create(self, request, *args, **kwargs):
         serializer = SubCharacteristicsCalculationsRequestSerializer(
             data=request.data
@@ -51,7 +57,8 @@ class CalculateSubCharacteristicViewSet(
             'measures__calculated_measures',
         )
 
-        pre_config = PreConfig.objects.first()
+        product = self.get_product()
+        pre_config = product.pre_configs.first()
 
         # 3. get core json response
         core_params = {'subcharacteristics': []}

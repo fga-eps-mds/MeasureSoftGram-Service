@@ -7,6 +7,7 @@ Isso é:
 """
 from rest_framework import mixins, viewsets
 from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
 
 from characteristics.models import SupportedCharacteristic
 from entity_trees.serializers import (
@@ -14,6 +15,7 @@ from entity_trees.serializers import (
     pre_config_to_entity_tree,
 )
 from pre_configs.models import PreConfig
+from organizations.models import Product
 
 
 class SupportedEntitiesRelationshipTreeViewSet(
@@ -51,7 +53,15 @@ class PreConfigEntitiesRelationshipTreeViewSet(
     serializer_class = CharacteristicEntityRelationshipTreeSerializer
     queryset = SupportedCharacteristic.objects.all()
 
+    def get_product(self):
+        return get_object_or_404(
+            Product,
+            id=self.kwargs['product_pk'],
+            organization_id=self.kwargs['organization_pk'],
+        )
+
     def list(self, request, *args, **kwargs):
-        current_pre_config = PreConfig.objects.first()
+        product = self.get_product()
+        current_pre_config = product.pre_configs.first()
         entity_tree = pre_config_to_entity_tree(current_pre_config)
         return Response(entity_tree)

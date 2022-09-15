@@ -9,7 +9,7 @@ from characteristics.serializers import (
     LatestCalculatedCharacteristicSerializer,
     SupportedCharacteristicSerializer,
 )
-from organizations.models import Repository
+from organizations.models import Product, Repository
 from pre_configs.models import PreConfig
 from utils.clients import CoreClient
 from utils.exceptions import SubCharacteristicNotDefinedInPreConfiguration
@@ -28,6 +28,13 @@ class CalculateCharacteristicViewSet(
             id=self.kwargs['repository_pk'],
             product_id=self.kwargs['product_pk'],
             product__organization_id=self.kwargs['organization_pk'],
+        )
+
+    def get_product(self):
+        return get_object_or_404(
+            Product,
+            id=self.kwargs['product_pk'],
+            organization_id=self.kwargs['organization_pk'],
         )
 
     def create(self, request, *args, **kwargs):
@@ -51,7 +58,8 @@ class CalculateCharacteristicViewSet(
         )
 
         # 3. Create Core request
-        pre_config = PreConfig.objects.first()
+        product = self.get_product()
+        pre_config = product.pre_configs.first()
 
         core_params = {'characteristics': []}
 

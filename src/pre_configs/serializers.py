@@ -35,7 +35,14 @@ class PreConfigSerializer(serializers.ModelSerializer):
             PreConfig.validate_characteristics(data)
             PreConfig.validate_characteristics_subcharacteristics_relation(data)
             PreConfig.validate_characteristics_weights(data)
-            PreConfig.is_different_than_the_current_preconfig(data)
+
+            product = self.context['view'].get_product()
+            current_preconfig = product.pre_configs.first()
+
+            PreConfig.is_different_than_the_current_preconfig(
+                data,
+                current_preconfig,
+            )
 
         except InvalidPreConfigException as exc:
             raise serializers.ValidationError(exc) from exc

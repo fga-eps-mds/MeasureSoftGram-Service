@@ -318,12 +318,13 @@ class PreConfig(models.Model):
             raise InvalidPreConfigException("The sum of weights of characteristics is not 100")
 
     @staticmethod
-    def is_different_than_the_current_preconfig(data: dict):
+    def is_different_than_the_current_preconfig(
+       data: dict,
+       current_preconfig,
+    ):
         """
         Verifica se a pré-configuração é diferente da pré-configuração atual
         """
-        current_preconfig = PreConfig.objects.first()
-
         if current_preconfig.data == data:
             raise InvalidPreConfigException((
                 "It is not allowed to create a new "
