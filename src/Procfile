@@ -1,2 +1,2 @@
 release: ./scripts/post_compile.sh
-web: gunicorn config.wsgi --timeout 600
+web: gunicorn config.wsgi --timeout 6000
