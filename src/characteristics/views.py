@@ -86,7 +86,6 @@ class CalculateCharacteristicViewSet(
         if response.ok is False:
             return Response(response.content, status=response.status_code)
 
-
         data = response.json()
 
         calculated_values = {

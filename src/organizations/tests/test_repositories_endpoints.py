@@ -188,10 +188,17 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         self.assertEqual(repository.key, 'racao-backend')
 
     def get_repository_urls(self, url_group):
-        org = self.get_organization()
-        product = self.get_product(org)
-        repository = self.get_repository(product)
-        url = reverse('repository-detail', args=[org.id, product.id, repository.id])
+        self.org = self.get_organization()
+        self.product = self.get_product(self.org)
+        self.repository = self.get_repository(self.product)
+        url = reverse(
+            'repository-detail',
+            args=[
+                self.org.id,
+                self.product.id,
+                self.repository.id
+            ],
+        )
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, 200)
         data = response.json()
@@ -287,10 +294,9 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     def test_if_calculate_subcharacteristics_action_url_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate subcharacteristics']
-        keys = [
-            {'key': subcharacteristic.key}
-            for subcharacteristic in SupportedSubCharacteristic.objects.all()
-        ]
+        pre_config = self.product.pre_configs.first()
+        qs = pre_config.get_subcharacteristics_qs()
+        keys = [{'key': subcharacteristic.key} for subcharacteristic in qs]
         data = {'subcharacteristics': keys}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
@@ -302,10 +308,9 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     def test_if_calculate_characteristics_action_url_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate characteristics']
-        keys = [
-            {'key': characteristic.key}
-            for characteristic in SupportedCharacteristic.objects.all()
-        ]
+        pre_config = self.product.pre_configs.first()
+        qs = pre_config.get_characteristics_qs()
+        keys = [{'key': characteristic.key} for characteristic in qs]
         data = {'characteristics': keys}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
