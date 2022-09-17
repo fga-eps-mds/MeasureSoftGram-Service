@@ -85,7 +85,7 @@ class UtilsMethodAndFunctionsTestCase(TestCase):
             'BOOL': bool,
             'STRING': float,
             'DATA': int,
-            'WORK_DIR': int,
+            'WORK_DUR': int,
             'DISTRIB': int,
             'RATING': int,
             'LEVEL': bool,

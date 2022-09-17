@@ -91,7 +91,7 @@ def get_random_value(metric_type): # noqa: max-complexity: 13
     if metric_type == 'DATA':
         return random.randint(0, 100)
 
-    if metric_type == 'WORK_DIR':
+    if metric_type == 'WORK_DUR':
         return random.randint(0, 100)
 
     if metric_type == 'DISTRIB':
@@ -110,7 +110,7 @@ def get_random_value(metric_type): # noqa: max-complexity: 13
         return datetime.timestamp()
 
     raise exceptions.RandomMetricTypeException(
-        'Metric type not supported'
+        f'Metric type not supported: {metric_type}'
     )
 
 
