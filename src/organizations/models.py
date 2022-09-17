@@ -30,9 +30,9 @@ class Organization(models.Model):
         if not self.key:
             self.key = slugify(self.name)
 
-            if Organization.objects.filter(key=self.key).exists():
-                random_num = uuid4().hex[:6]
-                self.key = f'{self.key}-{random_num}'
+            # if Organization.objects.filter(key=self.key).exists():
+            #     random_num = uuid4().hex[:6]
+            #     self.key = f'{self.key}-{random_num}'
 
         return super().save(*args, **kwargs)
 
@@ -72,9 +72,9 @@ class Product(models.Model):
         if not self.key:
             self.key = slugify(self.name)
 
-            if Product.objects.filter(key=self.key).exists():
-                random_num = uuid4().hex[:6]
-                self.key = f'{self.key}-{random_num}'
+            # if Product.objects.filter(key=self.key).exists():
+            #     random_num = uuid4().hex[:6]
+            #     self.key = f'{self.key}-{random_num}'
 
         super().save(*args, **kwargs)
 
