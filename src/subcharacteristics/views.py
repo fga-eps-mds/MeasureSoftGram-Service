@@ -43,7 +43,9 @@ class CalculateSubCharacteristicViewSet(
             data=request.data
         )
         serializer.is_valid(raise_exception=True)
+
         data = serializer.validated_data
+        created_at = data['created_at']
 
         # 2. get queryset
         subcharacteristics_keys = [
@@ -104,6 +106,7 @@ class CalculateSubCharacteristicViewSet(
                     subcharacteristic=subchar,
                     value=value,
                     repository=repository,
+                    created_at=created_at,
                 )
             )
 

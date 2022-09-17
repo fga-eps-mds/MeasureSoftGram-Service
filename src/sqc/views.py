@@ -5,9 +5,8 @@ from rest_framework.response import Response
 from measures.models import SupportedMeasure
 from metrics.models import SupportedMetric
 from organizations.models import Repository
-from pre_configs.models import PreConfig
 from sqc.models import SQC
-from sqc.serializers import SQCSerializer
+from sqc.serializers import SQCCalculationRequestSerializer, SQCSerializer
 from utils.clients import CoreClient
 
 
@@ -79,6 +78,13 @@ class CalculateSQC(
         )
 
     def create(self, request, *args, **kwargs):
+        serializer = SQCCalculationRequestSerializer(
+            data=request.data,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        created_at = serializer.validated_data['created_at']
+
         repository: Repository = self.get_repository()
         pre_config = repository.product.pre_configs.first()
 
@@ -135,7 +141,11 @@ class CalculateSQC(
 
         data = response.json()
 
-        sqc = SQC.objects.create(repository=repository, value=data['value'])
+        sqc = SQC.objects.create(
+            repository=repository,
+            value=data['value'],
+            created_at=created_at,
+        )
 
         serializer = SQCSerializer(sqc)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

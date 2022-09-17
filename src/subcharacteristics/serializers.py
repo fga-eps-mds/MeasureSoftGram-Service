@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils import timezone
 from rest_framework import serializers
 
 import utils
@@ -105,6 +106,8 @@ class SubCharacteristicsCalculationsRequestSerializer(
         child=SubCharacteristicsCalculationRequestSerializer(),
         required=True,
     )
+
+    created_at = serializers.DateTimeField(default=timezone.now)
 
     def validate(self, attrs):
         """

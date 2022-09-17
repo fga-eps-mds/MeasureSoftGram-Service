@@ -1,5 +1,7 @@
+import datetime as dt
 from unittest import mock
 
+from django.utils import timezone
 from rest_framework.reverse import reverse
 
 from characteristics.models import SupportedCharacteristic
@@ -339,3 +341,106 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 400)
+
+    @mock.patch(
+        "utils.clients.core_service.CoreClient.calculate_sqc",
+        side_effect=Mocks.calculate_sqc,
+    )
+    def test_if_calculate_sqc_with_created_at_param_is_working(self, *a, **k):
+        actions_urls = self.get_repository_urls('actions')
+        url = actions_urls['calculate sqc']
+        created_at = timezone.now() - dt.timedelta(days=7)
+        data = {'created_at': created_at}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        data = response.json()
+        self.assertEqual(
+            data['created_at'][:10],
+            created_at.isoformat()[:10],
+        )
+
+        sqc = self.repository.calculated_sqcs.first()
+        self.assertEqual(
+            sqc.created_at.isoformat()[:10],
+            created_at.isoformat()[:10],
+        )
+
+    @mock.patch(
+        "utils.clients.core_service.CoreClient.calculate_measure",
+        side_effect=Mocks.calculate_measure,
+    )
+    def test_if_calculate_measures_with_created_at_param_is_working(self, *a, **k):
+        actions_urls = self.get_repository_urls('actions')
+        url = actions_urls['calculate measures']
+        measures_keys = [
+            {'key': measure.key}
+            for measure in SupportedMeasure.objects.all()
+        ]
+        created_at = timezone.now() - dt.timedelta(days=7)
+        data = {
+            'measures': measures_keys,
+            'created_at': created_at,
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        data = response.json()
+
+        for measure in data:
+            self.assertEqual(
+                measure['latest']['created_at'][:10],
+                created_at.isoformat()[:10],
+            )
+
+    @mock.patch(
+        "utils.clients.core_service.CoreClient.calculate_subcharacteristic",
+        side_effect=Mocks.calculate_subcharacteristic,
+    )
+    def test_if_calculate_subcharacteristics_with_created_at_param_is_working(self, *a, **k):
+        actions_urls = self.get_repository_urls('actions')
+        url = actions_urls['calculate subcharacteristics']
+        pre_config = self.product.pre_configs.first()
+        qs = pre_config.get_subcharacteristics_qs()
+        keys = [{'key': subcharacteristic.key} for subcharacteristic in qs]
+        created_at = timezone.now() - dt.timedelta(days=7)
+        data = {
+            'subcharacteristics': keys,
+            'created_at': created_at,
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        data = response.json()
+
+        for subcharacteristic in data:
+            self.assertEqual(
+                subcharacteristic['latest']['created_at'][:10],
+                created_at.isoformat()[:10],
+            )
+
+    @mock.patch(
+        "utils.clients.core_service.CoreClient.calculate_characteristic",
+        side_effect=Mocks.calculate_characteristic,
+    )
+    def test_if_calculate_characteristics_with_created_at_param_is_working(self, *a, **k):
+        actions_urls = self.get_repository_urls('actions')
+        url = actions_urls['calculate characteristics']
+        pre_config = self.product.pre_configs.first()
+        qs = pre_config.get_characteristics_qs()
+        keys = [{'key': characteristic.key} for characteristic in qs]
+        created_at = timezone.now() - dt.timedelta(days=7)
+        data = {
+            'characteristics': keys,
+            'created_at': created_at,
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        data = response.json()
+
+        for characteristic in data:
+            self.assertEqual(
+                characteristic['latest']['created_at'][:10],
+                created_at.isoformat()[:10],
+            )

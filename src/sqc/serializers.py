@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 
 from sqc.models import SQC
@@ -17,5 +18,8 @@ class SQCSerializer(serializers.ModelSerializer):
         read_only_fields = (
             'id',
             'value',
-            'created_at',
         )
+
+
+class SQCCalculationRequestSerializer(serializers.Serializer):
+    created_at = serializers.DateTimeField(default=timezone.now)

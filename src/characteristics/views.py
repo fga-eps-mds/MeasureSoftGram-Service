@@ -43,7 +43,9 @@ class CalculateCharacteristicViewSet(
             data=request.data
         )
         serializer.is_valid(raise_exception=True)
+
         data = serializer.validated_data
+        created_at = data['created_at']
 
         # 2. Get queryset
         characteristics_keys = [
@@ -106,6 +108,7 @@ class CalculateCharacteristicViewSet(
                     characteristic=characteristic,
                     value=value,
                     repository=repository,
+                    created_at=created_at,
                 )
             )
 

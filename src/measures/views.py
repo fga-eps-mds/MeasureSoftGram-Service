@@ -42,7 +42,9 @@ class CalculateMeasuresViewSet(
             context={"request": request},
         )
         serializer.is_valid(raise_exception=True)
+
         data = serializer.validated_data
+        created_at = data['created_at']
 
         # 2. Obtenção das medidas suportadas pelo serviço
         measure_keys = [measure['key'] for measure in data['measures']]
@@ -102,6 +104,7 @@ class CalculateMeasuresViewSet(
                     measure=measure,
                     value=value,
                     repository=repository,
+                    created_at=created_at,
                 )
             )
 
