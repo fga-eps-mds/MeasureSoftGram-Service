@@ -80,8 +80,17 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     def test_if_only_product_repositories_is_beign_listed(self):
         org1 = self.get_organization()
 
-        prod1 = self.get_product(org1)
-        prod2 = self.get_product(org1)
+        prod1 = self.get_product(
+            org1,
+            name="Test Product 1",
+            description="Test Product Description 1",
+        )
+
+        prod2 = self.get_product(
+            org1,
+            name="Test Product 2",
+            description="Test Product Description 2",
+        )
 
         self.get_repository(prod1, name="Test Repository 1")
         self.get_repository(prod1, name="Test Repository 2")
