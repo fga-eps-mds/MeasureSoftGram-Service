@@ -4,7 +4,6 @@ from organizations.management.commands.load_initial_data import (
     Command as LoadInitialDataCommand,
 )
 from organizations.models import Organization
-from utils import chunkify
 
 
 class APITestCaseExpanded(APITestCase):
@@ -78,17 +77,3 @@ class APITestCaseExpanded(APITestCase):
                     f"failed char is {c}"
                 ),
             )
-
-
-class UtilsModuleTestCase(APITestCase):
-    def test_chunkify(self):
-        l_100 = list(range(100))
-        self.assertEqual(
-            chunkify(l_100, 10),
-            [
-                tuple(range(10)), tuple(range(10, 20)), tuple(range(20, 30)),
-                tuple(range(30, 40)), tuple(range(40, 50)), tuple(range(50, 60)),
-                tuple(range(60, 70)), tuple(range(70, 80)), tuple(range(80, 90)),
-                tuple(range(90, 100)),
-            ],
-        )

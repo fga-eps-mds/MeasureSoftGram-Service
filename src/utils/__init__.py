@@ -91,7 +91,7 @@ def get_random_value(metric_type): # noqa: max-complexity: 13
     if metric_type == 'DATA':
         return random.randint(0, 100)
 
-    if metric_type == 'WORK_DUR':
+    if metric_type == 'WORK_DIR':
         return random.randint(0, 100)
 
     if metric_type == 'DISTRIB':
