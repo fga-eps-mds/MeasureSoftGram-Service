@@ -59,7 +59,7 @@ class APITestCaseExpanded(APITestCase):
             "changes": [
                 {"characteristic_key": "reliability", "delta": 1},
                 {"characteristic_key": "maintainability", "delta": 1},
-                {"characteristic_key": "functional_suitability", "delta": 1},
+                # {"characteristic_key": "functional_suitability", "delta": 1},
             ]
         }
 

@@ -49,9 +49,12 @@ class SupportedMeasure(models.Model):
 
         for supported_metric in self.metrics.all():
             key = supported_metric.key
-            metric_params[key] = supported_metric.get_latest_metric_value(
-                repository,
-            )
+            value = supported_metric.get_latest_metric_value(repository)
+
+            if value is None:
+                value = 0
+
+            metric_params[key] = value
 
         return metric_params
 

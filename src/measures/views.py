@@ -42,7 +42,9 @@ class CalculateMeasuresViewSet(
             context={"request": request},
         )
         serializer.is_valid(raise_exception=True)
+
         data = serializer.validated_data
+        created_at = data['created_at']
 
         # 2. Obtenção das medidas suportadas pelo serviço
         measure_keys = [measure['key'] for measure in data['measures']]
@@ -64,10 +66,11 @@ class CalculateMeasuresViewSet(
         for measure in qs:
             metric_params = measure.get_latest_metric_params(repository)
 
-            core_params['measures'].append({
-                'key': measure.key,
-                'parameters': metric_params,
-            })
+            if metric_params:
+                core_params['measures'].append({
+                    'key': measure.key,
+                    'parameters': metric_params,
+                })
 
         # 5. Solicitação do cáculo ao serviço core
         # TODO: Se alguma métrica ter sido recentemente
@@ -75,7 +78,7 @@ class CalculateMeasuresViewSet(
         response = CoreClient.calculate_measure(core_params)
 
         if response.ok is False:
-            return Response(response.json(), status=response.status_code)
+            return Response(response.content, status=response.status_code)
 
         data = response.json()
 
@@ -90,12 +93,18 @@ class CalculateMeasuresViewSet(
 
         measure: SupportedMeasure
         for measure in qs:
+
+            if measure.key not in calculated_values:
+                continue
+
             value = calculated_values[measure.key]
+
             calculated_measures.append(
                 CalculatedMeasure(
                     measure=measure,
                     value=value,
                     repository=repository,
+                    created_at=created_at,
                 )
             )
 
