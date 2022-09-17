@@ -341,3 +341,16 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         ]
         response = self.client.get(get_all_repositories_sqc_historical_values_url)
         self.assertEqual(response.status_code, 200)
+
+    def test_if_is_not_allowed_to_create_products_with_same_name(self):
+        org = self.get_organization()
+        url = reverse("product-list", args=[org.id])
+        data = {
+            "name": "Test Product",
+            "description": "Test Product Description",
+        }
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, 201)
+
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, 400)

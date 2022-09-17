@@ -319,3 +319,18 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         url = actions_urls['calculate sqc']
         response = self.client.post(url)
         self.assertEqual(response.status_code, 201)
+
+    def test_if_is_not_allowed_to_create_repositories_with_same_name(self):
+        data = {
+            'name': 'Test Repository',
+            'description': 'Test Repository Description',
+        }
+        org = self.get_organization()
+        product = self.get_product(org)
+        url = reverse('repository-list', args=[org.id, product.id])
+
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 400)

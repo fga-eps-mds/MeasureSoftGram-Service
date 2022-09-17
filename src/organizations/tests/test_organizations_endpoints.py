@@ -161,3 +161,17 @@ class OrganizationsViewsTestCase(APITestCaseExpanded):
 
         self.assertEqual(data["name"], "Test Product 2")
         self.assertEqual(data["description"], "Test Product Description 2")
+
+    def test_if_is_not_allowed_to_create_organizations_with_same_name(self):
+        url = reverse("organization-list")
+
+        data = {
+            "name": "Test Organization",
+            "description": "Test Organization Description",
+        }
+
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, 201)
+
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, 400)

@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from rest_framework.validators import UniqueValidator
 
 from organizations.models import Organization, Product, Repository
 from sqc.models import SQC
@@ -24,6 +25,14 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
         )
         extra_kwargs = {
             "key": {"read_only": True},
+            "name": {
+                "validators": [
+                    UniqueValidator(
+                        queryset=Organization.objects.all(),
+                        message="Organization with this name already exists.",
+                    )
+                ]
+            }
         }
 
     def get_products(self, obj: Organization):
@@ -85,6 +94,14 @@ class ProductSerializer(serializers.ModelSerializer):
         )
         extra_kwargs = {
             "key": {"read_only": True},
+            "name": {
+                "validators": [
+                    UniqueValidator(
+                        queryset=Product.objects.all(),
+                        message="Product with this name already exists.",
+                    )
+                ]
+            }
         }
 
     def get_url(self, obj):
@@ -200,6 +217,14 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         )
         extra_kwargs = {
             "key": {"read_only": True},
+            "name": {
+                "validators": [
+                    UniqueValidator(
+                        queryset=Repository.objects.all(),
+                        message="Repository with this name already exists.",
+                    )
+                ]
+            }
         }
 
     def get_url(self, obj: Repository):
