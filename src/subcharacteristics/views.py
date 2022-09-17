@@ -81,7 +81,7 @@ class CalculateSubCharacteristicViewSet(
         response = CoreClient.calculate_subcharacteristic(core_params)
 
         if response.ok is False:
-            return Response(response.json(), status=response.status_code)
+            return Response(response.content, status=response.status_code)
 
         data = response.json()
 
