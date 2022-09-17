@@ -127,9 +127,9 @@ class CalculatedCharacteristic(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
-        return (
-            f'Characteristic: {self.characteristic}, '
-            'Value: {self.value}, '
-            'Created at: {self.created_at}'
-        )
+    # def __str__(self):
+    #     return (
+    #         f'Characteristic: {self.characteristic}, '
+    #         f'Value: {self.value}, '
+    #         f'Created at: {self.created_at}'
+    #     )

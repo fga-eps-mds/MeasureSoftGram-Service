@@ -124,9 +124,9 @@ class CalculatedSubCharacteristic(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
-        return (
-            f'Subcharacteristic: {self.subcharacteristic}, '
-            f'Value: {self.value}, '
-            'Created at: {self.created_at}'
-        )
+    # def __str__(self):
+    #     return (
+    #         f'Subcharacteristic: {self.subcharacteristic}, '
+    #         f'Value: {self.value}, '
+    #         'Created at: {self.created_at}'
+    #     )

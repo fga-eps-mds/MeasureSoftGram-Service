@@ -175,8 +175,8 @@ class CollectedMetric(models.Model):
         on_delete=models.CASCADE,
     )
 
-    def __str__(self):
-        return (
-            f'Metric: {self.metric}, Value: {self.value}, '
-            f'Created at: {self.created_at}'
-        )
+    # def __str__(self):
+    #     return (
+    #         f'Metric: {self.metric}, Value: {self.value}, '
+    #         f'Created at: {self.created_at}'
+    #     )
