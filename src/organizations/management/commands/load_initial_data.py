@@ -417,6 +417,7 @@ class Command(BaseCommand):
         serializer = GoalSerializer(data=data)
 
         class MockView:
+            @staticmethod
             def get_product():
                 return product
 
