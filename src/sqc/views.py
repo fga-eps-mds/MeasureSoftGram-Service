@@ -107,9 +107,12 @@ class CalculateSQC(
                         len(value),
                     )
 
+                if value is None:
+                    value = 0
+
                 metrics_data.append({
                     'key': metric.key,
-                    'value': metric.get_latest_metric_value(repository),
+                    'value': value,
                     'measure_key': measure.key,
                 })
 
@@ -128,7 +131,7 @@ class CalculateSQC(
         response = CoreClient.calculate_sqc(core_params)
 
         if response.ok is False:
-            return Response(response.json(), status=response.status_code)
+            return Response(response.content, status=response.status_code)
 
         data = response.json()
 
