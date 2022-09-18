@@ -15,7 +15,7 @@
             ],
             "django": true,
             "env": {
-                "CORE_URL": "http://0.0.0.0:5000",
+                "CORE_URL": "http://core:5000",
                 "DEBUG": "True",
             },
             "justMyCode": false,

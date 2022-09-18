@@ -645,9 +645,9 @@ class Command(BaseCommand):
         self.create_suported_subcharacteristics()
         self.create_suported_characteristics()
 
-        self.create_fake_organizations()
-        self.create_fake_products()
-        self.create_fake_repositories()
+        # self.create_fake_organizations()
+        # self.create_fake_products()
+        # self.create_fake_repositories()
 
         # repositories = Repository.objects.all()
 

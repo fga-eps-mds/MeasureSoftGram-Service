@@ -455,7 +455,7 @@ class RepositoriesSQCHistorySerializer(serializers.ModelSerializer):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
 
         try:
-            qs = obj.calculated_sqcs.all()[:MAX]
+            qs = obj.calculated_sqcs.all().reverse()[:MAX]
             return SQCSerializer(qs, many=True).data
         except SQC.DoesNotExist:
             return None
