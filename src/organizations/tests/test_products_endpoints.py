@@ -166,8 +166,8 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
         key = response.json()["key"]
 
-        self.assertEqual(key, "produto-do-dagrao")
-        self.assertEqual(product.key, "produto-do-dagrao")
+        self.assertEqual(key, "test-organization-produto-do-dagrao")
+        self.assertEqual(product.key, "test-organization-produto-do-dagrao")
 
     def test_if_an_product_repositories_urls_list_is_returned(self):
         org = self.get_organization()

@@ -187,8 +187,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
         key = response.json()['key']
 
-        self.assertEqual(key, 'racao-backend')
-        self.assertEqual(repository.key, 'racao-backend')
+        self.assertEqual(key, 'test-organization-test-product-racao-backend')
+        self.assertEqual(repository.key, 'test-organization-test-product-racao-backend')
 
     def get_repository_urls(self, url_group):
         self.org = self.get_organization()
