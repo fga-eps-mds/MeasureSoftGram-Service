@@ -71,6 +71,7 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = slugify(self.name)
+            self.key = f'{self.organization.key}-{self.key}'
 
             # if Product.objects.filter(key=self.key).exists():
             #     random_num = uuid4().hex[:6]
@@ -110,6 +111,7 @@ class Repository(models.Model):
 
     def save(self, *args, **kwargs):
         self.key = slugify(self.name)
+        self.key = f'{self.product.key}-{self.key}'
         return super().save(*args, **kwargs)
 
     def __str__(self):

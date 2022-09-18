@@ -94,15 +94,23 @@ class ProductSerializer(serializers.ModelSerializer):
         )
         extra_kwargs = {
             "key": {"read_only": True},
-            "name": {
-                "validators": [
-                    UniqueValidator(
-                        queryset=Product.objects.all(),
-                        message="Product with this name already exists.",
-                    )
-                ]
-            }
         }
+
+    def validate(self, attrs):
+        """
+        Valida se o nome do produto é único para a organização
+        """
+        name = attrs["name"]
+        organization = self.context["view"].get_organization()
+
+        qs = Product.objects.filter(name=name, organization=organization)
+
+        if qs.exists():
+            raise serializers.ValidationError(
+                "Product with this name already exists."
+            )
+
+        return attrs
 
     def get_url(self, obj):
         """
@@ -217,15 +225,23 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         )
         extra_kwargs = {
             "key": {"read_only": True},
-            "name": {
-                "validators": [
-                    UniqueValidator(
-                        queryset=Repository.objects.all(),
-                        message="Repository with this name already exists.",
-                    )
-                ]
-            }
         }
+
+    def validate(self, attrs):
+        """
+        Valida se o nome do repositório é único para o produto
+        """
+        name = attrs["name"]
+        product = self.context["view"].get_product()
+
+        qs = Repository.objects.filter(name=name, product=product)
+
+        if qs.exists():
+            raise serializers.ValidationError(
+                "Repository with this name already exists."
+            )
+
+        return attrs
 
     def get_url(self, obj: Repository):
         """

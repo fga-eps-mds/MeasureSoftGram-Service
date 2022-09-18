@@ -1,5 +1,6 @@
 import datetime as dt
 from unittest import mock
+from zoneinfo import ZoneInfo
 
 from django.utils import timezone
 from rest_framework.reverse import reverse
@@ -349,7 +350,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     def test_if_calculate_sqc_with_created_at_param_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate sqc']
-        created_at = timezone.now() - dt.timedelta(days=7)
+        now = dt.datetime.now(ZoneInfo('America/Sao_Paulo'))
+        created_at = now - dt.timedelta(days=0)
         data = {'created_at': created_at}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
@@ -357,12 +359,6 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         data = response.json()
         self.assertEqual(
             data['created_at'][:10],
-            created_at.isoformat()[:10],
-        )
-
-        sqc = self.repository.calculated_sqcs.first()
-        self.assertEqual(
-            sqc.created_at.isoformat()[:10],
             created_at.isoformat()[:10],
         )
 
@@ -377,7 +373,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
             {'key': measure.key}
             for measure in SupportedMeasure.objects.all()
         ]
-        created_at = timezone.now() - dt.timedelta(days=7)
+        now = dt.datetime.now(ZoneInfo('America/Sao_Paulo'))
+        created_at = now - dt.timedelta(days=7)
         data = {
             'measures': measures_keys,
             'created_at': created_at,
@@ -403,7 +400,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         pre_config = self.product.pre_configs.first()
         qs = pre_config.get_subcharacteristics_qs()
         keys = [{'key': subcharacteristic.key} for subcharacteristic in qs]
-        created_at = timezone.now() - dt.timedelta(days=7)
+        now = dt.datetime.now(ZoneInfo('America/Sao_Paulo'))
+        created_at = now - dt.timedelta(days=7)
         data = {
             'subcharacteristics': keys,
             'created_at': created_at,
@@ -429,7 +427,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         pre_config = self.product.pre_configs.first()
         qs = pre_config.get_characteristics_qs()
         keys = [{'key': characteristic.key} for characteristic in qs]
-        created_at = timezone.now() - dt.timedelta(days=7)
+        now = dt.datetime.now(ZoneInfo('America/Sao_Paulo'))
+        created_at = now - dt.timedelta(days=7)
         data = {
             'characteristics': keys,
             'created_at': created_at,
