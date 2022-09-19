@@ -87,9 +87,9 @@ class OrganizationsViewsTestCase(APITestCaseExpanded):
         self.assertEqual(data['count'], 3)
         self.assertEqual(data['next'], None)
         self.assertEqual(data['previous'], None)
-        self.assertEqual(data['results'][2]['name'], "Test Organization 1")
+        self.assertEqual(data['results'][0]['name'], "Test Organization 1")
         self.assertEqual(data['results'][1]['name'], "Test Organization 2")
-        self.assertEqual(data['results'][0]['name'], "Test Organization 3")
+        self.assertEqual(data['results'][2]['name'], "Test Organization 3")
 
     def test_if_attribute_key_is_being_set(self):
         """

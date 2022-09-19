@@ -13,7 +13,7 @@ from organizations.serializers import (
 
 class OrganizationViewSet(viewsets.ModelViewSet):
     queryset = Organization.objects.all()\
-                                   .order_by('-id')\
+                                   .order_by('id')\
                                    .prefetch_related('products')
 
     serializer_class = OrganizationSerializer
