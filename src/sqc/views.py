@@ -60,7 +60,7 @@ class CalculatedSQCHistoryModelViewSet(
             product_id=self.kwargs['product_pk'],
             product__organization_id=self.kwargs['organization_pk'],
         )
-        return repository.calculated_sqcs.all()
+        return repository.calculated_sqcs.all().reverse()
 
 
 class CalculateSQC(

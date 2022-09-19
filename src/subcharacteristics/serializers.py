@@ -87,6 +87,7 @@ class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
 
             repository = self.context["view"].get_repository()
             qs = qs.filter(repository=repository)
+            qs = qs.reverse()
 
             return CalculatedSubCharacteristicSerializer(
                 qs[:MAX],

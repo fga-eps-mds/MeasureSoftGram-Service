@@ -160,7 +160,9 @@ class LatestCalculatedSubCharacteristicModelViewSet(
     """
     ViewSet para recuperar o último valor calculado da subcaracterística
     """
-    queryset = SupportedSubCharacteristic.objects.prefetch_related('calculated_subcharacteristics')
+    queryset = SupportedSubCharacteristic.objects.prefetch_related(
+        'calculated_subcharacteristics',
+    )
     serializer_class = LatestCalculatedSubCharacteristicSerializer
 
 
@@ -173,5 +175,7 @@ class CalculatedSubCharacteristicHistoryModelViewSet(
     """
     ViewSet para recuperar o histórico de subcaracterísticas calculadas
     """
-    queryset = SupportedSubCharacteristic.objects.prefetch_related('calculated_subcharacteristics')
+    queryset = SupportedSubCharacteristic.objects.prefetch_related(
+        'calculated_subcharacteristics',
+    )
     serializer_class = CalculatedSubCharacteristicHistorySerializer

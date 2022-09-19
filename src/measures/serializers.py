@@ -133,6 +133,7 @@ class CalculatedMeasureHistorySerializer(serializers.ModelSerializer):
 
             repository = self.context["view"].get_repository()
             qs = qs.filter(repository=repository)
+            qs = qs.reverse()
 
             return CalculatedMeasureSerializer(qs[:MAX], many=True).data
         except CalculatedMeasure.DoesNotExist:

@@ -101,6 +101,7 @@ class CollectedMetricHistorySerializer(serializers.ModelSerializer):
 
             repository = self.context["view"].get_repository()
             qs = qs.filter(repository=repository)
+            qs = qs.reverse()
 
             return CollectedMetricSerializer(qs[:MAX], many=True).data
 
