@@ -115,7 +115,11 @@ class CalculateSubCharacteristicViewSet(
         )
 
         # 5. Return data
-        serializer = LatestCalculatedSubCharacteristicSerializer(qs, many=True)
+        serializer = LatestCalculatedSubCharacteristicSerializer(
+            qs,
+            many=True,
+            context=self.get_serializer_context(),
+        )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -132,13 +136,16 @@ class SupportedSubCharacteristicModelViewSet(
 
 
 class RepositorySubCharacteristicMixin:
-    def get_queryset(self):
-        repository = get_object_or_404(
+    def get_repository(self):
+        return get_object_or_404(
             Repository,
             id=self.kwargs['repository_pk'],
             product_id=self.kwargs['product_pk'],
             product__organization_id=self.kwargs['organization_pk'],
         )
+
+    def get_queryset(self):
+        repository = self.get_repository()
         qs = repository.calculated_subcharacteristics.all()
         qs = qs.values_list('subcharacteristic', flat=True).distinct()
         return SupportedSubCharacteristic.objects.filter(id__in=qs)

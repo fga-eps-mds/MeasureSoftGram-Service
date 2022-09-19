@@ -15,7 +15,6 @@ class CollectedMetricSerializer(serializers.ModelSerializer):
     """
     Serializadora usada para o endpoint que recebe métricas coletadas.
     """
-
     metric_id = serializers.IntegerField(source='metric.id')
 
     class Meta:
@@ -69,7 +68,12 @@ class LatestCollectedMetricSerializer(serializers.ModelSerializer):
 
     def get_latest(self, obj: SupportedMetric):
         try:
-            latest = obj.collected_metrics.first()
+            repository = self.context["view"].get_repository()
+
+            latest = obj.collected_metrics.filter(
+                repository=repository
+            ).first()
+
             return CollectedMetricSerializer(latest).data
         except CollectedMetric.DoesNotExist:
             return None
@@ -90,9 +94,15 @@ class CollectedMetricHistorySerializer(serializers.ModelSerializer):
 
     def get_history(self, obj: SupportedMetric):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
+
         try:
             # Os últimos MAX registros criados em ordem decrescente
-            qs = obj.collected_metrics.all()[:MAX]
-            return CollectedMetricSerializer(qs, many=True).data
+            qs = obj.collected_metrics.all()
+
+            repository = self.context["view"].get_repository()
+            qs = qs.filter(repository=repository)
+
+            return CollectedMetricSerializer(qs[:MAX], many=True).data
+
         except SupportedMetric.DoesNotExist:
             return None

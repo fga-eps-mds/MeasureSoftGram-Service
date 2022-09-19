@@ -111,7 +111,11 @@ class CalculateMeasuresViewSet(
         CalculatedMeasure.objects.bulk_create(calculated_measures)
 
         # 7. Retornando o resultado
-        serializer = LatestMeasuresCalculationsRequestSerializer(qs, many=True)
+        serializer = LatestMeasuresCalculationsRequestSerializer(
+            qs,
+            many=True,
+            context=self.get_serializer_context(),
+        )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -128,13 +132,16 @@ class SupportedMeasureModelViewSet(
 
 
 class RepositoryMeasuresMixin:
-    def get_queryset(self):
-        repository = get_object_or_404(
+    def get_repository(self):
+        return get_object_or_404(
             Repository,
             id=self.kwargs['repository_pk'],
             product_id=self.kwargs['product_pk'],
             product__organization_id=self.kwargs['organization_pk'],
         )
+
+    def get_queryset(self):
+        repository = self.get_repository()
         qs = repository.calculated_measures.all()
         qs = qs.values_list('measure', flat=True).distinct()
         return SupportedMeasure.objects.filter(id__in=qs)

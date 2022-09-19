@@ -56,7 +56,12 @@ class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
 
     def get_latest(self, obj: SupportedSubCharacteristic):
         try:
-            latest = obj.calculated_subcharacteristics.first()
+            repository = self.context["view"].get_repository()
+
+            latest = obj.calculated_subcharacteristics.filter(
+                repository=repository
+            ).first()
+
             return CalculatedSubCharacteristicSerializer(latest).data
         except SupportedSubCharacteristic.DoesNotExist:
             return None
@@ -78,8 +83,15 @@ class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
     def get_history(self, obj: SupportedSubCharacteristic):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
         try:
-            qs = obj.calculated_subcharacteristics.all()[:MAX]
-            return CalculatedSubCharacteristicSerializer(qs, many=True).data
+            qs = obj.calculated_subcharacteristics.all()
+
+            repository = self.context["view"].get_repository()
+            qs = qs.filter(repository=repository)
+
+            return CalculatedSubCharacteristicSerializer(
+                qs[:MAX],
+                many=True,
+            ).data
         except CalculatedSubCharacteristic.DoesNotExist:
             return None
 

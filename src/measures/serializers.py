@@ -101,7 +101,12 @@ class LatestMeasuresCalculationsRequestSerializer(serializers.ModelSerializer):
 
     def get_latest(self, obj: SupportedMeasure):
         try:
-            latest = obj.calculated_measures.first()
+            repository = self.context["view"].get_repository()
+
+            latest = obj.calculated_measures.filter(
+                repository=repository
+            ).first()
+
             return CalculatedMeasureSerializer(latest).data
         except CalculatedMeasure.DoesNotExist:
             return None
@@ -124,7 +129,11 @@ class CalculatedMeasureHistorySerializer(serializers.ModelSerializer):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
         try:
             # Os últimos 10 registros criados em ordem decrescente
-            qs = obj.calculated_measures.all()[:MAX]
-            return CalculatedMeasureSerializer(qs, many=True).data
+            qs = obj.calculated_measures.all()
+
+            repository = self.context["view"].get_repository()
+            qs = qs.filter(repository=repository)
+
+            return CalculatedMeasureSerializer(qs[:MAX], many=True).data
         except CalculatedMeasure.DoesNotExist:
             return None

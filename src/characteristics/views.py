@@ -115,7 +115,11 @@ class CalculateCharacteristicViewSet(
         CalculatedCharacteristic.objects.bulk_create(calculated_characteristics)
 
         # 6. Retornando o resultado
-        serializer = LatestCalculatedCharacteristicSerializer(qs, many=True)
+        serializer = LatestCalculatedCharacteristicSerializer(
+            qs,
+            many=True,
+            context=self.get_serializer_context(),
+        )
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -132,13 +136,17 @@ class SupportedCharacteristicModelViewSet(
 
 
 class RepositoryCharacteristicMixin:
-    def get_queryset(self):
-        repository = get_object_or_404(
+
+    def get_repository(self):
+        return get_object_or_404(
             Repository,
             id=self.kwargs['repository_pk'],
             product_id=self.kwargs['product_pk'],
             product__organization_id=self.kwargs['organization_pk'],
         )
+
+    def get_queryset(self):
+        repository = self.get_repository()
         qs = repository.calculated_characteristics.all()
         qs = qs.values_list('characteristic', flat=True).distinct()
         return SupportedCharacteristic.objects.filter(id__in=qs)

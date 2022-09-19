@@ -53,7 +53,12 @@ class LatestCalculatedCharacteristicSerializer(serializers.ModelSerializer):
 
     def get_latest(self, obj: SupportedCharacteristic):
         try:
-            latest = obj.calculated_characteristics.first()
+            repository = self.context["view"].get_repository()
+
+            latest = obj.calculated_characteristics.filter(
+                repository=repository
+            ).first()
+
             return CalculatedCharacteristicSerializer(latest).data
         except SupportedCharacteristic.DoesNotExist:
             return None
@@ -74,9 +79,18 @@ class CalculatedCharacteristicHistorySerializer(serializers.ModelSerializer):
 
     def get_history(self, obj: SupportedCharacteristic):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
+
         try:
-            qs = obj.calculated_characteristics.all()[:MAX]
-            return CalculatedCharacteristicSerializer(qs, many=True).data
+            qs = obj.calculated_characteristics.all()
+
+            repository = self.context["view"].get_repository()
+            qs = qs.filter(repository=repository)
+
+            return CalculatedCharacteristicSerializer(
+                qs[:MAX],
+                many=True,
+            ).data
+
         except CalculatedCharacteristic.DoesNotExist:
             return None
 
