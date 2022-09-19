@@ -5,7 +5,10 @@ name: Docker image deploy
 
 on:
   push:
-    branches: [ "develop", [dm][ea][vi][!o]* ]
+    branches: [main, develop]
+
+  pull_request:
+    branches: [main, develop]
 
 jobs:
   docker:
