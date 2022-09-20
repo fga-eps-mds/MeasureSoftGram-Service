@@ -55,6 +55,8 @@ jobs:
       - name: Análise de cobertura de testes
         run: |
           pip install coverage==6.4.2
+          ls
+          pwd
           coverage run -m pytest src --junitxml=./src/reports/junit.xml
           coverage xml -o src/reports/coverage.xml
 
