@@ -55,10 +55,15 @@ jobs:
       - name: Análise de cobertura de testes
         run: |
           pip install coverage==6.4.2
-          ls
-          pwd
           coverage run -m pytest src --junitxml=./src/reports/junit.xml
           coverage xml -o src/reports/coverage.xml
+
+      # sed -i 's/\/home\/runner\/work\/2022-1-MeasureSoftGram-Service\/2022-1-MeasureSoftGram-Service/\/github\/workspace\//g' src/reports/coverage.xml
+      - name: fix reports paths
+        if: always()
+        run: |
+          sed -i 's/<source>\/home\/runner\/work\/2022-1-MeasureSoftGram-Service\/2022-1-MeasureSoftGram-Service<\/source>/<source>\/github\/workspace<\/source>/g' src/reports/coverage.xml
+          sed -i 's/classname="/classname="src./' src/reports/junit.xml
 
       # Análise da base de código
       - name: SonarCloud Scan
@@ -67,12 +72,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      # sed -i 's/\/home\/runner\/work\/2022-1-MeasureSoftGram-Service\/2022-1-MeasureSoftGram-Service/\/github\/workspace\//g' src/reports/coverage.xml
-      - name: fix code coverage paths
-        if: always()
-        run: |
-          sed -i 's/<source>\/home\/runner\/work\/2022-1-MeasureSoftGram-Service\/2022-1-MeasureSoftGram-Service<\/source>/<source>\/github\/workspace<\/source>/g' src/reports/coverage.xml
 
       - name: Upload coverage to Codecov
         if: always()
