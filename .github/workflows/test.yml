@@ -1,6 +1,10 @@
-name: Run Tests
+name: Rodar Testes
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
 
 jobs:
   build:
@@ -19,69 +23,43 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@master
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@master
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.10.5
-          cache: pip
+          python-version: "3.10"
 
-      # caching dependency will make our build faster.
-      - name: Cache dependency
-        uses: actions/cache@master
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      - name: Instalar requirements
+        run: pip install -r requirements.txt
 
-      # - name: Install tox
-      #   run: pip install tox
+      - name: Instalar tox
+        run: pip install tox
 
-      # - name: Run tests
-      #   run: tox -- --cov=src --cov-report=xml --junitxml=junittest.xml
+      - name: Rodar testes
+        run: tox
 
-      - name: Install requirements
-        run: pip install -r src/requirements.txt
-
-      - name: Run Migrations
-        run: python src/manage.py migrate
-
-      # coverage report --fail-under=50
-      - name: Análise de cobertura de testes
+      - name: Rodar Migrations
         run: |
-          pip install coverage==6.4.2
-          coverage run -m pytest src --junitxml=./src/reports/junit.xml
-          coverage xml -o src/reports/coverage.xml
+          python src/manage.py migrate
+          python src/manage.py makemigrations --check --dry-run
 
-      # sed -i 's/\/home\/runner\/work\/2022-1-MeasureSoftGram-Service\/2022-1-MeasureSoftGram-Service/\/github\/workspace\//g' src/reports/coverage.xml
-      - name: fix reports paths
-        if: always()
-        run: |
-          sed -i 's/<source>\/home\/runner\/work\/2022-1-MeasureSoftGram-Service\/2022-1-MeasureSoftGram-Service<\/source>/<source>\/github\/workspace<\/source>/g' src/reports/coverage.xml
-          sed -i 's/classname="/classname="src./' src/reports/junit.xml
-
-      # Análise da base de código
-      - name: SonarCloud Scan
-        if: always()
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: Scanner do SonarCloud
+        uses: SonarSource/sonarcloud-github-action@v1.8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Upload coverage to Codecov
-        if: always()
-        uses: codecov/codecov-action@master
+      - name: Envia cobertura para o Codecov
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./
           env_vars: OS,PYTHON
           fail_ci_if_error: true
-          files: ./src/reports/coverage.xml
+          files: ./coverage.xml
           flags: unittests
-          name: 2022-1-MeasureSoftGram-Service
+          name: 2022-2-MeasureSoftGram-Service
           verbose: true
