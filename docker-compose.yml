@@ -23,7 +23,7 @@ services:
     restart: on-failure
     build:
       context: .
-      dockerfile: ./docker/service.Dockerfile
+      dockerfile: ./Dockerfile
     command: ["./start_service.sh"]
     networks:
       - msg-service-network
