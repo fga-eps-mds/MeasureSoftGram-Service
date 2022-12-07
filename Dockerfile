@@ -6,8 +6,7 @@ EXPOSE 80
 EXPOSE 8181
 
 RUN mkdir /src
-COPY src /src
-COPY requirements.txt /src
 WORKDIR /src
+COPY src requirements.txt /src/
 
 RUN pip install -r requirements.txt
