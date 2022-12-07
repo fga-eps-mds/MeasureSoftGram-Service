@@ -256,6 +256,7 @@ urlpatterns = [
     path('api/v1/', include(org_router.urls)),
     path('api/v1/', include(prod_router.urls)),
     path('api/v1/', include(repo_router.urls)),
+    path('api/v1/', include('allauth.urls')),
 ]
 
 if settings.DEBUG:
