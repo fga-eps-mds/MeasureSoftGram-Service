@@ -636,7 +636,7 @@ class Command(BaseCommand):
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
                 username=os.getenv('SUPERADMIN_USERNAME', 'admin'),
-                email=os.getenv('SUPERADMIN_EMAIL', '"admin@admin.com"'),
+                email=os.getenv('SUPERADMIN_EMAIL', 'admin@admin.com'),
                 password=os.getenv('SUPERADMIN_PASSWORD', 'admin'),
             )
 
