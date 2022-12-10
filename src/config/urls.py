@@ -259,7 +259,7 @@ urlpatterns = [
     path('api/v1/', include(prod_router.urls)),
     path('api/v1/', include(repo_router.urls)),
     path('api/v1/', include(accounts_urls.urlpatterns))
-] 
+]
 
 if settings.DEBUG:
     urlpatterns.append(path('__debug__/', include('debug_toolbar.urls')))

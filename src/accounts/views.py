@@ -43,6 +43,12 @@ class LoginViewSet(
     queryset = CustomUser.objects.all()
     serializer_class = AccountsLoginSerializer
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        resultado = serializer.save()
+        return Response({'key': resultado.key}, status=status.HTTP_200_OK)
+
 
 class LogoutViewSet(
     mixins.DestroyModelMixin,

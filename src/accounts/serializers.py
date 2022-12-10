@@ -38,7 +38,6 @@ class AccountsLoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=False)
     password = serializers.CharField(required=True)
 
-
     def validate(self, attrs):
         attrs = super().validate(attrs)
         if not attrs.get('username') and not attrs.get('email'):
@@ -48,7 +47,7 @@ class AccountsLoginSerializer(serializers.Serializer):
 
         username_or_email = 'email' if attrs.get('email') else 'username'
         kwargs = {username_or_email: attrs[username_or_email]}
-        
+
         try:
             self.user = CustomUser.objects.get(**kwargs)
         except ObjectDoesNotExist:
@@ -59,11 +58,6 @@ class AccountsLoginSerializer(serializers.Serializer):
 
         return attrs
 
-    def create(self, validated_data):
+    def save(self):
         self.token, _ = Token.objects.get_or_create(user=self.user)
         return self.token
-
-    def to_representation(self, validated_data):
-        return {
-            'key': self.token.key
-        }

@@ -39,7 +39,7 @@ jobs:
         run: pip install tox
 
       - name: Rodar testes
-        run: tox
+        run: tox -- src/
 
       - name: Rodar Migrations
         run: |
