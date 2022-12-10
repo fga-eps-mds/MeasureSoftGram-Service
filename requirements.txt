@@ -20,3 +20,4 @@ django-debug-toolbar==3.5.0
 parameterized~=0.8.1
 tox==3.27.1
 django-allauth==0.51.0
+dj-rest-auth==2.2.5

@@ -57,9 +57,13 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework.authtoken',
     'simple_history',
     'corsheaders',
     'debug_toolbar',
+
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
 
     'allauth',
     'allauth.account',
@@ -199,15 +203,34 @@ django_heroku.settings(locals())
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 500,
-    'DEFAULT_PARSER_CLASSES': (
-        'rest_framework.parsers.JSONParser',
+    "DEFAULT_PARSER_CLASSES": (
+        "rest_framework.parsers.JSONParser",
     )
 }
 
 # allauth related configs
 SITE_ID = int(os.getenv("SITE_ID", "1"))
 
+UNIQUE_EMAIL = False
+ACCOUNT_EMAIL_VERIFICATION = "none"
+
 LOGIN_REDIRECT_URL = os.getenv("LOGIN_REDIRECT_URL", "127.0.0.1:8080")
+
+SOCIALACCOUNT_PROVIDERS = {
+    "github": {
+        "APP": {
+            "client_id": os.getenv("GITHUB_CLIENT_ID", ""),
+            "secret": os.getenv("GITHUB_SECRET", "")
+        },
+        "SCOPE": [
+            "read:user",
+            "user:email",
+            "read:project",
+            "read:org",
+            "repo"
+        ],
+    }
+}
 
 CREATE_FAKE_DATA = os.getenv(
     "CREATE_FAKE_DATA", "False"
