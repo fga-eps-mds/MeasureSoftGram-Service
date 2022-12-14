@@ -1,3 +1,5 @@
+from allauth.socialaccount.models import SocialAccount
+
 from django.contrib.auth import get_user_model
 
 from rest_framework.reverse import reverse
@@ -116,3 +118,43 @@ class AccountsViews(APITestCaseExpanded):
 
         self.assertEqual(response.status_code, 400, response.json())
         self.assertIn('Invalid username/email or password', response.json()['non_field_errors'])
+
+    def test_retrieve_account(self):
+        url = reverse('accounts-retrieve')
+        self.client.force_login(self.user)
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, 200, response.json())
+        fields = ('username', 'first_name', 'last_name', 'email')
+        for field in fields:
+            with self.subTest(field=field):
+                self.assertEqual(getattr(self.user, field), response.json()[field])
+
+    def test_retrieve_accounts_via_github(self):
+        url = reverse('accounts-retrieve')
+
+        extra_data = {
+            'avatar_url': 'https://avatars.githubusercontent.com/u/teste?v=4',
+            'organizations_url': 'https://api.github.com/users/test/orgs',
+            'repos_url': 'https://api.github.com/users/test/repos',
+        }
+        
+        socialaccount = SocialAccount.objects.create(user=self.user, extra_data=extra_data)
+
+        self.client.force_login(self.user)
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, 200, response.json())
+        fields = ('avatar_url', 'repos_url', 'organizations_url')
+        for field in fields:
+            with self.subTest(field=field):
+                self.assertEqual(socialaccount.extra_data[field], response.json()[field])
+
+    def test_fail_retrieve_account_anonymous(self):
+        url = reverse('accounts-retrieve')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, 403, response.json())
+        self.assertIn(
+            'Authentication credentials were not provided.',
+            response.json()['detail']
+        )
