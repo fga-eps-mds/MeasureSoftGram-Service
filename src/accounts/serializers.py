@@ -32,6 +32,38 @@ class AccountsCreateSerializer(serializers.ModelSerializer):
             'key': self.token.key
         }
 
+class AccountsRetrieveSerializer(serializers.ModelSerializer):
+    avatar_url = serializers.SerializerMethodField()
+    repos_url = serializers.SerializerMethodField()
+    organizations_url = serializers.SerializerMethodField()
+    class Meta:
+        model = CustomUser
+        fields = (
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'avatar_url',
+            'repos_url',
+            'organizations_url'
+        )
+
+    @property
+    def socialaccount(self):
+        if self.instance.socialaccount_set.exists():
+            return self.instance.socialaccount_set.first()
+
+    def get_avatar_url(self, obj):
+        if self.socialaccount:
+            return self.socialaccount.extra_data['avatar_url']
+
+    def get_repos_url(self, obj):
+        if self.socialaccount:
+            return self.socialaccount.extra_data['repos_url']
+
+    def get_organizations_url(self, obj):
+        if self.socialaccount:
+            return self.socialaccount.extra_data['organizations_url']
 
 class AccountsLoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=False, max_length=150)
