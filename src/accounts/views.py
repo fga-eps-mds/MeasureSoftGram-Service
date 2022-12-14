@@ -10,7 +10,10 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
 
 from accounts.models import CustomUser
-from accounts.serializers import AccountsCreateSerializer, AccountsLoginSerializer
+from accounts.serializers import (
+    AccountsCreateSerializer, AccountsLoginSerializer,
+    AccountsRetrieveSerializer
+)
 
 
 class GithubLoginViewSet(SocialLoginView):
@@ -32,7 +35,20 @@ class CreateAccountViewSet(
     queryset = CustomUser.objects.all()
     serializer_class = AccountsCreateSerializer
 
+class RetrieveAccountViewSet(
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+):
+    """
+    ViewSet para recuperar informações de conta
+    """
+    permission_classes = (IsAuthenticated,)
 
+    serializer_class = AccountsRetrieveSerializer
+
+    def get_object(self):
+        return self.request.user
+     
 class LoginViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet
@@ -46,8 +62,8 @@ class LoginViewSet(
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        resultado = serializer.save()
-        return Response({'key': resultado.key}, status=status.HTTP_200_OK)
+        result = serializer.save()
+        return Response({'key': result.key}, status=status.HTTP_200_OK)
 
 
 class LogoutViewSet(
