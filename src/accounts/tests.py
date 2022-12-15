@@ -138,7 +138,7 @@ class AccountsViews(APITestCaseExpanded):
             'organizations_url': 'https://api.github.com/users/test/orgs',
             'repos_url': 'https://api.github.com/users/test/repos',
         }
-        
+
         socialaccount = SocialAccount.objects.create(user=self.user, extra_data=extra_data)
 
         self.client.force_login(self.user)

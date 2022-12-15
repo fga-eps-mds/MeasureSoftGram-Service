@@ -35,6 +35,7 @@ class CreateAccountViewSet(
     queryset = CustomUser.objects.all()
     serializer_class = AccountsCreateSerializer
 
+
 class RetrieveAccountViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet
@@ -48,7 +49,8 @@ class RetrieveAccountViewSet(
 
     def get_object(self):
         return self.request.user
-     
+
+
 class LoginViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet
