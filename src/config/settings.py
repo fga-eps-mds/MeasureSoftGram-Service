@@ -205,6 +205,9 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 500,
     "DEFAULT_PARSER_CLASSES": (
         "rest_framework.parsers.JSONParser",
+    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.TokenAuthentication",
     )
 }
 

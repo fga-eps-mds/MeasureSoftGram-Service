@@ -45,7 +45,7 @@ class AccountsViews(APITestCaseExpanded):
     def test_fail_logout_without_authentication(self):
         url = reverse('accounts-logout')
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_create_new_account(self):
         url = reverse('accounts-signin')
@@ -121,7 +121,7 @@ class AccountsViews(APITestCaseExpanded):
 
     def test_retrieve_account(self):
         url = reverse('accounts-retrieve')
-        self.client.force_login(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + Token.objects.create(user=self.user).key)
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, 200, response.json())
@@ -141,7 +141,7 @@ class AccountsViews(APITestCaseExpanded):
 
         socialaccount = SocialAccount.objects.create(user=self.user, extra_data=extra_data)
 
-        self.client.force_login(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + Token.objects.create(user=self.user).key)
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, 200, response.json())
@@ -153,7 +153,7 @@ class AccountsViews(APITestCaseExpanded):
     def test_fail_retrieve_account_anonymous(self):
         url = reverse('accounts-retrieve')
         response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, 403, response.json())
+        self.assertEqual(response.status_code, 401, response.json())
         self.assertIn(
             'Authentication credentials were not provided.',
             response.json()['detail']
