@@ -17,7 +17,7 @@ from entity_trees.views import (
     PreConfigEntitiesRelationshipTreeViewSet,
     SupportedEntitiesRelationshipTreeViewSet,
 )
-from goals.views import CreateGoalModelViewSet, CurrentGoalModelViewSet
+from goals.views import CreateGoalModelViewSet, CurrentGoalModelViewSet, CompareGoalsModelViewSet
 from measures.views import (
     CalculatedMeasureHistoryModelViewSet,
     CalculateMeasuresViewSet,
@@ -180,6 +180,12 @@ def register_goals_endpoints(router):
         'create/goal',
         CreateGoalModelViewSet,
         basename='create-goal',
+    )
+
+    router.register(
+        'all/goal',
+        CompareGoalsModelViewSet,
+        basename='all-goal',
     )
 
 

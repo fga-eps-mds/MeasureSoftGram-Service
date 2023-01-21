@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from characteristics.models import CalculatedCharacteristic
 from goals.models import Equalizer, Goal
 from pre_configs.models import PreConfig
 
@@ -14,6 +15,36 @@ class CharacteristicDeltaSerializer(serializers.Serializer):
     """
     characteristic_key = serializers.CharField(max_length=255)
     delta = serializers.IntegerField()
+
+
+class AllGoalsSerializer(serializers.ModelSerializer):
+    goal = serializers.SerializerMethodField()
+    accomplished = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Goal
+        fields = (
+            'release_name',
+            'start_at',
+            'end_at',
+            'goal',
+            'accomplished'
+        )
+
+    def get_goal(self, obj):
+        return obj.data
+
+    def get_accomplished(self, obj):
+        # FIXME: Estamos pegando apenas as 2 primeiras, pois o mesmo
+        # produto pode ter várias características calculadas
+        chars = CalculatedCharacteristic.objects.filter(
+            repository__product=obj.product,
+            created_at__gte=obj.start_at,
+            created_at__lte=obj.end_at
+        ).values(
+            'characteristic__key', 'value'
+        ).order_by('characteristic__id').distinct('characteristic__id')
+        return {char['characteristic__key']: char['value'] for char in chars}
 
 
 class GoalSerializer(serializers.ModelSerializer):
