@@ -24,6 +24,7 @@ class AllGoalsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
         fields = (
+            'id',
             'release_name',
             'start_at',
             'end_at',
