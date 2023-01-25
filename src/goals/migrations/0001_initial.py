@@ -22,6 +22,7 @@ class Migration(migrations.Migration):
                 ('start_at', models.DateTimeField()),
                 ('end_at', models.DateTimeField()),
                 ('release_name', models.CharField(max_length=255)),
+                ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,  to='accounts.customUser')),
                 ('data', models.JSONField()),
                 ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='goals', to='organizations.product')),
             ],

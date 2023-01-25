@@ -6,6 +6,7 @@ from rest_framework.reverse import reverse
 from goals.models import Goal
 from goals.serializers import GoalSerializer, AllGoalsSerializer
 from organizations.models import Product
+from accounts.models import CustomUser
 
 
 class CurrentGoalModelViewSet(
@@ -57,6 +58,10 @@ class CreateGoalModelViewSet(
     serializer_class = GoalSerializer
     queryset = Goal.objects.all()
 
+    def get_user(self):
+        queryset = CustomUser.objects.all()
+        return get_object_or_404(queryset, username=self.request.user)
+
     def get_product(self):
         return get_object_or_404(
             Product,
@@ -66,7 +71,8 @@ class CreateGoalModelViewSet(
 
     def perform_create(self, serializer):
         product = self.get_product()
-        serializer.save(product=product)
+        created_by = self.get_user()
+        serializer.save(product=product, created_by=created_by)
 
 
 class CompareGoalsModelViewSet(

@@ -27,6 +27,7 @@ class AllGoalsSerializer(serializers.ModelSerializer):
             'id',
             'release_name',
             'start_at',
+            'created_by',
             'end_at',
             'goal',
             'accomplished'
