@@ -107,7 +107,13 @@ class CompareGoalsModelViewSet(
             pk=kwargs["product_pk"],
             organization_id=kwargs["organization_pk"],
         )
-        all_goals = Goal.objects.filter(product=product)
+
+        created_by = get_object_or_404(
+            CustomUser,
+            username=self.request.user,
+        )
+
+        all_goals = Goal.objects.filter(product=product, created_by=created_by)
 
         if not all_goals:
             return self.this_product_does_not_have_a_goal_reponse(product)
