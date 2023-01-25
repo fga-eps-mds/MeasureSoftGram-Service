@@ -76,6 +76,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def test_if_create_goal_reject_invalid_jsons(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -90,6 +91,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_if_a_valid_request_with_no_changes_sets_all_weights_to_50(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": []
@@ -106,6 +108,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_if_a_valid_request_is_returned_values_according_to_the_correlation_matrix(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -135,6 +138,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_if_a_request_without_the_changes_key_is_refused(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
         }
@@ -146,6 +150,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_if_multiple_changes_to_the_same_entity_are_supported(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -183,6 +188,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_if_undoing_the_change_in_the_entity_goes_back_to_the_previous_weights(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -208,6 +214,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_whether_100_is_always_the_highest_possible_value_of_a_weight(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -233,6 +240,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def test_if_two_consecutives_requests_the_second_failure(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [

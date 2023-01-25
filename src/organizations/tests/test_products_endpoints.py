@@ -306,6 +306,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         actions, product = self.get_product_actions()
         product.goals.create(
             release_name='v1.0',
+            created_by='username',
             start_at='2020-01-01T00:00:00-03:00',
             end_at='2021-01-01T00:00:00-03:00',
             data={
