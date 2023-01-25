@@ -3,6 +3,7 @@ from rest_framework import serializers
 from characteristics.models import CalculatedCharacteristic
 from goals.models import Equalizer, Goal
 from pre_configs.models import PreConfig
+from accounts.models import CustomUser
 
 
 class CharacteristicDeltaSerializer(serializers.Serializer):
@@ -20,6 +21,7 @@ class CharacteristicDeltaSerializer(serializers.Serializer):
 class AllGoalsSerializer(serializers.ModelSerializer):
     goal = serializers.SerializerMethodField()
     accomplished = serializers.SerializerMethodField()
+    created_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Goal
@@ -32,6 +34,10 @@ class AllGoalsSerializer(serializers.ModelSerializer):
             'goal',
             'accomplished'
         )
+
+    def get_created_by(self, obj):
+        user = CustomUser.objects.get(id=obj.created_by.id)
+        return user.username
 
     def get_goal(self, obj):
         return obj.data
