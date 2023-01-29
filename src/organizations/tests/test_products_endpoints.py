@@ -1,9 +1,15 @@
 from typing import Dict
 
+from django.contrib.auth import get_user_model
+
 from rest_framework.reverse import reverse
+from rest_framework.authtoken.models import Token
 
 from organizations.models import Organization, Product
+
 from utils.tests import APITestCaseExpanded
+
+User = get_user_model()
 
 
 class ProductsViewsSetCase(APITestCaseExpanded):
@@ -226,6 +232,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         expected_actions = [
             "create a new repository",
             "get current goal",
+            "get compare all goals",
             "get current pre-config",
             "get pre-config entity relationship tree",
             "get all repositories latest sqcs",
@@ -278,6 +285,11 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         actions, product = self.get_product_actions()
         action_url = actions["create a new goal"]
         data = self.get_goal_data()
+
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + Token.objects.create(
+            user=User.objects.create(username='username', email='test_user@email.com')).key
+        )
+
         response = self.client.post(action_url, data, format="json")
         self.assertEqual(response.status_code, 201)
 
@@ -306,7 +318,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         actions, product = self.get_product_actions()
         product.goals.create(
             release_name='v1.0',
-            created_by='username',
+            created_by=User.objects.create(username='username', email='test_user@email.com'),
             start_at='2020-01-01T00:00:00-03:00',
             end_at='2021-01-01T00:00:00-03:00',
             data={

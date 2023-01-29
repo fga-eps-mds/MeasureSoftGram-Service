@@ -1,15 +1,25 @@
+from datetime import date, timedelta
+
 from urllib import request
 
 from django.core.management import call_command
+from django.contrib.auth import get_user_model
 from django.test import TestCase
+
 from rest_framework.reverse import reverse
+from rest_framework.authtoken.models import Token
 
 from organizations.management.commands.utils import (
     create_a_preconfig,
     create_suported_characteristics,
 )
 from organizations.models import Product, Repository
+
+from goals.models import Goal
+
 from utils.tests import APITestCaseExpanded
+
+User = get_user_model()
 
 
 class GoalEndpointsTestCase(APITestCaseExpanded):
@@ -47,6 +57,15 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
             characteristics_keys=characteristics_keys,
             product=self.product,
         )
+
+        self.user = User.objects.create(
+            username='username', first_name='test',
+            last_name='user', email='test_user@email.com'
+        )
+        self.password = 'testpass'
+        self.user.set_password(self.password)
+        self.user.save()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + Token.objects.create(user=self.user).key)
 
     def validate_goal_request(
         self,
@@ -263,3 +282,32 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
 
         self.validate_goal_request(request_data, 201, expected_data)
         self.validate_goal_request(request_data, 400, expected_data)
+
+    def test_list_all_goals_in_the_release(self):
+        url = reverse(
+            'all-goal-list',
+            args=[self.org.id, self.product.id],
+        )
+
+        for i in range(2):
+            Goal.objects.create(
+                created_at=date.today(),
+                start_at=date.today(),
+                end_at=date.today() + timedelta(days=7),
+                release_name=f'Test {i}',
+                created_by=self.user,
+                product=self.product,
+                data={
+                    'reliability': 53,
+                    'maintainability': 53,
+                    'functional_suitability': 53,
+                }
+            )
+
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
+
+        for i in range(2):
+            with self.subTest(release=i):
+                self.assertEqual(self.user.username, response.json()[i]['created_by'])

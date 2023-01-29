@@ -36,7 +36,6 @@ class CurrentGoalModelViewSet(
         return Response(data, status=status.HTTP_404_NOT_FOUND)
 
     def list(self, request, *args, **kwargs):
-        # first() == mais recente == goal atual
         product = get_object_or_404(
             Product,
             pk=kwargs["product_pk"],
