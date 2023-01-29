@@ -9,12 +9,12 @@ from organizations.models import Product
 from accounts.models import CustomUser
 
 
-class CurrentGoalModelViewSet(
+class GoalModelViewSetMixin(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = Goal.objects.all()
-    serializer_class = GoalSerializer
+    serializer_args = {}
 
     def this_product_does_not_have_a_goal_reponse(self, product):
         create_a_new_goal_url = reverse(
@@ -41,13 +41,28 @@ class CurrentGoalModelViewSet(
             pk=kwargs["product_pk"],
             organization_id=kwargs["organization_pk"],
         )
-        latest_goal = Goal.objects.filter(product=product).first()
+        latest_goal = self.get_goals(product)
 
         if not latest_goal:
             return self.this_product_does_not_have_a_goal_reponse(product)
 
-        serializer = GoalSerializer(latest_goal)
+        serializer = self.serializer_class(latest_goal, **self.serializer_args)
         return Response(serializer.data, status.HTTP_200_OK)
+
+
+class CurrentGoalModelViewSet(GoalModelViewSetMixin):
+    serializer_class = GoalSerializer
+
+    def get_goals(self, product):
+        return Goal.objects.filter(product=product).first()
+
+
+class CompareGoalsModelViewSet(GoalModelViewSetMixin):
+    serializer_class = AllGoalsSerializer
+    serializer_args = {"many": True}
+
+    def get_goals(self, product):
+        return Goal.objects.filter(product=product)
 
 
 class CreateGoalModelViewSet(
@@ -72,45 +87,3 @@ class CreateGoalModelViewSet(
         product = self.get_product()
         created_by = self.get_user()
         serializer.save(product=product, created_by=created_by)
-
-
-class CompareGoalsModelViewSet(
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet,
-):
-    queryset = Goal.objects.all()
-    serializer_class = GoalSerializer
-
-    def this_product_does_not_have_a_goal_reponse(self, product):
-        create_a_new_goal_url = reverse(
-            'create-goal-list',
-            kwargs={
-                "product_pk": product.id,
-                "organization_pk": product.organization.id,
-            },
-            request=self.request,
-        )
-
-        data = {
-            'detail': 'This product does not have a goal.',
-            'actions': {
-                'create a new goal': create_a_new_goal_url,
-            }
-        }
-
-        return Response(data, status=status.HTTP_404_NOT_FOUND)
-
-    def list(self, request, *args, **kwargs):
-        product = get_object_or_404(
-            Product,
-            pk=kwargs["product_pk"],
-            organization_id=kwargs["organization_pk"],
-        )
-
-        all_goals = Goal.objects.filter(product=product)
-
-        if not all_goals:
-            return self.this_product_does_not_have_a_goal_reponse(product)
-
-        serializer = AllGoalsSerializer(all_goals, many=True)
-        return Response(serializer.data, status.HTTP_200_OK)
