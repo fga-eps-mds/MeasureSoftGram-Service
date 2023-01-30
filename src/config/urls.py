@@ -17,7 +17,13 @@ from entity_trees.views import (
     PreConfigEntitiesRelationshipTreeViewSet,
     SupportedEntitiesRelationshipTreeViewSet,
 )
-from goals.views import CreateGoalModelViewSet, CurrentGoalModelViewSet, CompareGoalsModelViewSet
+
+from goals.views import (
+    CreateGoalModelViewSet,
+    CurrentGoalModelViewSet,
+    CompareGoalsModelViewSet,
+    ReleaseListModelViewSet
+)
 from measures.views import (
     CalculatedMeasureHistoryModelViewSet,
     CalculateMeasuresViewSet,
@@ -188,6 +194,12 @@ def register_goals_endpoints(router):
         basename='all-goal',
     )
 
+    router.register(
+        'release',
+        ReleaseListModelViewSet,
+        basename='release-list',
+    )
+
 
 def register_preconfigs_endpoints(router):
     router.register(
@@ -264,7 +276,7 @@ urlpatterns = [
     path('api/v1/', include(org_router.urls)),
     path('api/v1/', include(prod_router.urls)),
     path('api/v1/', include(repo_router.urls)),
-    path('api/v1/', include(accounts_urls.urlpatterns))
+    path('api/v1/', include(accounts_urls.urlpatterns)),
 ]
 
 if settings.DEBUG:

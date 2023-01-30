@@ -55,6 +55,22 @@ class AllGoalsSerializer(serializers.ModelSerializer):
         return {char['characteristic__key']: char['value'] for char in chars}
 
 
+class ReleasesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Goal
+        fields = (
+            'id',
+            'release_name',
+            'start_at',
+            'created_by',
+            'end_at',
+        )
+
+    def get_releases(self, obj):
+        return obj.data
+
+
 class GoalSerializer(serializers.ModelSerializer):
     """
     Serializadora usada para serializar um Goal (meta).
