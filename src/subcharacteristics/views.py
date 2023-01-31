@@ -1,19 +1,16 @@
+import utils
+from organizations.models import Product, Repository
+from resources import calculate_subcharacteristics
 from rest_framework import mixins, status, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-
-import utils
-from organizations.models import Product, Repository
-from subcharacteristics.models import (
-    CalculatedSubCharacteristic,
-    SupportedSubCharacteristic,
-)
+from subcharacteristics.models import (CalculatedSubCharacteristic,
+                                       SupportedSubCharacteristic)
 from subcharacteristics.serializers import (
     CalculatedSubCharacteristicHistorySerializer,
     LatestCalculatedSubCharacteristicSerializer,
     SubCharacteristicsCalculationsRequestSerializer,
-    SupportedSubCharacteristicSerializer,
-)
+    SupportedSubCharacteristicSerializer)
 from utils.clients import CoreClient
 
 
@@ -80,12 +77,14 @@ class CalculateSubCharacteristicViewSet(
                 'key': subchar.key,
                 'measures': measure_params,
             })
-        response = CoreClient.calculate_subcharacteristic(core_params)
 
-        if response.ok is False:
-            return Response(response.content, status=response.status_code)
+        calculate_response = calculate_subcharacteristics(core_params)
 
-        data = response.json()
+        if calculate_response.get('code'):
+            status_code = calculate_response.pop('code')
+            return calculate_response(calculate_response, status=status_code)
+
+        data = calculate_response
 
         # 4. Save data
         calculated_values = {
