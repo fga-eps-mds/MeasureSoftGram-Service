@@ -8,24 +8,18 @@ services:
   db:
     container_name: db
     image: postgres:latest
-    restart: on-failure
     ports:
       - "5432:5432"
     volumes:
       - service_postgres_data:/var/lib/postgresql/data
     env_file:
       - ./env-vars/.postgres.env
-    networks:
-      - msg-service-network
 
   service:
     container_name: service
-    restart: on-failure
     build:
       context: .
     command: ["./start_service.sh"]
-    networks:
-      - msg-service-network
     ports:
       - "8080:80" # Main port
       - "8181:8181" # Debug port
@@ -37,11 +31,3 @@ services:
       - ./env-vars/.postgres.env
     depends_on:
       - db
-
-
-networks:
-  # Bridge used to `service` talk to the right postgres `db` service
-  msg-service-network:
-    name: msg-service-network
-    driver: bridge
-
