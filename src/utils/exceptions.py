@@ -38,5 +38,11 @@ class SubCharacteristicNotDefinedInPreConfiguration(
     pass
 
 
+class CharacteristicNotDefinedInPreConfiguration(
+    EntityNotDefinedInPreConfiguration
+):
+    pass
+
+
 class InvalidPreConfigException(ValueError):
     pass

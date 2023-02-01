@@ -108,13 +108,13 @@ class Command(BaseCommand):
             #         {"key": "runtime_sum_of_build_pipelines_in_the_last_x_days"},
             #     ],
             # },
-            {
-                "key": "team_throughput",
-                "metrics": [
-                    {"key": "number_of_resolved_issues_with_US_label_in_the_last_x_days"},
-                    {"key": "total_number_of_issues_with_US_label_in_the_last_x_days"},
-                ],
-            },
+            # {
+            #     "key": "team_throughput",
+            #     "metrics": [
+            #         {"key": "number_of_resolved_issues_with_US_label_in_the_last_x_days"},
+            #         {"key": "total_number_of_issues_with_US_label_in_the_last_x_days"},
+            #     ],
+            # },
         ]
         for measure_data in supported_measures:
             measure_key = measure_data["key"]
@@ -296,13 +296,13 @@ class Command(BaseCommand):
                     {"key": "passed_tests"},
                 ],
             },
-            {
-                "key": "functional_completeness",
-                "name": "Functional Completeness",
-                "measures": [
-                    {"key": "team_throughput"},
-                ],
-            },
+            # {
+            #     "key": "functional_completeness",
+            #     "name": "Functional Completeness",
+            #     "measures": [
+            #         {"key": "team_throughput"},
+            #     ],
+            # },
         ]
 
         for subcharacteristic in suported_subcharacteristics:
@@ -344,13 +344,13 @@ class Command(BaseCommand):
                     {"key": "modifiability"},
                 ]
             },
-            {
-                "key": "functional_suitability",
-                "name": "Functional Suitability",
-                "subcharacteristics": [
-                    {"key": "functional_completeness"},
-                ]
-            },
+            # {
+            #     "key": "functional_suitability",
+            #     "name": "Functional Suitability",
+            #     "subcharacteristics": [
+            #         {"key": "functional_completeness"},
+            #     ]
+            # },
         ]
         create_suported_characteristics(suported_characteristics)
 
