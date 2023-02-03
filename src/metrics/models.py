@@ -54,19 +54,23 @@ class SupportedMetric(models.Model):
             'comment_lines_density', 'duplicated_lines_density'
         }
 
+        uts_values: Set[str] = {'test_execution_time', 'tests'}
+
         if self.key in listed_values:
-            return self.get_latest_metric_values(repository)
+            return self.get_latest_metric_values(repository, qualifier='FIL')
+        elif self.key in uts_values:
+            return self.get_latest_metric_values(repository, qualifier='UTS')
+        elif self.key not in listed_values.union(uts_values):
+            latest_metric = self.collected_metrics.filter(
+                repository=repository,
+                qualifier='TRK',
+            ).first()
 
-        latest_metric = self.collected_metrics.filter(
-            repository=repository,
-        ).first()
-
-        if latest_metric:
-            return latest_metric.value
-
+            if latest_metric:
+                return latest_metric.value
         return None
 
-    def get_latest_metric_values(self, repository) -> list:
+    def get_latest_metric_values(self, repository, qualifier) -> list:
         """
         Função que recupera os valores mais recentes de uma métrica.
 
@@ -92,7 +96,7 @@ class SupportedMetric(models.Model):
 
             # Métrica de arquivos (inclusive de arquivos vazios)
             metrics_qs = self.collected_metrics.filter(
-                qualifier='FIL',
+                qualifier=qualifier,
                 created_at__gte=begin,
                 created_at__lte=end,
                 repository=repository,
@@ -105,7 +109,7 @@ class SupportedMetric(models.Model):
             qs = ncloc_metric.collected_metrics.filter(
                 created_at__gte=begin,
                 created_at__lte=end,
-                qualifier='FIL',
+                qualifier=qualifier,
                 value=0,
                 repository=repository,
             ).values_list('path', flat=True)

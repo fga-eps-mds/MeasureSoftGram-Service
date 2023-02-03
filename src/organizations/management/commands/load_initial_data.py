@@ -28,6 +28,7 @@ from subcharacteristics.models import (
     CalculatedSubCharacteristic,
     SupportedSubCharacteristic,
 )
+from staticfiles import SONARQUBE_SUPPORTED_MEASURES
 
 # Local Imports
 from utils import (
@@ -61,63 +62,8 @@ class Command(BaseCommand):
         Função que popula banco de dados com todas as medidas que são
         suportadas atualmente e as métricas que cada medida é dependente
         """
-        supported_measures = [
-            {
-                "key": "passed_tests",
-                "metrics": [
-                    {"key": "tests"},
-                    {"key": "test_failures"},
-                    {"key": "test_errors"},
-                ],
-            },
-            {
-                "key": "test_builds",
-                "metrics": [
-                    {"key": "test_execution_time"},
-                ],
-            },
-            {
-                "key": "test_coverage",
-                "metrics": [
-                    {"key": "coverage"},
-                ],
-            },
-            {
-                "key": "non_complex_file_density",
-                "metrics": [
-                    {"key": "functions"},
-                    {"key": "complexity"},
-                ],
-            },
-            {
-                "key": "commented_file_density",
-                "metrics": [
-                    {"key": "comment_lines_density"},
-                ],
-            },
-            {
-                "key": "duplication_absense",
-                "metrics": [
-                    {"key": "duplicated_lines_density"},
-                ],
-            },
-            # {
-            #     "key": "ci_feedback_time",
-            #     "metrics": [
-            #         {"key": "number_of_build_pipelines_in_the_last_x_days"},
-            #         {"key": "runtime_sum_of_build_pipelines_in_the_last_x_days"},
-            #     ],
-            # },
-            # {
-            #     "key": "team_throughput",
-            #     "metrics": [
-            #         {"key": "number_of_resolved_issues_with_US_label_in_the_last_x_days"},
-            #         {"key": "total_number_of_issues_with_US_label_in_the_last_x_days"},
-            #     ],
-            # },
-        ]
-        for measure_data in supported_measures:
-            measure_key = measure_data["key"]
+        for measure_data in SONARQUBE_SUPPORTED_MEASURES:
+            measure_key = list(measure_data.keys())[0]
             with contextlib.suppress(IntegrityError):
                 measure_name = utils.namefy(measure_key)
 
@@ -129,8 +75,8 @@ class Command(BaseCommand):
                 logger.info(f"Creating supported measure {measure_key}")
 
                 metrics_keys = {
-                    metric["key"]
-                    for metric in measure_data["metrics"]
+                    metric
+                    for metric in measure_data[measure_key]["metrics"]
                 }
 
                 metrics = SupportedMetric.objects.filter(
@@ -148,7 +94,7 @@ class Command(BaseCommand):
 
     def create_supported_metrics(self):
         self.create_sonarqube_supported_metrics()
-        self.create_github_supported_metrics()
+        # self.create_github_supported_metrics()
 
     def create_sonarqube_supported_metrics(self):
         sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'

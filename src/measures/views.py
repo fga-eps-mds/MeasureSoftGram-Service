@@ -1,15 +1,13 @@
+from measures.models import CalculatedMeasure, SupportedMeasure
+from measures.serializers import (CalculatedMeasureHistorySerializer,
+                                  LatestMeasuresCalculationsRequestSerializer,
+                                  MeasuresCalculationsRequestSerializer,
+                                  SupportedMeasureSerializer)
+from organizations.models import Repository
+from resources import calculate_measures
 from rest_framework import mixins, status, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-
-from measures.models import CalculatedMeasure, SupportedMeasure
-from measures.serializers import (
-    CalculatedMeasureHistorySerializer,
-    LatestMeasuresCalculationsRequestSerializer,
-    MeasuresCalculationsRequestSerializer,
-    SupportedMeasureSerializer,
-)
-from organizations.models import Repository
 from utils.clients import CoreClient
 
 
@@ -75,12 +73,13 @@ class CalculateMeasuresViewSet(
         # 5. Solicitação do cáculo ao serviço core
         # TODO: Se alguma métrica ter sido recentemente
         # calculada não recalculá-la
-        response = CoreClient.calculate_measure(core_params)
+        calculate_response = calculate_measures(core_params)
 
-        if response.ok is False:
-            return Response(response.content, status=response.status_code)
+        if calculate_response.get('code'):
+            status_code = calculate_response.pop('code')
+            return calculate_response(calculate_response, status=status_code)
 
-        data = response.json()
+        data = calculate_response
 
         calculated_values = {
             measure['key']: measure['value']
