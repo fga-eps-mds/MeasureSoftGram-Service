@@ -2,17 +2,17 @@
 
 ## Badges
 
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=bugs)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-1-MeasureSoftGram-Service&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-1-MeasureSoftGram-Service)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=bugs)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2022-2-MeasureSoftGram-Service&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2022-2-MeasureSoftGram-Service)
 
 
 ## O que é
@@ -102,7 +102,7 @@ Our services are available on [Docker Hub](https://hub.docker.com/):
 ### Wiki
 
 For more informations, you can see our wiki:
-- [Wiki](https://fga-eps-mds.github.io/2021-2-MeasureSoftGram-Doc/).
+- [Wiki](https://fga-eps-mds.github.io/2022-2-MeasureSoftGram-Doc/).
 
 ## Contribute
 
@@ -114,4 +114,4 @@ AGPL-3.0 License
 
 ## Documentation
 
-The documentation of this project can be accessed at this website: [Documentation](https://github.com/fga-eps-mds/2021-2-MeasureSoftGram-Doc).
+The documentation of this project can be accessed at this website: [Documentation](https://github.com/fga-eps-mds/2022-2-MeasureSoftGram-Doc).
