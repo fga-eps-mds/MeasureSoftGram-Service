@@ -18,3 +18,7 @@ pytest-cov==3.0.0
 pytest-django==4.5.2
 django-debug-toolbar==3.5.0
 parameterized~=0.8.1
+tox==3.27.1
+django-allauth==0.51.0
+dj-rest-auth==2.2.5
+msgram-core==1.0.0

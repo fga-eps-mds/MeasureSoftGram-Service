@@ -1,7 +1,6 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.validators import ASCIIUsernameValidator
-from django.contrib.postgres.fields import CICharField, CIEmailField
 from django.core.mail import send_mail
 from django.db import models
 from django.utils import timezone
@@ -17,7 +16,7 @@ class CustomUserManager(UserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username_validator = ASCIIUsernameValidator()
 
-    username = CICharField(
+    username = models.CharField(
         _("username"),
         max_length=150,
         unique=True,
@@ -45,7 +44,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         null=True,
     )
 
-    email = CIEmailField(
+    email = models.EmailField(
         _("email address"),
         unique=True,
         error_messages={
@@ -79,7 +78,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["email"]
 
     class Meta:
         verbose_name = _("user")

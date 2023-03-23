@@ -167,6 +167,10 @@ class ProductSerializer(serializers.ModelSerializer):
             obj, "current-goal-list"
         )
 
+        compare_goals_url = self.reverse_product_resource(
+            obj, "all-goal-list"
+        )
+
         create_a_new_goal_url = self.reverse_product_resource(
             obj, "create-goal-list"
         )
@@ -194,6 +198,7 @@ class ProductSerializer(serializers.ModelSerializer):
         return {
             'create a new repository': create_a_new_repository_url,
             'get current goal': current_goal_url,
+            'get compare all goals': compare_goals_url,
             'get current pre-config': current_pre_config_url,
             'get pre-config entity relationship tree': pre_config_entity_relationship_tree_url,
             'get all repositories latest sqcs': repositories_latest_sqcs_url,

@@ -2,7 +2,7 @@
 ignore = D203
 builtins = _
 max-line-length=119
-extend-ignore = E203, W503, F401, W504, W0511, C0116, C0103, C0304, C030
+extend-ignore = E203, W503, F401, W504
 statistics = True
 exclude =
     .git,

@@ -1,13 +1,14 @@
+from characteristics.models import SupportedCharacteristic
+from measures.models import SupportedMeasure
+from metrics.models import SupportedMetric
+from organizations.models import Product, Repository
+from resources import calculate_sqc
 from rest_framework import mixins, status, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-
-from measures.models import SupportedMeasure
-from metrics.models import SupportedMetric
-from organizations.models import Repository
 from sqc.models import SQC
 from sqc.serializers import SQCCalculationRequestSerializer, SQCSerializer
-from utils.clients import CoreClient
+from utils.exceptions import CharacteristicNotDefinedInPreConfiguration
 
 
 class LatestCalculatedSQCViewSet(
@@ -77,6 +78,13 @@ class CalculateSQC(
             product__organization_id=self.kwargs['organization_pk'],
         )
 
+    def get_product(self):
+        return get_object_or_404(
+            Product,
+            id=self.kwargs['product_pk'],
+            organization_id=self.kwargs['organization_pk'],
+        )
+
     def create(self, request, *args, **kwargs):
         serializer = SQCCalculationRequestSerializer(
             data=request.data,
@@ -88,58 +96,46 @@ class CalculateSQC(
         repository: Repository = self.get_repository()
         pre_config = repository.product.pre_configs.first()
 
-        qs = repository.calculated_measures.all()
-        measures_ids = set(qs.values_list('measure', flat=True).distinct())
+        product = self.get_product()
+        pre_config = product.pre_configs.first()
 
-        qs = SupportedMeasure.objects.filter(id__in=measures_ids)
-        qs = qs.prefetch_related(
-            'metrics',
-            'metrics__collected_metrics',
-        )
+        # 2. Get queryset
+        # TODO: Gambiarra, modelar model para nível acima
+        characteristics_keys = [
+            characteristic['key']
+            for characteristic in pre_config.data['characteristics']
+        ]
+        qs = SupportedCharacteristic.objects.filter(
+            key__in=characteristics_keys
+        ).prefetch_related(
+            'calculated_characteristics'
+        ).first()
 
-        metrics_data = []
-        smallest_list_size = None
-
-        for measure in qs:
-            metrics = measure.metrics.all()
-
-            metric: SupportedMetric
-            for metric in metrics:
-                value = metric.get_latest_metric_value(repository)
-
-                if isinstance(value, list):
-                    smallest_list_size = min(
-                        smallest_list_size or len(value),
-                        len(value),
-                    )
-
-                if value is None:
-                    value = 0
-
-                metrics_data.append({
-                    'key': metric.key,
-                    'value': value,
-                    'measure_key': measure.key,
-                })
-
-        # TODO: Isso é um workaround para o problema de
-        # métricas de uma medida com trabalhos diferentes
-        if smallest_list_size:
-            for metric in metrics_data:
-                if isinstance(metric['value'], list):
-                    metric['value'] = metric['value'][:smallest_list_size]
+        chars_params = []
+        try:
+            chars_params = qs.get_latest_characteristics_params(
+                pre_config,
+            )
+        except CharacteristicNotDefinedInPreConfiguration as exc:
+            return Response(
+                {'error': str(exc)},
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            )
 
         core_params = {
-            'pre_config': pre_config.data,
-            'metrics': metrics_data,
+            'sqc': {
+                'key': 'sqc',
+                'characteristics': chars_params,
+            }
         }
 
-        response = CoreClient.calculate_sqc(core_params)
+        calculate_response = calculate_sqc(core_params)
 
-        if response.ok is False:
-            return Response(response.content, status=response.status_code)
+        if calculate_response.get('code'):
+            status_code = calculate_response.pop('code')
+            return calculate_response(calculate_response, status=status_code)
 
-        data = response.json()
+        data = calculate_response['sqc'][0]
 
         sqc = SQC.objects.create(
             repository=repository,

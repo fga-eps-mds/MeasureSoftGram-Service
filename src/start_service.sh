@@ -19,10 +19,6 @@ s.close()
 END
 }
 
-# Dev only. Quando o desenvolvimento estiver pronto não é preciso instalar as dependências toda vez que o container subir
-echo '======= CHECKING FOR UNINSTALLED PKGs AND INSTALLING'
-pip install -r requirements.txt
-
 until function_postgres_ready; do
   >&2 echo "======= POSTGRES IS UNAVAILABLE, WAITING"
   sleep 1
@@ -32,7 +28,7 @@ echo "======= POSTGRES IS UP, CONNECTING"
 echo '======= RUNNING MIGRATIONS'
 python3 manage.py migrate
 
-# echo '======= PREPOPULATING THE DATABASE'
+echo '======= PREPOPULATING THE DATABASE'
 python3 manage.py load_initial_data
 
 echo '======= RUNNING SERVER'

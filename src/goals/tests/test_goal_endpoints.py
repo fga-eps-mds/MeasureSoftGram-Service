@@ -1,15 +1,25 @@
+from datetime import date, timedelta
+
 from urllib import request
 
 from django.core.management import call_command
+from django.contrib.auth import get_user_model
 from django.test import TestCase
+
 from rest_framework.reverse import reverse
+from rest_framework.authtoken.models import Token
 
 from organizations.management.commands.utils import (
     create_a_preconfig,
     create_suported_characteristics,
 )
 from organizations.models import Product, Repository
+
+from goals.models import Goal
+
 from utils.tests import APITestCaseExpanded
+
+User = get_user_model()
 
 
 class GoalEndpointsTestCase(APITestCaseExpanded):
@@ -48,6 +58,15 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
             product=self.product,
         )
 
+        self.user = User.objects.create(
+            username='username', first_name='test',
+            last_name='user', email='test_user@email.com'
+        )
+        self.password = 'testpass'
+        self.user.set_password(self.password)
+        self.user.save()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + Token.objects.create(user=self.user).key)
+
     def validate_goal_request(
         self,
         request_data,
@@ -76,6 +95,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def test_if_create_goal_reject_invalid_jsons(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -90,6 +110,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_if_a_valid_request_with_no_changes_sets_all_weights_to_50(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": []
@@ -106,6 +127,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_if_a_valid_request_is_returned_values_according_to_the_correlation_matrix(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -135,6 +157,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_if_a_request_without_the_changes_key_is_refused(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
         }
@@ -146,6 +169,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_if_multiple_changes_to_the_same_entity_are_supported(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -183,6 +207,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_if_undoing_the_change_in_the_entity_goes_back_to_the_previous_weights(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -208,6 +233,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def tests_whether_100_is_always_the_highest_possible_value_of_a_weight(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -233,6 +259,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def test_if_two_consecutives_requests_the_second_failure(self):
         request_data = {
             "release_name": "v1.0.0",
+            "created_by": "username",
             "start_at": "2022-08-19",
             "end_at": "2022-09-19",
             "changes": [
@@ -255,3 +282,32 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
 
         self.validate_goal_request(request_data, 201, expected_data)
         self.validate_goal_request(request_data, 400, expected_data)
+
+    def test_list_all_goals_in_the_release(self):
+        url = reverse(
+            'all-goal-list',
+            args=[self.org.id, self.product.id],
+        )
+
+        for i in range(2):
+            Goal.objects.create(
+                created_at=date.today(),
+                start_at=date.today(),
+                end_at=date.today() + timedelta(days=7),
+                release_name=f'Test {i}',
+                created_by=self.user,
+                product=self.product,
+                data={
+                    'reliability': 53,
+                    'maintainability': 53,
+                    'functional_suitability': 53,
+                }
+            )
+
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 2)
+
+        for i in range(2):
+            with self.subTest(release=i):
+                self.assertEqual(self.user.username, response.json()[i]['created_by'])

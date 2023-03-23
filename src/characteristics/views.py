@@ -1,16 +1,16 @@
-from rest_framework import mixins, status, viewsets
-from rest_framework.generics import get_object_or_404
-from rest_framework.response import Response
-
-from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
+from characteristics.models import (CalculatedCharacteristic,
+                                    SupportedCharacteristic)
 from characteristics.serializers import (
     CalculatedCharacteristicHistorySerializer,
     CharacteristicsCalculationsRequestSerializer,
     LatestCalculatedCharacteristicSerializer,
-    SupportedCharacteristicSerializer,
-)
+    SupportedCharacteristicSerializer)
 from organizations.models import Product, Repository
 from pre_configs.models import PreConfig
+from resources import calculate_characteristics
+from rest_framework import mixins, status, viewsets
+from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
 from utils.clients import CoreClient
 from utils.exceptions import SubCharacteristicNotDefinedInPreConfiguration
 
@@ -83,12 +83,13 @@ class CalculateCharacteristicViewSet(
                 'subcharacteristics': subchars_params,
             })
 
-        response = CoreClient.calculate_characteristic(core_params)
+        calculate_response = calculate_characteristics(core_params)
 
-        if response.ok is False:
-            return Response(response.content, status=response.status_code)
+        if calculate_response.get('code'):
+            status_code = calculate_response.pop('code')
+            return calculate_response(calculate_response, status=status_code)
 
-        data = response.json()
+        data = calculate_response
 
         calculated_values = {
             characteristic['key']: characteristic['value']

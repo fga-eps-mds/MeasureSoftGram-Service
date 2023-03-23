@@ -1,9 +1,8 @@
-from typing import Iterable, Set
-
-from django.db import models
-from django.utils import timezone
+from typing import Iterable, Set, Union
 
 import utils
+from django.db import models
+from django.utils import timezone
 from utils.managers import CacheManager
 
 
@@ -26,6 +25,42 @@ class SupportedCharacteristic(models.Model):
         related_name='related_characteristics',
         blank=True,
     )
+
+    def get_latest_characteristic_value(self) -> Union[float, None]:
+        """
+        Metodo que recupera o valor mais recente da característica
+        """
+        if latest_char := self.calculated_characteristics.first():
+            return latest_char.value
+        return None
+
+    def get_latest_characteristics_params(self, pre_config: dict) -> dict:
+        """
+        Função que recupera os valores mais recentes das características
+        que o sqc depende para ser calculada
+
+        TODO: - Melhorar a query para o banco de dados.
+              - Desconfio que aqui esteja rolando vários inner joins
+
+        raises:
+            utils.exceptions.CharacteristicNotDefinedInPreConfiguration:
+                Caso a uma características não esteja definida no pre_config
+        """
+        chars_params = []
+
+        for characteristic in self.__class__.objects.all():
+
+            key = characteristic.key
+            weight = pre_config.get_characteristic_weight(key)
+            value = characteristic.get_latest_characteristic_value()
+
+            chars_params.append({
+                "key": key,
+                "value": value,
+                "weight": weight,
+            })
+
+        return chars_params
 
     def get_latest_subcharacteristics_params(self, pre_config: dict) -> dict:
         """

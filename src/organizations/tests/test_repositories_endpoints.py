@@ -4,11 +4,17 @@ from zoneinfo import ZoneInfo
 
 from rest_framework.reverse import reverse
 
-from measures.models import SupportedMeasure
-from metrics.models import SupportedMetric
 from organizations.models import Repository
 from utils.mocks import Mocks
 from utils.tests import APITestCaseExpanded
+
+from metrics.models import (
+    SupportedMetric, CollectedMetric)
+from measures.models import CalculatedMeasure, SupportedMeasure
+from subcharacteristics.models import (
+    CalculatedSubCharacteristic, SupportedSubCharacteristic)
+from characteristics.models import (
+    SupportedCharacteristic, CalculatedCharacteristic)
 
 
 class RepositoriesViewsSetCase(APITestCaseExpanded):
@@ -272,13 +278,24 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
 
-    @mock.patch(
-        "utils.clients.core_service.CoreClient.calculate_measure",
-        side_effect=Mocks.calculate_measure,
-    )
     def test_if_calculate_measures_action_url_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate measures']
+
+        listed_values = [
+            'coverage', 'complexity', 'functions',
+            'comment_lines_density', 'duplicated_lines_density'
+        ]
+        uts_values = ['test_execution_time', 'tests']
+        trk_values = ['test_failures', 'test_errors']
+
+        for values, qualifier in zip([listed_values, uts_values, trk_values], ['FIL', 'UTS', 'TRK']):
+            for metric in SupportedMetric.objects.filter(key__in=values):
+                CollectedMetric.objects.create(
+                    value=0.1, metric=metric, repository=self.repository,
+                    qualifier=qualifier
+                )
+
         measures_keys = [
             {'key': measure.key}
             for measure in SupportedMeasure.objects.all()
@@ -287,41 +304,44 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
 
-    @mock.patch(
-        "utils.clients.core_service.CoreClient.calculate_subcharacteristic",
-        side_effect=Mocks.calculate_subcharacteristic,
-    )
     def test_if_calculate_subcharacteristics_action_url_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate subcharacteristics']
         pre_config = self.product.pre_configs.first()
         qs = pre_config.get_subcharacteristics_qs()
+
+        for measure in SupportedMeasure.objects.all():
+            CalculatedMeasure.objects.create(
+                value=0.1, measure=measure, repository=self.repository)
+
         keys = [{'key': subcharacteristic.key} for subcharacteristic in qs]
         data = {'subcharacteristics': keys}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
 
-    @mock.patch(
-        "utils.clients.core_service.CoreClient.calculate_characteristic",
-        side_effect=Mocks.calculate_characteristic,
-    )
     def test_if_calculate_characteristics_action_url_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate characteristics']
         pre_config = self.product.pre_configs.first()
         qs = pre_config.get_characteristics_qs()
+
+        for sub_char in SupportedSubCharacteristic.objects.all():
+            CalculatedSubCharacteristic.objects.create(
+                value=0.1, subcharacteristic=sub_char, repository=self.repository)
+
         keys = [{'key': characteristic.key} for characteristic in qs]
         data = {'characteristics': keys}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
 
-    @mock.patch(
-        "utils.clients.core_service.CoreClient.calculate_sqc",
-        side_effect=Mocks.calculate_sqc,
-    )
     def test_if_calculate_sqc_action_url_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate sqc']
+
+        for char in SupportedCharacteristic.objects.all():
+            CalculatedCharacteristic.objects.create(
+                value=0.1, characteristic=char, repository=self.repository)
+
         response = self.client.post(url)
         self.assertEqual(response.status_code, 201)
 
@@ -340,15 +360,16 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 400)
 
-    @mock.patch(
-        "utils.clients.core_service.CoreClient.calculate_sqc",
-        side_effect=Mocks.calculate_sqc,
-    )
     def test_if_calculate_sqc_with_created_at_param_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate sqc']
         now = dt.datetime.now(ZoneInfo('America/Sao_Paulo'))
         created_at = now - dt.timedelta(days=0)
+
+        for char in SupportedCharacteristic.objects.all():
+            CalculatedCharacteristic.objects.create(
+                value=0.1, characteristic=char, repository=self.repository)
+
         data = {'created_at': created_at}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
@@ -359,10 +380,6 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
             created_at.isoformat()[:10],
         )
 
-    @mock.patch(
-        "utils.clients.core_service.CoreClient.calculate_measure",
-        side_effect=Mocks.calculate_measure,
-    )
     def test_if_calculate_measures_with_created_at_param_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate measures']
@@ -372,6 +389,21 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         ]
         now = dt.datetime.now(ZoneInfo('America/Sao_Paulo'))
         created_at = now - dt.timedelta(days=7)
+
+        listed_values = [
+            'coverage', 'complexity', 'functions',
+            'comment_lines_density', 'duplicated_lines_density'
+        ]
+        uts_values = ['test_execution_time', 'tests']
+        trk_values = ['test_failures', 'test_errors']
+
+        for values, qualifier in zip([listed_values, uts_values, trk_values], ['FIL', 'UTS', 'TRK']):
+            for metric in SupportedMetric.objects.filter(key__in=values):
+                CollectedMetric.objects.create(
+                    value=0.1, metric=metric, repository=self.repository,
+                    qualifier=qualifier, created_at=created_at
+                )
+
         data = {
             'measures': measures_keys,
             'created_at': created_at,
@@ -387,10 +419,6 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
                 created_at.isoformat()[:10],
             )
 
-    @mock.patch(
-        "utils.clients.core_service.CoreClient.calculate_subcharacteristic",
-        side_effect=Mocks.calculate_subcharacteristic,
-    )
     def test_if_calculate_subcharacteristics_with_created_at_param_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate subcharacteristics']
@@ -399,6 +427,12 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         keys = [{'key': subcharacteristic.key} for subcharacteristic in qs]
         now = dt.datetime.now(ZoneInfo('America/Sao_Paulo'))
         created_at = now - dt.timedelta(days=7)
+
+        for measure in SupportedMeasure.objects.all():
+            CalculatedMeasure.objects.create(
+                value=0.1, measure=measure,
+                repository=self.repository, created_at=created_at)
+
         data = {
             'subcharacteristics': keys,
             'created_at': created_at,
@@ -414,10 +448,6 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
                 created_at.isoformat()[:10],
             )
 
-    @mock.patch(
-        "utils.clients.core_service.CoreClient.calculate_characteristic",
-        side_effect=Mocks.calculate_characteristic,
-    )
     def test_if_calculate_characteristics_with_created_at_param_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate characteristics']
@@ -426,6 +456,13 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         keys = [{'key': characteristic.key} for characteristic in qs]
         now = dt.datetime.now(ZoneInfo('America/Sao_Paulo'))
         created_at = now - dt.timedelta(days=7)
+
+        for sub_char in SupportedSubCharacteristic.objects.all():
+            CalculatedSubCharacteristic.objects.create(
+                value=0.1, subcharacteristic=sub_char,
+                repository=self.repository, created_at=created_at
+            )
+
         data = {
             'characteristics': keys,
             'created_at': created_at,
