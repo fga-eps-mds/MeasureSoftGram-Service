@@ -34,7 +34,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
 # Allowed origins on CORS
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    os.getenv("FRONTEND_URL"),
+    os.getenv("FRONTEND_URL", "https://measuresoft.herokuapp.com"),
 ]
 CORS_ALLOW_CREDENTIALS = True
 
