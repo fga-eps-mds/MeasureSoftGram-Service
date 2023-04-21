@@ -10,3 +10,9 @@ WORKDIR /src
 COPY src requirements.txt /src/
 
 RUN pip install -r requirements.txt
+
+# copy project
+COPY . .
+
+# collect static files
+RUN python manage.py collectstatic --noinput

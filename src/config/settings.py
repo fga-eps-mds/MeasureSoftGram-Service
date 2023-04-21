@@ -42,6 +42,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://stg-measuresoftgram.herokuapp.com',
 ]
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Application definition
 
@@ -103,6 +105,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # new
 ]
 
 ROOT_URLCONF = 'config.urls'
