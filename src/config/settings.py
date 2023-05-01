@@ -31,17 +31,16 @@ SECRET_KEY = os.getenv(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
 
-ALLOWED_HOSTS = ['*']
-
 # Allowed origins on CORS
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    'https://measuresoftgram.herokuapp.com',
-    'http://measuresoftgram.herokuapp.com',
-    'https://stg-measuresoftgram.herokuapp.com',
-    'http://stg-measuresoftgram.herokuapp.com',
+    os.getenv("FRONTEND_DEV_URL", "https://2023-1-measure-soft-gram-front-staging.vercel.app"),
+    os.getenv("FRONTEND_PROD_URL", "https://2023-1-measure-soft-gram-front.vercel.app"),
 ]
+CORS_ALLOW_CREDENTIALS = True
 
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Application definition
 
@@ -103,6 +102,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # new
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -181,9 +181,6 @@ TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 
 USE_TZ = True
-
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_CREDENTIALS = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
