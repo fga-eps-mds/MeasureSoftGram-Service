@@ -3,7 +3,7 @@ name: Deploy Service
 on:
     push:
         branches:
-            - hotfix/pipeline_deploy
+            - develop
 
 jobs:
     build:
