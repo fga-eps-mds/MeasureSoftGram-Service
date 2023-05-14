@@ -1,4 +1,4 @@
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, permissions
 from rest_framework.generics import get_object_or_404
 
 from metrics.models import CollectedMetric, SupportedMetric
@@ -23,6 +23,8 @@ class SupportedMetricModelViewSet(
 
 
 class RepositoryMetricsMixin:
+    permission_classes = [permissions.IsAuthenticated]
+
     def perform_create(self, serializer):
         repository = self.get_repository()
         serializer.save(repository=repository)
