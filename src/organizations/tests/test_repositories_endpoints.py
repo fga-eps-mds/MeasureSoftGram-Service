@@ -3,6 +3,7 @@ from unittest import mock
 from zoneinfo import ZoneInfo
 
 from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
 
 from organizations.models import Repository
 from utils.mocks import Mocks
@@ -18,6 +19,10 @@ from characteristics.models import (
 
 
 class RepositoriesViewsSetCase(APITestCaseExpanded):
+    def setUp(self):
+        self.user = self.get_or_create_test_user()
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
 
     def test_create_a_new_repository(self):
         data = {

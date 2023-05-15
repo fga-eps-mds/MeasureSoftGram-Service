@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework.reverse import reverse
 from rest_framework.authtoken.models import Token
+from rest_framework.test import APIClient
 
 from organizations.models import Organization, Product
 
@@ -13,7 +14,11 @@ User = get_user_model()
 
 
 class ProductsViewsSetCase(APITestCaseExpanded):
-
+    def setUp(self) -> None:
+        self.client = APIClient()
+        self.user = self.get_or_create_test_user()
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
+        
     def test_create_a_new_product(self):
         org = self.get_organization()
         url = reverse("product-list", args=[org.id])

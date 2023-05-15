@@ -1,10 +1,16 @@
+from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
 
 from organizations.models import Organization
 from utils.tests import APITestCaseExpanded
 
 
 class OrganizationsViewsTestCase(APITestCaseExpanded):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = self.get_or_create_test_user()
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
 
     def test_create_a_new_organization(self):
         url = reverse("organization-list")
