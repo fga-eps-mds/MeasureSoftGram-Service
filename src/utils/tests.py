@@ -84,8 +84,10 @@ class APITestCaseExpanded(APITestCase):
         """Método que retorna um usuário padrão para os testes"""
 
         maybe_user = {
-            'username':'test-user', 'first_name':'test',
-            'last_name':'user', 'email':'test_product_user@email.com'
+            'username': 'test-user',
+            'first_name': 'test',
+            'last_name': 'user',
+            'email': 'test_product_user@email.com'
         }
 
         check_user = get_user_model().objects.filter(email=maybe_user['email'])
@@ -93,4 +95,3 @@ class APITestCaseExpanded(APITestCase):
             return get_user_model().objects.create(**maybe_user)
 
         return check_user[0]
-
