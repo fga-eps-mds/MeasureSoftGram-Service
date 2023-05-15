@@ -22,7 +22,8 @@ from characteristics.models import SupportedCharacteristic, CalculatedCharacteri
 class PublicRepositoriesViewsSetCase(APITestCaseExpanded):
     def test_unauthenticated_not_allowed(self):
         org = self.get_organization()
-        url = reverse('product-list', args=[org.id])
+        prod = self.get_product(org)
+        url = reverse('repository-list', args=[org.id, prod.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 

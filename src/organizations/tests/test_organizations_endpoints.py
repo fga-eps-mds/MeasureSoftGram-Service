@@ -10,7 +10,7 @@ from utils.tests import APITestCaseExpanded
 class PublicOrganizationsViewsTestCase(APITestCaseExpanded):
     def test_unauthenticated_not_allowed(self):
         org = self.get_organization()
-        url = reverse('product-list', args=[org.id])
+        url = reverse('organization-detail', args=[org.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
