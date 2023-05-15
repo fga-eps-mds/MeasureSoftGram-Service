@@ -1,6 +1,7 @@
 from typing import Dict
 
 from django.contrib.auth import get_user_model
+from rest_framework.exceptions import status
 
 from rest_framework.reverse import reverse
 from rest_framework.authtoken.models import Token
@@ -13,12 +14,22 @@ from utils.tests import APITestCaseExpanded
 User = get_user_model()
 
 
+class PublicProductsViewsSetCase(APITestCaseExpanded):
+    def test_unauthenticated_not_allowed(self):
+        org = self.get_organization()
+        url = reverse('product-list', args=[org.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
 class ProductsViewsSetCase(APITestCaseExpanded):
     def setUp(self) -> None:
         self.client = APIClient()
         self.user = self.get_or_create_test_user()
-        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
-        
+        self.client.force_authenticate(
+            self.user, token=Token.objects.create(user=self.user)
+        )
+
     def test_create_a_new_product(self):
         org = self.get_organization()
         url = reverse("product-list", args=[org.id])
@@ -291,8 +302,13 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         action_url = actions["create a new goal"]
         data = self.get_goal_data()
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + Token.objects.create(
-            user=User.objects.create(username='username', email='test_user@email.com')).key
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token '
+            + Token.objects.create(
+                user=User.objects.create(
+                    username='username', email='test_user@email.com'
+                )
+            ).key
         )
 
         response = self.client.post(action_url, data, format="json")
@@ -302,20 +318,17 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         actions, product = self.get_product_actions()
         action_url = actions["create a new pre-config"]
         measures = [{"key": "passed_tests", "weight": 100}]
-        subcharacteristics = [{
-            "key": "testing_status",
-            "weight": 100,
-            "measures": measures
-        }]
-        characteristics = [{
-            "key": "reliability",
-            "weight": 100,
-            "subcharacteristics": subcharacteristics
-        }]
-        data = {
-            "name": "Test Pre-Config",
-            "data": {"characteristics": characteristics}
-        }
+        subcharacteristics = [
+            {"key": "testing_status", "weight": 100, "measures": measures}
+        ]
+        characteristics = [
+            {
+                "key": "reliability",
+                "weight": 100,
+                "subcharacteristics": subcharacteristics,
+            }
+        ]
+        data = {"name": "Test Pre-Config", "data": {"characteristics": characteristics}}
         response = self.client.post(action_url, data, format="json")
         self.assertEqual(response.status_code, 201)
 
@@ -323,14 +336,16 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         actions, product = self.get_product_actions()
         product.goals.create(
             release_name='v1.0',
-            created_by=User.objects.create(username='username', email='test_user@email.com'),
+            created_by=User.objects.create(
+                username='username', email='test_user@email.com'
+            ),
             start_at='2020-01-01T00:00:00-03:00',
             end_at='2021-01-01T00:00:00-03:00',
             data={
                 'reliability': 53,
                 'maintainability': 53,
                 'functional_suitability': 53,
-            }
+            },
         )
         current_goal_url = actions["get current goal"]
         response = self.client.get(current_goal_url)

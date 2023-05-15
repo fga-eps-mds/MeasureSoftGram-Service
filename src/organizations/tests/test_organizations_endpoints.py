@@ -1,4 +1,5 @@
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
@@ -6,11 +7,21 @@ from organizations.models import Organization
 from utils.tests import APITestCaseExpanded
 
 
+class PublicOrganizationsViewsTestCase(APITestCaseExpanded):
+    def test_unauthenticated_not_allowed(self):
+        org = self.get_organization()
+        url = reverse('product-list', args=[org.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
 class OrganizationsViewsTestCase(APITestCaseExpanded):
     def setUp(self):
         self.client = APIClient()
         self.user = self.get_or_create_test_user()
-        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
+        self.client.force_authenticate(
+            self.user, token=Token.objects.create(user=self.user)
+        )
 
     def test_create_a_new_organization(self):
         url = reverse("organization-list")
@@ -102,9 +113,7 @@ class OrganizationsViewsTestCase(APITestCaseExpanded):
         Testa se o atributo key está sendo setado corretamente
         "organização do dagrão!" -> "organizacao-do-dagrao"
         """
-        org: Organization = self.get_organization(
-            name="organização do dagrão!"
-        )
+        org: Organization = self.get_organization(name="organização do dagrão!")
         url = reverse("organization-detail", args=[org.id])
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 200)
