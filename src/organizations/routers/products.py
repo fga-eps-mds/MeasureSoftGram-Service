@@ -4,20 +4,19 @@ from goals.views import (
     CurrentGoalModelViewSet,
     ReleaseListModelViewSet,
 )
-from pre_configs.views import (
-    CreatePreConfigModelViewSet
-)
+from pre_configs.views import CreatePreConfigModelViewSet
 from organizations.routers.routers import Router
 import organizations.views as views
 from entity_trees.views import PreConfigEntitiesRelationshipTreeViewSet
 from pre_configs.views import CurrentPreConfigModelViewSet
 
+
 class ProductRouter(Router):
-
-
     def __init__(self, parent_router, **children):
-
-        super().__init__(parent_router, 'products', 'product', 
+        super().__init__(
+            parent_router,
+            'products',
+            'product',
             children=[
                 {
                     'name': 'entity-relationship-tree',
@@ -34,14 +33,18 @@ class ProductRouter(Router):
                     'view': views.RepositoriesSQCHistoryViewSet,
                     'basename': 'repositories-sqc-historical-values',
                 },
-                {'name': 'repositories', 'view': views.RepositoryViewSet, 'basename': ''},
+                {
+                    'name': 'repositories',
+                    'view': views.RepositoryViewSet,
+                    'basename': '',
+                },
                 *self._get_goals_endpoints_dicts(),
                 *self._get_preconfigs_endpoints_dict(),
-                *children
-        ])
+                *children,
+            ],
+        )
 
     def _get_goals_endpoints_dicts(self):
-
         return [
             {
                 'name': 'current/goal',
@@ -51,7 +54,7 @@ class ProductRouter(Router):
             {
                 'name': 'create/goal',
                 'view': CreateGoalModelViewSet,
-                'basename': 'create-goal', 
+                'basename': 'create-goal',
             },
             {
                 'name': 'all/goal',
@@ -60,22 +63,20 @@ class ProductRouter(Router):
             },
             {
                 'name': 'release',
-                'view': ReleaseListModelViewSet, 
+                'view': ReleaseListModelViewSet,
                 'basename': 'release-list',
             },
         ]
 
-
     def _get_preconfigs_endpoints_dict(self):
-
         return [
             {
-                'name':'current/pre-config',
+                'name': 'current/pre-config',
                 'view': CurrentPreConfigModelViewSet,
                 'basename': 'current-pre-config',
             },
             {
-                'name':'create/pre-config',
+                'name': 'create/pre-config',
                 'view': CreatePreConfigModelViewSet,
                 'basename': 'create-pre-config',
             },

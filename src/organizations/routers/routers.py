@@ -3,11 +3,8 @@ from rest_framework_nested import routers
 import organizations.views as views
 
 
-class Router():
-
-
+class Router:
     def __init__(self, parent_router, name, lookup, **kwargs):
-
         self.router = routers.NestedDefaultRouter(
             parent_router,
             name,
@@ -22,7 +19,6 @@ class Router():
                 if c_name and c_view:
                     basename = child.pop('basename')
                     if basename:
-                        self.router.register(c_name, c_view, basename=basename) 
-                    else: self.router.register(c_name, c_view) 
-
-
+                        self.router.register(c_name, c_view, basename=basename)
+                    else:
+                        self.router.register(c_name, c_view)
