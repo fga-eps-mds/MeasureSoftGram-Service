@@ -1,23 +1,38 @@
 import datetime as dt
 from unittest import mock
 from zoneinfo import ZoneInfo
+from rest_framework.exceptions import status
 
 from rest_framework.reverse import reverse
+from rest_framework.test import APIClient
 
 from organizations.models import Repository
 from utils.mocks import Mocks
 from utils.tests import APITestCaseExpanded
 
-from metrics.models import (
-    SupportedMetric, CollectedMetric)
+from metrics.models import SupportedMetric, CollectedMetric
 from measures.models import CalculatedMeasure, SupportedMeasure
 from subcharacteristics.models import (
-    CalculatedSubCharacteristic, SupportedSubCharacteristic)
-from characteristics.models import (
-    SupportedCharacteristic, CalculatedCharacteristic)
+    CalculatedSubCharacteristic,
+    SupportedSubCharacteristic,
+)
+from characteristics.models import SupportedCharacteristic, CalculatedCharacteristic
+
+
+class PublicRepositoriesViewsSetCase(APITestCaseExpanded):
+    def test_unauthenticated_not_allowed(self):
+        org = self.get_organization()
+        prod = self.get_product(org)
+        url = reverse('repository-list', args=[org.id, prod.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class RepositoriesViewsSetCase(APITestCaseExpanded):
+    def setUp(self):
+        self.user = self.get_or_create_test_user()
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
 
     def test_create_a_new_repository(self):
         data = {
@@ -199,11 +214,7 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         self.repository = self.get_repository(self.product)
         url = reverse(
             'repository-detail',
-            args=[
-                self.org.id,
-                self.product.id,
-                self.repository.id
-            ],
+            args=[self.org.id, self.product.id, self.repository.id],
         )
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, 200)
@@ -283,22 +294,28 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         url = actions_urls['calculate measures']
 
         listed_values = [
-            'coverage', 'complexity', 'functions',
-            'comment_lines_density', 'duplicated_lines_density'
+            'coverage',
+            'complexity',
+            'functions',
+            'comment_lines_density',
+            'duplicated_lines_density',
         ]
         uts_values = ['test_execution_time', 'tests']
         trk_values = ['test_failures', 'test_errors']
 
-        for values, qualifier in zip([listed_values, uts_values, trk_values], ['FIL', 'UTS', 'TRK']):
+        for values, qualifier in zip(
+            [listed_values, uts_values, trk_values], ['FIL', 'UTS', 'TRK']
+        ):
             for metric in SupportedMetric.objects.filter(key__in=values):
                 CollectedMetric.objects.create(
-                    value=0.1, metric=metric, repository=self.repository,
-                    qualifier=qualifier
+                    value=0.1,
+                    metric=metric,
+                    repository=self.repository,
+                    qualifier=qualifier,
                 )
 
         measures_keys = [
-            {'key': measure.key}
-            for measure in SupportedMeasure.objects.all()
+            {'key': measure.key} for measure in SupportedMeasure.objects.all()
         ]
         data = {'measures': measures_keys}
         response = self.client.post(url, data, format='json')
@@ -312,7 +329,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
         for measure in SupportedMeasure.objects.all():
             CalculatedMeasure.objects.create(
-                value=0.1, measure=measure, repository=self.repository)
+                value=0.1, measure=measure, repository=self.repository
+            )
 
         keys = [{'key': subcharacteristic.key} for subcharacteristic in qs]
         data = {'subcharacteristics': keys}
@@ -327,7 +345,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
         for sub_char in SupportedSubCharacteristic.objects.all():
             CalculatedSubCharacteristic.objects.create(
-                value=0.1, subcharacteristic=sub_char, repository=self.repository)
+                value=0.1, subcharacteristic=sub_char, repository=self.repository
+            )
 
         keys = [{'key': characteristic.key} for characteristic in qs]
         data = {'characteristics': keys}
@@ -340,7 +359,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
         for char in SupportedCharacteristic.objects.all():
             CalculatedCharacteristic.objects.create(
-                value=0.1, characteristic=char, repository=self.repository)
+                value=0.1, characteristic=char, repository=self.repository
+            )
 
         response = self.client.post(url)
         self.assertEqual(response.status_code, 201)
@@ -368,7 +388,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
         for char in SupportedCharacteristic.objects.all():
             CalculatedCharacteristic.objects.create(
-                value=0.1, characteristic=char, repository=self.repository)
+                value=0.1, characteristic=char, repository=self.repository
+            )
 
         data = {'created_at': created_at}
         response = self.client.post(url, data, format='json')
@@ -384,24 +405,31 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate measures']
         measures_keys = [
-            {'key': measure.key}
-            for measure in SupportedMeasure.objects.all()
+            {'key': measure.key} for measure in SupportedMeasure.objects.all()
         ]
         now = dt.datetime.now(ZoneInfo('America/Sao_Paulo'))
         created_at = now - dt.timedelta(days=7)
 
         listed_values = [
-            'coverage', 'complexity', 'functions',
-            'comment_lines_density', 'duplicated_lines_density'
+            'coverage',
+            'complexity',
+            'functions',
+            'comment_lines_density',
+            'duplicated_lines_density',
         ]
         uts_values = ['test_execution_time', 'tests']
         trk_values = ['test_failures', 'test_errors']
 
-        for values, qualifier in zip([listed_values, uts_values, trk_values], ['FIL', 'UTS', 'TRK']):
+        for values, qualifier in zip(
+            [listed_values, uts_values, trk_values], ['FIL', 'UTS', 'TRK']
+        ):
             for metric in SupportedMetric.objects.filter(key__in=values):
                 CollectedMetric.objects.create(
-                    value=0.1, metric=metric, repository=self.repository,
-                    qualifier=qualifier, created_at=created_at
+                    value=0.1,
+                    metric=metric,
+                    repository=self.repository,
+                    qualifier=qualifier,
+                    created_at=created_at,
                 )
 
         data = {
@@ -419,7 +447,9 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
                 created_at.isoformat()[:10],
             )
 
-    def test_if_calculate_subcharacteristics_with_created_at_param_is_working(self, *a, **k):
+    def test_if_calculate_subcharacteristics_with_created_at_param_is_working(
+        self, *a, **k
+    ):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate subcharacteristics']
         pre_config = self.product.pre_configs.first()
@@ -430,8 +460,11 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
         for measure in SupportedMeasure.objects.all():
             CalculatedMeasure.objects.create(
-                value=0.1, measure=measure,
-                repository=self.repository, created_at=created_at)
+                value=0.1,
+                measure=measure,
+                repository=self.repository,
+                created_at=created_at,
+            )
 
         data = {
             'subcharacteristics': keys,
@@ -448,7 +481,9 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
                 created_at.isoformat()[:10],
             )
 
-    def test_if_calculate_characteristics_with_created_at_param_is_working(self, *a, **k):
+    def test_if_calculate_characteristics_with_created_at_param_is_working(
+        self, *a, **k
+    ):
         actions_urls = self.get_repository_urls('actions')
         url = actions_urls['calculate characteristics']
         pre_config = self.product.pre_configs.first()
@@ -459,8 +494,10 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
         for sub_char in SupportedSubCharacteristic.objects.all():
             CalculatedSubCharacteristic.objects.create(
-                value=0.1, subcharacteristic=sub_char,
-                repository=self.repository, created_at=created_at
+                value=0.1,
+                subcharacteristic=sub_char,
+                repository=self.repository,
+                created_at=created_at,
             )
 
         data = {

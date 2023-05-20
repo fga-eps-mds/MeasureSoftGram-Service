@@ -1,4 +1,6 @@
+from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
+from accounts.models import CustomUser
 
 from organizations.management.commands.load_initial_data import (
     Command as LoadInitialDataCommand,
@@ -77,3 +79,19 @@ class APITestCaseExpanded(APITestCase):
                     f"failed char is {c}"
                 ),
             )
+
+    def get_or_create_test_user(self) -> CustomUser:
+        """Método que retorna um usuário padrão para os testes"""
+
+        maybe_user = {
+            'username': 'test-user',
+            'first_name': 'test',
+            'last_name': 'user',
+            'email': 'test_product_user@email.com'
+        }
+
+        check_user = get_user_model().objects.filter(email=maybe_user['email'])
+        if not check_user.exists():
+            return get_user_model().objects.create(**maybe_user)
+
+        return check_user[0]

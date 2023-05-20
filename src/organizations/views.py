@@ -1,4 +1,4 @@
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, permissions
 from rest_framework.generics import get_object_or_404
 
 from organizations.models import Organization, Product, Repository
@@ -17,6 +17,7 @@ class OrganizationViewSet(viewsets.ModelViewSet):
                                    .prefetch_related('products')
 
     serializer_class = OrganizationSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -26,6 +27,7 @@ class ProductViewSet(viewsets.ModelViewSet):
                               .prefetch_related('repositories')
 
     serializer_class = ProductSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_organization(self):
         return get_object_or_404(
@@ -46,6 +48,8 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 
 class RepositoryViewSetMixin:
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_product(self):
         return get_object_or_404(
             Product,
