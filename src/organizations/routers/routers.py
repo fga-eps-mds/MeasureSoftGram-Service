@@ -5,7 +5,7 @@ import organizations.views as views
 
 class Router:
     def __init__(self, parent_router, name, lookup, **kwargs):
-        self.router = routers.NestedDefaultRouter(
+        self.nested_router = routers.NestedDefaultRouter(
             parent_router,
             name,
             lookup=lookup,
@@ -19,6 +19,6 @@ class Router:
                 if c_name and c_view:
                     basename = child.pop('basename')
                     if basename:
-                        self.router.register(c_name, c_view, basename=basename)
+                        self.nested_router.register(c_name, c_view, basename=basename)
                     else:
-                        self.router.register(c_name, c_view)
+                        self.nested_router.register(c_name, c_view)

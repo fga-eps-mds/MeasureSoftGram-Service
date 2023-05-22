@@ -55,18 +55,18 @@ main_router.register('organizations', OrganizationViewSet)
 org_router = OrgRouter(main_router)
 
 
-prod_router = ProductRouter(org_router.router)
+prod_router = ProductRouter(org_router.nested_router)
 
 
-repo_router = RepoRouter(prod_router.router)
+repo_router = RepoRouter(prod_router.nested_router)
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include(main_router.urls)),
-    path('api/v1/', include(org_router.router.urls)),
-    path('api/v1/', include(prod_router.router.urls)),
-    path('api/v1/', include(repo_router.router.urls)),
+    path('api/v1/', include(org_router.nested_router.urls)),
+    path('api/v1/', include(prod_router.nested_router.urls)),
+    path('api/v1/', include(repo_router.nested_router.urls)),
     path('api/v1/', include(accounts_urls.urlpatterns)),
 ]
 
