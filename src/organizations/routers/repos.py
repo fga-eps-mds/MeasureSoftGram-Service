@@ -7,20 +7,17 @@ from collectors.sonarqube.view import ImportSonarQubeMetricsViewSet
 from measures.views import (
     CalculatedMeasureHistoryModelViewSet,
     CalculateMeasuresViewSet,
-    LatestCalculatedMeasureModelViewSet,
-    SupportedMeasureModelViewSet,
+    LatestCalculatedMeasureModelViewSet
 )
 from metrics.views import (
     CollectedMetricHistoryModelViewSet,
     CollectedMetricModelViewSet,
-    LatestCollectedMetricModelViewSet,
-    SupportedMetricModelViewSet,
+    LatestCollectedMetricModelViewSet
 )
 from characteristics.views import (
     CalculateCharacteristicViewSet,
     CalculatedCharacteristicHistoryModelViewSet,
-    LatestCalculatedCharacteristicModelViewSet,
-    SupportedCharacteristicModelViewSet,
+    LatestCalculatedCharacteristicModelViewSet
 )
 from sqc.views import (
     CalculatedSQCHistoryModelViewSet,
@@ -30,12 +27,8 @@ from sqc.views import (
 from subcharacteristics.views import (
     CalculatedSubCharacteristicHistoryModelViewSet,
     CalculateSubCharacteristicViewSet,
-    LatestCalculatedSubCharacteristicModelViewSet,
-    SupportedSubCharacteristicModelViewSet,
+    LatestCalculatedSubCharacteristicModelViewSet
 )
-
-import organizations.views as views
-
 
 class RepoRouter(Router):
     def __init__(self, parent_router, **children):
