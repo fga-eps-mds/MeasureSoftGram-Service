@@ -1,5 +1,6 @@
 from rest_framework_nested import routers
 
+
 class Router:
     def __init__(self, parent_router, name, lookup, **kwargs):
         self.nested_router = routers.NestedDefaultRouter(

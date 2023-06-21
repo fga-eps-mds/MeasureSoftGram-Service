@@ -30,6 +30,7 @@ from subcharacteristics.views import (
     LatestCalculatedSubCharacteristicModelViewSet
 )
 
+
 class RepoRouter(Router):
     def __init__(self, parent_router, **children):
         super().__init__(
