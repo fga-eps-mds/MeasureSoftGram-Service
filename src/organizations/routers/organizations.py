@@ -1,6 +1,5 @@
 from organizations.routers.routers import Router
-import organizations.views as views
-
+from organizations.views import ProductViewSet
 
 class OrgRouter(Router):
     def __init__(self, parent_router, **children):
@@ -11,7 +10,7 @@ class OrgRouter(Router):
             children=[
                 {
                     'name': 'products',
-                    'view': views.ProductViewSet,
+                    'view': ProductViewSet,
                     'basename': '',
                 },
                 *children,

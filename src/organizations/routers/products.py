@@ -6,7 +6,7 @@ from goals.views import (
 )
 from pre_configs.views import CreatePreConfigModelViewSet
 from organizations.routers.routers import Router
-import organizations.views as views
+from organizations.views import RepositoriesSQCLatestValueViewSet, RepositoriesSQCHistoryViewSet, RepositoryViewSet
 from entity_trees.views import PreConfigEntitiesRelationshipTreeViewSet
 from pre_configs.views import CurrentPreConfigModelViewSet
 
@@ -25,17 +25,17 @@ class ProductRouter(Router):
                 },
                 {
                     'name': 'repositories-sqc-latest-values',
-                    'view': views.RepositoriesSQCLatestValueViewSet,
+                    'view': RepositoriesSQCLatestValueViewSet,
                     'basename': 'repositories-sqc-latest-values',
                 },
                 {
                     'name': 'repositories-sqc-historical-values',
-                    'view': views.RepositoriesSQCHistoryViewSet,
+                    'view': RepositoriesSQCHistoryViewSet,
                     'basename': 'repositories-sqc-historical-values',
                 },
                 {
                     'name': 'repositories',
-                    'view': views.RepositoryViewSet,
+                    'view': RepositoryViewSet,
                     'basename': '',
                 },
                 *self._get_goals_endpoints_dicts(),
