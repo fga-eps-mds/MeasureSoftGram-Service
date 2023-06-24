@@ -31,7 +31,7 @@ class PreConfigSerializer(serializers.ModelSerializer):
         if self.instance:
             raise ValueError("It's not allowed to edit a pre-configuration")
 
-        data = attrs['data']
+        data = attrs["data"]
 
         try:
             PreConfig.validate_measures(data)
@@ -43,7 +43,7 @@ class PreConfigSerializer(serializers.ModelSerializer):
             PreConfig.validate_characteristics_subcharacteristics_relation(data)
             PreConfig.validate_characteristics_weights(data)
 
-            product = self.context['view'].get_product()
+            product = self.context["view"].get_product()
             current_preconfig = product.pre_configs.first()
 
             PreConfig.is_different_than_the_current_preconfig(

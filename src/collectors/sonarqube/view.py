@@ -16,15 +16,16 @@ class ImportSonarQubeMetricsViewSet(
     TODO: Isso não devia ser síncrono.
     A importação de métricas do sonarqube deveria ser uma tarefa assíncrona.
     """
+
     serializer_class = SonarQubeJSONSerializer
     queryset = SupportedMetric.objects.all()
 
     def get_repository(self):
         return get_object_or_404(
             Repository,
-            id=self.kwargs['repository_pk'],
-            product_id=self.kwargs['product_pk'],
-            product__organization_id=self.kwargs['organization_pk'],
+            id=self.kwargs["repository_pk"],
+            product_id=self.kwargs["product_pk"],
+            product__organization_id=self.kwargs["organization_pk"],
         )
 
     def create(self, request, *args, **kwargs):

@@ -4,30 +4,15 @@ from django.urls import include, path
 from rest_framework_nested import routers
 
 from accounts import urls as accounts_urls
-
-from characteristics.views import (
-    SupportedCharacteristicModelViewSet,
-)
-from entity_trees.views import (
-    SupportedEntitiesRelationshipTreeViewSet,
-)
-from measures.views import (
-    SupportedMeasureModelViewSet,
-)
-from metrics.views import (
-    SupportedMetricModelViewSet,
-)
+from characteristics.views import SupportedCharacteristicModelViewSet
+from entity_trees.views import SupportedEntitiesRelationshipTreeViewSet
+from measures.views import SupportedMeasureModelViewSet
+from metrics.views import SupportedMetricModelViewSet
 from organizations.routers.organizations import OrgRouter
 from organizations.routers.products import ProductRouter
 from organizations.routers.repos import RepoRouter
-
-from organizations.views import (
-    OrganizationViewSet,
-)
-
-from subcharacteristics.views import (
-    SupportedSubCharacteristicModelViewSet,
-)
+from organizations.views import OrganizationViewSet
+from subcharacteristics.views import SupportedSubCharacteristicModelViewSet
 
 
 def register_supported_entities_endpoints(router):

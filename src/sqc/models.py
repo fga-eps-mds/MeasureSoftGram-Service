@@ -6,16 +6,17 @@ class SQC(models.Model):
     """
     Classe que abstrai um a nota final do modelo, também conhecida como SQC.
     """
+
     class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'SQC'
-        verbose_name_plural = 'SQC'
+        ordering = ["-created_at"]
+        verbose_name = "SQC"
+        verbose_name_plural = "SQC"
 
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
 
     repository = models.ForeignKey(
-        to='organizations.Repository',
-        related_name='calculated_sqcs',
+        to="organizations.Repository",
+        related_name="calculated_sqcs",
         on_delete=models.CASCADE,
     )

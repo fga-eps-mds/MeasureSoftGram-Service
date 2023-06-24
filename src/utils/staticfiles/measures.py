@@ -11,7 +11,7 @@ GITHUB_AVAILABLE_METRICS = {
             "domain": "Productivity",
             "direction": 0,
             "qualitative": False,
-            "hidden": False
+            "hidden": False,
         },
         {
             "id": "8002",
@@ -22,7 +22,7 @@ GITHUB_AVAILABLE_METRICS = {
             "domain": "Productivity",
             "direction": 0,
             "qualitative": False,
-            "hidden": False
+            "hidden": False,
         },
         {
             "id": "8001",
@@ -33,10 +33,10 @@ GITHUB_AVAILABLE_METRICS = {
             "domain": "Productivity",
             "direction": 0,
             "qualitative": False,
-            "hidden": False
+            "hidden": False,
         },
     ],
     "total": 3,
     "p": 8000,
-    "ps": 2
+    "ps": 2,
 }

@@ -15,11 +15,11 @@ class SupportedMeasureAdmin(admin.ModelAdmin):
         "key",
         "name",
     )
-    filter_horizontal = ('metrics',)
+    filter_horizontal = ("metrics",)
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.prefetch_related('metrics')
+        queryset = queryset.prefetch_related("metrics")
         return queryset
 
 
@@ -43,11 +43,13 @@ class CalculatedMeasureAdmin(admin.ModelAdmin):
 
     def get_measure_name(self, obj):
         return obj.measure.name
+
     get_measure_name.short_description = "Measure name"
     get_measure_name.admin_order_field = "measure__name"
 
     def get_measure_key(self, obj):
         return obj.measure.key
+
     get_measure_key.short_description = "Measure key"
     get_measure_key.admin_order_field = "measure__key"
 
@@ -60,10 +62,7 @@ class MetricsMeasuresAssociation(admin.ModelAdmin):
     """
 
     def changelist_view(self, request, extra_context=None):
-        msg = ((
-            "Tabela que armazena a relação entre "
-            "as MEDIDAS e suas MÉTRICAS."
-        ))
+        msg = "Tabela que armazena a relação entre " "as MEDIDAS e suas MÉTRICAS."
         messages.add_message(request, messages.INFO, msg)
         return super().changelist_view(request, extra_context)
 
@@ -81,16 +80,16 @@ class MetricsMeasuresAssociation(admin.ModelAdmin):
         "get_metric_key",
         "get_measure_key",
     )
-    list_filter = (
-        "supportedmeasure",
-    )
+    list_filter = ("supportedmeasure",)
 
     def get_metric_key(self, obj):
         return obj.supportedmetric.key
+
     get_metric_key.short_description = "Metric key"
     get_metric_key.admin_order_field = "supportedmetric__key"
 
     def get_measure_key(self, obj):
         return obj.supportedmeasure.key
+
     get_measure_key.short_description = "Measure key"
     get_measure_key.admin_order_field = "supportedmeasure__key"

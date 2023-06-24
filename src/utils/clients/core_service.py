@@ -1,4 +1,3 @@
-
 import requests
 from django.conf import settings
 from requests.adapters import HTTPAdapter, Retry
@@ -22,20 +21,20 @@ class CoreClient:
 
     @staticmethod
     def calculate_measure(params):
-        url = f'{CoreClient.HOST}/calculate-measures/'
+        url = f"{CoreClient.HOST}/calculate-measures/"
         return CoreClient.make_post_request(url, params)
 
     @staticmethod
     def calculate_subcharacteristic(params):
-        url = f'{CoreClient.HOST}/calculate-subcharacteristics/'
+        url = f"{CoreClient.HOST}/calculate-subcharacteristics/"
         return CoreClient.make_post_request(url, params)
 
     @staticmethod
     def calculate_characteristic(params):
-        url = f'{CoreClient.HOST}/calculate-characteristics/'
+        url = f"{CoreClient.HOST}/calculate-characteristics/"
         return CoreClient.make_post_request(url, params)
 
     @staticmethod
     def calculate_sqc(params):
-        url = f'{CoreClient.HOST}/calculate-sqc/'
+        url = f"{CoreClient.HOST}/calculate-sqc/"
         return CoreClient.make_post_request(url, params)

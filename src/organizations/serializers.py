@@ -32,7 +32,7 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
                         message="Organization with this name already exists.",
                     )
                 ]
-            }
+            },
         }
 
     def get_products(self, obj: Organization):
@@ -66,7 +66,7 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
         )
 
         return {
-            'create a new product': create_a_new_product_url,
+            "create a new product": create_a_new_product_url,
         }
 
 
@@ -106,9 +106,7 @@ class ProductSerializer(serializers.ModelSerializer):
         qs = Product.objects.filter(name=name, organization=organization)
 
         if qs.exists():
-            raise serializers.ValidationError(
-                "Product with this name already exists."
-            )
+            raise serializers.ValidationError("Product with this name already exists.")
 
         return attrs
 
@@ -163,17 +161,11 @@ class ProductSerializer(serializers.ModelSerializer):
             obj, "repository-list"
         )
 
-        current_goal_url = self.reverse_product_resource(
-            obj, "current-goal-list"
-        )
+        current_goal_url = self.reverse_product_resource(obj, "current-goal-list")
 
-        compare_goals_url = self.reverse_product_resource(
-            obj, "all-goal-list"
-        )
+        compare_goals_url = self.reverse_product_resource(obj, "all-goal-list")
 
-        create_a_new_goal_url = self.reverse_product_resource(
-            obj, "create-goal-list"
-        )
+        create_a_new_goal_url = self.reverse_product_resource(obj, "create-goal-list")
 
         current_pre_config_url = self.reverse_product_resource(
             obj, "current-pre-config-list"
@@ -188,23 +180,25 @@ class ProductSerializer(serializers.ModelSerializer):
         )
 
         repositories_latest_sqcs_url = self.reverse_product_resource(
-            obj, "repositories-sqc-latest-values-list",
+            obj,
+            "repositories-sqc-latest-values-list",
         )
 
         repositories_sqc_historical_values_url = self.reverse_product_resource(
-            obj, "repositories-sqc-historical-values-list",
+            obj,
+            "repositories-sqc-historical-values-list",
         )
 
         return {
-            'create a new repository': create_a_new_repository_url,
-            'get current goal': current_goal_url,
-            'get compare all goals': compare_goals_url,
-            'get current pre-config': current_pre_config_url,
-            'get pre-config entity relationship tree': pre_config_entity_relationship_tree_url,
-            'get all repositories latest sqcs': repositories_latest_sqcs_url,
-            'get all repositories sqc historical values': repositories_sqc_historical_values_url,
-            'create a new goal': create_a_new_goal_url,
-            'create a new pre-config': create_a_pre_config_url,
+            "create a new repository": create_a_new_repository_url,
+            "get current goal": current_goal_url,
+            "get compare all goals": compare_goals_url,
+            "get current pre-config": current_pre_config_url,
+            "get pre-config entity relationship tree": pre_config_entity_relationship_tree_url,
+            "get all repositories latest sqcs": repositories_latest_sqcs_url,
+            "get all repositories sqc historical values": repositories_sqc_historical_values_url,
+            "create a new goal": create_a_new_goal_url,
+            "create a new pre-config": create_a_pre_config_url,
         }
 
 
@@ -297,37 +291,43 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         )
 
         calculate_measures_url = self.reverse_repository_resource(
-            obj, "calculate-measures-list",
+            obj,
+            "calculate-measures-list",
         )
 
         calculate_subcharacteristics_url = self.reverse_repository_resource(
-            obj, "calculate-subcharacteristics-list",
+            obj,
+            "calculate-subcharacteristics-list",
         )
 
         calculate_characteristics_url = self.reverse_repository_resource(
-            obj, "calculate-characteristics-list",
+            obj,
+            "calculate-characteristics-list",
         )
 
         calculate_sqc_url = self.reverse_repository_resource(
-            obj, "calculate-sqc-list",
+            obj,
+            "calculate-sqc-list",
         )
 
         github_collector_url = self.reverse_repository_resource(
-            obj, "github-collector-list",
+            obj,
+            "github-collector-list",
         )
 
         sonarqube_collector_url = self.reverse_repository_resource(
-            obj, "sonarqube-collector-list",
+            obj,
+            "sonarqube-collector-list",
         )
 
         return {
-            'collect metric': collect_metric_url,
-            'calculate measures': calculate_measures_url,
-            'calculate subcharacteristics': calculate_subcharacteristics_url,
-            'calculate characteristics': calculate_characteristics_url,
-            'calculate sqc': calculate_sqc_url,
-            'import metrics from github': github_collector_url,
-            'import metrics from SonarQube JSON': sonarqube_collector_url,
+            "collect metric": collect_metric_url,
+            "calculate measures": calculate_measures_url,
+            "calculate subcharacteristics": calculate_subcharacteristics_url,
+            "calculate characteristics": calculate_characteristics_url,
+            "calculate sqc": calculate_sqc_url,
+            "import metrics from github": github_collector_url,
+            "import metrics from SonarQube JSON": sonarqube_collector_url,
         }
 
     def get_historical_values(self, obj: Repository):
@@ -335,31 +335,36 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         Gera a URL dos valores coletados históricos desse repositório
         """
         metrics_historical_values_url = self.reverse_repository_resource(
-            obj, "metrics-historical-values-list",
+            obj,
+            "metrics-historical-values-list",
         )
 
         measures_historical_values_url = self.reverse_repository_resource(
-            obj, "measures-historical-values-list",
+            obj,
+            "measures-historical-values-list",
         )
 
         subcharacteristics_historical_values_url = self.reverse_repository_resource(
-            obj, "subcharacteristics-historical-values-list",
+            obj,
+            "subcharacteristics-historical-values-list",
         )
 
         characteristics_historical_values_url = self.reverse_repository_resource(
-            obj, "characteristics-historical-values-list",
+            obj,
+            "characteristics-historical-values-list",
         )
 
         sqc_historical_values_url = self.reverse_repository_resource(
-            obj, "sqc-historical-values-list",
+            obj,
+            "sqc-historical-values-list",
         )
 
         return {
-            'metrics': metrics_historical_values_url,
-            'measures': measures_historical_values_url,
-            'subcharacteristics': subcharacteristics_historical_values_url,
-            'characteristics': characteristics_historical_values_url,
-            'sqc': sqc_historical_values_url,
+            "metrics": metrics_historical_values_url,
+            "measures": measures_historical_values_url,
+            "subcharacteristics": subcharacteristics_historical_values_url,
+            "characteristics": characteristics_historical_values_url,
+            "sqc": sqc_historical_values_url,
         }
 
     def get_latest_values(self, obj: Repository):
@@ -372,27 +377,31 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         )
 
         measures_latest_values_url = self.reverse_repository_resource(
-            obj, "latest-calculated-measures-list",
+            obj,
+            "latest-calculated-measures-list",
         )
 
         subcharacteristics_latest_values_url = self.reverse_repository_resource(
-            obj, "latest-calculated-subcharacteristics-list",
+            obj,
+            "latest-calculated-subcharacteristics-list",
         )
 
         characteristics_latest_values_url = self.reverse_repository_resource(
-            obj, "latest-calculated-characteristics-list",
+            obj,
+            "latest-calculated-characteristics-list",
         )
 
         sqc_latest_values_url = self.reverse_repository_resource(
-            obj, "latest-calculated-sqc-list",
+            obj,
+            "latest-calculated-sqc-list",
         )
 
         return {
-            'metrics': metrics_historical_values_url,
-            'measures': measures_latest_values_url,
-            'subcharacteristics': subcharacteristics_latest_values_url,
-            'characteristics': characteristics_latest_values_url,
-            'sqc': sqc_latest_values_url,
+            "metrics": metrics_historical_values_url,
+            "measures": measures_latest_values_url,
+            "subcharacteristics": subcharacteristics_latest_values_url,
+            "characteristics": characteristics_latest_values_url,
+            "sqc": sqc_latest_values_url,
         }
 
 
@@ -400,17 +409,13 @@ class RepositorySQCLatestValueSerializer(serializers.ModelSerializer):
     """
     Serialização do último valor coletado de SQC
     """
+
     current_sqc = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
 
     class Meta:
         model = Repository
-        fields = (
-            "id",
-            "url",
-            "name",
-            "current_sqc"
-        )
+        fields = ("id", "url", "name", "current_sqc")
 
     def get_current_sqc(self, repository: Repository):
         sqc = repository.calculated_sqcs.first()
@@ -436,12 +441,7 @@ class RepositoriesSQCHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Repository
-        fields = (
-            "id",
-            "url",
-            "name",
-            "history"
-        )
+        fields = ("id", "url", "name", "history")
 
     def get_url(self, obj):
         """

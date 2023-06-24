@@ -6,15 +6,11 @@ from goals.models import Goal
 @admin.register(Goal)
 class GoalAdmin(admin.ModelAdmin):
     list_display = (
-        'id',
-        'release_name',
-        'start_at',
-        'end_at',
-        'product',
-    )
-    search_fields = (
+        "id",
         "release_name",
-    )
-    list_filter = (
+        "start_at",
+        "end_at",
         "product",
     )
+    search_fields = ("release_name",)
+    list_filter = ("product",)

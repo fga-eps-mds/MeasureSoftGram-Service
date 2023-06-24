@@ -13,13 +13,14 @@ class SupportedSubCharacteristicSerializer(serializers.ModelSerializer):
     """
     Serializadora para uma subcaracterística suportada
     """
+
     class Meta:
         model = SupportedSubCharacteristic
         fields = (
-            'id',
-            'key',
-            'name',
-            'description',
+            "id",
+            "key",
+            "name",
+            "description",
         )
 
 
@@ -27,13 +28,14 @@ class CalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
     """
     Serializadora usada para serializar as subcaracterísticas calculadas
     """
+
     class Meta:
         model = CalculatedSubCharacteristic
         fields = (
-            'id',
-            'subcharacteristic_id',
-            'value',
-            'created_at',
+            "id",
+            "subcharacteristic_id",
+            "value",
+            "created_at",
         )
 
 
@@ -47,11 +49,11 @@ class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedSubCharacteristic
         fields = (
-            'id',
-            'key',
-            'name',
-            'description',
-            'latest',
+            "id",
+            "key",
+            "name",
+            "description",
+            "latest",
         )
 
     def get_latest(self, obj: SupportedSubCharacteristic):
@@ -73,11 +75,11 @@ class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedSubCharacteristic
         fields = (
-            'id',
-            'key',
-            'name',
-            'description',
-            'history',
+            "id",
+            "key",
+            "name",
+            "description",
+            "history",
         )
 
     def get_history(self, obj: SupportedSubCharacteristic):
@@ -101,12 +103,11 @@ class SubCharacteristicsCalculationRequestSerializer(serializers.Serializer):
     """
     Serializadora usada para solicitar o cálculo de uma subcaracterística
     """
+
     key = serializers.CharField(max_length=255)
 
 
-class SubCharacteristicsCalculationsRequestSerializer(
-    serializers.Serializer
-):
+class SubCharacteristicsCalculationsRequestSerializer(serializers.Serializer):
     """
     Serializadora usada para solicitar o cálculo de várias subcaracterísticas
 
@@ -115,6 +116,7 @@ class SubCharacteristicsCalculationsRequestSerializer(
     da API será somente a adição de novas chaves em
     SubCharacteristicsCalculationRequestSerializer
     """
+
     subcharacteristics = serializers.ListField(
         child=SubCharacteristicsCalculationRequestSerializer(),
         required=True,
@@ -127,18 +129,20 @@ class SubCharacteristicsCalculationsRequestSerializer(
         Valida se todas as subcaracterísticas solicitadas são suportadas
         """
         subcharacteristics_keys = [
-            subchar['key'] for subchar in attrs['subcharacteristics']
+            subchar["key"] for subchar in attrs["subcharacteristics"]
         ]
 
         unsuported_subchars: str = utils.validate_entity(
             subcharacteristics_keys,
-            SupportedSubCharacteristic.has_unsupported_subcharacteristics
+            SupportedSubCharacteristic.has_unsupported_subcharacteristics,
         )
 
         if unsuported_subchars:
-            raise serializers.ValidationError((
-                "The following subcharacteristics are "
-                f"not supported: {unsuported_subchars}"
-            ))
+            raise serializers.ValidationError(
+                (
+                    "The following subcharacteristics are "
+                    f"not supported: {unsuported_subchars}"
+                )
+            )
 
         return attrs

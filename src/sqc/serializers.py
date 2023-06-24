@@ -8,16 +8,17 @@ class SQCSerializer(serializers.ModelSerializer):
     """
     Serializadora usada para serializar as medidas calculadas
     """
+
     class Meta:
         model = SQC
         fields = (
-            'id',
-            'value',
-            'created_at',
+            "id",
+            "value",
+            "created_at",
         )
         read_only_fields = (
-            'id',
-            'value',
+            "id",
+            "value",
         )
 
 

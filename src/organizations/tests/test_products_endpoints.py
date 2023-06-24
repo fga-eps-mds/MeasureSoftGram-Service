@@ -17,7 +17,7 @@ User = get_user_model()
 class PublicProductsViewsSetCase(APITestCaseExpanded):
     def test_unauthenticated_not_allowed(self):
         org = self.get_organization()
-        url = reverse('product-list', args=[org.id])
+        url = reverse("product-list", args=[org.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -89,11 +89,11 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
         data = response.json()
 
-        self.assertEqual(data['count'], 1)
-        self.assertEqual(len(data['results']), data['count'])
-        product = data['results'][0]
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(len(data["results"]), data["count"])
+        product = data["results"][0]
 
-        self.assertEqual(product['name'], "Test Product 3")
+        self.assertEqual(product["name"], "Test Product 3")
 
     def test_update_a_existing_product(self):
         org = self.get_organization()
@@ -147,7 +147,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
         data = response.json()
 
-        self.assertEqual(data['count'], 0)
+        self.assertEqual(data["count"], 0)
 
     def test_if_existing_products_is_being_listed(self):
         org = self.get_organization()
@@ -163,14 +163,14 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
         data = response.json()
 
-        self.assertEqual(data['count'], 3)
-        self.assertEqual(len(data['results']), data['count'])
+        self.assertEqual(data["count"], 3)
+        self.assertEqual(len(data["results"]), data["count"])
 
-        self.assertEqual(data['next'], None)
-        self.assertEqual(data['previous'], None)
-        self.assertEqual(data['results'][2]['name'], "Test Product 1")
-        self.assertEqual(data['results'][1]['name'], "Test Product 2")
-        self.assertEqual(data['results'][0]['name'], "Test Product 3")
+        self.assertEqual(data["next"], None)
+        self.assertEqual(data["previous"], None)
+        self.assertEqual(data["results"][2]["name"], "Test Product 1")
+        self.assertEqual(data["results"][1]["name"], "Test Product 2")
+        self.assertEqual(data["results"][0]["name"], "Test Product 3")
 
     def test_if_product_attribute_key_is_being_set(self):
         """
@@ -303,10 +303,10 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         data = self.get_goal_data()
 
         self.client.credentials(
-            HTTP_AUTHORIZATION='Token '
+            HTTP_AUTHORIZATION="Token "
             + Token.objects.create(
                 user=User.objects.create(
-                    username='username', email='test_user@email.com'
+                    username="username", email="test_user@email.com"
                 )
             ).key
         )
@@ -335,16 +335,16 @@ class ProductsViewsSetCase(APITestCaseExpanded):
     def test_if_get_current_goal_url_is_working(self):
         actions, product = self.get_product_actions()
         product.goals.create(
-            release_name='v1.0',
+            release_name="v1.0",
             created_by=User.objects.create(
-                username='username', email='test_user@email.com'
+                username="username", email="test_user@email.com"
             ),
-            start_at='2020-01-01T00:00:00-03:00',
-            end_at='2021-01-01T00:00:00-03:00',
+            start_at="2020-01-01T00:00:00-03:00",
+            end_at="2021-01-01T00:00:00-03:00",
             data={
-                'reliability': 53,
-                'maintainability': 53,
-                'functional_suitability': 53,
+                "reliability": 53,
+                "maintainability": 53,
+                "functional_suitability": 53,
             },
         )
         current_goal_url = actions["get current goal"]

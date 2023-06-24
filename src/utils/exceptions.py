@@ -23,6 +23,7 @@ class EntityNotDefinedInPreConfiguration(ValueError):
     Exceção criada quando uma entidade é procurada em uma pré-configuração,
     mas esta entidade não foi selecionada na pré-configuração.
     """
+
     pass
 
 
@@ -32,15 +33,11 @@ class MeasureNotDefinedInPreConfiguration(
     pass
 
 
-class SubCharacteristicNotDefinedInPreConfiguration(
-    EntityNotDefinedInPreConfiguration
-):
+class SubCharacteristicNotDefinedInPreConfiguration(EntityNotDefinedInPreConfiguration):
     pass
 
 
-class CharacteristicNotDefinedInPreConfiguration(
-    EntityNotDefinedInPreConfiguration
-):
+class CharacteristicNotDefinedInPreConfiguration(EntityNotDefinedInPreConfiguration):
     pass
 
 

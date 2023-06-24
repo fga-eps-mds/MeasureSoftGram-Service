@@ -25,13 +25,14 @@ class SupportedEntitiesRelationshipTreeViewSet(
     """
     ViewSet as entidades suportadas e suas relações no formato de árvore
     """
+
     serializer_class = CharacteristicEntityRelationshipTreeSerializer
     queryset = SupportedCharacteristic.objects.all()
 
     def list(self, request, *args, **kwargs):
         qs = SupportedCharacteristic.objects.all().prefetch_related(
-            'subcharacteristics',
-            'subcharacteristics__measures',
+            "subcharacteristics",
+            "subcharacteristics__measures",
         )
 
         serializer = CharacteristicEntityRelationshipTreeSerializer(
@@ -50,14 +51,15 @@ class PreConfigEntitiesRelationshipTreeViewSet(
     Viewset que retorna as entidades de uma pré-configução e
     suas relações no formato de árvore
     """
+
     serializer_class = CharacteristicEntityRelationshipTreeSerializer
     queryset = SupportedCharacteristic.objects.all()
 
     def get_product(self):
         return get_object_or_404(
             Product,
-            id=self.kwargs['product_pk'],
-            organization_id=self.kwargs['organization_pk'],
+            id=self.kwargs["product_pk"],
+            organization_id=self.kwargs["organization_pk"],
         )
 
     def list(self, request, *args, **kwargs):

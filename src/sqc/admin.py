@@ -12,6 +12,4 @@ class SQCAdmin(admin.ModelAdmin):
         "repository",
     )
 
-    list_filter = (
-        "repository",
-    )
+    list_filter = ("repository",)

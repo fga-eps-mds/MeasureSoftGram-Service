@@ -8,14 +8,14 @@ from accounts.models import CustomUser
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = (
-        'id',
-        'username',
-        'email',
-        'is_staff',
-        'is_active',
-        'is_superuser',
-        'last_login',
-        'date_joined',
+        "id",
+        "username",
+        "email",
+        "is_staff",
+        "is_active",
+        "is_superuser",
+        "last_login",
+        "date_joined",
     )
 
     search_fields = (
