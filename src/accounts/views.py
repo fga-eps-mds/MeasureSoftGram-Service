@@ -3,6 +3,7 @@ from django.conf import settings
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import get_authorization_header
 
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -11,10 +12,11 @@ from dj_rest_auth.registration.views import SocialLoginView
 
 from accounts.models import CustomUser
 from accounts.serializers import (
-    AccountsCreateSerializer,
-    AccountsLoginSerializer,
-    AccountsRetrieveSerializer,
+    APIAcessTokenRetrieveSerializer, AccountsCreateSerializer, AccountsLoginSerializer,
+    AccountsRetrieveSerializer
 )
+
+from drf_multitokenauth.models import MultiToken
 
 
 class GithubLoginViewSet(SocialLoginView):
@@ -72,5 +74,13 @@ class LogoutViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated,)
 
     def destroy(self, request, *args, **kwargs):
-        self.request.user.auth_token.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        auth_header = get_authorization_header(request)
+
+        token = auth_header.split()[1].decode()
+        tokens = MultiToken.objects.filter(key=token, user=request.user, user_agent='normal')
+
+        if len(tokens) == 1:
+            tokens.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({'error': 'invalid token'}, status=status.HTTP_400_BAD_REQUEST)
