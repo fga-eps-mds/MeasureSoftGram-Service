@@ -84,3 +84,20 @@ class LogoutViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({'error': 'invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+        
+class RetrieveAPIAcessTokenViewSet(
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+):
+    """
+    ViewSet para recuperar o token de acesso da conta do usuário, o token vai ser utilizado na github action
+    """
+    permission_classes = (IsAuthenticated,)
+
+    serializer_class = APIAcessTokenRetrieveSerializer
+
+    def get_object(self):
+        user = CustomUser.objects.get(username=self.request.user)
+        token = MultiToken.objects.create(user=user, user_agent='api_access')
+
+        return token
