@@ -5,24 +5,20 @@ from utils.exceptions import InvalidPreConfigException
 
 
 class PreConfigSerializer(serializers.ModelSerializer):
-    created_config = serializers.SerializerMethodField('has_created_config')
+    created_config = serializers.SerializerMethodField("has_created_config")
 
     class Meta:
         model = PreConfig
-        fields = (
-            'id',
-            'name',
-            'data',
-            'created_at',
-            'created_config'
-        )
+        fields = ("id", "name", "data", "created_at", "created_config")
         extra_kwargs = {
-            'created_at': {'read_only': True},
-            'created_config': {'read_only': True, }
+            "created_at": {"read_only": True},
+            "created_config": {
+                "read_only": True,
+            },
         }
 
     def has_created_config(self, obj):
-        return len(PreConfig.objects.values('id')) > 1
+        return len(PreConfig.objects.values("id")) > 1
 
     def validate(self, attrs):
         """

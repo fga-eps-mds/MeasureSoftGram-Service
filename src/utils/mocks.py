@@ -48,7 +48,7 @@ class Mocks:
         return Mocks.calculate_entity(params, "characteristics")
 
     @staticmethod
-    def calculate_sqc(params):
+    def calculate_tsqmi(params):
         _status_code = int(os.getenv("RESPONSE_HTTP_STATUS_CODE", "200"))
         _json = {"value": random.random()}
         return IResponse(_json, _status_code)

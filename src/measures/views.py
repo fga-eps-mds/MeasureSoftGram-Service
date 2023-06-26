@@ -11,7 +11,6 @@ from measures.serializers import (
     SupportedMeasureSerializer,
 )
 from organizations.models import Repository
-from utils.clients import CoreClient
 
 
 class CalculateMeasuresViewSet(

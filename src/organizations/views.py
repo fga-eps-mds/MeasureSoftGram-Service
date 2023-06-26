@@ -1,13 +1,13 @@
-from rest_framework import mixins, viewsets, permissions
+from rest_framework import mixins, permissions, viewsets
 from rest_framework.generics import get_object_or_404
 
 from organizations.models import Organization, Product, Repository
 from organizations.serializers import (
     OrganizationSerializer,
     ProductSerializer,
-    RepositoriesSQCHistorySerializer,
+    RepositoriesTSQMIHistorySerializer,
     RepositorySerializer,
-    RepositorySQCLatestValueSerializer,
+    RepositoryTSQMILatestValueSerializer,
 )
 
 
@@ -77,16 +77,16 @@ class RepositoryViewSet(
         return qs.filter(product=self.kwargs["product_pk"])
 
 
-class RepositoriesSQCLatestValueViewSet(
+class RepositoriesTSQMILatestValueViewSet(
     RepositoryViewSetMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
     """
-    Lista o SQC mais recente dos repositórios de um produto
+    Lista o TSQMI mais recente dos repositórios de um produto
     """
 
-    serializer_class = RepositorySQCLatestValueSerializer
+    serializer_class = RepositoryTSQMILatestValueSerializer
     queryset = Repository.objects.all()
 
     def get_queryset(self):
@@ -94,26 +94,26 @@ class RepositoriesSQCLatestValueViewSet(
         qs = product.repositories.all()
         qs = qs.order_by("-id")
         qs = qs.prefetch_related(
-            "calculated_sqcs",
+            "calculated_tsqmis",
             "product",
             "product__organization",
         )
         return qs
 
 
-class RepositoriesSQCHistoryViewSet(
+class RepositoriesTSQMIHistoryViewSet(
     RepositoryViewSetMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = RepositoriesSQCHistorySerializer
+    serializer_class = RepositoriesTSQMIHistorySerializer
     queryset = Repository.objects.all()
 
     def get_queryset(self):
         product = self.get_product()
         qs = product.repositories.all()
         qs = qs.prefetch_related(
-            "calculated_sqcs",
+            "calculated_tsqmis",
             "product",
             "product__organization",
         )

@@ -4,8 +4,8 @@ from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueValidator
 
 from organizations.models import Organization, Product, Repository
-from sqc.models import SQC
-from sqc.serializers import SQCSerializer
+from tsqmi.models import TSQMI
+from tsqmi.serializers import TSQMISerializer
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
@@ -179,14 +179,14 @@ class ProductSerializer(serializers.ModelSerializer):
             obj, "pre-config-entity-relationship-tree-list"
         )
 
-        repositories_latest_sqcs_url = self.reverse_product_resource(
+        repositories_latest_tsqmis_url = self.reverse_product_resource(
             obj,
-            "repositories-sqc-latest-values-list",
+            "repositories-tsqmi-latest-values-list",
         )
 
-        repositories_sqc_historical_values_url = self.reverse_product_resource(
+        repositories_tsqmi_historical_values_url = self.reverse_product_resource(
             obj,
-            "repositories-sqc-historical-values-list",
+            "repositories-tsqmi-historical-values-list",
         )
 
         return {
@@ -195,8 +195,8 @@ class ProductSerializer(serializers.ModelSerializer):
             "get compare all goals": compare_goals_url,
             "get current pre-config": current_pre_config_url,
             "get pre-config entity relationship tree": pre_config_entity_relationship_tree_url,
-            "get all repositories latest sqcs": repositories_latest_sqcs_url,
-            "get all repositories sqc historical values": repositories_sqc_historical_values_url,
+            "get all repositories latest tsqmis": repositories_latest_tsqmis_url,
+            "get all repositories tsqmi historical values": repositories_tsqmi_historical_values_url,
             "create a new goal": create_a_new_goal_url,
             "create a new pre-config": create_a_pre_config_url,
         }
@@ -305,9 +305,9 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "calculate-characteristics-list",
         )
 
-        calculate_sqc_url = self.reverse_repository_resource(
+        calculate_tsqmi_url = self.reverse_repository_resource(
             obj,
-            "calculate-sqc-list",
+            "calculate-tsqmi-list",
         )
 
         github_collector_url = self.reverse_repository_resource(
@@ -325,7 +325,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "calculate measures": calculate_measures_url,
             "calculate subcharacteristics": calculate_subcharacteristics_url,
             "calculate characteristics": calculate_characteristics_url,
-            "calculate sqc": calculate_sqc_url,
+            "calculate tsqmi": calculate_tsqmi_url,
             "import metrics from github": github_collector_url,
             "import metrics from SonarQube JSON": sonarqube_collector_url,
         }
@@ -354,9 +354,9 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "characteristics-historical-values-list",
         )
 
-        sqc_historical_values_url = self.reverse_repository_resource(
+        tsqmi_historical_values_url = self.reverse_repository_resource(
             obj,
-            "sqc-historical-values-list",
+            "tsqmi-historical-values-list",
         )
 
         return {
@@ -364,7 +364,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "measures": measures_historical_values_url,
             "subcharacteristics": subcharacteristics_historical_values_url,
             "characteristics": characteristics_historical_values_url,
-            "sqc": sqc_historical_values_url,
+            "tsqmi": tsqmi_historical_values_url,
         }
 
     def get_latest_values(self, obj: Repository):
@@ -391,9 +391,9 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "latest-calculated-characteristics-list",
         )
 
-        sqc_latest_values_url = self.reverse_repository_resource(
+        tsqmi_latest_values_url = self.reverse_repository_resource(
             obj,
-            "latest-calculated-sqc-list",
+            "latest-calculated-tsqmi-list",
         )
 
         return {
@@ -401,25 +401,25 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "measures": measures_latest_values_url,
             "subcharacteristics": subcharacteristics_latest_values_url,
             "characteristics": characteristics_latest_values_url,
-            "sqc": sqc_latest_values_url,
+            "tsqmi": tsqmi_latest_values_url,
         }
 
 
-class RepositorySQCLatestValueSerializer(serializers.ModelSerializer):
+class RepositoryTSQMILatestValueSerializer(serializers.ModelSerializer):
     """
-    Serialização do último valor coletado de SQC
+    Serialização do último valor coletado de TSQMI
     """
 
-    current_sqc = serializers.SerializerMethodField()
+    current_tsqmi = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
 
     class Meta:
         model = Repository
-        fields = ("id", "url", "name", "current_sqc")
+        fields = ("id", "url", "name", "current_tsqmi")
 
-    def get_current_sqc(self, repository: Repository):
-        sqc = repository.calculated_sqcs.first()
-        return SQCSerializer(sqc).data if sqc else {}
+    def get_current_tsqmi(self, repository: Repository):
+        tsqmi = repository.calculated_tsqmis.first()
+        return TSQMISerializer(tsqmi).data if tsqmi else {}
 
     def get_url(self, obj):
         """
@@ -435,7 +435,7 @@ class RepositorySQCLatestValueSerializer(serializers.ModelSerializer):
         )
 
 
-class RepositoriesSQCHistorySerializer(serializers.ModelSerializer):
+class RepositoriesTSQMIHistorySerializer(serializers.ModelSerializer):
     history = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
 
@@ -460,7 +460,7 @@ class RepositoriesSQCHistorySerializer(serializers.ModelSerializer):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
 
         try:
-            qs = obj.calculated_sqcs.all().reverse()[:MAX]
-            return SQCSerializer(qs, many=True).data
-        except SQC.DoesNotExist:
+            qs = obj.calculated_tsqmis.all().reverse()[:MAX]
+            return TSQMISerializer(qs, many=True).data
+        except TSQMI.DoesNotExist:
             return None

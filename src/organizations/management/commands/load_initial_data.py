@@ -23,12 +23,12 @@ from measures.models import CalculatedMeasure, SupportedMeasure
 from metrics.models import CollectedMetric, SupportedMetric
 from organizations.models import Organization, Product, Repository
 from pre_configs.models import PreConfig
-from sqc.models import SQC
+from staticfiles import SONARQUBE_SUPPORTED_MEASURES
 from subcharacteristics.models import (
     CalculatedSubCharacteristic,
     SupportedSubCharacteristic,
 )
-from staticfiles import SONARQUBE_SUPPORTED_MEASURES
+from tsqmi.models import TSQMI
 
 # Local Imports
 from utils import (
@@ -371,20 +371,20 @@ class Command(BaseCommand):
         serializer.is_valid(raise_exception=True)
         serializer.save(product=product)
 
-    def create_fake_sqc_data(self, repository):
+    def create_fake_tsqmi_data(self, repository):
         if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
             return
 
-        qs = SQC.objects.filter(repository=repository)
+        qs = TSQMI.objects.filter(repository=repository)
 
         MIN_NUMBER = 50
 
         if qs.count() >= MIN_NUMBER:
             return
 
-        SQC.objects.bulk_create(
+        TSQMI.objects.bulk_create(
             [
-                SQC(
+                TSQMI(
                     value=get_random_value("PERCENT"),
                     repository=repository,
                 )
@@ -591,7 +591,7 @@ class Command(BaseCommand):
         #         self.create_fake_calculated_measures(repository)
         #         self.create_fake_calculated_subcharacteristics(repository)
         #         self.create_fake_calculated_characteristics(repository)
-        #         self.create_fake_sqc_data(repository)
+        #         self.create_fake_tsqmi_data(repository)
 
         # products = Product.objects.all()
 

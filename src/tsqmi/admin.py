@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from sqc.models import SQC
+from tsqmi.models import TSQMI
 
 
-@admin.register(SQC)
-class SQCAdmin(admin.ModelAdmin):
+@admin.register(TSQMI)
+class TSQMIAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "value",

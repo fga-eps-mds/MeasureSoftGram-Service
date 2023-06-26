@@ -244,10 +244,10 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         response = self.client.get(characteristics_url, format="json")
         self.assertEqual(response.status_code, 200)
 
-    def test_if_latest_sqc_values_action_url_is_working(self):
+    def test_if_latest_tsqmi_values_action_url_is_working(self):
         latest_values_urls = self.get_repository_urls("latest_values")
-        sqc_url = latest_values_urls["sqc"]
-        response = self.client.get(sqc_url, format="json")
+        tsqmi_url = latest_values_urls["tsqmi"]
+        response = self.client.get(tsqmi_url, format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_if_historical_metrics_values_action_url_is_working(self):
@@ -274,10 +274,10 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         response = self.client.get(characteristics_url, format="json")
         self.assertEqual(response.status_code, 200)
 
-    def test_if_historical_sqc_values_action_url_is_working(self):
+    def test_if_historical_tsqmi_values_action_url_is_working(self):
         latest_values_urls = self.get_repository_urls("historical_values")
-        sqc_url = latest_values_urls["sqc"]
-        response = self.client.get(sqc_url, format="json")
+        tsqmi_url = latest_values_urls["tsqmi"]
+        response = self.client.get(tsqmi_url, format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_if_collect_metric_action_url_is_working(self):
@@ -354,7 +354,7 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
     def test_if_calculate_tsqmi_action_url_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls("actions")
-        url = actions_urls["calculate sqc"]
+        url = actions_urls["calculate tsqmi"]
 
         for char in SupportedCharacteristic.objects.all():
             CalculatedCharacteristic.objects.create(
@@ -366,7 +366,7 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
     def test_if_calculate_tsqmi_action_url_is_not_working(self, *a, **k):
         actions_urls = self.get_repository_urls("actions")
-        url = actions_urls["calculate sqc"]
+        url = actions_urls["calculate tsqmi"]
 
         for char in SupportedCharacteristic.objects.all():
             CalculatedCharacteristic.objects.create(
@@ -393,7 +393,7 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
     def test_if_calculate_tsqmi_with_created_at_param_is_working(self, *a, **k):
         actions_urls = self.get_repository_urls("actions")
-        url = actions_urls["calculate sqc"]
+        url = actions_urls["calculate tsqmi"]
         now = dt.datetime.now(ZoneInfo("America/Sao_Paulo"))
         created_at = now - dt.timedelta(days=0)
 

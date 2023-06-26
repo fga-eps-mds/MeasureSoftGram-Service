@@ -12,7 +12,6 @@ from characteristics.serializers import (
 )
 from organizations.models import Product, Repository
 from pre_configs.models import PreConfig
-from utils.clients import CoreClient
 from utils.exceptions import SubCharacteristicNotDefinedInPreConfiguration
 
 

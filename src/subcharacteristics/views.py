@@ -15,7 +15,6 @@ from subcharacteristics.serializers import (
     SubCharacteristicsCalculationsRequestSerializer,
     SupportedSubCharacteristicSerializer,
 )
-from utils.clients import CoreClient
 
 
 class CalculateSubCharacteristicViewSet(

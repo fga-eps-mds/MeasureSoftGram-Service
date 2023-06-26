@@ -1,14 +1,12 @@
 from typing import Dict
 
 from django.contrib.auth import get_user_model
-from rest_framework.exceptions import status
-
-from rest_framework.reverse import reverse
 from rest_framework.authtoken.models import Token
+from rest_framework.exceptions import status
+from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from organizations.models import Organization, Product
-
 from utils.tests import APITestCaseExpanded
 
 User = get_user_model()
@@ -251,8 +249,8 @@ class ProductsViewsSetCase(APITestCaseExpanded):
             "get compare all goals",
             "get current pre-config",
             "get pre-config entity relationship tree",
-            "get all repositories latest sqcs",
-            "get all repositories sqc historical values",
+            "get all repositories latest tsqmis",
+            "get all repositories tsqmi historical values",
             "create a new goal",
             "create a new pre-config",
         ]
@@ -285,15 +283,15 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         response = self.client.post(action_url, data, format="json")
         self.assertEqual(response.status_code, 201)
 
-    def test_if_get_all_repos_sqcs_action_url_is_working(self):
+    def test_if_get_all_repos_tsqmis_action_url_is_working(self):
         actions, product = self.get_product_actions()
-        action_url = actions["get all repositories latest sqcs"]
+        action_url = actions["get all repositories latest tsqmis"]
         response = self.client.get(action_url)
         self.assertEqual(response.status_code, 200)
 
-    def test_if_get_all_repos_sqcs_history_action_url_is_working(self):
+    def test_if_get_all_repos_tsqmis_history_action_url_is_working(self):
         actions, product = self.get_product_actions()
-        action_url = actions["get all repositories sqc historical values"]
+        action_url = actions["get all repositories tsqmi historical values"]
         response = self.client.get(action_url)
         self.assertEqual(response.status_code, 200)
 
@@ -359,20 +357,20 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         response = self.client.get(pre_config_entity_relationship_tree_url)
         self.assertEqual(response.status_code, 200)
 
-    def test_if_get_all_repositories_latest_sqcs_url_is_working(self):
+    def test_if_get_all_repositories_latest_tsqmis_url_is_working(self):
         actions, product = self.get_product_actions()
-        get_all_repositories_latest_sqcs_url = actions[
-            "get all repositories latest sqcs"
+        get_all_repositories_latest_tsqmis_url = actions[
+            "get all repositories latest tsqmis"
         ]
-        response = self.client.get(get_all_repositories_latest_sqcs_url)
+        response = self.client.get(get_all_repositories_latest_tsqmis_url)
         self.assertEqual(response.status_code, 200)
 
-    def test_if_get_all_repositories_sqc_historical_values_url_is_working(self):
+    def test_if_get_all_repositories_tsqmi_historical_values_url_is_working(self):
         actions, product = self.get_product_actions()
-        get_all_repositories_sqc_historical_values_url = actions[
-            "get all repositories sqc historical values"
+        get_all_repositories_tsqmi_historical_values_url = actions[
+            "get all repositories tsqmi historical values"
         ]
-        response = self.client.get(get_all_repositories_sqc_historical_values_url)
+        response = self.client.get(get_all_repositories_tsqmi_historical_values_url)
         self.assertEqual(response.status_code, 200)
 
     def test_if_is_not_allowed_to_create_products_with_same_name(self):

@@ -22,9 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "SECRET_KEY", "django-insecure-9(nkl$g75ia=@q3p*s83rc9y=q5=!q@kr8+s3*xc-t441#jmg%"
-)
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-9(nkl$g75ia=@q3p*s83rc9y=q5=!q@kr8+s3*xc-t441#jmg%")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
@@ -32,9 +30,7 @@ DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
 # Allowed origins on CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    os.getenv(
-        "FRONTEND_DEV_URL", "https://2023-1-measure-soft-gram-front-staging.vercel.app"
-    ),
+    os.getenv("FRONTEND_DEV_URL", "https://2023-1-measure-soft-gram-front-staging.vercel.app"),
     os.getenv("FRONTEND_PROD_URL", "https://2023-1-measure-soft-gram-front.vercel.app"),
 ]
 CORS_ALLOW_CREDENTIALS = True
@@ -75,7 +71,7 @@ APPLICATION_APPS = [
     "measures",
     "subcharacteristics",
     "characteristics",
-    "sqc",
+    "tsqmi",
     "pre_configs",
     "goals",
     "entity_trees",
@@ -186,7 +182,6 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORE_URL = os.getenv("CORE_URL", "http://localhost:5000")
 
 django_heroku.settings(locals())
 
@@ -195,9 +190,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 500,
     "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.TokenAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
 }
 
 # allauth related configs
@@ -231,9 +224,7 @@ MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(
     )
 )
 
-GITHUB_PIPELINE_METRICS_THRESHOLD = int(
-    os.getenv("GITHUB_PIPELINE_METRICS_THRESHOLD", "90")
-)
+GITHUB_PIPELINE_METRICS_THRESHOLD = int(os.getenv("GITHUB_PIPELINE_METRICS_THRESHOLD", "90"))
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
     os.getenv(

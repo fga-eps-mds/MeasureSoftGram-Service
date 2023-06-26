@@ -7,16 +7,16 @@ from characteristics.models import SupportedCharacteristic
 from measures.models import SupportedMeasure
 from metrics.models import SupportedMetric
 from organizations.models import Product, Repository
-from sqc.models import SQC
-from sqc.serializers import SQCCalculationRequestSerializer, SQCSerializer
+from tsqmi.models import TSQMI
+from tsqmi.serializers import TSQMICalculationRequestSerializer, TSQMISerializer
 from utils.exceptions import CharacteristicNotDefinedInPreConfiguration
 
 
-class LatestCalculatedSQCViewSet(
+class LatestCalculatedTSQMIViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = SQCSerializer
+    serializer_class = TSQMISerializer
 
     def get_repository(self):
         return get_object_or_404(
@@ -28,16 +28,16 @@ class LatestCalculatedSQCViewSet(
 
     def get_queryset(self):
         repository = self.get_repository()
-        return repository.calculated_sqcs.all()
+        return repository.calculated_tsqmis.all()
 
     def list(self, request, *args, **kwargs):
         repository = self.get_repository()
-        latest_sqc = repository.calculated_sqcs.first()
-        serializer = self.get_serializer(latest_sqc)
+        latest_tsqmi = repository.calculated_tsqmis.first()
+        serializer = self.get_serializer(latest_tsqmi)
         return Response(serializer.data)
 
 
-class CalculatedSQCHistoryModelViewSet(
+class CalculatedTSQMIHistoryModelViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
@@ -46,7 +46,7 @@ class CalculatedSQCHistoryModelViewSet(
     ViewSet para cadastrar as medidas coletadas
     """
 
-    serializer_class = SQCSerializer
+    serializer_class = TSQMISerializer
 
     def get_repository(self):
         return get_object_or_404(
@@ -63,14 +63,14 @@ class CalculatedSQCHistoryModelViewSet(
             product_id=self.kwargs["product_pk"],
             product__organization_id=self.kwargs["organization_pk"],
         )
-        return repository.calculated_sqcs.all().reverse()
+        return repository.calculated_tsqmis.all().reverse()
 
 
-class CalculateSQC(
+class CalculateTSQMI(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = SQCSerializer
+    serializer_class = TSQMISerializer
 
     def get_repository(self):
         return get_object_or_404(
@@ -88,7 +88,7 @@ class CalculateSQC(
         )
 
     def create(self, request, *args, **kwargs):
-        serializer = SQCCalculationRequestSerializer(
+        serializer = TSQMICalculationRequestSerializer(
             data=request.data,
             context={"request": request},
         )
@@ -135,11 +135,11 @@ class CalculateSQC(
 
         data = calculate_result.get("tsqmi")[0]
 
-        sqc = SQC.objects.create(
+        tsqmi = TSQMI.objects.create(
             repository=repository,
             value=data["value"],
             created_at=created_at,
         )
 
-        serializer = SQCSerializer(sqc)
+        serializer = TSQMISerializer(tsqmi)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
