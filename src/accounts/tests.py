@@ -3,7 +3,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth import get_user_model
 
 from rest_framework.reverse import reverse
-from rest_framework.authtoken.models import Token
+from drf_multitokenauth.models import MultiToken
 
 from parameterized import parameterized
 
@@ -35,13 +35,15 @@ class AccountsViews(APITestCaseExpanded):
         self.user.save()
 
     def test_logout_acccount(self):
-        token = Token.objects.create(user=self.user)
+        token = MultiToken.objects.create(user=self.user, user_agent='normal')
         self.client.force_authenticate(user=self.user, token=token)
 
-        url = reverse("accounts-logout")
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+
+        url = reverse('accounts-logout')
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
-        self.assertEqual(Token.objects.count(), 0)
+        self.assertEqual(MultiToken.objects.count(), 0)
 
     def test_fail_logout_without_authentication(self):
         url = reverse("accounts-logout")
@@ -55,8 +57,8 @@ class AccountsViews(APITestCaseExpanded):
         self.assertEqual(response.status_code, 201, response.json())
 
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(Token.objects.filter(user=User.objects.first()).count(), 1)
-        self.assertEqual(Token.objects.first().key, response.json()["key"])
+        self.assertEqual(MultiToken.objects.filter(user=User.objects.first()).count(), 1)
+        self.assertEqual(MultiToken.objects.first().key, response.json()['key'])
 
     @parameterized.expand([("username", "username"), ("email", "email address")])
     def test_fail_create_account_already_exists(self, field, error):
@@ -80,7 +82,7 @@ class AccountsViews(APITestCaseExpanded):
         )
 
         self.assertEqual(response.status_code, 200, response.json())
-        self.assertEqual(Token.objects.get(user=self.user).key, response.json()["key"])
+        self.assertEqual(MultiToken.objects.get(user=self.user, user_agent='normal').key, response.json()['key'])
 
     def test_fail_login_username_and_email(self):
         url = reverse("accounts-login")
@@ -134,11 +136,9 @@ class AccountsViews(APITestCaseExpanded):
         )
 
     def test_retrieve_account(self):
-        url = reverse("accounts-retrieve")
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
-        response = self.client.get(url, format="json")
+        url = reverse('accounts-retrieve')
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key)
+        response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, 200, response.json())
         fields = ("username", "first_name", "last_name", "email")
@@ -159,10 +159,8 @@ class AccountsViews(APITestCaseExpanded):
             user=self.user, extra_data=extra_data
         )
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
-        response = self.client.get(url, format="json")
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key)
+        response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, 200, response.json())
         fields = ("avatar_url", "repos_url", "organizations_url")
@@ -179,3 +177,12 @@ class AccountsViews(APITestCaseExpanded):
         self.assertIn(
             "Authentication credentials were not provided.", response.json()["detail"]
         )
+
+    def test_access_token(self):
+        url = reverse('api-token-retrieve')
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key)
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, 200, response.json())
+        fields = ('key')
+        self.assertEqual(MultiToken.objects.get(user=self.user, user_agent='api_access').key, response.json()['key'])
