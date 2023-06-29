@@ -67,7 +67,9 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         self.password = "testpass"
         self.user.set_password(self.password)
         self.user.save()
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key)
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key
+        )
 
     def validate_goal_request(
         self,

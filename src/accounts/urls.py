@@ -14,6 +14,8 @@ urlpatterns = [
         re_path(r'^logout/$', LogoutViewSet.as_view({'delete': 'destroy'}), name='accounts-logout'),
         re_path(r'^$', RetrieveAccountViewSet.as_view({'get': 'retrieve'}), name='accounts-retrieve'),
         re_path(r'^github/login/$', GithubLoginViewSet.as_view(), name='github-login'),
-        re_path(r'^access-token/$', RetrieveAPIAcessTokenViewSet.as_view({'get': 'retrieve'}), name='api-token-retrieve'),
+        re_path(r'^access-token/$',
+                RetrieveAPIAcessTokenViewSet.as_view({'get': 'retrieve'}),
+                name='api-token-retrieve'),
     ]))
 ]

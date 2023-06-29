@@ -84,7 +84,8 @@ class LogoutViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response({'error': 'invalid token'}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 class RetrieveAPIAcessTokenViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet

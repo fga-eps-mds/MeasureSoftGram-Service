@@ -137,7 +137,9 @@ class AccountsViews(APITestCaseExpanded):
 
     def test_retrieve_account(self):
         url = reverse('accounts-retrieve')
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key)
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key
+        )
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, 200, response.json())
@@ -159,7 +161,9 @@ class AccountsViews(APITestCaseExpanded):
             user=self.user, extra_data=extra_data
         )
 
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key)
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key
+        )
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, 200, response.json())
@@ -180,9 +184,10 @@ class AccountsViews(APITestCaseExpanded):
 
     def test_access_token(self):
         url = reverse('api-token-retrieve')
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key)
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key
+        )
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, 200, response.json())
-        fields = ('key')
         self.assertEqual(MultiToken.objects.get(user=self.user, user_agent='api_access').key, response.json()['key'])

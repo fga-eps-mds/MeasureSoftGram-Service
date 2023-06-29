@@ -90,6 +90,7 @@ class AccountsLoginSerializer(serializers.Serializer):
 
         return self.token
 
+
 class APIAcessTokenRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = MultiToken
