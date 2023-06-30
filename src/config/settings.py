@@ -22,108 +22,98 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    'django-insecure-9(nkl$g75ia=@q3p*s83rc9y=q5=!q@kr8+s3*xc-t441#jmg%'
-
-)
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-9(nkl$g75ia=@q3p*s83rc9y=q5=!q@kr8+s3*xc-t441#jmg%")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
 
 # Allowed origins on CORS
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
+    "http://localhost:3000",
     os.getenv("FRONTEND_DEV_URL", "https://2023-1-measure-soft-gram-front-staging.vercel.app"),
     os.getenv("FRONTEND_PROD_URL", "https://2023-1-measure-soft-gram-front.vercel.app"),
 ]
 CORS_ALLOW_CREDENTIALS = True
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Application definition
 
 DJANGO_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.sites",
 ]
 
 THIRD_PARTY_APPS = [
-    'rest_framework',
-    'rest_framework.authtoken',
-    'simple_history',
-    'corsheaders',
-    'debug_toolbar',
-
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
-
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.github',
+    "rest_framework",
+    "rest_framework.authtoken",
+    "simple_history",
+    "corsheaders",
+    "debug_toolbar",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.github",
 ]
 
 APPLICATION_APPS = [
-    'accounts',
-    'organizations',
-
-    'metrics',
-    'measures',
-    'subcharacteristics',
-    'characteristics',
-    'sqc',
-
-    'pre_configs',
-    'goals',
-    'entity_trees',
-
-    'collectors',
-
-    'utils',
+    "accounts",
+    "organizations",
+    "metrics",
+    "measures",
+    "subcharacteristics",
+    "characteristics",
+    "tsqmi",
+    "pre_configs",
+    "goals",
+    "entity_trees",
+    "collectors",
+    "utils",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + APPLICATION_APPS
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'simple_history.middleware.HistoryRequestMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "simple_history.middleware.HistoryRequestMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # new
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # new
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = "config.wsgi.application"
 
 
 # Database
@@ -152,31 +142,31 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = 'America/Sao_Paulo'
+TIME_ZONE = "America/Sao_Paulo"
 
 USE_I18N = True
 
@@ -185,14 +175,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORE_URL = os.getenv("CORE_URL", "http://localhost:5000")
 
 django_heroku.settings(locals())
 
@@ -200,12 +189,8 @@ django_heroku.settings(locals())
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 500,
-    "DEFAULT_PARSER_CLASSES": (
-        "rest_framework.parsers.JSONParser",
-    ),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.TokenAuthentication",
-    )
+    "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
 }
 
 # allauth related configs
@@ -220,92 +205,88 @@ SOCIALACCOUNT_PROVIDERS = {
     "github": {
         "APP": {
             "client_id": os.getenv("GITHUB_CLIENT_ID", ""),
-            "secret": os.getenv("GITHUB_SECRET", "")
+            "secret": os.getenv("GITHUB_SECRET", ""),
         },
-        "SCOPE": [
-            "read:user",
-            "user:email",
-            "read:project",
-            "read:org",
-            "repo"
-        ],
+        "SCOPE": ["read:user", "user:email", "read:project", "read:org", "repo"],
     }
 }
 
-CREATE_FAKE_DATA = os.getenv(
-    "CREATE_FAKE_DATA", "False"
-).lower() in ("true", "t", "1")
+CREATE_FAKE_DATA = os.getenv("CREATE_FAKE_DATA", "False").lower() in ("true", "t", "1")
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
-GITHUB_ISSUE_METRICS_THRESHOLD = int(
-    os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7")
+GITHUB_ISSUE_METRICS_THRESHOLD = int(os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7"))
+
+MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(
+    os.getenv(
+        "MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS",
+        "100",
+    )
 )
 
-MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(os.getenv(
-    "MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS",
-    "100",
-))
+GITHUB_PIPELINE_METRICS_THRESHOLD = int(os.getenv("GITHUB_PIPELINE_METRICS_THRESHOLD", "90"))
 
-GITHUB_PIPELINE_METRICS_THRESHOLD = int(
-    os.getenv("GITHUB_PIPELINE_METRICS_THRESHOLD", "90")
+DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
+    os.getenv(
+        "DATA_UPLOAD_MAX_NUMBER_FIELDS",
+        "100000",
+    )
 )
-
-DATA_UPLOAD_MAX_NUMBER_FIELDS = int(os.getenv(
-    "DATA_UPLOAD_MAX_NUMBER_FIELDS",
-    "100000",
-))
 
 AUTH_USER_MODEL = "accounts.CustomUser"
 
 if DEBUG:
     import socket  # only if you haven't already imported this
+
     hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
+    INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
+        "127.0.0.1",
+        "10.0.2.2",
+    ]
 
 GITHUB_METRICS = [
     {
         "key": "number_of_resolved_issues_in_the_last_x_days",
         "name": "Number of resolved issues in the last x days",
         "metric_type": "INT",
-        'api_params': [
-            'issues_repository_url',
-            'issues_metrics_x_days',
+        "api_params": [
+            "issues_repository_url",
+            "issues_metrics_x_days",
         ],
-        'methods_params_map': {
-            '__init__': {
-                'url': 'issues_repository_url',
-                'token': 'github_token',
+        "methods_params_map": {
+            "__init__": {
+                "url": "issues_repository_url",
+                "token": "github_token",
             },
-            'metric_method': {
-                'method_name': 'get_number_of_issues_resolved_in_the_last_x_days',
-                'method_params': {
-                    'x': 'issues_metrics_x_days',
-                }
-            }
+            "metric_method": {
+                "method_name": "get_number_of_issues_resolved_in_the_last_x_days",
+                "method_params": {
+                    "x": "issues_metrics_x_days",
+                },
+            },
         },
     },
     {
         "key": "number_of_resolved_issues_with_US_label_in_the_last_x_days",
         "name": "Number of resolved issues with US label in the last x days",
         "metric_type": "INT",
-        'api_params': [
-            'issues_repository_url',
-            'issues_metrics_x_days',
-            'user_story_label',
+        "api_params": [
+            "issues_repository_url",
+            "issues_metrics_x_days",
+            "user_story_label",
         ],
-        'methods_params_map': {
-            '__init__': {
-                'url': 'issues_repository_url',
-                'token': 'github_token',
+        "methods_params_map": {
+            "__init__": {
+                "url": "issues_repository_url",
+                "token": "github_token",
             },
-            'metric_method': {
-                'method_name': 'get_number_of_issues_resolved_in_the_last_x_days',
-                'method_params': {
-                    'x': 'issues_metrics_x_days',
-                    'label': 'user_story_label',
-                }
-            }
+            "metric_method": {
+                "method_name": "get_number_of_issues_resolved_in_the_last_x_days",
+                "method_params": {
+                    "x": "issues_metrics_x_days",
+                    "label": "user_story_label",
+                },
+            },
         },
     },
     {
@@ -313,22 +294,22 @@ GITHUB_METRICS = [
         "name": "Number of issues with bug label in the last x days",
         "metric_type": "INT",
         "api_params": [
-            'issues_repository_url',
-            'issues_metrics_x_days',
-            'bug_label',
+            "issues_repository_url",
+            "issues_metrics_x_days",
+            "bug_label",
         ],
-        'methods_params_map': {
-            '__init__': {
-                'url': 'issues_repository_url',
-                'token': 'github_token',
+        "methods_params_map": {
+            "__init__": {
+                "url": "issues_repository_url",
+                "token": "github_token",
             },
-            'metric_method': {
-                'method_name': 'get_total_number_of_issues_in_the_last_x_days',
-                'method_params': {
-                    'x': 'issues_metrics_x_days',
-                    'label': 'bug_label',
-                }
-            }
+            "metric_method": {
+                "method_name": "get_total_number_of_issues_in_the_last_x_days",
+                "method_params": {
+                    "x": "issues_metrics_x_days",
+                    "label": "bug_label",
+                },
+            },
         },
     },
     {
@@ -336,22 +317,22 @@ GITHUB_METRICS = [
         "name": "Total number of issues with US label in the last x days",
         "metric_type": "INT",
         "api_params": [
-            'issues_repository_url',
-            'issues_metrics_x_days',
-            'user_story_label',
+            "issues_repository_url",
+            "issues_metrics_x_days",
+            "user_story_label",
         ],
-        'methods_params_map': {
-            '__init__': {
-                'url': 'issues_repository_url',
-                'token': 'github_token',
+        "methods_params_map": {
+            "__init__": {
+                "url": "issues_repository_url",
+                "token": "github_token",
             },
-            'metric_method': {
-                'method_name': 'get_total_number_of_issues_in_the_last_x_days',
-                'method_params': {
-                    'x': 'issues_metrics_x_days',
-                    'label': 'user_story_label',
-                }
-            }
+            "metric_method": {
+                "method_name": "get_total_number_of_issues_in_the_last_x_days",
+                "method_params": {
+                    "x": "issues_metrics_x_days",
+                    "label": "user_story_label",
+                },
+            },
         },
     },
     {
@@ -359,20 +340,20 @@ GITHUB_METRICS = [
         "name": "Total number of issues in the last x days",
         "metric_type": "INT",
         "api_params": [
-            'issues_repository_url',
-            'issues_metrics_x_days',
+            "issues_repository_url",
+            "issues_metrics_x_days",
         ],
-        'methods_params_map': {
-            '__init__': {
-                'url': 'issues_repository_url',
-                'token': 'github_token',
+        "methods_params_map": {
+            "__init__": {
+                "url": "issues_repository_url",
+                "token": "github_token",
             },
-            'metric_method': {
-                'method_name': 'get_total_number_of_issues_in_the_last_x_days',
-                'method_params': {
-                    'x': 'issues_metrics_x_days',
-                }
-            }
+            "metric_method": {
+                "method_name": "get_total_number_of_issues_in_the_last_x_days",
+                "method_params": {
+                    "x": "issues_metrics_x_days",
+                },
+            },
         },
     },
     {
@@ -380,20 +361,20 @@ GITHUB_METRICS = [
         "name": "Number of build pipelines in the last x days",
         "metric_type": "INT",
         "api_params": [
-            'pipelines_repository_url',
-            'pipeline_metrics_x_days',
-            'build_pipeline_names',
+            "pipelines_repository_url",
+            "pipeline_metrics_x_days",
+            "build_pipeline_names",
         ],
-        'methods_params_map': {
-            '__init__': {
-                'url': 'pipelines_repository_url',
-                'token': 'github_token',
+        "methods_params_map": {
+            "__init__": {
+                "url": "pipelines_repository_url",
+                "token": "github_token",
             },
-            'metric_method': {
-                'method_name': 'get_the_number_of_build_pipelines_executed_in_the_last_x_days',
-                'method_params': {
-                    'x': 'issues_metrics_x_days',
-                    'build_pipeline_names': 'build_pipeline_names',
+            "metric_method": {
+                "method_name": "get_the_number_of_build_pipelines_executed_in_the_last_x_days",
+                "method_params": {
+                    "x": "issues_metrics_x_days",
+                    "build_pipeline_names": "build_pipeline_names",
                 },
             },
         },
@@ -403,20 +384,20 @@ GITHUB_METRICS = [
         "name": "Runtime sum of build pipelines in the last x days",
         "metric_type": "INT",
         "api_params": [
-            'pipelines_repository_url',
-            'pipeline_metrics_x_days',
-            'build_pipeline_names',
+            "pipelines_repository_url",
+            "pipeline_metrics_x_days",
+            "build_pipeline_names",
         ],
-        'methods_params_map': {
-            '__init__': {
-                'url': 'pipelines_repository_url',
-                'token': 'github_token',
+        "methods_params_map": {
+            "__init__": {
+                "url": "pipelines_repository_url",
+                "token": "github_token",
             },
-            'metric_method': {
-                'method_name': 'get_the_sum_of_their_durations_in_the_last_x_days',
-                'method_params': {
-                    'x': 'issues_metrics_x_days',
-                    'build_pipeline_names': 'build_pipeline_names',
+            "metric_method": {
+                "method_name": "get_the_sum_of_their_durations_in_the_last_x_days",
+                "method_params": {
+                    "x": "issues_metrics_x_days",
+                    "build_pipeline_names": "build_pipeline_names",
                 },
             },
         },

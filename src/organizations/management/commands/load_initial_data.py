@@ -23,12 +23,12 @@ from measures.models import CalculatedMeasure, SupportedMeasure
 from metrics.models import CollectedMetric, SupportedMetric
 from organizations.models import Organization, Product, Repository
 from pre_configs.models import PreConfig
-from sqc.models import SQC
+from staticfiles import SONARQUBE_SUPPORTED_MEASURES
 from subcharacteristics.models import (
     CalculatedSubCharacteristic,
     SupportedSubCharacteristic,
 )
-from staticfiles import SONARQUBE_SUPPORTED_MEASURES
+from tsqmi.models import TSQMI
 
 # Local Imports
 from utils import (
@@ -51,10 +51,10 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         # Create fake data
         parser.add_argument(
-            '--fake-data',
+            "--fake-data",
             type=bool,
             default=False,
-            help='Create fake data',
+            help="Create fake data",
         )
 
     def create_suported_measures(self):
@@ -75,8 +75,7 @@ class Command(BaseCommand):
                 logger.info(f"Creating supported measure {measure_key}")
 
                 metrics_keys = {
-                    metric
-                    for metric in measure_data[measure_key]["metrics"]
+                    metric for metric in measure_data[measure_key]["metrics"]
                 }
 
                 metrics = SupportedMetric.objects.filter(
@@ -87,17 +86,19 @@ class Command(BaseCommand):
                     raise exceptions.MissingSupportedMetricException()
 
                 measure.metrics.set(metrics)
-                logger.info((
-                    f"Metrics {','.join(metrics_keys)} "
-                    f"were associated to {measure_key}"
-                ))
+                logger.info(
+                    (
+                        f"Metrics {','.join(metrics_keys)} "
+                        f"were associated to {measure_key}"
+                    )
+                )
 
     def create_supported_metrics(self):
         self.create_sonarqube_supported_metrics()
         # self.create_github_supported_metrics()
 
     def create_sonarqube_supported_metrics(self):
-        sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'
+        sonar_endpoint = "https://sonarcloud.io/api/metrics/search"
 
         try:
             request = requests.get(sonar_endpoint)
@@ -109,7 +110,7 @@ class Command(BaseCommand):
         except Exception:
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
 
-        self.model_generator(SupportedMetric, data['metrics'])
+        self.model_generator(SupportedMetric, data["metrics"])
 
         import_sonar_metrics(
             staticfiles.SONARQUBE_JSON,
@@ -120,10 +121,11 @@ class Command(BaseCommand):
     def create_github_supported_metrics(self):
         github_metrics = [
             SupportedMetric(
-                key=metric['key'],
-                name=metric['name'],
-                metric_type=metric['metric_type'],
-            ) for metric in settings.GITHUB_METRICS
+                key=metric["key"],
+                name=metric["name"],
+                metric_type=metric["metric_type"],
+            )
+            for metric in settings.GITHUB_METRICS
         ]
 
         for metric in github_metrics:
@@ -134,10 +136,10 @@ class Command(BaseCommand):
         for metric in metrics:
             with contextlib.suppress(IntegrityError):
                 model.objects.create(
-                    key=metric['key'],
-                    name=metric['name'],
-                    description=metric.get('description', ''),
-                    metric_type=metric['type'],
+                    key=metric["key"],
+                    name=metric["name"],
+                    description=metric.get("description", ""),
+                    metric_type=metric["type"],
                 )
 
     def create_fake_calculated_entity(
@@ -199,13 +201,12 @@ class Command(BaseCommand):
         )
 
     def create_fake_calculated_measures(self, repository):
-
         qs = SupportedMeasure.objects.all()
 
         def calculated_entity_factory(entity, created_at):
             return CalculatedMeasure(
                 measure=entity,
-                value=get_random_value('PERCENT'),
+                value=get_random_value("PERCENT"),
                 created_at=created_at,
                 repository=repository,
             )
@@ -256,13 +257,12 @@ class Command(BaseCommand):
                 klass = SupportedSubCharacteristic
 
                 sub_char, _ = klass.objects.get_or_create(
-                    name=subcharacteristic['name'],
-                    key=subcharacteristic['key'],
+                    name=subcharacteristic["name"],
+                    key=subcharacteristic["key"],
                 )
 
                 measures_keys = [
-                    measure["key"]
-                    for measure in subcharacteristic["measures"]
+                    measure["key"] for measure in subcharacteristic["measures"]
                 ]
 
                 measures = SupportedMeasure.objects.filter(
@@ -281,14 +281,14 @@ class Command(BaseCommand):
                 "name": "Reliability",
                 "subcharacteristics": [
                     {"key": "testing_status"},
-                ]
+                ],
             },
             {
                 "key": "maintainability",
                 "name": "Maintainability",
                 "subcharacteristics": [
                     {"key": "modifiability"},
-                ]
+                ],
             },
             # {
             #     "key": "functional_suitability",
@@ -302,13 +302,13 @@ class Command(BaseCommand):
 
     def create_fake_calculated_characteristics(self, repository):
         qs = SupportedCharacteristic.objects.annotate(
-            qty=Count('calculated_characteristics'),
+            qty=Count("calculated_characteristics"),
         )
 
         def calculated_entity_factory(entity, created_at):
             return CalculatedCharacteristic(
                 characteristic=entity,
-                value=get_random_value('PERCENT'),
+                value=get_random_value("PERCENT"),
                 created_at=created_at,
                 repository=repository,
             )
@@ -327,13 +327,13 @@ class Command(BaseCommand):
 
     def create_fake_calculated_subcharacteristics(self, repository):
         qs = SupportedSubCharacteristic.objects.annotate(
-            qty=Count('calculated_subcharacteristics'),
+            qty=Count("calculated_subcharacteristics"),
         )
 
         def calculated_entity_factory(entity, created_at):
             return CalculatedSubCharacteristic(
                 subcharacteristic=entity,
-                value=get_random_value('PERCENT'),
+                value=get_random_value("PERCENT"),
                 created_at=created_at,
                 repository=repository,
             )
@@ -352,7 +352,7 @@ class Command(BaseCommand):
 
     def create_default_pre_config(self, product):
         PreConfig.objects.get_or_create(
-            name='Default pre-config',
+            name="Default pre-config",
             data=staticfiles.DEFAULT_PRE_CONFIG,
             product=product,
         )
@@ -367,37 +367,38 @@ class Command(BaseCommand):
             def get_product():
                 return product
 
-        serializer.context['view'] = MockView
+        serializer.context["view"] = MockView
         serializer.is_valid(raise_exception=True)
         serializer.save(product=product)
 
-    def create_fake_sqc_data(self, repository):
+    def create_fake_tsqmi_data(self, repository):
         if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
             return
 
-        qs = SQC.objects.filter(repository=repository)
+        qs = TSQMI.objects.filter(repository=repository)
 
         MIN_NUMBER = 50
 
         if qs.count() >= MIN_NUMBER:
             return
 
-        SQC.objects.bulk_create([
-            SQC(
-                value=get_random_value('PERCENT'),
-                repository=repository,
-            )
-            for _ in range(MIN_NUMBER - qs.count())
-        ])
+        TSQMI.objects.bulk_create(
+            [
+                TSQMI(
+                    value=get_random_value("PERCENT"),
+                    repository=repository,
+                )
+                for _ in range(MIN_NUMBER - qs.count())
+            ]
+        )
 
     def create_fake_organizations(self):
         organizations = [
             Organization(
-                name='fga-eps-mds',
-                description=((
-                    "Organização que agrupa os "
-                    "projetos de EPS e MDS da FGA."
-                )),
+                name="fga-eps-mds",
+                description=(
+                    ("Organização que agrupa os " "projetos de EPS e MDS da FGA.")
+                ),
             ),
             # Organization(
             #     name='UnBArqDsw2021',
@@ -425,8 +426,7 @@ class Command(BaseCommand):
         organizations = Organization.objects.all()
 
         organizations = {
-            organization.name: organization
-            for organization in organizations
+            organization.name: organization for organization in organizations
         }
 
         products = [
@@ -454,13 +454,13 @@ class Command(BaseCommand):
             #     organization=organizations['IHC-FGA-2020'],
             # ),
             Product(
-                name='MeasureSoftGram',
+                name="MeasureSoftGram",
                 description=(
                     "Este projeto que visa a construção de um "
                     "sistema de análise quantitativa da qualidade "
                     "de um sistema de software."
                 ),
-                organization=organizations['fga-eps-mds'],
+                organization=organizations["fga-eps-mds"],
             ),
             # Product(
             #     name='Acacia',
@@ -484,10 +484,7 @@ class Command(BaseCommand):
     def create_fake_repositories(self):
         products = Product.objects.all()
 
-        products = {
-            product.name: product
-            for product in products
-        }
+        products = {product.name: product for product in products}
 
         repositories = [
             # Repository(
@@ -534,36 +531,27 @@ class Command(BaseCommand):
             #     product=products['Animalesco'],
             # ),
             Repository(
-                name='2022-1-MeasureSoftGram-Service',
-                description=(
-                    "Repositório do backend do projeto "
-                    "MeasureSoftGram."
-                ),
-                product=products['MeasureSoftGram'],
+                name="2022-1-MeasureSoftGram-Service",
+                description=("Repositório do backend do projeto " "MeasureSoftGram."),
+                product=products["MeasureSoftGram"],
             ),
             Repository(
-                name='2022-1-MeasureSoftGram-Core',
+                name="2022-1-MeasureSoftGram-Core",
                 description=(
                     "Repositório da API do modelo matemático "
                     "do projeto MeasureSoftGram"
                 ),
-                product=products['MeasureSoftGram'],
+                product=products["MeasureSoftGram"],
             ),
             Repository(
-                name='2022-1-MeasureSoftGram-Front',
-                description=(
-                    "Repositório do frontend da projeto "
-                    "MeasureSoftGram"
-                ),
-                product=products['MeasureSoftGram'],
+                name="2022-1-MeasureSoftGram-Front",
+                description=("Repositório do frontend da projeto " "MeasureSoftGram"),
+                product=products["MeasureSoftGram"],
             ),
             Repository(
-                name='2022-1-MeasureSoftGram-CLI',
-                description=(
-                    "Repositório do CLI da projeto "
-                    "MeasureSoftGram"
-                ),
-                product=products['MeasureSoftGram'],
+                name="2022-1-MeasureSoftGram-CLI",
+                description=("Repositório do CLI da projeto " "MeasureSoftGram"),
+                product=products["MeasureSoftGram"],
             ),
         ]
 
@@ -581,9 +569,9 @@ class Command(BaseCommand):
         User = get_user_model()
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
-                username=os.getenv('SUPERADMIN_USERNAME', 'admin'),
-                email=os.getenv('SUPERADMIN_EMAIL', 'admin@admin.com'),
-                password=os.getenv('SUPERADMIN_PASSWORD', 'admin'),
+                username=os.getenv("SUPERADMIN_USERNAME", "admin"),
+                email=os.getenv("SUPERADMIN_EMAIL", "admin@admin.com"),
+                password=os.getenv("SUPERADMIN_PASSWORD", "admin"),
             )
 
         self.create_supported_metrics()
@@ -603,7 +591,7 @@ class Command(BaseCommand):
         #         self.create_fake_calculated_measures(repository)
         #         self.create_fake_calculated_subcharacteristics(repository)
         #         self.create_fake_calculated_characteristics(repository)
-        #         self.create_fake_sqc_data(repository)
+        #         self.create_fake_tsqmi_data(repository)
 
         # products = Product.objects.all()
 

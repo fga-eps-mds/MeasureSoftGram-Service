@@ -20,10 +20,10 @@ class SupportedCharacteristicAdmin(admin.ModelAdmin):
 @admin.register(SupportedCharacteristic.subcharacteristics.through)
 class SubCharacteristicCharacteristicAssociation(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
-        msg = ((
+        msg = (
             "Tabela que armazena a relação entre "
             "as CARACTERÍSTICAS e suas SUBCARACTERÍSTICAS."
-        ))
+        )
         messages.add_message(request, messages.INFO, msg)
         return super().changelist_view(request, extra_context)
 
@@ -41,17 +41,17 @@ class SubCharacteristicCharacteristicAssociation(admin.ModelAdmin):
         "get_characteristic_key",
         "get_subcharacteristic_key",
     )
-    list_filter = (
-        "supportedcharacteristic",
-    )
+    list_filter = ("supportedcharacteristic",)
 
     def get_subcharacteristic_key(self, obj):
         return obj.supportedsubcharacteristic.key
+
     get_subcharacteristic_key.short_description = "SubCharacteristic key"
     get_subcharacteristic_key.admin_order_field = "supportedsubcharacteristic__key"
 
     def get_characteristic_key(self, obj):
         return obj.supportedcharacteristic.key
+
     get_characteristic_key.short_description = "Characteristic key"
     get_characteristic_key.admin_order_field = "supportedcharacteristic__key"
 
@@ -76,10 +76,12 @@ class CalculatedCharacteristicAdmin(admin.ModelAdmin):
 
     def get_characteristic_key(self, obj):
         return obj.characteristic.key
+
     get_characteristic_key.short_description = "Characteristic key"
     get_characteristic_key.admin_order_field = "characteristic__key"
 
     def get_characteristic_name(self, obj):
         return obj.characteristic.name
+
     get_characteristic_name.short_description = "Characteristic name"
     get_characteristic_name.admin_order_field = "characteristic__name"

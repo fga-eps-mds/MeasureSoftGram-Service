@@ -18,9 +18,7 @@ class SupportedMetricAdmin(admin.ModelAdmin):
         "key",
         "name",
     )
-    list_filter = (
-        "metric_type",
-    )
+    list_filter = ("metric_type",)
 
 
 @admin.register(CollectedMetric)
@@ -47,11 +45,13 @@ class CollectedMetricAdmin(admin.ModelAdmin):
 
     def get_metric_name(self, obj: CollectedMetric):
         return obj.metric.name
+
     get_metric_name.short_description = "Metric name"
     get_metric_name.admin_order_field = "metric__name"
 
     def get_metric_key(self, obj: CollectedMetric):
         return obj.metric.key
+
     get_metric_key.short_description = "Metric key"
     get_metric_key.admin_order_field = "metric__key"
 
@@ -64,5 +64,6 @@ class CollectedMetricAdmin(admin.ModelAdmin):
             value = dt.datetime.fromtimestamp(value)
 
         return value
+
     get_value.short_description = "Value"
     get_value.admin_order_field = "value"

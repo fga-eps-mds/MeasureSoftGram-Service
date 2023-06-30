@@ -17,8 +17,8 @@ def create_suported_characteristics(suported_characteristics):
             klass = SupportedCharacteristic
 
             charact, _ = klass.objects.get_or_create(
-                name=characteristic['name'],
-                key=characteristic['key'],
+                name=characteristic["name"],
+                key=characteristic["key"],
             )
 
             subcharacteristics_keys = [
@@ -37,11 +37,11 @@ def create_suported_characteristics(suported_characteristics):
 
 
 def force_the_sum_to_equal_100(entities_data: dict):
-    weight_sum = sum(entity['weight'] for entity in entities_data)
+    weight_sum = sum(entity["weight"] for entity in entities_data)
 
     if weight_sum != 100:
         entity = random.choice(entities_data)
-        entity['weight'] += 100 - weight_sum
+        entity["weight"] += 100 - weight_sum
 
     return entities_data
 
@@ -49,7 +49,7 @@ def force_the_sum_to_equal_100(entities_data: dict):
 def get_measures(subcharacteristic: SupportedSubCharacteristic):
     measures = subcharacteristic.measures.all()
     weight = 100 // measures.count()
-    data = [{'key': measure.key, 'weight': weight} for measure in measures]
+    data = [{"key": measure.key, "weight": weight} for measure in measures]
     data = force_the_sum_to_equal_100(data)
     return data
 
@@ -62,11 +62,13 @@ def get_subcharacteristics(characteristic: SupportedCharacteristic):
     weight = 100 // subcharacteristics.count()
 
     for subcharacteristic in subcharacteristics:
-        data.append({
-            'key': subcharacteristic.key,
-            'weight': weight,
-            'measures': get_measures(subcharacteristic),
-        })
+        data.append(
+            {
+                "key": subcharacteristic.key,
+                "weight": weight,
+                "measures": get_measures(subcharacteristic),
+            }
+        )
 
     data = force_the_sum_to_equal_100(data)
 
@@ -89,17 +91,19 @@ def create_a_preconfig(characteristics_keys, product):
 
     data = []
     for characteristic in characteristics:
-        data.append({
-            'key': characteristic.key,
-            'weight': weight,
-            'subcharacteristics': get_subcharacteristics(characteristic),
-        })
+        data.append(
+            {
+                "key": characteristic.key,
+                "weight": weight,
+                "subcharacteristics": get_subcharacteristics(characteristic),
+            }
+        )
 
     data = force_the_sum_to_equal_100(data)
-    preconfig = {'characteristics': data}
+    preconfig = {"characteristics": data}
 
     preconfig = PreConfig.objects.create(
-        name='custom pre-config',
+        name="custom pre-config",
         data=preconfig,
         product=product,
     )
@@ -118,10 +122,12 @@ def get_random_end_at():
 def get_random_changes(characteristics_keys):
     changes = []
     for _ in range(random.randint(5, 15)):
-        changes.append({
-            'characteristic_key': random.choice(characteristics_keys),
-            'delta': random.randint(-50, 50),
-        })
+        changes.append(
+            {
+                "characteristic_key": random.choice(characteristics_keys),
+                "delta": random.randint(-50, 50),
+            }
+        )
     return changes
 
 
@@ -130,18 +136,15 @@ def get_random_goal_data(pre_config: PreConfig):
     Função que gera um objetivo aleatório com base na pré-configuração passada
     no parâmetro.
     """
-    characteristics_keys = [
-        obj["key"]
-        for obj in pre_config.data['characteristics']
-    ]
+    characteristics_keys = [obj["key"] for obj in pre_config.data["characteristics"]]
 
     major = random.randint(0, 9)
     minor = random.randint(0, 9)
     patch = random.randint(0, 9)
 
     return {
-        'release_name': f'v{major}.{minor}.{patch}',
-        'start_at': get_random_start_at(),
-        'end_at': get_random_end_at(),
+        "release_name": f"v{major}.{minor}.{patch}",
+        "start_at": get_random_start_at(),
+        "end_at": get_random_end_at(),
         "changes": get_random_changes(characteristics_keys),
     }

@@ -25,12 +25,8 @@ class ProjectAdmin(admin.ModelAdmin):
         "key",
         "description",
     )
-    search_fields = (
-        "name",
-    )
-    list_filter = (
-        "organization",
-    )
+    search_fields = ("name",)
+    list_filter = ("organization",)
 
 
 @admin.register(Repository)
@@ -41,9 +37,7 @@ class RepositoryAdmin(admin.ModelAdmin):
         "key",
         "description",
     )
-    search_fields = (
-        "name",
-    )
+    search_fields = ("name",)
     list_filter = (
         "product",
         "product__organization",

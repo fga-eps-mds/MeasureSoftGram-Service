@@ -1,25 +1,26 @@
 from django.utils import timezone
 from rest_framework import serializers
 
-from sqc.models import SQC
+from tsqmi.models import TSQMI
 
 
-class SQCSerializer(serializers.ModelSerializer):
+class TSQMISerializer(serializers.ModelSerializer):
     """
     Serializadora usada para serializar as medidas calculadas
     """
+
     class Meta:
-        model = SQC
+        model = TSQMI
         fields = (
-            'id',
-            'value',
-            'created_at',
+            "id",
+            "value",
+            "created_at",
         )
         read_only_fields = (
-            'id',
-            'value',
+            "id",
+            "value",
         )
 
 
-class SQCCalculationRequestSerializer(serializers.Serializer):
+class TSQMICalculationRequestSerializer(serializers.Serializer):
     created_at = serializers.DateTimeField(default=timezone.now)

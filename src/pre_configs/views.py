@@ -17,7 +17,7 @@ class CurrentPreConfigModelViewSet(
     def get_product(self):
         return get_object_or_404(
             Product,
-            id=self.kwargs['product_pk'],
+            id=self.kwargs["product_pk"],
         )
 
     def list(self, request, *args, **kwargs):
@@ -38,7 +38,7 @@ class CreatePreConfigModelViewSet(
     def get_product(self):
         return get_object_or_404(
             Product,
-            id=self.kwargs['product_pk'],
+            id=self.kwargs["product_pk"],
         )
 
     def perform_create(self, serializer):

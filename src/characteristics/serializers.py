@@ -10,13 +10,14 @@ class SupportedCharacteristicSerializer(serializers.ModelSerializer):
     """
     Serializadora para uma característica suportada
     """
+
     class Meta:
         model = SupportedCharacteristic
         fields = (
-            'id',
-            'key',
-            'name',
-            'description',
+            "id",
+            "key",
+            "name",
+            "description",
         )
 
 
@@ -24,13 +25,14 @@ class CalculatedCharacteristicSerializer(serializers.ModelSerializer):
     """
     Serializadora usada para serializar as características calculadas
     """
+
     class Meta:
         model = CalculatedCharacteristic
         fields = (
-            'id',
-            'characteristic_id',
-            'value',
-            'created_at',
+            "id",
+            "characteristic_id",
+            "value",
+            "created_at",
         )
 
 
@@ -44,11 +46,11 @@ class LatestCalculatedCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedCharacteristic
         fields = (
-            'id',
-            'key',
-            'name',
-            'description',
-            'latest',
+            "id",
+            "key",
+            "name",
+            "description",
+            "latest",
         )
 
     def get_latest(self, obj: SupportedCharacteristic):
@@ -70,11 +72,11 @@ class CalculatedCharacteristicHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedCharacteristic
         fields = (
-            'id',
-            'key',
-            'name',
-            'description',
-            'history',
+            "id",
+            "key",
+            "name",
+            "description",
+            "history",
         )
 
     def get_history(self, obj: SupportedCharacteristic):
@@ -100,6 +102,7 @@ class CharacteristicsCalculationRequestSerializer(serializers.Serializer):
     """
     Serializadora usada para solicitar o cálculo de uma característica
     """
+
     key = serializers.CharField(max_length=255)
 
 
@@ -124,19 +127,19 @@ class CharacteristicsCalculationsRequestSerializer(serializers.Serializer):
         """
         Valida se todas as características solicitadas são suportadas
         """
-        characteristics_keys = [
-            char['key'] for char in attrs['characteristics']
-        ]
+        characteristics_keys = [char["key"] for char in attrs["characteristics"]]
 
         unsuported_chars: str = utils.validate_entity(
             characteristics_keys,
-            SupportedCharacteristic.has_unsupported_characteristics
+            SupportedCharacteristic.has_unsupported_characteristics,
         )
 
         if unsuported_chars:
-            raise serializers.ValidationError((
-                "The following characteristics are "
-                f"not supported: {unsuported_chars}"
-            ))
+            raise serializers.ValidationError(
+                (
+                    "The following characteristics are "
+                    f"not supported: {unsuported_chars}"
+                )
+            )
 
         return attrs

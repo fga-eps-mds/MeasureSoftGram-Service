@@ -21,8 +21,8 @@ class SupportedCharacteristic(models.Model):
         blank=True,
     )
     subcharacteristics = models.ManyToManyField(
-        'subcharacteristics.SupportedSubCharacteristic',
-        related_name='related_characteristics',
+        "subcharacteristics.SupportedSubCharacteristic",
+        related_name="related_characteristics",
         blank=True,
     )
 
@@ -37,7 +37,7 @@ class SupportedCharacteristic(models.Model):
     def get_latest_characteristics_params(self, pre_config: dict) -> dict:
         """
         Função que recupera os valores mais recentes das características
-        que o sqc depende para ser calculada
+        que o tsqmi depende para ser calculada
 
         TODO: - Melhorar a query para o banco de dados.
               - Desconfio que aqui esteja rolando vários inner joins
@@ -49,16 +49,17 @@ class SupportedCharacteristic(models.Model):
         chars_params = []
 
         for characteristic in self.__class__.objects.all():
-
             key = characteristic.key
             weight = pre_config.get_characteristic_weight(key)
             value = characteristic.get_latest_characteristic_value()
 
-            chars_params.append({
-                "key": key,
-                "value": value,
-                "weight": weight,
-            })
+            chars_params.append(
+                {
+                    "key": key,
+                    "value": value,
+                    "weight": weight,
+                }
+            )
 
         return chars_params
 
@@ -77,16 +78,17 @@ class SupportedCharacteristic(models.Model):
         subchars_params = []
 
         for subcharacteristic in self.subcharacteristics.all():
-
             key = subcharacteristic.key
             weight = pre_config.get_subcharacteristic_weight(key)
             value = subcharacteristic.get_latest_subcharacteristic_value()
 
-            subchars_params.append({
-                "key": key,
-                "value": value,
-                "weight": weight,
-            })
+            subchars_params.append(
+                {
+                    "key": key,
+                    "value": value,
+                    "weight": weight,
+                }
+            )
 
         return subchars_params
 
@@ -104,9 +106,7 @@ class SupportedCharacteristic(models.Model):
         subcharacteristics_keys = set(subcharacteristics_keys)
 
         qs = self.subcharacteristics.all()
-        related_subcharacteristics: Set[str] = set(
-            qs.values_list('key', flat=True)
-        )
+        related_subcharacteristics: Set[str] = set(qs.values_list("key", flat=True))
 
         return subcharacteristics_keys - related_subcharacteristics
 
@@ -127,7 +127,7 @@ class SupportedCharacteristic(models.Model):
 
     @staticmethod
     def has_unsupported_characteristics(
-        selected_characteristics_keys: Iterable[str]
+        selected_characteristics_keys: Iterable[str],
     ) -> Set[str]:
         """
         Verifica se existe alguma característica não suportada, e caso exista
@@ -143,22 +143,23 @@ class CalculatedCharacteristic(models.Model):
     """
     Tabela que armazena os valores calculados das características.
     """
+
     class Meta:
         # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
         # os registros mais recentes vem primeiro (qs.first() == mais recente)
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     characteristic = models.ForeignKey(
         SupportedCharacteristic,
-        related_name='calculated_characteristics',
+        related_name="calculated_characteristics",
         on_delete=models.CASCADE,
     )
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
 
     repository = models.ForeignKey(
-        to='organizations.Repository',
-        related_name='calculated_characteristics',
+        to="organizations.Repository",
+        related_name="calculated_characteristics",
         on_delete=models.CASCADE,
     )
 

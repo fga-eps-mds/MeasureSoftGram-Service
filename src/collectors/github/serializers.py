@@ -19,22 +19,22 @@ class GithubCollectorParamsSerializer(serializers.Serializer):
             "your behalf. To create an access token, go to the following "
             "link: `https://github.com/settings/tokens`. Make sure the token "
             "passed doesn't have any permissions!"
-        )
+        ),
     )
 
     issues_repository_url = serializers.URLField(
         required=False,
         help_text=(
-            'URL of the github repository where issues are stored.'
-            'For example: https://github.com/microsoft/vscode'
+            "URL of the github repository where issues are stored."
+            "For example: https://github.com/microsoft/vscode"
         ),
     )
 
     pipelines_repository_url = serializers.URLField(
         required=False,
         help_text=(
-            'URL of the github repository where pipelines are associated.'
-            'For example: https://github.com/microsoft/vscode'
+            "URL of the github repository where pipelines are associated."
+            "For example: https://github.com/microsoft/vscode"
         ),
     )
 
@@ -54,9 +54,9 @@ class GithubCollectorParamsSerializer(serializers.Serializer):
         max_length=50,
         required=False,
         help_text=(
-            'Label used to identify a user story in the given repository.'
-            'For example: US'
-        )
+            "Label used to identify a user story in the given repository."
+            "For example: US"
+        ),
     )
 
     build_pipeline_names = serializers.ListField(
@@ -76,19 +76,14 @@ class GithubCollectorParamsSerializer(serializers.Serializer):
         """
 
         has_issue_metrics_params: bool = (
-            'issues_metrics_x_days' in data and
-            'issues_repository_url' in data
+            "issues_metrics_x_days" in data and "issues_repository_url" in data
         )
 
         has_pipeline_metrics_params: bool = (
-            'pipeline_metrics_x_days' in data and
-            'pipelines_repository_url' in data
+            "pipeline_metrics_x_days" in data and "pipelines_repository_url" in data
         )
 
-        return (
-            has_issue_metrics_params or
-            has_pipeline_metrics_params
-        )
+        return has_issue_metrics_params or has_pipeline_metrics_params
 
     def validate(self, attrs):
         """
@@ -98,16 +93,18 @@ class GithubCollectorParamsSerializer(serializers.Serializer):
         """
         metrics_required_params = {}
         for metric in settings.GITHUB_METRICS:
-            metrics_required_params[metric['name']] = metric['api_params']
+            metrics_required_params[metric["name"]] = metric["api_params"]
 
         if not self.has_at_least_one_metrics_params(attrs):
-            raise serializers.ValidationError({
-                'not_enough_params': (
-                    'Not enough parameters were passed to collect at least '
-                    'one metric. The supported metrics and their respective '
-                    'parameters are listed bellow.'
-                ),
-                'supported_metrics': metrics_required_params,
-            })
+            raise serializers.ValidationError(
+                {
+                    "not_enough_params": (
+                        "Not enough parameters were passed to collect at least "
+                        "one metric. The supported metrics and their respective "
+                        "parameters are listed bellow."
+                    ),
+                    "supported_metrics": metrics_required_params,
+                }
+            )
 
         return attrs

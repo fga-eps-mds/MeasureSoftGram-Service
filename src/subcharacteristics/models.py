@@ -11,6 +11,7 @@ class SupportedSubCharacteristic(models.Model):
     """
     Classe que abstrai uma subcaracterística suportada pelo sistema.
     """
+
     objects = CacheManager()
 
     name = models.CharField(max_length=128)
@@ -22,8 +23,8 @@ class SupportedSubCharacteristic(models.Model):
     )
 
     measures = models.ManyToManyField(
-        'measures.SupportedMeasure',
-        related_name='related_subcharacteristics',
+        "measures.SupportedMeasure",
+        related_name="related_subcharacteristics",
         blank=True,
     )
 
@@ -62,11 +63,13 @@ class SupportedSubCharacteristic(models.Model):
 
         for measure in self.measures.all():
             weight = pre_config.get_measure_weight(measure.key)
-            measures_params.append({
-                "key": measure.key,
-                "value": measure.get_latest_measure_value(),
-                "weight": weight,
-            })
+            measures_params.append(
+                {
+                    "key": measure.key,
+                    "value": measure.get_latest_measure_value(),
+                    "weight": weight,
+                }
+            )
 
         return measures_params
 
@@ -84,13 +87,13 @@ class SupportedSubCharacteristic(models.Model):
         measures_keys = set(measures_keys)
 
         qs = self.measures.all()
-        related_measures: Set[str] = set(qs.values_list('key', flat=True))
+        related_measures: Set[str] = set(qs.values_list("key", flat=True))
 
         return measures_keys - related_measures
 
     @staticmethod
     def has_unsupported_subcharacteristics(
-        selected_subcharacteristics_keys: Iterable[str]
+        selected_subcharacteristics_keys: Iterable[str],
     ) -> Set[str]:
         """
         Verifica se existe alguma subcaracterística não suportada, e caso
@@ -107,20 +110,21 @@ class CalculatedSubCharacteristic(models.Model):
     """
     Tabela que aramazena os valores calculados das subcaracterísticas.
     """
+
     class Meta:
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     subcharacteristic = models.ForeignKey(
         SupportedSubCharacteristic,
-        related_name='calculated_subcharacteristics',
+        related_name="calculated_subcharacteristics",
         on_delete=models.CASCADE,
     )
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
 
     repository = models.ForeignKey(
-        to='organizations.Repository',
-        related_name='calculated_subcharacteristics',
+        to="organizations.Repository",
+        related_name="calculated_subcharacteristics",
         on_delete=models.CASCADE,
     )
 

@@ -11,16 +11,10 @@ class AccountsCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = (
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'password'
-        )
+        fields = ("username", "first_name", "last_name", "email", "password")
 
     def save(self):
-        password = self.validated_data['password']
+        password = self.validated_data["password"]
         user = CustomUser.objects.create(**self.validated_data)
         user.set_password(password)
         user.save()
@@ -28,9 +22,7 @@ class AccountsCreateSerializer(serializers.ModelSerializer):
         return self.validated_data
 
     def to_representation(self, validated_data):
-        return {
-            'key': self.token.key
-        }
+        return {"key": self.token.key}
 
 
 class AccountsRetrieveSerializer(serializers.ModelSerializer):
@@ -41,13 +33,13 @@ class AccountsRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'avatar_url',
-            'repos_url',
-            'organizations_url'
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "avatar_url",
+            "repos_url",
+            "organizations_url",
         )
 
     @property
@@ -57,15 +49,15 @@ class AccountsRetrieveSerializer(serializers.ModelSerializer):
 
     def get_avatar_url(self, obj):
         if self.socialaccount:
-            return self.socialaccount.extra_data['avatar_url']
+            return self.socialaccount.extra_data["avatar_url"]
 
     def get_repos_url(self, obj):
         if self.socialaccount:
-            return self.socialaccount.extra_data['repos_url']
+            return self.socialaccount.extra_data["repos_url"]
 
     def get_organizations_url(self, obj):
         if self.socialaccount:
-            return self.socialaccount.extra_data['organizations_url']
+            return self.socialaccount.extra_data["organizations_url"]
 
 
 class AccountsLoginSerializer(serializers.Serializer):
@@ -75,21 +67,21 @@ class AccountsLoginSerializer(serializers.Serializer):
 
     def validate(self, attrs):
         attrs = super().validate(attrs)
-        if not attrs.get('username') and not attrs.get('email'):
-            raise serializers.ValidationError('Username OR email required.')
-        if attrs.get('username') and attrs.get('email'):
-            raise serializers.ValidationError('ONLY Username OR email.')
+        if not attrs.get("username") and not attrs.get("email"):
+            raise serializers.ValidationError("Username OR email required.")
+        if attrs.get("username") and attrs.get("email"):
+            raise serializers.ValidationError("ONLY Username OR email.")
 
-        username_or_email = 'email' if attrs.get('email') else 'username'
+        username_or_email = "email" if attrs.get("email") else "username"
         kwargs = {username_or_email: attrs[username_or_email]}
 
         try:
             self.user = CustomUser.objects.get(**kwargs)
         except ObjectDoesNotExist:
-            raise serializers.ValidationError('Username or email nonexistent.')
+            raise serializers.ValidationError("Username or email nonexistent.")
 
-        if not self.user.check_password(attrs['password']):
-            raise serializers.ValidationError('Invalid username/email or password')
+        if not self.user.check_password(attrs["password"]):
+            raise serializers.ValidationError("Invalid username/email or password")
 
         return attrs
 

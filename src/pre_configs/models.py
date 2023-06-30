@@ -16,24 +16,25 @@ class PreConfig(models.Model):
     sendo que a última pré-configuração é sempre a vigente. Ou seja, as tuplas
     dessa tabela não devem ser editadas ou apagadas, somente adicionadas novas
     """
+
     class Meta:
         # Aqui estamos ordenando na ordem decrescente, ou seja, nos
         # querysets os registros mais recentes vem
         # primeiro (qs.first() == mais recente)
-        ordering = ['-created_at']
+        ordering = ["-created_at"]
 
     created_at = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=128, null=True, blank=True)
     data = models.JSONField()
 
     product = models.ForeignKey(
-        to='organizations.Product',
-        related_name='pre_configs',
+        to="organizations.Product",
+        related_name="pre_configs",
         on_delete=models.CASCADE,
     )
 
     def __str__(self):
-        return f'ID: {self.id}, Name: {self.name}'
+        return f"ID: {self.id}, Name: {self.name}"
 
     def save(self, *args, **kwargs):
         """
@@ -68,42 +69,43 @@ class PreConfig(models.Model):
         (quantidade de medidas) será 20, o que resulta em um loop de 8000
         iterações, o que não é nada.
         """
-        for characteristic in self.data['characteristics']:
-            for subcharacteristic in characteristic['subcharacteristics']:
-                for measure in subcharacteristic['measures']:
-                    if measure['key'] == measure_key:
-                        return measure['weight']
+        for characteristic in self.data["characteristics"]:
+            for subcharacteristic in characteristic["subcharacteristics"]:
+                for measure in subcharacteristic["measures"]:
+                    if measure["key"] == measure_key:
+                        return measure["weight"]
 
         raise utils.exceptions.MeasureNotDefinedInPreConfiguration(
-            f'Measure {measure_key} not defined in pre-configuration',
+            f"Measure {measure_key} not defined in pre-configuration",
         )
 
     def get_subcharacteristic_weight(self, subcharacteristic_key: str) -> float:
-        for characteristic in self.data['characteristics']:
-            for subcharacteristic in characteristic['subcharacteristics']:
-                if subcharacteristic['key'] == subcharacteristic_key:
-                    return subcharacteristic['weight']
+        for characteristic in self.data["characteristics"]:
+            for subcharacteristic in characteristic["subcharacteristics"]:
+                if subcharacteristic["key"] == subcharacteristic_key:
+                    return subcharacteristic["weight"]
 
-        raise utils.exceptions.SubCharacteristicNotDefinedInPreConfiguration((
-            f'Subcharacteristic {subcharacteristic_key} '
-            'not defined in pre-configuration',
-        ))
+        raise utils.exceptions.SubCharacteristicNotDefinedInPreConfiguration(
+            (
+                f"Subcharacteristic {subcharacteristic_key} "
+                "not defined in pre-configuration",
+            )
+        )
 
     def get_characteristic_weight(self, characteristic_key: str) -> float:
-        for characteristic in self.data['characteristics']:
-            if characteristic['key'] == characteristic_key:
-                return characteristic['weight']
+        for characteristic in self.data["characteristics"]:
+            if characteristic["key"] == characteristic_key:
+                return characteristic["weight"]
 
-        raise utils.exceptions.CharacteristicNotDefinedInPreConfiguration((
-            f'Characteristic {characteristic_key} '
-            'not defined in pre-configuration',
-        ))
+        raise utils.exceptions.CharacteristicNotDefinedInPreConfiguration(
+            (
+                f"Characteristic {characteristic_key} "
+                "not defined in pre-configuration",
+            )
+        )
 
     def get_characteristics_keys(self):
-        return [
-            charac['key']
-            for charac in self.data["characteristics"]
-        ]
+        return [charac["key"] for charac in self.data["characteristics"]]
 
     def get_characteristics_qs(self):
         characteristics_keys = self.get_characteristics_keys()
@@ -114,9 +116,9 @@ class PreConfig(models.Model):
 
     def get_subcharacteristics_qs(self):
         subcharacteristics_keys = [
-            subcharac['key']
+            subcharac["key"]
             for charac in self.data["characteristics"]
-            for subcharac in charac['subcharacteristics']
+            for subcharac in charac["subcharacteristics"]
         ]
         return SupportedSubCharacteristic.objects.filter(
             key__in=subcharacteristics_keys,
@@ -124,10 +126,10 @@ class PreConfig(models.Model):
 
     def get_measures_qs(self):
         measures_keys = [
-            measure['key']
+            measure["key"]
             for charac in self.data["characteristics"]
-            for subcharac in charac['subcharacteristics']
-            for measure in subcharac['measures']
+            for subcharac in charac["subcharacteristics"]
+            for measure in subcharac["measures"]
         ]
         return SupportedMeasure.objects.filter(
             key__in=measures_keys,
@@ -142,10 +144,10 @@ class PreConfig(models.Model):
         """
         selected_measures_set = set()
 
-        for characteristic in data['characteristics']:
-            for subcharacteristic in characteristic['subcharacteristics']:
-                for measure in subcharacteristic['measures']:
-                    measure_key = measure['key']
+        for characteristic in data["characteristics"]:
+            for subcharacteristic in characteristic["subcharacteristics"]:
+                for measure in subcharacteristic["measures"]:
+                    measure_key = measure["key"]
                     selected_measures_set.add(measure_key)
 
         unsuported: str = utils.validate_entity(
@@ -165,19 +167,19 @@ class PreConfig(models.Model):
 
         Raises a `InvalidPreConfigException` caso alguma weight não seja
         """
-        for characteristic in data['characteristics']:
-            for subcharacteristic in characteristic['subcharacteristics']:
-
+        for characteristic in data["characteristics"]:
+            for subcharacteristic in characteristic["subcharacteristics"]:
                 sum_of_weights: int = sum(
-                    measure['weight']
-                    for measure in subcharacteristic['measures']
+                    measure["weight"] for measure in subcharacteristic["measures"]
                 )
 
                 if sum_of_weights != 100:
-                    raise InvalidPreConfigException((
-                        "The sum of weights of measures of subcharacteristic "
-                        f"`{subcharacteristic['key']}` is not 100"
-                    ))
+                    raise InvalidPreConfigException(
+                        (
+                            "The sum of weights of measures of subcharacteristic "
+                            f"`{subcharacteristic['key']}` is not 100"
+                        )
+                    )
 
     @staticmethod
     def validate_subcharacteristics(data: dict):
@@ -189,9 +191,9 @@ class PreConfig(models.Model):
         """
         selected_subcharacteristics_set = set()
 
-        for characteristic in data['characteristics']:
-            for subcharacteristic in characteristic['subcharacteristics']:
-                subcharacteristic_key = subcharacteristic['key']
+        for characteristic in data["characteristics"]:
+            for subcharacteristic in characteristic["subcharacteristics"]:
+                subcharacteristic_key = subcharacteristic["key"]
                 selected_subcharacteristics_set.add(subcharacteristic_key)
 
         unsuported: str = utils.validate_entity(
@@ -214,28 +216,27 @@ class PreConfig(models.Model):
         Raises a `InvalidPreConfigException` caso alguma medida não seja relacionada
         """
 
-        for characteristic in data['characteristics']:
-            for subcharacteristic in characteristic['subcharacteristics']:
-
+        for characteristic in data["characteristics"]:
+            for subcharacteristic in characteristic["subcharacteristics"]:
                 subchar = SupportedSubCharacteristic.objects.get(
-                    key=subcharacteristic['key'],
+                    key=subcharacteristic["key"],
                 )
 
                 sub_measures = {
-                    measure['key']
-                    for measure in subcharacteristic['measures']
+                    measure["key"] for measure in subcharacteristic["measures"]
                 }
 
                 if invalid_measures := subchar.has_unsupported_measures(sub_measures):
-
                     invalid_measures: list = [f"`{key}`" for key in invalid_measures]
-                    invalid_measures: str = ', '.join(invalid_measures)
+                    invalid_measures: str = ", ".join(invalid_measures)
 
-                    raise InvalidPreConfigException((
-                        "Failed to save pre-config. It is not allowed to "
-                        f"associate the measures [{invalid_measures}] with the "
-                        f"subcharacteristic {subchar.key}"
-                    ))
+                    raise InvalidPreConfigException(
+                        (
+                            "Failed to save pre-config. It is not allowed to "
+                            f"associate the measures [{invalid_measures}] with the "
+                            f"subcharacteristic {subchar.key}"
+                        )
+                    )
 
     @staticmethod
     def validate_subcharacteristics_weights(data: dict):
@@ -244,17 +245,19 @@ class PreConfig(models.Model):
 
         Raises a `InvalidPreConfigException` caso alguma weight não seja
         """
-        for characteristic in data['characteristics']:
+        for characteristic in data["characteristics"]:
             sum_of_weights: int = sum(
-                subcharacteristic['weight']
-                for subcharacteristic in characteristic['subcharacteristics']
+                subcharacteristic["weight"]
+                for subcharacteristic in characteristic["subcharacteristics"]
             )
 
             if sum_of_weights != 100:
-                raise InvalidPreConfigException((
-                    "The sum of weights of subcharacteristics of "
-                    f"characteristic `{characteristic['key']}` is not 100"
-                ))
+                raise InvalidPreConfigException(
+                    (
+                        "The sum of weights of subcharacteristics of "
+                        f"characteristic `{characteristic['key']}` is not 100"
+                    )
+                )
 
     @staticmethod
     def validate_characteristics(data: dict):
@@ -266,8 +269,8 @@ class PreConfig(models.Model):
         """
         selected_characteristics_set = set()
 
-        for characteristic in data['characteristics']:
-            characteristic_key = characteristic['key']
+        for characteristic in data["characteristics"]:
+            characteristic_key = characteristic["key"]
             selected_characteristics_set.add(characteristic_key)
 
         unsuported: str = utils.validate_entity(
@@ -290,27 +293,29 @@ class PreConfig(models.Model):
         Raises a `InvalidPreConfigException` caso alguma subcharacteristic não seja
         """
 
-        for characteristic in data['characteristics']:
+        for characteristic in data["characteristics"]:
             charact = SupportedCharacteristic.objects.get(
-                key=characteristic['key'],
+                key=characteristic["key"],
             )
 
             charact_subcharacteristics = {
-                subcharacteristic['key']
-                for subcharacteristic in characteristic['subcharacteristics']
+                subcharacteristic["key"]
+                for subcharacteristic in characteristic["subcharacteristics"]
             }
 
             if invalid_subs := charact.has_unsupported_subcharacteristics(
                 charact_subcharacteristics,
             ):
                 invalid_subs: list = [f"`{key}`" for key in invalid_subs]
-                invalid_subs: str = ', '.join(invalid_subs)
+                invalid_subs: str = ", ".join(invalid_subs)
 
-                raise InvalidPreConfigException((
-                    "Failed to save pre-config. It is not allowed to "
-                    f"associate the subcharacteristics [{invalid_subs}] "
-                    f"with the characteristic {charact.key}"
-                ))
+                raise InvalidPreConfigException(
+                    (
+                        "Failed to save pre-config. It is not allowed to "
+                        f"associate the subcharacteristics [{invalid_subs}] "
+                        f"with the characteristic {charact.key}"
+                    )
+                )
 
     @staticmethod
     def validate_characteristics_weights(data: dict):
@@ -320,12 +325,13 @@ class PreConfig(models.Model):
         Raises a `InvalidPreConfigException` caso alguma weight não seja
         """
         sum_of_weights: int = sum(
-            characteristic['weight']
-            for characteristic in data['characteristics']
+            characteristic["weight"] for characteristic in data["characteristics"]
         )
 
         if sum_of_weights != 100:
-            raise InvalidPreConfigException("The sum of weights of characteristics is not 100")
+            raise InvalidPreConfigException(
+                "The sum of weights of characteristics is not 100"
+            )
 
     @staticmethod
     def is_different_than_the_current_preconfig(data: dict, current_preconfig):
@@ -333,7 +339,9 @@ class PreConfig(models.Model):
         Verifica se a pré-configuração é diferente da pré-configuração atual
         """
         if current_preconfig.data == data:
-            raise InvalidPreConfigException((
-                "It is not allowed to create a new "
-                "pre-config equal to the current pre-config."
-            ))
+            raise InvalidPreConfigException(
+                (
+                    "It is not allowed to create a new "
+                    "pre-config equal to the current pre-config."
+                )
+            )

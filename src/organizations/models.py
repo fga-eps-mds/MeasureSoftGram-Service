@@ -12,6 +12,7 @@ class Organization(models.Model):
     """
     Tabela que armazena os dados das organizações do sistema
     """
+
     name = models.CharField(max_length=128)
     key = models.SlugField(max_length=128, unique=True)
     description = models.TextField(
@@ -21,7 +22,7 @@ class Organization(models.Model):
     )
     members = models.ManyToManyField(
         get_user_model(),
-        related_name='organizations',
+        related_name="organizations",
         blank=True,
     )
 
@@ -49,8 +50,9 @@ class Product(models.Model):
     melhor mudar esse nome, pois uma vez que o projeto é finalizado o
     resultado é o produto de software.
     """
+
     class Meta:
-        unique_together = (('key', 'organization'),)
+        unique_together = (("key", "organization"),)
 
     name = models.CharField(max_length=128)
     key = models.SlugField(max_length=128, unique=True)
@@ -62,7 +64,7 @@ class Product(models.Model):
     organization = models.ForeignKey(
         Organization,
         on_delete=models.CASCADE,
-        related_name='products',
+        related_name="products",
     )
 
     def __str__(self):
@@ -71,7 +73,7 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = slugify(self.name)
-            self.key = f'{self.organization.key}-{self.key}'
+            self.key = f"{self.organization.key}-{self.key}"
 
             # if Product.objects.filter(key=self.key).exists():
             #     random_num = uuid4().hex[:6]
@@ -80,9 +82,7 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
         PreConfig.objects.get_or_create(
-            name='Default pre-config',
-            data=staticfiles.DEFAULT_PRE_CONFIG,
-            product=self
+            name="Default pre-config", data=staticfiles.DEFAULT_PRE_CONFIG, product=self
         )
 
 
@@ -92,9 +92,10 @@ class Repository(models.Model):
     composto de vários repositórios de código, como por exemplo o
     repositório do backend e do frontend.
     """
+
     class Meta:
-        unique_together = (('key', 'product'),)
-        verbose_name_plural = 'Repositories'
+        unique_together = (("key", "product"),)
+        verbose_name_plural = "Repositories"
 
     name = models.CharField(max_length=128)
     key = models.SlugField(max_length=128, unique=True)
@@ -106,12 +107,12 @@ class Repository(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='repositories',
+        related_name="repositories",
     )
 
     def save(self, *args, **kwargs):
         self.key = slugify(self.name)
-        self.key = f'{self.product.key}-{self.key}'
+        self.key = f"{self.product.key}-{self.key}"
         return super().save(*args, **kwargs)
 
     def __str__(self):
