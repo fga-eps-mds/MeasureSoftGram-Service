@@ -77,7 +77,7 @@ class LogoutViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
         auth_header = get_authorization_header(request)
 
         token = auth_header.split()[1].decode()
-        tokens = MultiToken.objects.filter(key=token, user=request.user, user_agent='normal')
+        tokens = MultiToken.objects.filter(key=token, user=request.user)
 
         if len(tokens) == 1:
             tokens.delete()
