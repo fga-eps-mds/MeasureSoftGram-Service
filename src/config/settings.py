@@ -51,21 +51,17 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-    'rest_framework',
-    'rest_framework.authtoken',
-    'simple_history',
-    'corsheaders',
-    'debug_toolbar',
-
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
-
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.github',
-
-    'drf_multitokenauth',
+    "rest_framework",
+    "rest_framework.authtoken",
+    "simple_history",
+    "corsheaders",
+    "debug_toolbar",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.github",
 ]
 
 APPLICATION_APPS = [
@@ -193,12 +189,8 @@ django_heroku.settings(locals())
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 500,
-    "DEFAULT_PARSER_CLASSES": (
-        "rest_framework.parsers.JSONParser",
-    ),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        'drf_multitokenauth.coreauthentication.MultiTokenAuthentication',
-    )
+    "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
 }
 
 # allauth related configs
