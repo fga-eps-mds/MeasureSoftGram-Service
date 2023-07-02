@@ -10,7 +10,7 @@ from measures.serializers import (
     MeasuresCalculationsRequestSerializer,
     SupportedMeasureSerializer,
 )
-from organizations.models import Repository
+from organizations.models import Product, Repository
 
 
 class CalculateMeasuresViewSet(
@@ -30,6 +30,13 @@ class CalculateMeasuresViewSet(
             id=self.kwargs["repository_pk"],
             product_id=self.kwargs["product_pk"],
             product__organization_id=self.kwargs["organization_pk"],
+        )
+
+    def get_product(self):
+        return get_object_or_404(
+            Product,
+            id=self.kwargs["product_pk"],
+            organization_id=self.kwargs["organization_pk"],
         )
 
     def create(self, request, *args, **kwargs):
@@ -71,8 +78,11 @@ class CalculateMeasuresViewSet(
                         "parameters": metric_params,
                     }
                 )
+        # 5. Pega as configurações das thresholds
+        product = self.get_product()
+        pre_config = product.pre_configs.first()
 
-        calculate_result = calculate_measures(core_params)
+        calculate_result = calculate_measures(core_params, pre_config.data)
 
         calculated_values = {
             measure["key"]: measure["value"] for measure in calculate_result["measures"]
