@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 
 from rest_framework import serializers
-from drf_multitokenauth.models import MultiToken
+from rest_framework.authtoken.models import Token
 
 from accounts.models import CustomUser
 
@@ -18,7 +18,7 @@ class AccountsCreateSerializer(serializers.ModelSerializer):
         user = CustomUser.objects.create(**self.validated_data)
         user.set_password(password)
         user.save()
-        self.token = MultiToken.objects.create(user=user, user_agent='normal')
+        self.token = Token.objects.create(user=user)
         return self.validated_data
 
     def to_representation(self, validated_data):
@@ -86,14 +86,5 @@ class AccountsLoginSerializer(serializers.Serializer):
         return attrs
 
     def save(self):
-        self.token, _ = MultiToken.objects.get_or_create(user=self.user, user_agent='normal')
-
+        self.token, _ = Token.objects.get_or_create(user=self.user)
         return self.token
-
-
-class APIAcessTokenRetrieveSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MultiToken
-        fields = (
-            'key',
-        )

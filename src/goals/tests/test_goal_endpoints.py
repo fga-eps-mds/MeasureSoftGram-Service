@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from rest_framework.reverse import reverse
-from drf_multitokenauth.models import MultiToken
+from rest_framework.authtoken.models import Token
 
 from organizations.management.commands.utils import (
     create_a_preconfig,
@@ -68,7 +68,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         self.user.set_password(self.password)
         self.user.save()
         self.client.credentials(
-            HTTP_AUTHORIZATION='Token ' + MultiToken.objects.create(user=self.user, user_agent='normal').key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
 
     def validate_goal_request(
