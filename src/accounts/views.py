@@ -3,6 +3,7 @@ from django.conf import settings
 from rest_framework import mixins, viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -11,6 +12,7 @@ from dj_rest_auth.registration.views import SocialLoginView
 
 from accounts.models import CustomUser
 from accounts.serializers import (
+    APIAcessTokenRetrieveSerializer,
     AccountsCreateSerializer,
     AccountsLoginSerializer,
     AccountsRetrieveSerializer,
@@ -72,5 +74,20 @@ class LogoutViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated,)
 
     def destroy(self, request, *args, **kwargs):
-        self.request.user.auth_token.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RetrieveAPIAcessTokenViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    """
+    ViewSet para recuperar o token de acesso da conta do usuário, o token vai ser utilizado na github action
+    """
+
+    permission_classes = (IsAuthenticated,)
+
+    serializer_class = APIAcessTokenRetrieveSerializer
+
+    def get_object(self):
+        user = CustomUser.objects.get(username=self.request.user)
+        token = Token.objects.get(user=user)
+
+        return token

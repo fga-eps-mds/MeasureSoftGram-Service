@@ -88,3 +88,9 @@ class AccountsLoginSerializer(serializers.Serializer):
     def save(self):
         self.token, _ = Token.objects.get_or_create(user=self.user)
         return self.token
+
+
+class APIAcessTokenRetrieveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Token
+        fields = ("key",)
