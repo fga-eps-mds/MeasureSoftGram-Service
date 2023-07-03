@@ -5,6 +5,7 @@ from accounts.views import (
     LogoutViewSet,
     CreateAccountViewSet,
     LoginViewSet,
+    RetrieveAPIAcessTokenViewSet,
     RetrieveAccountViewSet,
 )
 
@@ -38,6 +39,11 @@ urlpatterns = [
                     r"^github/login/$",
                     GithubLoginViewSet.as_view(),
                     name="github-login",
+                ),
+                re_path(
+                    r"^access-token/$",
+                    RetrieveAPIAcessTokenViewSet.as_view({"get": "retrieve"}),
+                    name="api-token-retrieve",
                 ),
             ]
         ),

@@ -41,7 +41,7 @@ class AccountsViews(APITestCaseExpanded):
         url = reverse("accounts-logout")
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
-        self.assertEqual(Token.objects.count(), 0)
+        self.assertEqual(Token.objects.count(), 1)
 
     def test_fail_logout_without_authentication(self):
         url = reverse("accounts-logout")
@@ -179,3 +179,13 @@ class AccountsViews(APITestCaseExpanded):
         self.assertIn(
             "Authentication credentials were not provided.", response.json()["detail"]
         )
+
+    def test_access_token(self):
+        url = reverse("api-token-retrieve")
+        self.client.credentials(
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
+        )
+        response = self.client.get(url, format="json")
+
+        self.assertEqual(response.status_code, 200, response.json())
+        self.assertEqual(Token.objects.get(user=self.user).key, response.json()["key"])
