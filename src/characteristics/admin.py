@@ -1,6 +1,10 @@
 from django.contrib import admin, messages
 
-from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
+from characteristics.models import (
+    BalanceMatrix,
+    CalculatedCharacteristic,
+    SupportedCharacteristic,
+)
 
 
 @admin.register(SupportedCharacteristic)
@@ -54,6 +58,18 @@ class SubCharacteristicCharacteristicAssociation(admin.ModelAdmin):
 
     get_characteristic_key.short_description = "Characteristic key"
     get_characteristic_key.admin_order_field = "supportedcharacteristic__key"
+
+
+@admin.register(BalanceMatrix)
+class BalanceMatrixAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "source_characteristic",
+        "target_characteristic",
+        "relation_type",
+    )
+    search_fields = ("source_characteristic", "target_characteristic")
+    list_filter = ("source_characteristic", "target_characteristic")
 
 
 @admin.register(CalculatedCharacteristic)

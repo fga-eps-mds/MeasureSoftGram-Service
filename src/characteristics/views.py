@@ -3,13 +3,13 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
+from characteristics.models import (BalanceMatrix, CalculatedCharacteristic,
+                                    SupportedCharacteristic)
 from characteristics.serializers import (
-    CalculatedCharacteristicHistorySerializer,
+    BalanceMatrixSerializer, CalculatedCharacteristicHistorySerializer,
     CharacteristicsCalculationsRequestSerializer,
     LatestCalculatedCharacteristicSerializer,
-    SupportedCharacteristicSerializer,
-)
+    SupportedCharacteristicSerializer)
 from organizations.models import Product, Repository
 from pre_configs.models import PreConfig
 from utils.exceptions import SubCharacteristicNotDefinedInPreConfiguration
@@ -128,6 +128,11 @@ class SupportedCharacteristicModelViewSet(
 
     queryset = SupportedCharacteristic.objects.all()
     serializer_class = SupportedCharacteristicSerializer
+
+
+class BalanceMatrixViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = BalanceMatrix.objects.all()
+    serializer_class = BalanceMatrixSerializer
 
 
 class RepositoryCharacteristicMixin:
