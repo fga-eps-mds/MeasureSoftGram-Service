@@ -1,22 +1,18 @@
 from datetime import date, timedelta
-
 from urllib import request
 
-from django.core.management import call_command
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.test import TestCase
-
-from rest_framework.reverse import reverse
 from rest_framework.authtoken.models import Token
+from rest_framework.reverse import reverse
 
+from goals.models import Goal
 from organizations.management.commands.utils import (
     create_a_preconfig,
     create_suported_characteristics,
 )
 from organizations.models import Product, Repository
-
-from goals.models import Goal
-
 from utils.tests import APITestCaseExpanded
 
 User = get_user_model()

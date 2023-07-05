@@ -1,11 +1,8 @@
 from allauth.socialaccount.models import SocialAccount
-
 from django.contrib.auth import get_user_model
-
-from rest_framework.reverse import reverse
-from rest_framework.authtoken.models import Token
-
 from parameterized import parameterized
+from rest_framework.authtoken.models import Token
+from rest_framework.reverse import reverse
 
 from utils.tests import APITestCaseExpanded
 

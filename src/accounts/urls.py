@@ -9,7 +9,6 @@ from accounts.views import (
     RetrieveAccountViewSet,
 )
 
-
 urlpatterns = [
     re_path(
         r"^accounts/",

@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils import timezone
+from util import Checker  # util do core
+from util.constants import AGGREGATED_NORMALIZED_MEASURES_MAPPING
 
 import utils
 from characteristics.models import SupportedCharacteristic
@@ -54,6 +56,7 @@ class PreConfig(models.Model):
         self.validate_characteristics(self.data)
         self.validate_characteristics_subcharacteristics_relation(self.data)
         self.validate_characteristics_weights(self.data)
+        self.validate_thresholds(self.data)
 
         super().save(*args, **kwargs)
 
@@ -332,6 +335,37 @@ class PreConfig(models.Model):
             raise InvalidPreConfigException(
                 "The sum of weights of characteristics is not 100"
             )
+
+    @staticmethod
+    def validate_thresholds(data: dict):
+        """
+        Verifica se os thresholds estão no AGGREGATED_NORMALIZED_MEASURES_MAPPING para aquela measure.
+        """
+
+        checker_adapter = {
+            "non_complex_file_density": "non_complex_files_density",
+            "test_builds": "fast_test_builds",
+            "passed_tests": "passed_tests",
+            "test_coverage": "test_coverage",
+            "commented_file_density": "comment_files_density",
+            "duplication_absense": "absence_of_duplications",
+        }
+
+        for characteristic in data["characteristics"]:
+            for subcharacteristic in characteristic["subcharacteristics"]:
+                for measure in subcharacteristic["measures"]:
+                    if "min_threshold" not in measure or "max_threshold" not in measure:
+                        continue
+                    try:
+                        Checker.check_threshold(
+                            measure.get("min_threshold"),
+                            measure.get("max_threshold"),
+                            checker_adapter.get(measure.get("key")),
+                        )
+                    except Exception as e:
+                        raise InvalidPreConfigException(
+                            f"Invalid Threshold! {str(measure)} {str(e)}"
+                        )
 
     @staticmethod
     def is_different_than_the_current_preconfig(data: dict, current_preconfig):

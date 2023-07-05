@@ -49,7 +49,14 @@ class TestConfigEnpoints(APITestCaseExpanded):
         detail_items = self.request.get(_get_product_detail(self.org.id, self.prod.id))
         pre_config_uri = detail_items.json()["actions"]
 
-        measures = [{"key": "passed_tests", "weight": 100}]
+        measures = [
+            {
+                "key": "passed_tests",
+                "weight": 100,
+                "min_threshold": 0,
+                "max_threshold": 1,
+            }
+        ]
         subcharacteristics = [
             {"key": "testing_status", "weight": 100, "measures": measures}
         ]
