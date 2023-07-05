@@ -40,7 +40,11 @@ from utils import (
     staticfiles,
 )
 
-from .utils import create_suported_characteristics, get_random_goal_data
+from .utils import (
+    create_balance_matrix,
+    create_suported_characteristics,
+    get_random_goal_data,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -299,6 +303,12 @@ class Command(BaseCommand):
             # },
         ]
         create_suported_characteristics(suported_characteristics)
+
+    def create_balance_matrix(self):
+        characteristics = SupportedCharacteristic.objects.filter(
+            key__in=staticfiles.DEFAULT_BALANCE_MATRIX.keys(),
+        )
+        create_balance_matrix(characteristics)
 
     def create_fake_calculated_characteristics(self, repository):
         qs = SupportedCharacteristic.objects.annotate(
@@ -578,7 +588,7 @@ class Command(BaseCommand):
         self.create_suported_measures()
         self.create_suported_subcharacteristics()
         self.create_suported_characteristics()
-
+        self.create_balance_matrix()
         # self.create_fake_organizations()
         # self.create_fake_products()
         # self.create_fake_repositories()

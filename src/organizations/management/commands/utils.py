@@ -5,10 +5,10 @@ import random
 from django.db.utils import IntegrityError
 from django.utils import timezone
 
-from characteristics.models import SupportedCharacteristic
+from characteristics.models import BalanceMatrix, SupportedCharacteristic
 from pre_configs.models import PreConfig
 from subcharacteristics.models import SupportedSubCharacteristic
-from utils import exceptions
+from utils import exceptions, staticfiles
 
 
 def create_suported_characteristics(suported_characteristics):
@@ -34,6 +34,33 @@ def create_suported_characteristics(suported_characteristics):
                 raise exceptions.MissingSupportedSubCharacteristicError()
 
             charact.subcharacteristics.set(subcharacteristics)
+
+
+def create_balance_matrix(suported_characteristics: list[SupportedCharacteristic]):
+    filtered_balance_matrix = {
+        characteristic.key: characteristic
+        for characteristic in suported_characteristics
+    }
+    to_create = []
+    for source_characteristic, relations in staticfiles.DEFAULT_BALANCE_MATRIX.items():
+        to_create.extend(
+            [
+                BalanceMatrix(
+                    source_characteristic=filtered_balance_matrix.get(
+                        source_characteristic
+                    ),
+                    target_characteristic=filtered_balance_matrix.get(
+                        target_characteristic
+                    ),
+                    relation_type=relation,
+                )
+                for relation in ["-", "+"]
+                for target_characteristic in relations.get(relation, [])
+                if source_characteristic in filtered_balance_matrix
+                and target_characteristic in filtered_balance_matrix
+            ]
+        )
+    BalanceMatrix.objects.bulk_create(to_create)
 
 
 def force_the_sum_to_equal_100(entities_data: dict):
