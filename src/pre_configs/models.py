@@ -366,16 +366,3 @@ class PreConfig(models.Model):
                         raise InvalidPreConfigException(
                             f"Invalid Threshold! {str(measure)} {str(e)}"
                         )
-
-    @staticmethod
-    def is_different_than_the_current_preconfig(data: dict, current_preconfig):
-        """
-        Verifica se a pré-configuração é diferente da pré-configuração atual
-        """
-        if current_preconfig.data == data:
-            raise InvalidPreConfigException(
-                (
-                    "It is not allowed to create a new "
-                    "pre-config equal to the current pre-config."
-                )
-            )
