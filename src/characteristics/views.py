@@ -140,17 +140,26 @@ class BalanceMatrixViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = BalanceMatrixSerializer
 
     def list(self, request, *args, **kwargs):
-        supported_characteristic_ids = request.query_params.getlist(
-            "supported_characteristic_ids[]", []
-        )
+        queryset = self.filter_queryset(self.get_queryset())
 
-        balance_matrices = BalanceMatrix.objects.filter(
-            source_characteristic__in=supported_characteristic_ids,
-            target_characteristic__in=supported_characteristic_ids,
-        )
+        result = {}
+        for balance_matrix in queryset:
+            source_key = balance_matrix.source_characteristic.key
+            target_key = balance_matrix.target_characteristic.key
+            relation_type = balance_matrix.relation_type
 
-        serializer = self.get_serializer(balance_matrices, many=True)
-        return Response(serializer.data)
+            if source_key not in result:
+                result[source_key] = {"+": [], "-": []}
+
+            result[source_key][relation_type].append(target_key)
+
+        data = {
+            "count": len(result),
+            "next": None,
+            "previous": None,
+            "result": result,
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class RepositoryCharacteristicMixin:

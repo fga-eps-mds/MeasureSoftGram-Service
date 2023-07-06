@@ -30,6 +30,9 @@ class BalanceMatrixSerializer(serializers.ModelSerializer):
     Serializadora para a matriz de balanceamento
     """
 
+    source_characteristic = SupportedCharacteristicSerializer()
+    target_characteristic = SupportedCharacteristicSerializer()
+
     class Meta:
         model = BalanceMatrix
         fields = (
@@ -38,6 +41,10 @@ class BalanceMatrixSerializer(serializers.ModelSerializer):
             "target_characteristic",
             "relation_type",
         )
+
+        extra_kwargs = {
+            "key": {"read_only": True},
+        }
 
 
 class CalculatedCharacteristicSerializer(serializers.ModelSerializer):
