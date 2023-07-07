@@ -4,6 +4,7 @@ volumes:
   service_postgres_data:
   pip_cache:
 
+
 services:
   db:
     container_name: db
@@ -19,7 +20,7 @@ services:
     container_name: service
     build:
       context: .
-    command: ["./start_service.sh"]
+    command: [ "./start_service.sh" ]
     ports:
       - "8080:80" # Main port
       - "8181:8181" # Debug port

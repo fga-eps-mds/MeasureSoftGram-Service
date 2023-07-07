@@ -1,3 +1,4 @@
+from .default_balance_matrix import DEFAULT_BALANCE_MATRIX
 from .default_pre_config import DEFAULT_PRE_CONFIG
 from .measures import GITHUB_AVAILABLE_METRICS
 from .mocked_measure_history import MOCKED_MEASURE_HISTORY

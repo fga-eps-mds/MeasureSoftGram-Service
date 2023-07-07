@@ -4,7 +4,10 @@ from django.urls import include, path
 from rest_framework_nested import routers
 
 from accounts import urls as accounts_urls
-from characteristics.views import SupportedCharacteristicModelViewSet
+from characteristics.views import (
+    BalanceMatrixViewSet,
+    SupportedCharacteristicModelViewSet,
+)
 from entity_trees.views import SupportedEntitiesRelationshipTreeViewSet
 from measures.views import SupportedMeasureModelViewSet
 from metrics.views import SupportedMetricModelViewSet
@@ -27,6 +30,11 @@ def register_supported_entities_endpoints(router):
         "entity-relationship-tree",
         SupportedEntitiesRelationshipTreeViewSet,
         basename="entity-relationship-tree",
+    )
+    router.register(
+        "balance-matrix",
+        BalanceMatrixViewSet,
+        basename="balance-matrix",
     )
 
 

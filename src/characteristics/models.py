@@ -1,8 +1,9 @@
 from typing import Iterable, Set, Union
 
-import utils
 from django.db import models
 from django.utils import timezone
+
+import utils
 from utils.managers import CacheManager
 
 
@@ -137,6 +138,31 @@ class SupportedCharacteristic(models.Model):
             selected_characteristics_keys,
             SupportedCharacteristic,
         )
+
+
+class BalanceMatrix(models.Model):
+    TYPE_CHOICES = (
+        ("+", "Positive"),  # Diretamente proporcional
+        ("-", "Negative"),  # Inversamente proporcional
+    )
+
+    source_characteristic = models.ForeignKey(
+        SupportedCharacteristic,
+        on_delete=models.CASCADE,
+        related_name="source_characteristic",
+    )
+    target_characteristic = models.ForeignKey(
+        SupportedCharacteristic,
+        on_delete=models.CASCADE,
+        related_name="target_characteristic",
+    )
+    relation_type = models.CharField(max_length=1, choices=TYPE_CHOICES)
+
+    class Meta:
+        unique_together = ["source_characteristic", "target_characteristic"]
+
+    def __str__(self):
+        return f"{self.source_characteristic} {self.relation_type} {self.target_characteristic}"
 
 
 class CalculatedCharacteristic(models.Model):

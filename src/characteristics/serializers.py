@@ -3,7 +3,11 @@ from django.utils import timezone
 from rest_framework import serializers
 
 import utils
-from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
+from characteristics.models import (
+    BalanceMatrix,
+    CalculatedCharacteristic,
+    SupportedCharacteristic,
+)
 
 
 class SupportedCharacteristicSerializer(serializers.ModelSerializer):
@@ -19,6 +23,28 @@ class SupportedCharacteristicSerializer(serializers.ModelSerializer):
             "name",
             "description",
         )
+
+
+class BalanceMatrixSerializer(serializers.ModelSerializer):
+    """
+    Serializadora para a matriz de balanceamento
+    """
+
+    source_characteristic = SupportedCharacteristicSerializer()
+    target_characteristic = SupportedCharacteristicSerializer()
+
+    class Meta:
+        model = BalanceMatrix
+        fields = (
+            "id",
+            "source_characteristic",
+            "target_characteristic",
+            "relation_type",
+        )
+
+        extra_kwargs = {
+            "key": {"read_only": True},
+        }
 
 
 class CalculatedCharacteristicSerializer(serializers.ModelSerializer):

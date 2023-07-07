@@ -3,8 +3,13 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
+from characteristics.models import (
+    BalanceMatrix,
+    CalculatedCharacteristic,
+    SupportedCharacteristic,
+)
 from characteristics.serializers import (
+    BalanceMatrixSerializer,
     CalculatedCharacteristicHistorySerializer,
     CharacteristicsCalculationsRequestSerializer,
     LatestCalculatedCharacteristicSerializer,
@@ -128,6 +133,33 @@ class SupportedCharacteristicModelViewSet(
 
     queryset = SupportedCharacteristic.objects.all()
     serializer_class = SupportedCharacteristicSerializer
+
+
+class BalanceMatrixViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = BalanceMatrix.objects.all()
+    serializer_class = BalanceMatrixSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        result = {}
+        for balance_matrix in queryset:
+            source_key = balance_matrix.source_characteristic.key
+            target_key = balance_matrix.target_characteristic.key
+            relation_type = balance_matrix.relation_type
+
+            if source_key not in result:
+                result[source_key] = {"+": [], "-": []}
+
+            result[source_key][relation_type].append(target_key)
+
+        data = {
+            "count": len(result),
+            "next": None,
+            "previous": None,
+            "result": result,
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class RepositoryCharacteristicMixin:
