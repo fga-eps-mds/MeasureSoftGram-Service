@@ -4,7 +4,9 @@ from rest_framework.response import Response
 
 from organizations.models import Product
 from pre_configs.models import PreConfig
+from measures.models import SupportedMeasure
 from pre_configs.serializers import PreConfigSerializer
+from staticfiles import SONARQUBE_SUPPORTED_MEASURES
 
 
 class CurrentPreConfigModelViewSet(
@@ -46,12 +48,32 @@ class CreatePreConfigModelViewSet(
         serializer.save(product=product)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        data_to_add_metrics = request.data
+
+        for characteristic in data_to_add_metrics["data"]["characteristics"]:
+            for subcharacteristic in characteristic["subcharacteristics"]:
+                for measure in subcharacteristic["measures"]:
+                    metrics_list = [
+                        sup_measure[measure["key"]]["metrics"]
+                        for sup_measure in SONARQUBE_SUPPORTED_MEASURES
+                        if measure["key"] in sup_measure
+                    ]
+                    measure.update(
+                        {
+                            "metrics": [
+                                {"key": metric}
+                                for metrics in metrics_list
+                                for metric in metrics
+                            ]
+                        }
+                    )
+
+        serializer = self.get_serializer(data=data_to_add_metrics)
         serializer.is_valid(raise_exception=True)
         product = self.get_product()
         current_preconfig = product.pre_configs.first()
-        if request.data == current_preconfig.data:
-            return Response(request.data, status=status.HTTP_200_OK)
+        if data_to_add_metrics == current_preconfig.data:
+            return Response(data_to_add_metrics, status=status.HTTP_200_OK)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(
