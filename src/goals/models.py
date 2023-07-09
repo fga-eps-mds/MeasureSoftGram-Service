@@ -131,12 +131,15 @@ class Equalizer:
     def force_min_max(value):
         return max(0, min(100, value))
 
-    def update(self, entity_key: str, delta: int):
+    def update(self, entity_key: str, delta: int, allow_dynamic: bool = False):
         self.default_setup[entity_key] += delta
 
         self.default_setup[entity_key] = self.force_min_max(
             self.default_setup[entity_key],
         )
+
+        if allow_dynamic:
+            return
 
         for related_entity in self.BALANCE_MATRIX[entity_key]["+"]:
             if related_entity in self.default_setup:
