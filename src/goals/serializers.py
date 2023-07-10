@@ -83,6 +83,7 @@ class GoalSerializer(serializers.ModelSerializer):
 
     changes = CharacteristicDeltaSerializer(many=True, write_only=True)
     data = serializers.SerializerMethodField()
+    allow_dynamic = serializers.BooleanField(default=False)
 
     class Meta:
         model = Goal
@@ -93,6 +94,7 @@ class GoalSerializer(serializers.ModelSerializer):
             "end_at",
             "changes",
             "data",
+            "allow_dynamic",
         )
 
     def get_data(self, obj):
@@ -212,11 +214,13 @@ class GoalSerializer(serializers.ModelSerializer):
 
         data = self.validated_data
         changes = data.get("changes", [])
+        allow_dynamic = data.get("allow_dynamic", False)
 
         for change in changes:
             equalizer.update(
                 change["characteristic_key"],
                 change["delta"],
+                allow_dynamic,
             )
 
         return equalizer.get_goal()
@@ -224,4 +228,5 @@ class GoalSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         data = self.changes_to_data()
         self.validated_data.pop("changes")
+        self.validated_data.pop("allow_dynamic")
         return super().save(data=data, **kwargs)
