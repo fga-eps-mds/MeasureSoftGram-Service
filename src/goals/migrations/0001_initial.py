@@ -6,28 +6,48 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('organizations', '0001_initial'),
+        ("organizations", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Goal',
+            name="Goal",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('start_at', models.DateTimeField()),
-                ('end_at', models.DateTimeField()),
-                ('release_name', models.CharField(max_length=255)),
-                ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,  to='accounts.customUser')),
-                ('data', models.JSONField()),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='goals', to='organizations.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
+                ("start_at", models.DateTimeField()),
+                ("end_at", models.DateTimeField()),
+                ("release_name", models.CharField(max_length=255)),
+                (
+                    "created_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounts.customUser",
+                    ),
+                ),
+                ("data", models.JSONField()),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="goals",
+                        to="organizations.product",
+                    ),
+                ),
             ],
             options={
-                'ordering': ('-created_at',),
+                "ordering": ("-created_at",),
             },
         ),
     ]

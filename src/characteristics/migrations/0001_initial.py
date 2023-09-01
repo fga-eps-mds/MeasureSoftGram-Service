@@ -6,36 +6,75 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('subcharacteristics', '0001_initial'),
-        ('organizations', '0001_initial'),
+        ("subcharacteristics", "0001_initial"),
+        ("organizations", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SupportedCharacteristic',
+            name="SupportedCharacteristic",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
-                ('key', models.CharField(max_length=128, unique=True)),
-                ('description', models.TextField(blank=True, max_length=512, null=True)),
-                ('subcharacteristics', models.ManyToManyField(blank=True, related_name='related_characteristics', to='subcharacteristics.supportedsubcharacteristic')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("key", models.CharField(max_length=128, unique=True)),
+                (
+                    "description",
+                    models.TextField(blank=True, max_length=512, null=True),
+                ),
+                (
+                    "subcharacteristics",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="related_characteristics",
+                        to="subcharacteristics.supportedsubcharacteristic",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CalculatedCharacteristic',
+            name="CalculatedCharacteristic",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('value', models.FloatField()),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('characteristic', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='calculated_characteristics', to='characteristics.supportedcharacteristic')),
-                ('repository', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='calculated_characteristics', to='organizations.repository')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("value", models.FloatField()),
+                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "characteristic",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="calculated_characteristics",
+                        to="characteristics.supportedcharacteristic",
+                    ),
+                ),
+                (
+                    "repository",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="calculated_characteristics",
+                        to="organizations.repository",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
     ]

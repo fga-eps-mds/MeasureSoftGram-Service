@@ -1,82 +1,28 @@
 # flake8: noqa
 # pylint: skip-file
 SONARQUBE_JSON = {
-    "paging": {
-        "pageIndex": 1,
-        "pageSize": 500,
-        "total": 77
-    },
+    "paging": {"pageIndex": 1, "pageSize": 500, "total": 77},
     "baseComponent": {
         "id": "AYH1Gki9YGgAeaDMB6HC",
         "key": "fga-eps-mds_2022-1-MeasureSoftGram-CLI",
         "name": "2022-1-MeasureSoftGram-CLI",
         "qualifier": "TRK",
         "measures": [
-            {
-                "metric": "duplicated_lines_density",
-                "value": "0.0",
-                "bestValue": True
-            },
-            {
-                "metric": "functions",
-                "value": "49"
-            },
-            {
-                "metric": "test_execution_time",
-                "value": "620"
-            },
-            {
-                "metric": "test_failures",
-                "value": "0",
-                "bestValue": True
-            },
-            {
-                "metric": "test_errors",
-                "value": "0",
-                "bestValue": True
-            },
-            {
-                "metric": "security_rating",
-                "value": "1.0",
-                "bestValue": True
-            },
-            {
-                "metric": "tests",
-                "value": "53"
-            },
-            {
-                "metric": "files",
-                "value": "32"
-            },
-            {
-                "metric": "complexity",
-                "value": "140"
-            },
-            {
-                "metric": "ncloc",
-                "value": "960"
-            },
-            {
-                "metric": "coverage",
-                "value": "67.9",
-                "bestValue": False
-            },
-            {
-                "metric": "reliability_rating",
-                "value": "3.0",
-                "bestValue": False
-            },
-            {
-                "metric": "comment_lines_density",
-                "value": "6.5",
-                "bestValue": False
-            },
-            {
-                "metric": "test_success_density",
-                "value": "100.0",
-                "bestValue": True
-            }
-        ]
+            {"metric": "duplicated_lines_density", "value": "0.0", "bestValue": True},
+            {"metric": "functions", "value": "49"},
+            {"metric": "test_execution_time", "value": "620"},
+            {"metric": "test_failures", "value": "0", "bestValue": True},
+            {"metric": "test_errors", "value": "0", "bestValue": True},
+            {"metric": "security_rating", "value": "1.0", "bestValue": True},
+            {"metric": "tests", "value": "53"},
+            {"metric": "files", "value": "32"},
+            {"metric": "complexity", "value": "140"},
+            {"metric": "ncloc", "value": "960"},
+            {"metric": "coverage", "value": "67.9", "bestValue": False},
+            {"metric": "reliability_rating", "value": "3.0", "bestValue": False},
+            {"metric": "comment_lines_density", "value": "6.5", "bestValue": False},
+            {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+        ],
     },
     "components": [
         {
@@ -87,37 +33,17 @@ SONARQUBE_JSON = {
             "path": "tests/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umX3",
@@ -127,37 +53,17 @@ SONARQUBE_JSON = {
             "path": "tests/unit/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umX7",
@@ -167,37 +73,17 @@ SONARQUBE_JSON = {
             "path": "tests/integration/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXm",
@@ -207,37 +93,17 @@ SONARQUBE_JSON = {
             "path": "tests/system/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXf",
@@ -247,53 +113,21 @@ SONARQUBE_JSON = {
             "path": "src/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXc",
@@ -303,53 +137,21 @@ SONARQUBE_JSON = {
             "path": "src/cli/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjr",
@@ -359,63 +161,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "34"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "34"},
+                {"metric": "coverage", "value": "0.0", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjz",
@@ -425,53 +187,21 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_list/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj3",
@@ -481,53 +211,21 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_available/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjd",
@@ -537,53 +235,21 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_change_name/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkji",
@@ -593,53 +259,21 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_analysis/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjk",
@@ -649,53 +283,21 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_create/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjo",
@@ -705,53 +307,21 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_show/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjt",
@@ -761,53 +331,21 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_import/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjw",
@@ -817,53 +355,21 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_get_entity/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj6",
@@ -873,63 +379,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/jsonReader/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "12"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "12"},
+                {"metric": "coverage", "value": "0.0", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj9",
@@ -939,63 +405,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/exceptions/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "9"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "9"},
+                {"metric": "coverage", "value": "0.0", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKPRVpmo6rjP6GCjbma",
@@ -1005,53 +431,21 @@ SONARQUBE_JSON = {
             "path": "src/clients/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKPRVpmo6rjP6GCjbmc",
@@ -1061,53 +455,21 @@ SONARQUBE_JSON = {
             "path": "src/config/__init__.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "0"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "0"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXe",
@@ -1119,45 +481,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "44"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "27"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "135"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "920"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "68.1",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "3.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "6.6",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "44"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "27"},
+                {"metric": "complexity", "value": "135"},
+                {"metric": "ncloc", "value": "920"},
+                {"metric": "coverage", "value": "68.1", "bestValue": False},
+                {"metric": "reliability_rating", "value": "3.0", "bestValue": False},
+                {"metric": "comment_lines_density", "value": "6.6", "bestValue": False},
+            ],
         },
         {
             "id": "AYKPRVpmo6rjP6GCjbmb",
@@ -1169,45 +503,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "5"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "2"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "5"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "24"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "54.2",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "4.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "5"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "2"},
+                {"metric": "complexity", "value": "5"},
+                {"metric": "ncloc", "value": "24"},
+                {"metric": "coverage", "value": "54.2", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "4.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXW",
@@ -1217,63 +523,27 @@ SONARQUBE_JSON = {
             "path": "src/cli/cliRunner.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "functions",
-                    "value": "3"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "4"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "149"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "3.0",
-                    "bestValue": False
-                },
+                {"metric": "functions", "value": "3"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "1"},
+                {"metric": "complexity", "value": "4"},
+                {"metric": "ncloc", "value": "149"},
+                {"metric": "coverage", "value": "0.0", "bestValue": False},
+                {"metric": "reliability_rating", "value": "3.0", "bestValue": False},
                 {
                     "metric": "comment_lines_density",
                     "value": "23.2",
-                    "bestValue": False
+                    "bestValue": False,
                 },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj5",
@@ -1285,45 +555,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "28"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "20"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "103"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "616"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "73.4",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "28"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "20"},
+                {"metric": "complexity", "value": "103"},
+                {"metric": "ncloc", "value": "616"},
+                {"metric": "coverage", "value": "73.4", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYKPRVpmo6rjP6GCjbme",
@@ -1335,45 +577,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "2"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "16"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "5.9",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "0"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "2"},
+                {"metric": "complexity", "value": "0"},
+                {"metric": "ncloc", "value": "16"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "5.9", "bestValue": False},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXy",
@@ -1382,17 +596,9 @@ SONARQUBE_JSON = {
             "qualifier": "DIR",
             "path": "tests/unit/data",
             "measures": [
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj_",
@@ -1404,45 +610,21 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "2"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "25"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "94.1",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
+                {"metric": "functions", "value": "0"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "2"},
+                {"metric": "complexity", "value": "0"},
+                {"metric": "ncloc", "value": "25"},
+                {"metric": "coverage", "value": "94.1", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
                 {
                     "metric": "comment_lines_density",
                     "value": "24.2",
-                    "bestValue": False
-                }
-            ]
+                    "bestValue": False,
+                },
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj-",
@@ -1452,63 +634,27 @@ SONARQUBE_JSON = {
             "path": "src/cli/exceptions/exceptions.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "16"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "16"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
                 {
                     "metric": "comment_lines_density",
                     "value": "33.3",
-                    "bestValue": False
+                    "bestValue": False,
                 },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umX8",
@@ -1517,17 +663,9 @@ SONARQUBE_JSON = {
             "qualifier": "DIR",
             "path": "tests/integration",
             "measures": [
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXw",
@@ -1537,37 +675,17 @@ SONARQUBE_JSON = {
             "path": "tests/unit/data/invalid_json.json",
             "language": "json",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj8",
@@ -1579,45 +697,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "9"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "2"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "21"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "110"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "78.2",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "9"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "2"},
+                {"metric": "complexity", "value": "21"},
+                {"metric": "ncloc", "value": "110"},
+                {"metric": "coverage", "value": "78.2", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj7",
@@ -1627,63 +717,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/jsonReader/jsonReader.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "21"
-                },
-                {
-                    "metric": "functions",
-                    "value": "9"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "98"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "79.2",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "21"},
+                {"metric": "functions", "value": "9"},
+                {"metric": "ncloc", "value": "98"},
+                {"metric": "coverage", "value": "79.2", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXu",
@@ -1693,37 +743,17 @@ SONARQUBE_JSON = {
             "path": "tests/unit/data/measuresoftgramCoreFormat.json",
             "language": "json",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXx",
@@ -1733,37 +763,17 @@ SONARQUBE_JSON = {
             "path": "tests/unit/data/measuresoftgramPreConfig.json",
             "language": "json",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjj",
@@ -1775,45 +785,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "4"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "3"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "14"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "41"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "86.5",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "4"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "3"},
+                {"metric": "complexity", "value": "14"},
+                {"metric": "ncloc", "value": "41"},
+                {"metric": "coverage", "value": "86.5", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjg",
@@ -1823,63 +805,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_analysis/parse_analysis.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "1"
-                },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "7"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "57.1",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "1"},
+                {"metric": "functions", "value": "1"},
+                {"metric": "ncloc", "value": "7"},
+                {"metric": "coverage", "value": "57.1", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj4",
@@ -1891,45 +833,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "2"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "6"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "26"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "1"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "2"},
+                {"metric": "complexity", "value": "6"},
+                {"metric": "ncloc", "value": "26"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj2",
@@ -1939,63 +853,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_available/parse_available.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "6"
-                },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "26"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "6"},
+                {"metric": "functions", "value": "1"},
+                {"metric": "ncloc", "value": "26"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjf",
@@ -2007,45 +881,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "2"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "2"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "15"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "1"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "2"},
+                {"metric": "complexity", "value": "2"},
+                {"metric": "ncloc", "value": "15"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkje",
@@ -2055,63 +901,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_change_name/parse_change_name.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "2"
-                },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "15"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "2"},
+                {"metric": "functions", "value": "1"},
+                {"metric": "ncloc", "value": "15"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjn",
@@ -2123,45 +929,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "15"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "3"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "52"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "305"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "89.3",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "15"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "3"},
+                {"metric": "complexity", "value": "52"},
+                {"metric": "ncloc", "value": "305"},
+                {"metric": "coverage", "value": "89.3", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjm",
@@ -2171,63 +949,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_create/parse_create.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "1"
-                },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "23"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "40.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "1"},
+                {"metric": "functions", "value": "1"},
+                {"metric": "ncloc", "value": "23"},
+                {"metric": "coverage", "value": "40.0", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjy",
@@ -2239,45 +977,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "4"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "3"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "17"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "93"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "21.3",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "4"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "3"},
+                {"metric": "complexity", "value": "17"},
+                {"metric": "ncloc", "value": "93"},
+                {"metric": "coverage", "value": "21.3", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjv",
@@ -2287,63 +997,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_get_entity/parse_get_entity.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "5"
-                },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "41"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "38.9",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "5"},
+                {"metric": "functions", "value": "1"},
+                {"metric": "ncloc", "value": "41"},
+                {"metric": "coverage", "value": "38.9", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkju",
@@ -2355,45 +1025,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "2"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "3"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "53"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "27.6",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "1"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "2"},
+                {"metric": "complexity", "value": "3"},
+                {"metric": "ncloc", "value": "53"},
+                {"metric": "coverage", "value": "27.6", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjs",
@@ -2403,63 +1045,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_import/parse_import.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "3"
-                },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "53"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "27.6",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "3"},
+                {"metric": "functions", "value": "1"},
+                {"metric": "ncloc", "value": "53"},
+                {"metric": "coverage", "value": "27.6", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj1",
@@ -2471,45 +1073,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "2"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "4"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "23"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "1"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "2"},
+                {"metric": "complexity", "value": "4"},
+                {"metric": "ncloc", "value": "23"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkj0",
@@ -2519,63 +1093,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_list/parse_list.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "4"
-                },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "23"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "4"},
+                {"metric": "functions", "value": "1"},
+                {"metric": "ncloc", "value": "23"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjq",
@@ -2587,45 +1121,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "2"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "5"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "26"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "1"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "2"},
+                {"metric": "complexity", "value": "5"},
+                {"metric": "ncloc", "value": "26"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjp",
@@ -2635,63 +1141,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_show/parse_show.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "5"
-                },
-                {
-                    "metric": "functions",
-                    "value": "1"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "26"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "5"},
+                {"metric": "functions", "value": "1"},
+                {"metric": "ncloc", "value": "26"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjh",
@@ -2701,63 +1167,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_analysis/results.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "13"
-                },
-                {
-                    "metric": "functions",
-                    "value": "3"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "34"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "93.3",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "13"},
+                {"metric": "functions", "value": "3"},
+                {"metric": "ncloc", "value": "34"},
+                {"metric": "coverage", "value": "93.3", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKPRVpmo6rjP6GCjbmZ",
@@ -2767,63 +1193,23 @@ SONARQUBE_JSON = {
             "path": "src/clients/service_client.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "5"
-                },
-                {
-                    "metric": "functions",
-                    "value": "5"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "24"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "54.2",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "4.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "5"},
+                {"metric": "functions", "value": "5"},
+                {"metric": "ncloc", "value": "24"},
+                {"metric": "coverage", "value": "54.2", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "4.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKPRVpmo6rjP6GCjbmd",
@@ -2833,63 +1219,23 @@ SONARQUBE_JSON = {
             "path": "src/config/settings.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "0"
-                },
-                {
-                    "metric": "functions",
-                    "value": "0"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "16"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "100.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "5.9",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "0"},
+                {"metric": "functions", "value": "0"},
+                {"metric": "ncloc", "value": "16"},
+                {"metric": "coverage", "value": "100.0", "bestValue": True},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "5.9", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXv",
@@ -2899,37 +1245,17 @@ SONARQUBE_JSON = {
             "path": "tests/unit/data/sonar.json",
             "language": "json",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXg",
@@ -2941,45 +1267,17 @@ SONARQUBE_JSON = {
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "functions",
-                    "value": "49"
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "files",
-                    "value": "32"
-                },
-                {
-                    "metric": "complexity",
-                    "value": "140"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "960"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "67.9",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "3.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "6.5",
-                    "bestValue": False
-                }
-            ]
+                {"metric": "functions", "value": "49"},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "files", "value": "32"},
+                {"metric": "complexity", "value": "140"},
+                {"metric": "ncloc", "value": "960"},
+                {"metric": "coverage", "value": "67.9", "bestValue": False},
+                {"metric": "reliability_rating", "value": "3.0", "bestValue": False},
+                {"metric": "comment_lines_density", "value": "6.5", "bestValue": False},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXr",
@@ -2988,40 +1286,14 @@ SONARQUBE_JSON = {
             "qualifier": "DIR",
             "path": "tests/system",
             "measures": [
-                {
-                    "metric": "test_execution_time",
-                    "value": "526"
-                },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "tests",
-                    "value": "2"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_execution_time", "value": "526"},
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "tests", "value": "2"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXp",
@@ -3031,37 +1303,17 @@ SONARQUBE_JSON = {
             "path": "tests/system/test_analysis.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXz",
@@ -3071,45 +1323,19 @@ SONARQUBE_JSON = {
             "path": "tests/unit/test_available.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_execution_time",
-                    "value": "4"
-                },
-                {
-                    "metric": "tests",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_execution_time", "value": "4"},
+                {"metric": "tests", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXl",
@@ -3119,37 +1345,17 @@ SONARQUBE_JSON = {
             "path": "tests/system/test_available.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umX1",
@@ -3159,45 +1365,19 @@ SONARQUBE_JSON = {
             "path": "tests/unit/test_change_name.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_execution_time",
-                    "value": "7"
-                },
-                {
-                    "metric": "tests",
-                    "value": "3"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_execution_time", "value": "7"},
+                {"metric": "tests", "value": "3"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXn",
@@ -3207,37 +1387,17 @@ SONARQUBE_JSON = {
             "path": "tests/system/test_change_name.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umX2",
@@ -3247,45 +1407,19 @@ SONARQUBE_JSON = {
             "path": "tests/unit/test_create.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_execution_time",
-                    "value": "18"
-                },
-                {
-                    "metric": "tests",
-                    "value": "17"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_execution_time", "value": "18"},
+                {"metric": "tests", "value": "17"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXi",
@@ -3295,45 +1429,19 @@ SONARQUBE_JSON = {
             "path": "tests/system/test_help.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_execution_time",
-                    "value": "350"
-                },
-                {
-                    "metric": "tests",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_execution_time", "value": "350"},
+                {"metric": "tests", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umX6",
@@ -3343,37 +1451,17 @@ SONARQUBE_JSON = {
             "path": "tests/test_helpers.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXk",
@@ -3383,45 +1471,19 @@ SONARQUBE_JSON = {
             "path": "tests/system/test_import.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_execution_time",
-                    "value": "176"
-                },
-                {
-                    "metric": "tests",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_execution_time", "value": "176"},
+                {"metric": "tests", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXt",
@@ -3431,45 +1493,19 @@ SONARQUBE_JSON = {
             "path": "tests/unit/test_jsonReader.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_execution_time",
-                    "value": "24"
-                },
-                {
-                    "metric": "tests",
-                    "value": "23"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_execution_time", "value": "24"},
+                {"metric": "tests", "value": "23"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umX4",
@@ -3479,45 +1515,19 @@ SONARQUBE_JSON = {
             "path": "tests/unit/test_list.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_execution_time",
-                    "value": "33"
-                },
-                {
-                    "metric": "tests",
-                    "value": "2"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_execution_time", "value": "33"},
+                {"metric": "tests", "value": "2"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXq",
@@ -3527,37 +1537,17 @@ SONARQUBE_JSON = {
             "path": "tests/system/test_list.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXh",
@@ -3567,37 +1557,17 @@ SONARQUBE_JSON = {
             "path": "tests/system/test_no_env.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXs",
@@ -3607,45 +1577,19 @@ SONARQUBE_JSON = {
             "path": "tests/unit/test_results.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_execution_time",
-                    "value": "3"
-                },
-                {
-                    "metric": "tests",
-                    "value": "3"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_execution_time", "value": "3"},
+                {"metric": "tests", "value": "3"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umX0",
@@ -3655,45 +1599,19 @@ SONARQUBE_JSON = {
             "path": "tests/unit/test_show.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_execution_time",
-                    "value": "5"
-                },
-                {
-                    "metric": "tests",
-                    "value": "2"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_execution_time", "value": "5"},
+                {"metric": "tests", "value": "2"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXj",
@@ -3703,37 +1621,17 @@ SONARQUBE_JSON = {
             "path": "tests/system/test_show.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXo",
@@ -3743,37 +1641,17 @@ SONARQUBE_JSON = {
             "path": "tests/system/test_sigint.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umX-",
@@ -3782,40 +1660,14 @@ SONARQUBE_JSON = {
             "qualifier": "DIR",
             "path": "tests",
             "measures": [
-                {
-                    "metric": "test_execution_time",
-                    "value": "620"
-                },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "tests",
-                    "value": "53"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_execution_time", "value": "620"},
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "tests", "value": "53"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umX5",
@@ -3824,40 +1676,14 @@ SONARQUBE_JSON = {
             "qualifier": "DIR",
             "path": "tests/unit",
             "measures": [
-                {
-                    "metric": "test_execution_time",
-                    "value": "94"
-                },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "tests",
-                    "value": "51"
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_execution_time", "value": "94"},
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "tests", "value": "51"},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYIR2uf_sJU0gXq1umXd",
@@ -3867,63 +1693,27 @@ SONARQUBE_JSON = {
             "path": "src/cli/utils.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "7"
-                },
-                {
-                    "metric": "functions",
-                    "value": "4"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "20"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "52.6",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "7"},
+                {"metric": "functions", "value": "4"},
+                {"metric": "ncloc", "value": "20"},
+                {"metric": "coverage", "value": "52.6", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
                 {
                     "metric": "comment_lines_density",
                     "value": "37.5",
-                    "bestValue": False
+                    "bestValue": False,
                 },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjl",
@@ -3933,63 +1723,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_create/utils.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "51"
-                },
-                {
-                    "metric": "functions",
-                    "value": "14"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "282"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "94.4",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "51"},
+                {"metric": "functions", "value": "14"},
+                {"metric": "ncloc", "value": "282"},
+                {"metric": "coverage", "value": "94.4", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
         },
         {
             "id": "AYKU-wW37M-NN69djkjx",
@@ -3999,63 +1749,23 @@ SONARQUBE_JSON = {
             "path": "src/cli/commands/parse_get_entity/utils.py",
             "language": "py",
             "measures": [
-                {
-                    "metric": "complexity",
-                    "value": "12"
-                },
-                {
-                    "metric": "functions",
-                    "value": "3"
-                },
-                {
-                    "metric": "ncloc",
-                    "value": "52"
-                },
-                {
-                    "metric": "coverage",
-                    "value": "10.3",
-                    "bestValue": False
-                },
-                {
-                    "metric": "reliability_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "security_rating",
-                    "value": "1.0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "comment_lines_density",
-                    "value": "0.0",
-                    "bestValue": False
-                },
-                {
-                    "metric": "files",
-                    "value": "1"
-                },
-                {
-                    "metric": "test_errors",
-                    "value": "0",
-                    "bestValue": True
-                },
+                {"metric": "complexity", "value": "12"},
+                {"metric": "functions", "value": "3"},
+                {"metric": "ncloc", "value": "52"},
+                {"metric": "coverage", "value": "10.3", "bestValue": False},
+                {"metric": "reliability_rating", "value": "1.0", "bestValue": True},
+                {"metric": "security_rating", "value": "1.0", "bestValue": True},
+                {"metric": "comment_lines_density", "value": "0.0", "bestValue": False},
+                {"metric": "files", "value": "1"},
+                {"metric": "test_errors", "value": "0", "bestValue": True},
                 {
                     "metric": "duplicated_lines_density",
                     "value": "0.0",
-                    "bestValue": True
+                    "bestValue": True,
                 },
-                {
-                    "metric": "test_failures",
-                    "value": "0",
-                    "bestValue": True
-                },
-                {
-                    "metric": "test_success_density",
-                    "value": "100.0",
-                    "bestValue": True
-                }
-            ]
-        }
-    ]
+                {"metric": "test_failures", "value": "0", "bestValue": True},
+                {"metric": "test_success_density", "value": "100.0", "bestValue": True},
+            ],
+        },
+    ],
 }

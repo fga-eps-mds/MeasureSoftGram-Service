@@ -5,16 +5,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations', '0001_initial'),
-        ('metrics', '0001_initial'),
+        ("organizations", "0001_initial"),
+        ("metrics", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='collectedmetric',
-            name='repository',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='collected_metrics', to='organizations.repository'),
+            model_name="collectedmetric",
+            name="repository",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="collected_metrics",
+                to="organizations.repository",
+            ),
         ),
     ]

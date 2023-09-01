@@ -16,16 +16,16 @@ from organizations.models import Repository
 
 
 def collect_metric_from_github(metric, data, new_collected_metrics, repository):
-    has_all_params = all(param in data for param in metric['api_params'])
+    has_all_params = all(param in data for param in metric["api_params"])
 
     if not has_all_params:
         return
 
-    sup_metric = SupportedMetric.objects.get(key=metric['key'])
+    sup_metric = SupportedMetric.objects.get(key=metric["key"])
 
     threshold = utils.get_threshold(data)
 
-    dynamic_key = utils.get_dynamic_key(metric['key'], threshold)
+    dynamic_key = utils.get_dynamic_key(metric["key"], threshold)
 
     # Calcula o valor da métrica desejada
     value = utils.calculate_metric_value(metric, data)
@@ -47,15 +47,16 @@ class ImportGithubMetricsViewSet(
     TODO: Isso não devia ser síncrono.
     A importação de métricas do github deveria ser uma tarefa assíncrona.
     """
+
     serializer_class = GithubCollectorParamsSerializer
     queryset = SupportedMetric.objects.all()
 
     def get_repository(self):
         return get_object_or_404(
             Repository,
-            id=self.kwargs['repository_pk'],
-            product_id=self.kwargs['product_pk'],
-            product__organization_id=self.kwargs['organization_pk'],
+            id=self.kwargs["repository_pk"],
+            product_id=self.kwargs["product_pk"],
+            product__organization_id=self.kwargs["organization_pk"],
         )
 
     def create(self, request, *args, **kwargs):
@@ -88,4 +89,4 @@ class ImportGithubMetricsViewSet(
             many=True,
         )
 
-        return Response({'collected metrics': serializer.data})
+        return Response({"collected metrics": serializer.data})

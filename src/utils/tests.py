@@ -1,4 +1,6 @@
+from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
+from accounts.models import CustomUser
 
 from organizations.management.commands.load_initial_data import (
     Command as LoadInitialDataCommand,
@@ -10,6 +12,7 @@ class APITestCaseExpanded(APITestCase):
     """
     Classe que agrupa rotinas e métodos que vários tests cases usam
     """
+
     @classmethod
     def setUpTestData(cls) -> None:
         command = LoadInitialDataCommand()
@@ -36,7 +39,6 @@ class APITestCaseExpanded(APITestCase):
         org: Organization,
         name="Test Product",
         description="Test Product Description",
-
     ):
         return org.products.create(name=name, description=description)
 
@@ -60,7 +62,7 @@ class APITestCaseExpanded(APITestCase):
                 {"characteristic_key": "reliability", "delta": 1},
                 {"characteristic_key": "maintainability", "delta": 1},
                 # {"characteristic_key": "functional_suitability", "delta": 1},
-            ]
+            ],
         }
 
     def validate_key(self, key):
@@ -70,10 +72,26 @@ class APITestCaseExpanded(APITestCase):
         """
         for c in key:
             self.assertTrue(
-                c.islower() or c.isalnum() or c == '_',
+                c.islower() or c.isalnum() or c == "_",
                 msg=(
                     "All characters in key must be lowercase and "
                     f"alphanumeric. The key is {key} and the "
                     f"failed char is {c}"
                 ),
             )
+
+    def get_or_create_test_user(self) -> CustomUser:
+        """Método que retorna um usuário padrão para os testes"""
+
+        maybe_user = {
+            "username": "test-user",
+            "first_name": "test",
+            "last_name": "user",
+            "email": "test_product_user@email.com",
+        }
+
+        check_user = get_user_model().objects.filter(email=maybe_user["email"])
+        if not check_user.exists():
+            return get_user_model().objects.create(**maybe_user)
+
+        return check_user[0]

@@ -1,4 +1,4 @@
-GQM
+TSQMI
 characteristics
 SubCharacteristics:
 Measures
@@ -19,8 +19,9 @@ GET /api/v1/subcharacteristics/ OK
 #### Lista todas as characteristics suportadas pelo repositório
 GET /api/v1/characteristics/ OK
 
+#### Lista a matrix de balanceamento para todas as características suportadas
 
-
+GET api/v1/balance-matrix/ OK
 
 ## Endpoints que cadastram ou solicitam o cálculo de uma entidade
 
@@ -43,8 +44,8 @@ POST /api/v1/orgs/1/repositories/1/calculate/subcharacteristics/ OK
 #### Calcula e retorna o valor atual de uma **characteristics** em um repositório
 POST /api/v1/orgs/1/repositories/1/calculate/characteristics/ OK
 
-#### Calcula e retorna o valor atual do **gqm** do repositório
-POST /api/v1/orgs/1/repositories/1/create/gqm/
+#### Calcula e retorna o valor atual do **tsqmi** do repositório
+POST /api/v1/orgs/1/repositories/1/create/tsqmi/
 
 
 ## Endpoints para leitura de dados já calculados/cadastrados (READ-ONLY)
@@ -121,14 +122,14 @@ GET /api/v1/orgs/1/repositories/1/tree/characteristics/
 GET /api/v1/orgs/1/repositories/1/tree/characteristics/1/
 
 
-### gqm
+### tsqmi
 
-#### Endpoint que retorna o valor atual do gqm de um projeto
-GET /api/v1/orgs/1/repositories/1/gqm/
+#### Endpoint que retorna o valor atual do tsqmi de um projeto
+GET /api/v1/orgs/1/repositories/1/tsqmi/
 
-#### Endpoint que retorna o histórico do gqm de um projeto
-GET /api/v1/orgs/1/repositories/1/gqm/history
+#### Endpoint que retorna o histórico do tsqmi de um projeto
+GET /api/v1/orgs/1/repositories/1/tsqmi/history
 
 
-#### Endpoint que retorna o valor atual do gqm e de seus componentes
-GET /api/v1/orgs/1/repositories/1/gqm/tree/
+#### Endpoint que retorna o valor atual do tsqmi e de seus componentes
+GET /api/v1/orgs/1/repositories/1/tsqmi/tree/

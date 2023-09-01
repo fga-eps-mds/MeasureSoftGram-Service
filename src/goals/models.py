@@ -11,7 +11,7 @@ class Goal(models.Model):
     """
 
     class Meta:
-        ordering = ('-created_at',)
+        ordering = ("-created_at",)
 
     created_at = models.DateTimeField(default=timezone.now)
     start_at = models.DateTimeField()
@@ -19,12 +19,12 @@ class Goal(models.Model):
     release_name = models.CharField(max_length=255)
     data = models.JSONField()
     created_by = models.ForeignKey(
-        to='accounts.CustomUser',
+        to="accounts.CustomUser",
         on_delete=models.CASCADE,
     )
     product = models.ForeignKey(
-        to='organizations.Product',
-        related_name='goals',
+        to="organizations.Product",
+        related_name="goals",
         on_delete=models.CASCADE,
     )
 
@@ -44,69 +44,70 @@ class Equalizer:
     """
     Classe que implementa a lógica de modificação dos pesos no equalizador
     """
+
     # TODO: Só as das pré-configuração
     BALANCE_MATRIX = {
-        'functional_suitability': {
-            '+': {
-                'usability',
-                'reliability',
-                'maintainability',
+        "functional_suitability": {
+            "+": {
+                "usability",
+                "reliability",
+                "maintainability",
             },
-            '-': {
-                'performance_efficiency',
-                'security',
-            },
-        },
-        'performance_efficiency': {
-            '+': set(),
-            '-': {
-                'functional_suitability',
-                'usability',
-                'compatibility',
-                'security',
-                'maintainability',
-                'portability',
+            "-": {
+                "performance_efficiency",
+                "security",
             },
         },
-        'usability': {
-            '+': {
-                'functional_suitability',
-                'reliability',
-            },
-            '-': {
-                'performance_efficiency',
-            },
-        },
-        'compatibility': {
-            '+': {'portability'},
-            '-': {'security'},
-        },
-        'reliability': {
-            '+': {'functional_suitability', 'usability', 'maintainability'},
-            '-': set(),
-        },
-        'security': {
-            '+': {'reliability'},
-            '-': {'performance_efficiency', 'usability', 'compatibility'},
-        },
-        'maintainability': {
-            '+': {
-                'functional_suitability',
-                'compatibility',
-                'reliability',
-                'portability',
-            },
-            '-': {
-                'performance_efficiency',
+        "performance_efficiency": {
+            "+": set(),
+            "-": {
+                "functional_suitability",
+                "usability",
+                "compatibility",
+                "security",
+                "maintainability",
+                "portability",
             },
         },
-        'portability': {
-            '+': {
-                'compatibility',
-                'maintainability',
+        "usability": {
+            "+": {
+                "functional_suitability",
+                "reliability",
             },
-            '-': {
-                'performance_efficiency',
+            "-": {
+                "performance_efficiency",
+            },
+        },
+        "compatibility": {
+            "+": {"portability"},
+            "-": {"security"},
+        },
+        "reliability": {
+            "+": {"functional_suitability", "usability", "maintainability"},
+            "-": set(),
+        },
+        "security": {
+            "+": {"reliability"},
+            "-": {"performance_efficiency", "usability", "compatibility"},
+        },
+        "maintainability": {
+            "+": {
+                "functional_suitability",
+                "compatibility",
+                "reliability",
+                "portability",
+            },
+            "-": {
+                "performance_efficiency",
+            },
+        },
+        "portability": {
+            "+": {
+                "compatibility",
+                "maintainability",
+            },
+            "-": {
+                "performance_efficiency",
             },
         },
     }
@@ -130,14 +131,17 @@ class Equalizer:
     def force_min_max(value):
         return max(0, min(100, value))
 
-    def update(self, entity_key: str, delta: int):
+    def update(self, entity_key: str, delta: int, allow_dynamic: bool = False):
         self.default_setup[entity_key] += delta
 
         self.default_setup[entity_key] = self.force_min_max(
             self.default_setup[entity_key],
         )
 
-        for related_entity in self.BALANCE_MATRIX[entity_key]['+']:
+        if allow_dynamic:
+            return
+
+        for related_entity in self.BALANCE_MATRIX[entity_key]["+"]:
             if related_entity in self.default_setup:
                 self.default_setup[related_entity] += delta
 
@@ -145,9 +149,9 @@ class Equalizer:
                     self.default_setup[related_entity],
                 )
 
-        for related_entity in self.BALANCE_MATRIX[entity_key]['-']:
+        for related_entity in self.BALANCE_MATRIX[entity_key]["-"]:
             if related_entity in self.default_setup:
-                self.default_setup[related_entity] += (-1 * delta)
+                self.default_setup[related_entity] += -1 * delta
 
                 self.default_setup[related_entity] = self.force_min_max(
                     self.default_setup[related_entity],

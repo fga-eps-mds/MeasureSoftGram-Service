@@ -18,7 +18,7 @@ class GoalModelViewSetMixin(
 
     def this_product_does_not_have_a_goal_reponse(self, product):
         create_a_new_goal_url = reverse(
-            'create-goal-list',
+            "create-goal-list",
             kwargs={
                 "product_pk": product.id,
                 "organization_pk": product.organization.id,
@@ -27,10 +27,10 @@ class GoalModelViewSetMixin(
         )
 
         data = {
-            'detail': 'This product does not have a goal.',
-            'actions': {
-                'create a new goal': create_a_new_goal_url,
-            }
+            "detail": "This product does not have a goal.",
+            "actions": {
+                "create a new goal": create_a_new_goal_url,
+            },
         }
 
         return Response(data, status=status.HTTP_404_NOT_FOUND)
@@ -62,7 +62,7 @@ class CompareGoalsModelViewSet(GoalModelViewSetMixin):
     serializer_args = {"many": True}
 
     def get_goals(self, product):
-        release_id = self.request.query_params.get('release_id', None)
+        release_id = self.request.query_params.get("release_id", None)
         if release_id:
             return Goal.objects.filter(id=release_id)
         return Goal.objects.filter(product=product)
@@ -82,8 +82,8 @@ class CreateGoalModelViewSet(
     def get_product(self):
         return get_object_or_404(
             Product,
-            id=self.kwargs['product_pk'],
-            organization_id=self.kwargs['organization_pk'],
+            id=self.kwargs["product_pk"],
+            organization_id=self.kwargs["organization_pk"],
         )
 
     def perform_create(self, serializer):
@@ -98,7 +98,7 @@ class ReleaseListModelViewSet(GoalModelViewSetMixin):
     queryset = Goal.objects.all()
 
     def get_goals(self, product):
-        release_id = self.request.query_params.get('release_id', None)
+        release_id = self.request.query_params.get("release_id", None)
         if release_id:
             return Goal.objects.filter(id=release_id)
         return Goal.objects.filter(product=product)

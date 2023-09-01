@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,40 +14,94 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Organization',
+            name="Organization",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
-                ('key', models.SlugField(max_length=128, unique=True)),
-                ('description', models.TextField(blank=True, max_length=512, null=True)),
-                ('members', models.ManyToManyField(blank=True, related_name='organizations', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("key", models.SlugField(max_length=128, unique=True)),
+                (
+                    "description",
+                    models.TextField(blank=True, max_length=512, null=True),
+                ),
+                (
+                    "members",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="organizations",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
-                ('key', models.SlugField(max_length=128, unique=True)),
-                ('description', models.TextField(blank=True, max_length=512, null=True)),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='products', to='organizations.organization')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("key", models.SlugField(max_length=128, unique=True)),
+                (
+                    "description",
+                    models.TextField(blank=True, max_length=512, null=True),
+                ),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="products",
+                        to="organizations.organization",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('key', 'organization')},
+                "unique_together": {("key", "organization")},
             },
         ),
         migrations.CreateModel(
-            name='Repository',
+            name="Repository",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=128)),
-                ('key', models.SlugField(max_length=128, unique=True)),
-                ('description', models.TextField(blank=True, max_length=512, null=True)),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='repositories', to='organizations.product')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("key", models.SlugField(max_length=128, unique=True)),
+                (
+                    "description",
+                    models.TextField(blank=True, max_length=512, null=True),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="repositories",
+                        to="organizations.product",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Repositories',
-                'unique_together': {('key', 'product')},
+                "verbose_name_plural": "Repositories",
+                "unique_together": {("key", "product")},
             },
         ),
     ]

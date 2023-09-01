@@ -11,9 +11,5 @@ class PreConfigAdmin(admin.ModelAdmin):
         "created_at",
         "product",
     )
-    search_fields = (
-        "name",
-    )
-    list_filter = (
-        "product",
-    )
+    search_fields = ("name",)
+    list_filter = ("product",)
