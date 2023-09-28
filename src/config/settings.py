@@ -52,6 +52,7 @@ DJANGO_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    "django_extensions",
 ]
 
 THIRD_PARTY_APPS = [
