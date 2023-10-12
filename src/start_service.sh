@@ -11,10 +11,11 @@ import time
 import os
 
 port = int(os.environ["POSTGRES_PORT"])
+host = int(os.environ["POSTGRES_HOST"])
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-s.connect(('db', port))
+s.connect((host, port))
 s.close()
 END
 }
