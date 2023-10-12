@@ -33,9 +33,9 @@ DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     os.getenv(
-        "FRONTEND_DEV_URL", "https://2023-1-measure-soft-gram-front-staging.vercel.app"
+        "FRONTEND_DEV_URL", "https://2023-2-measure-soft-gram-front-bocp.vercel.app"
     ),
-    os.getenv("FRONTEND_PROD_URL", "https://2023-1-measure-soft-gram-front.vercel.app"),
+    os.getenv("FRONTEND_PROD_URL", "https://2023-2-measure-soft-gram-front-bocp.vercel.app"),
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -100,6 +100,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",  # new
 ]
 
+CSRF_TRUSTED_ORIGINS = ['https://*.2023-2-measuresoftgram-service-production.up.railway.app']
 ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
