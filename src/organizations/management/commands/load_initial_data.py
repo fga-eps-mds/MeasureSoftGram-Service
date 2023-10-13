@@ -410,21 +410,25 @@ class Command(BaseCommand):
                     ("Organização que agrupa os " "projetos de EPS e MDS da FGA.")
                 ),
             ),
-            # Organization(
-            #     name='UnBArqDsw2021',
-            #     description=((
-            #         "Organização que agrupa os "
-            #         "projetos de Arquitetura e Desenvolvimento de "
-            #         "Software do semestre 2021.01"
-            #     )),
-            # ),
-            # Organization(
-            #     name='IHC-FGA-2020',
-            #     description=((
-            #         "Organização que agrupa os projetos da disciplina de "
-            #         "Interação Humano Computador"
-            #     )),
-            # ),
+            Organization(
+                name="UnBArqDsw2021",
+                description=(
+                    (
+                        "Organização que agrupa os "
+                        "projetos de Arquitetura e Desenvolvimento de "
+                        "Software do semestre 2021.01"
+                    )
+                ),
+            ),
+            Organization(
+                name="IHC-FGA-2020",
+                description=(
+                    (
+                        "Organização que agrupa os projetos da disciplina de "
+                        "Interação Humano Computador"
+                    )
+                ),
+            ),
         ]
 
         for organization in organizations:
@@ -440,29 +444,29 @@ class Command(BaseCommand):
         }
 
         products = [
-            # Product(
-            #     name='Animalesco',
-            #     description=(
-            #         "Uma aplicação para realizar o controle e "
-            #         "acompanhamento para com a saúde dos pets. "
-            #         "Os usuários, após se registrarem, podem "
-            #         "realizar o cadastro dos seus pets e a partir "
-            #         "disso fazer o acompanhamento do bichinho de "
-            #         "maneira digital."
-            #     ),
-            #     organization=organizations['UnBArqDsw2021'],
-            # ),
-            # Product(
-            #     name='BCE UnB',
-            #     description=(
-            #         "Este projeto possui o objetivo de analisar o "
-            #         "site da BCE, se propondo a sugerir melhorias "
-            #         "nos serviços de empréstimo de livros, "
-            #         "com base nos conceitos aprendidos na "
-            #         "discplina de IHC."
-            #     ),
-            #     organization=organizations['IHC-FGA-2020'],
-            # ),
+            Product(
+                name="Animalesco",
+                description=(
+                    "Uma aplicação para realizar o controle e "
+                    "acompanhamento para com a saúde dos pets. "
+                    "Os usuários, após se registrarem, podem "
+                    "realizar o cadastro dos seus pets e a partir "
+                    "disso fazer o acompanhamento do bichinho de "
+                    "maneira digital."
+                ),
+                organization=organizations["UnBArqDsw2021"],
+            ),
+            Product(
+                name="BCE UnB",
+                description=(
+                    "Este projeto possui o objetivo de analisar o "
+                    "site da BCE, se propondo a sugerir melhorias "
+                    "nos serviços de empréstimo de livros, "
+                    "com base nos conceitos aprendidos na "
+                    "discplina de IHC."
+                ),
+                organization=organizations["IHC-FGA-2020"],
+            ),
             Product(
                 name="MeasureSoftGram",
                 description=(
@@ -472,15 +476,15 @@ class Command(BaseCommand):
                 ),
                 organization=organizations["fga-eps-mds"],
             ),
-            # Product(
-            #     name='Acacia',
-            #     description=(
-            #         "Este projeto que visa a construção de um "
-            #         "sistema de colaboração de colheita de "
-            #         "árvores frutíferas em ambiente urbano."
-            #     ),
-            #     organization=organizations['fga-eps-mds'],
-            # ),
+            Product(
+                name="Acacia",
+                description=(
+                    "Este projeto que visa a construção de um "
+                    "sistema de colaboração de colheita de "
+                    "árvores frutíferas em ambiente urbano."
+                ),
+                organization=organizations["fga-eps-mds"],
+            ),
         ]
 
         for product in products:
@@ -497,49 +501,36 @@ class Command(BaseCommand):
         products = {product.name: product for product in products}
 
         repositories = [
-            # Repository(
-            #     name='2019.2-Acacia',
-            #     description=(
-            #         "Repositório do backend do projeto Acacia."
-            #     ),
-            #     product=products['Acacia'],
-            # ),
-            # Repository(
-            #     name='2019.2-Acacia-Frontend',
-            #     description=(
-            #         "Repositório do frontend do projeto Acacia."
-            #     ),
-            #     product=products['Acacia'],
-            # ),
-            # Repository(
-            #     name='2019.2-Acacia-Frontend',
-            #     description=(
-            #         "Repositório do frontend do projeto Acacia."
-            #     ),
-            #     product=products['Acacia'],
-            # ),
-            # Repository(
-            #     name='2020.1-BCE',
-            #     description=(
-            #         "Repositório do projeto BCE UnB."
-            #     ),
-            #     product=products['BCE UnB'],
-            # ),
-            # Repository(
-            #     name='2021.1_G01_Animalesco_BackEnd',
-            #     description=(
-            #         "Repositório do backend do projeto Animalesco."
-            #     ),
-            #     product=products['Animalesco'],
-            # ),
-            # Repository(
-            #     name='2021.1_G01_Animalesco_FrontEnd',
-            #     description=(
-            #         "Repositório do frontend "
-            #         "do projeto Animalesco."
-            #     ),
-            #     product=products['Animalesco'],
-            # ),
+            Repository(
+                name="2019.2-Acacia",
+                description=("Repositório do backend do projeto Acacia."),
+                product=products["Acacia"],
+            ),
+            Repository(
+                name="2019.2-Acacia-Frontend",
+                description=("Repositório do frontend do projeto Acacia."),
+                product=products["Acacia"],
+            ),
+            Repository(
+                name="2019.2-Acacia-Frontend",
+                description=("Repositório do frontend do projeto Acacia."),
+                product=products["Acacia"],
+            ),
+            Repository(
+                name="2020.1-BCE",
+                description=("Repositório do projeto BCE UnB."),
+                product=products["BCE UnB"],
+            ),
+            Repository(
+                name="2021.1_G01_Animalesco_BackEnd",
+                description=("Repositório do backend do projeto Animalesco."),
+                product=products["Animalesco"],
+            ),
+            Repository(
+                name="2021.1_G01_Animalesco_FrontEnd",
+                description=("Repositório do frontend " "do projeto Animalesco."),
+                product=products["Animalesco"],
+            ),
             Repository(
                 name="2022-1-MeasureSoftGram-Service",
                 description=("Repositório do backend do projeto " "MeasureSoftGram."),
@@ -589,21 +580,21 @@ class Command(BaseCommand):
         self.create_suported_subcharacteristics()
         self.create_suported_characteristics()
         self.create_balance_matrix()
-        # self.create_fake_organizations()
-        # self.create_fake_products()
-        # self.create_fake_repositories()
+        self.create_fake_organizations()
+        self.create_fake_products()
+        self.create_fake_repositories()
 
-        # repositories = Repository.objects.all()
+        repositories = Repository.objects.all()
 
-        # if settings.CREATE_FAKE_DATA or self.fake_data:
-        #     for repository in repositories:
-        #         self.create_fake_collected_metrics(repository)
-        #         self.create_fake_calculated_measures(repository)
-        #         self.create_fake_calculated_subcharacteristics(repository)
-        #         self.create_fake_calculated_characteristics(repository)
-        #         self.create_fake_tsqmi_data(repository)
+        if settings.CREATE_FAKE_DATA or self.fake_data:
+            for repository in repositories:
+                self.create_fake_collected_metrics(repository)
+                self.create_fake_calculated_measures(repository)
+                self.create_fake_calculated_subcharacteristics(repository)
+                self.create_fake_calculated_characteristics(repository)
+                self.create_fake_tsqmi_data(repository)
 
-        # products = Product.objects.all()
+        products = Product.objects.all()
 
-        # for product in products:
-        #     self.create_a_goal(product)
+        for product in products:
+            self.create_a_goal(product)
