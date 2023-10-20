@@ -7,6 +7,7 @@ from accounts.views import (
     LoginViewSet,
     RetrieveAPIAcessTokenViewSet,
     RetrieveAccountViewSet,
+    UserListViewSet,
 )
 
 urlpatterns = [
@@ -43,6 +44,11 @@ urlpatterns = [
                     r"^access-token/$",
                     RetrieveAPIAcessTokenViewSet.as_view({"get": "retrieve"}),
                     name="api-token-retrieve",
+                ),
+                re_path(
+                    r"^users/$",
+                    UserListViewSet.as_view({'get': 'list'}),
+                    name='user-list'
                 ),
             ]
         ),
