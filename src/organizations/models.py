@@ -9,9 +9,6 @@ from utils import staticfiles
 
 
 class Organization(models.Model):
-    """
-    Tabela que armazena os dados das organizações do sistema
-    """
 
     name = models.CharField(max_length=128)
     key = models.SlugField(max_length=128, unique=True)
