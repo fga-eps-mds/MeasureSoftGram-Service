@@ -24,7 +24,14 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
             "actions",
         )
         extra_kwargs = {
-            "key": {"read_only": True},
+            "key": {
+                "validators": [
+                    UniqueValidator(
+                        queryset=Organization.objects.all(),
+                        message="Organization with this key already exists.",
+                    )
+                ]
+            },
             "name": {
                 "validators": [
                     UniqueValidator(
