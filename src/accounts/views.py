@@ -16,6 +16,7 @@ from accounts.serializers import (
     AccountsCreateSerializer,
     AccountsLoginSerializer,
     AccountsRetrieveSerializer,
+    UserListSerializer
 )
 
 
@@ -91,3 +92,11 @@ class RetrieveAPIAcessTokenViewSet(mixins.RetrieveModelMixin, viewsets.GenericVi
         token = Token.objects.get(user=user)
 
         return token
+
+class UserListViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet para listar todos os usuários
+    """
+    queryset = CustomUser.objects.all()
+    serializer_class = UserListSerializer
+

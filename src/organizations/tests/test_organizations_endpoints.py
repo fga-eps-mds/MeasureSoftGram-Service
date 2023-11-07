@@ -1,26 +1,31 @@
 from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import status
-from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from organizations.models import Organization
 from utils.tests import APITestCaseExpanded
-
+from django.contrib.auth import get_user_model
+from django.urls import reverse
 
 class PublicOrganizationsViewsTestCase(APITestCaseExpanded):
     def test_unauthenticated_not_allowed(self):
         org = self.get_organization()
-        url = reverse("organization-detail", args=[org.id])
+        url = self.get_organization_url(org.id)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, 401)
 
 
 class OrganizationsViewsTestCase(APITestCaseExpanded):
     def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='test-user',
+            password='test-pass'
+        )
+
         self.client = APIClient()
-        self.user = self.get_or_create_test_user()
         self.client.force_authenticate(
-            self.user, token=Token.objects.create(user=self.user)
+            self.user,
+            token=Token.objects.create(user=self.user)
         )
 
     def test_create_a_new_organization(self):
@@ -28,19 +33,28 @@ class OrganizationsViewsTestCase(APITestCaseExpanded):
         data = {
             "name": "Test Organization",
             "description": "Test Organization Description",
+            "key": "test-organization-key",
         }
         response = self.client.post(url, data, format="json")
+        print(response.content)
         self.assertEqual(response.status_code, 201)
 
         data = response.json()
 
         self.assertEqual(data["name"], "Test Organization")
         self.assertEqual(data["description"], "Test Organization Description")
+        
+        organization_created = Organization.objects.get(name="Test Organization")
+        self.assertEqual(organization_created.admin, self.user)
 
         qs = Organization.objects.filter(name="Test Organization")
 
         self.assertEqual(qs.exists(), True)
         self.assertEqual(qs.count(), 1)
+
+        organization_created = qs.first()
+        
+        self.assertEqual(organization_created.admin, self.user)
 
     def compare_organization_data(self, data, org):
         self.assertEqual(data["id"], org.id)
