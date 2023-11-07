@@ -6,7 +6,7 @@ from organizations.models import Product
 from pre_configs.models import PreConfig
 from measures.models import SupportedMeasure
 from pre_configs.serializers import PreConfigSerializer
-from staticfiles import SONARQUBE_SUPPORTED_MEASURES
+#from staticfiles import SONARQUBE_SUPPORTED_MEASURES
 
 
 class CurrentPreConfigModelViewSet(

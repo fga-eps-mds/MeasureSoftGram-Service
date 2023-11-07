@@ -26,20 +26,11 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
             "id",
             "url",
             "name",
-            "key",
             "description",
             "products",
             "actions",
         )
         extra_kwargs = {
-            "key": {
-                "validators": [
-                    UniqueValidator(
-                        queryset=Organization.objects.all(),
-                        message="Organization with this key already exists.",
-                    )
-                ]
-            },
             "name": {
                 "validators": [
                     UniqueValidator(
@@ -93,8 +84,6 @@ class ProductSerializer(serializers.ModelSerializer):
             "id",
             "url",
             "name",
-            "key",
-            "organization",
             "description",
             "repositories",
             "actions",
@@ -222,7 +211,6 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "id",
             "url",
             "name",
-            "key",
             "description",
             "product",
             "latest_values",

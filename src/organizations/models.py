@@ -9,7 +9,7 @@ from utils import staticfiles
 class Organization(models.Model):
 
     name = models.CharField(max_length=128)
-    key = models.SlugField(max_length=128, unique=True)
+    key = models.SlugField(max_length=128, unique=True, blank=True)
     description = models.TextField(
         max_length=512,
         null=True,
@@ -34,7 +34,6 @@ class Organization(models.Model):
             while Organization.objects.filter(key=self.key).exists():
                 random_num = uuid4().hex[:6]
                 self.key = f'{self.key}-{random_num}'
-
         return super().save(*args, **kwargs)
 
     def __str__(self):
@@ -84,7 +83,7 @@ class Repository(models.Model):
         verbose_name_plural = "Repositories"
 
     name = models.CharField(max_length=128)
-    key = models.SlugField(max_length=128, unique=True)
+    key = models.SlugField(max_length=128, unique=False)
     description = models.TextField(
         max_length=512,
         null=True,
