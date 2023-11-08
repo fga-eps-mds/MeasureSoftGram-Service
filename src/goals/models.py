@@ -14,17 +14,9 @@ class Goal(models.Model):
         ordering = ("-created_at",)
 
     created_at = models.DateTimeField(default=timezone.now)
-    start_at = models.DateTimeField()
-    end_at = models.DateTimeField()
-    release_name = models.CharField(max_length=255)
     data = models.JSONField()
     created_by = models.ForeignKey(
         to="accounts.CustomUser",
-        on_delete=models.CASCADE,
-    )
-    product = models.ForeignKey(
-        to="organizations.Product",
-        related_name="goals",
         on_delete=models.CASCADE,
     )
 
