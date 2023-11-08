@@ -82,6 +82,7 @@ APPLICATION_APPS = [
     "entity_trees",
     "collectors",
     "utils",
+    "releases",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + APPLICATION_APPS
