@@ -10,6 +10,7 @@ class Release(models.Model):
     """
 
     class Meta:
+        db_table = "releases"
         ordering = ("-created_at",)
 
     created_at = models.DateTimeField(default=timezone.now)
@@ -22,12 +23,10 @@ class Release(models.Model):
     )
     product = models.ForeignKey(
         to="organizations.Product",
-        related_name="goals",
         on_delete=models.CASCADE,
     )
     goal = models.ForeignKey(
         to="goals.Goal",
-        related_name="releases",
         on_delete=models.CASCADE,
     )
     description = models.TextField(max_length=512, null=True, blank=True)
