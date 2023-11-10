@@ -87,6 +87,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "description",
             "repositories",
             "actions",
+            "organization"
         )
         extra_kwargs = {
             "key": {"read_only": True},
