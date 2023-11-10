@@ -1,9 +1,13 @@
 from rest_framework import serializers
 
 from releases.models import Release
+from accounts.models import CustomUser
+from organizations.models import Product
+
 
 
 class ReleaseSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Release
         fields = (
@@ -16,6 +20,7 @@ class ReleaseSerializer(serializers.ModelSerializer):
             "goal",
             "description",
         )
+        read_only_fields = ("created_by", "product")
 
     def verify_fields_releases(self, releases, date_start, date_end, release_name):
         if date_start > date_end:
@@ -34,15 +39,27 @@ class ReleaseSerializer(serializers.ModelSerializer):
                     "message": "The release name must be unique"
                 })
 
+    
+    
     def create(self, validated_data):
-        release = Release.objects.all()
+
+        release = Release.objects.all().filter(
+            product= Product.objects.get(id=self.context['view'].kwargs['product_pk'])
+        )
+        print(release)
         self.verify_fields_releases(
             release, validated_data['start_at'], validated_data['end_at'], validated_data['release_name']
         )
+
+        validated_data['created_by'] = CustomUser.objects.get(id=self.context['view'].request.user.id)
+        validated_data['product'] = Product.objects.get(id=self.context['view'].kwargs['product_pk'])
         return Release.objects.create(**validated_data)
 
+
     def update(self, validated_data):
-        release = Release.objects.all()
+        release = Release.objects.all().filter(
+            product=Product.objects.get(id=self.context['view'].kwargs['product_pk'])
+        )
         self.verify_fields_releases(
             release, validated_data['start_at'], validated_data['end_at'], validated_data['release_name']
         )

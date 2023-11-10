@@ -70,11 +70,7 @@ class ProductRouter(Router):
                 "view": ReleaseListModelViewSet,
                 "basename": "release-list",
             },
-            {
-                "name": "all/release",
-                "view": CreateReleaseModelViewSet,
-                "basename": "create-release",
-            },
+
             {
                 "name": "create/release",
                 "view": CreateReleaseModelViewSet,
