@@ -22,7 +22,6 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "name",
-        "key",
         "description",
     )
     search_fields = ("name",)
