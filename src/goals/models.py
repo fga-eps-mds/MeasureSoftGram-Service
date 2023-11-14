@@ -19,6 +19,11 @@ class Goal(models.Model):
         to="accounts.CustomUser",
         on_delete=models.CASCADE,
     )
+    product = models.ForeignKey(
+        to="organizations.Product",
+        related_name="goals",
+        on_delete=models.CASCADE,
+    )
 
     @staticmethod
     def validate_goal(goal_dict: Dict[str, int]):

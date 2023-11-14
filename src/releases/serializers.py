@@ -46,7 +46,6 @@ class ReleaseSerializer(serializers.ModelSerializer):
         release = Release.objects.all().filter(
             product= Product.objects.get(id=self.context['view'].kwargs['product_pk'])
         )
-        print(release)
         self.verify_fields_releases(
             release, validated_data['start_at'], validated_data['end_at'], validated_data['release_name']
         )

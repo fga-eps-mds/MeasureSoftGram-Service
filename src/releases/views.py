@@ -14,11 +14,7 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
     serializer_class = ReleaseSerializer
 
 
-
     def get_queryset(self):
-
         product_key = self.kwargs['product_pk']
 
-
         return Release.objects.filter(product=product_key)
-

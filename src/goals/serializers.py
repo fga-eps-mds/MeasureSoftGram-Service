@@ -28,10 +28,7 @@ class AllGoalsSerializer(serializers.ModelSerializer):
         model = Goal
         fields = (
             "id",
-            "release_name",
-            "start_at",
             "created_by",
-            "end_at",
             "goal",
             "accomplished",
         )
@@ -49,8 +46,6 @@ class AllGoalsSerializer(serializers.ModelSerializer):
         chars = (
             CalculatedCharacteristic.objects.filter(
                 repository__product=obj.product,
-                created_at__gte=obj.start_at,
-                created_at__lte=obj.end_at,
             )
             .values("characteristic__key", "value")
             .order_by("characteristic__id")
@@ -64,10 +59,7 @@ class ReleasesSerializer(serializers.ModelSerializer):
         model = Goal
         fields = (
             "id",
-            "release_name",
-            "start_at",
             "created_by",
-            "end_at",
         )
 
     def get_releases(self, obj):
@@ -89,9 +81,6 @@ class GoalSerializer(serializers.ModelSerializer):
         model = Goal
         fields = (
             "id",
-            "release_name",
-            "start_at",
-            "end_at",
             "changes",
             "data",
             "allow_dynamic",
@@ -154,39 +143,6 @@ class GoalSerializer(serializers.ModelSerializer):
 
         return product
 
-    def check_if_it_is_the_same_as_the_current_goal(
-        self,
-        valid_format=True,
-        raise_exception=False,
-    ):
-        product = self.get_product()
-        current_goal = product.goals.first()
-
-        if not current_goal:
-            return True
-
-        start_at: str = current_goal.start_at.strftime("%Y-%m-%d")
-        end_at: str = current_goal.end_at.strftime("%Y-%m-%d")
-        data: dict = self.changes_to_data()
-
-        is_the_same = (
-            current_goal.release_name == self.initial_data.get("release_name")
-            and start_at == self.initial_data.get("start_at")
-            and end_at == self.initial_data.get("end_at")
-            and current_goal.data == data
-        )
-
-        if is_the_same and raise_exception:
-            raise serializers.ValidationError(
-                (
-                    "It is not allowed to create goals that are the same as the "
-                    "current goal."
-                )
-            )
-
-        is_valid = not is_the_same
-        return is_valid and valid_format
-
     def is_valid(self, raise_exception=False):
         valid_format = super().is_valid(raise_exception)
 
@@ -195,15 +151,10 @@ class GoalSerializer(serializers.ModelSerializer):
             raise_exception=raise_exception,
         )
 
-        is_valid_2 = self.check_if_it_is_the_same_as_the_current_goal(
-            valid_format=valid_format,
-            raise_exception=raise_exception,
-        )
-
-        if not (is_valid_1 and is_valid_2) and raise_exception:
+        if not (is_valid_1) and raise_exception:
             raise serializers.ValidationError("The goal is not valid.")
 
-        return is_valid_1 and is_valid_2
+        return is_valid_1
 
     def changes_to_data(self):
         """
