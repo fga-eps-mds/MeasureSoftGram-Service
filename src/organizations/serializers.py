@@ -112,8 +112,9 @@ class ProductSerializer(serializers.ModelSerializer):
         """
         name = attrs["name"]
         organization = self.context["view"].get_organization()
+        product_id = self.instance.id if self.instance else None
 
-        qs = Product.objects.filter(name=name, organization=organization)
+        qs = Product.objects.filter(name=name, organization=organization).exclude(id=product_id)
 
         if qs.exists():
             raise serializers.ValidationError("Product with this name already exists.")
