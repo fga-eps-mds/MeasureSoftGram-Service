@@ -78,6 +78,17 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    gaugeRedLimit = serializers.DecimalField(
+        coerce_to_string=False,
+        max_digits=3,
+        decimal_places= 2
+    )
+    gaugeYellowLimit = serializers.DecimalField(
+        coerce_to_string=False,
+        max_digits=3,
+        decimal_places= 2
+    )
+
     class Meta:
         model = Product
         fields = (
@@ -87,7 +98,9 @@ class ProductSerializer(serializers.ModelSerializer):
             "description",
             "repositories",
             "actions",
-            "organization"
+            "organization",
+            "gaugeRedLimit",
+            "gaugeYellowLimit"
         )
         extra_kwargs = {
             "key": {"read_only": True},
