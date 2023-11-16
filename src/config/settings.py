@@ -38,7 +38,6 @@ CORS_ALLOWED_ORIGINS = [
     os.getenv("FRONTEND_PROD_URL", "https://2023-2-measure-soft-gram-front-bocp.vercel.app"),
 ]
 CORS_ALLOW_CREDENTIALS = True
-ALLOWED_HOSTS = [".vercel.app"]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

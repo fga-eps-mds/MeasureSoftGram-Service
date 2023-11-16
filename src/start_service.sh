@@ -26,8 +26,6 @@ until function_postgres_ready; do
 done
 echo "======= POSTGRES IS UP, CONNECTING"
 
-python3 manage.py collectstatic --noinput
-
 echo '======= RUNNING MIGRATIONS'
 python3 manage.py migrate
 
