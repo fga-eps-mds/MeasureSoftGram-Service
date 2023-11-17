@@ -34,6 +34,8 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         data = {
             "name": "Test Product",
             "description": "Test Product Description",
+            "gaugeRedLimit": "0.2",
+            "gaugeYellowLimit": "0.8",
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, 201)
@@ -100,9 +102,10 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         data = {
             "name": "Test Product Updated",
             "description": "Test Product Description Updated",
+            "gaugeRedLimit": "0.2",
+            "gaugeYellowLimit": "0.8",
         }
         response = self.client.put(url, data, format="json")
-
         self.assertEqual(response.status_code, 200)
         data = response.json()
 
@@ -379,6 +382,8 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         data = {
             "name": "Test Product",
             "description": "Test Product Description",
+            "gaugeRedLimit": "0.2",
+            "gaugeYellowLimit": "0.8",
         }
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, 201)
