@@ -220,6 +220,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         )
         extra_kwargs = {
             "key": {"read_only": True},
+            "url": {"required": False}
         }
 
     def validate(self, attrs):

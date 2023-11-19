@@ -83,7 +83,9 @@ class Repository(models.Model):
         verbose_name_plural = "Repositories"
 
     name = models.CharField(max_length=128)
-    key = models.SlugField(max_length=128, unique=False)
+    key = models.SlugField(max_length=128, unique=False, blank=True)
+    url = models.URLField(max_length=200, blank=True, null=True)
+
     description = models.TextField(
         max_length=512,
         null=True,
