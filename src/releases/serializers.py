@@ -7,7 +7,6 @@ from organizations.models import Product
 
 
 class ReleaseSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Release
         fields = (
@@ -63,3 +62,18 @@ class ReleaseSerializer(serializers.ModelSerializer):
             release, validated_data['start_at'], validated_data['end_at'], validated_data['release_name']
         )
         return Release.objects.update(**validated_data)
+
+
+class CheckReleaseSerializer(serializers.Serializer):
+    nome = serializers.CharField(max_length=255)
+    dt_inicial = serializers.DateField()
+    dt_final = serializers.DateField()
+
+    def validate(self, data):
+        if data['dt_inicial'] > data['dt_final']:
+            raise serializers.ValidationError({
+                "message": "The start date must be less than the end date"
+            })
+
+        return data
+    

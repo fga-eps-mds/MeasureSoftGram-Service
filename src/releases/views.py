@@ -1,4 +1,4 @@
-from releases.serializers import ReleaseSerializer
+from releases.serializers import CheckReleaseSerializer, ReleaseSerializer
 from releases.models import Release
 
 from rest_framework import viewsets
@@ -29,6 +29,13 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
         name_release = request.query_params.get('nome')
         init_date = request.query_params.get('dt-inicial')
         final_date = request.query_params.get('dt-final')
+
+        serializer = CheckReleaseSerializer(data={
+            'nome': name_release,
+            'dt_inicial': init_date,
+            'dt_final': final_date
+        })
+        serializer.is_valid(raise_exception=True)
 
         release = Release.objects.filter(
             product=product_key, release_name=name_release,
