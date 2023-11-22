@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.text import slugify
 from pre_configs.models import PreConfig
 from utils import staticfiles
+from decimal import Decimal
 
 
 class Organization(models.Model):
@@ -57,6 +58,15 @@ class Product(models.Model):
         on_delete=models.CASCADE,
         related_name="products",
     )
+    gaugeRedLimit = models.DecimalField(
+        max_digits=3,
+        decimal_places=2,
+        default=Decimal('0.33'))
+    gaugeYellowLimit = models.DecimalField(
+        max_digits=3,
+        decimal_places= 2,
+        default=Decimal('0.66'))
+
 
     def __str__(self):
         return self.name

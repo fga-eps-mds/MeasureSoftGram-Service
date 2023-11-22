@@ -78,6 +78,21 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    gaugeRedLimit = serializers.DecimalField(
+        coerce_to_string=False,
+        max_digits=3,
+        decimal_places= 2,
+        required=False,
+        allow_null=True
+    )
+    gaugeYellowLimit = serializers.DecimalField(
+        coerce_to_string=False,
+        max_digits=3,
+        decimal_places= 2,
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Product
         fields = (
@@ -87,7 +102,9 @@ class ProductSerializer(serializers.ModelSerializer):
             "description",
             "repositories",
             "actions",
-            "organization"
+            "organization",
+            "gaugeRedLimit",
+            "gaugeYellowLimit"
         )
         extra_kwargs = {
             "key": {"read_only": True},
@@ -99,8 +116,9 @@ class ProductSerializer(serializers.ModelSerializer):
         """
         name = attrs["name"]
         organization = self.context["view"].get_organization()
+        product_id = self.instance.id if self.instance else None
 
-        qs = Product.objects.filter(name=name, organization=organization)
+        qs = Product.objects.filter(name=name, organization=organization).exclude(id=product_id)
 
         if qs.exists():
             raise serializers.ValidationError("Product with this name already exists.")
