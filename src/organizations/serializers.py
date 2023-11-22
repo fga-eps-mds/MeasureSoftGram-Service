@@ -2,11 +2,19 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueValidator
-
 from organizations.models import Organization, Product, Repository
 from tsqmi.models import TSQMI
 from tsqmi.serializers import TSQMISerializer
 
+class OrganizationCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ('name',)
+
+    def save(self, **kwargs):
+        user = self.context['request'].user
+        organization = Organization.objects.create(admin=user, **self.validated_data)
+        return organization
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     products = serializers.SerializerMethodField()
@@ -18,13 +26,11 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
             "id",
             "url",
             "name",
-            "key",
             "description",
             "products",
             "actions",
         )
         extra_kwargs = {
-            "key": {"read_only": True},
             "name": {
                 "validators": [
                     UniqueValidator(
@@ -36,11 +42,7 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
         }
 
     def get_products(self, obj: Organization):
-        """
-        Retorna as URLs das products de uma organization.
-        """
         products_urls = []
-
         for product in obj.products.all():
             url = reverse(
                 "product-detail",
@@ -54,9 +56,6 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
         return products_urls
 
     def get_actions(self, obj: Organization):
-        """
-        Retorna as URLs das actions de uma organization.
-        """
         create_a_new_product_url = reverse(
             "product-list",
             kwargs={
@@ -69,7 +68,6 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
             "create a new product": create_a_new_product_url,
         }
 
-
 class ProductSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
     repositories = serializers.SerializerMethodField()
@@ -80,17 +78,33 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    gaugeRedLimit = serializers.DecimalField(
+        coerce_to_string=False,
+        max_digits=3,
+        decimal_places= 2,
+        required=False,
+        allow_null=True
+    )
+    gaugeYellowLimit = serializers.DecimalField(
+        coerce_to_string=False,
+        max_digits=3,
+        decimal_places= 2,
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = Product
         fields = (
             "id",
             "url",
             "name",
-            "key",
-            "organization",
             "description",
             "repositories",
             "actions",
+            "organization",
+            "gaugeRedLimit",
+            "gaugeYellowLimit"
         )
         extra_kwargs = {
             "key": {"read_only": True},
@@ -102,8 +116,9 @@ class ProductSerializer(serializers.ModelSerializer):
         """
         name = attrs["name"]
         organization = self.context["view"].get_organization()
+        product_id = self.instance.id if self.instance else None
 
-        qs = Product.objects.filter(name=name, organization=organization)
+        qs = Product.objects.filter(name=name, organization=organization).exclude(id=product_id)
 
         if qs.exists():
             raise serializers.ValidationError("Product with this name already exists.")
@@ -215,7 +230,6 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "id",
             "url",
             "name",
-            "key",
             "description",
             "product",
             "latest_values",
