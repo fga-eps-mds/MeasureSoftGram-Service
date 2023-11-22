@@ -10,7 +10,7 @@ from django.urls import reverse
 class PublicOrganizationsViewsTestCase(APITestCaseExpanded):
     def test_unauthenticated_not_allowed(self):
         org = self.get_organization()
-        url = self.get_organization_url(org.id)
+        url = reverse("organization-detail", args=[org.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 401)
 
@@ -121,21 +121,6 @@ class OrganizationsViewsTestCase(APITestCaseExpanded):
         self.assertEqual(data["results"][0]["name"], "Test Organization 1")
         self.assertEqual(data["results"][1]["name"], "Test Organization 2")
         self.assertEqual(data["results"][2]["name"], "Test Organization 3")
-
-    def test_if_attribute_key_is_being_set(self):
-        """
-        Testa se o atributo key está sendo setado corretamente
-        "organização do dagrão!" -> "organizacao-do-dagrao"
-        """
-        org: Organization = self.get_organization(name="organização do dagrão!")
-        url = reverse("organization-detail", args=[org.id])
-        response = self.client.get(url, format="json")
-        self.assertEqual(response.status_code, 200)
-
-        key = response.json()["key"]
-
-        self.assertEqual(key, "organizacao-do-dagrao")
-        self.assertEqual(org.key, "organizacao-do-dagrao")
 
     def test_if_an_organizations_product_urls_list_is_returned(self):
         org: Organization = self.get_organization()

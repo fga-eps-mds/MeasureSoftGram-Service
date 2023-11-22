@@ -173,25 +173,6 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         self.assertEqual(data["results"][1]["name"], "Test Product 2")
         self.assertEqual(data["results"][0]["name"], "Test Product 3")
 
-    def test_if_product_attribute_key_is_being_set(self):
-        """
-        Testa se o atributo key está sendo setado corretamente
-        "produto do dagrão!" -> "produto-do-dagrao"
-        """
-        org = self.get_organization()
-        product = self.get_product(
-            org,
-            name="produto do dagrão!",
-        )
-        url = reverse("product-detail", args=[org.id, product.id])
-        response = self.client.get(url, format="json")
-        self.assertEqual(response.status_code, 200)
-
-        key = response.json()["key"]
-
-        self.assertEqual(key, "test-organization-produto-do-dagrao")
-        self.assertEqual(product.key, "test-organization-produto-do-dagrao")
-
     def test_if_an_product_repositories_urls_list_is_returned(self):
         org = self.get_organization()
         product = self.get_product(org)

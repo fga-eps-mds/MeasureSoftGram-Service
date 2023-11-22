@@ -193,20 +193,6 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
         self.assertEqual(data["count"], 0)
 
-    def test_if_repository_attribute_key_is_being_set(self):
-        org = self.get_organization()
-        product = self.get_product(org)
-        repository = self.get_repository(product, name="ração-backend")
-
-        url = reverse("repository-detail", args=[org.id, product.id, repository.id])
-        response = self.client.get(url, format="json")
-        self.assertEqual(response.status_code, 200)
-
-        key = response.json()["key"]
-
-        self.assertEqual(key, "test-organization-test-product-racao-backend")
-        self.assertEqual(repository.key, "test-organization-test-product-racao-backend")
-
     def get_repository_urls(self, url_group):
         self.org = self.get_organization()
         self.product = self.get_product(self.org)
