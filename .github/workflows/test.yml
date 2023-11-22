@@ -48,7 +48,7 @@ jobs:
 
       - name: Corrige reports path
         run: |
-          sed -i 's/<source>\/home\/runner\/work\/2023-1-MeasureSoftGram-Service\/2023-1-MeasureSoftGram-Service<\/source>/<source>\/github\/workspace<\/source>/g' coverage.xml
+          sed -i 's/<source>\/home\/runner\/work\/2023-2-MeasureSoftGram-Service\/2023-2-MeasureSoftGram-Service<\/source>/<source>\/github\/workspace<\/source>/g' coverage.xml
           sed -i 's/classname="/classname="src./g' junit.xml
 
       - name: Scanner do SonarCloud
