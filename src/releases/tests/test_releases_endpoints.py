@@ -41,6 +41,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
                 "functional_suitability": 53,
             },
         )
+        self.url_default = f'/api/v1/organizations/{self.org.id}/products/{self.product.id}/create/release/'
     
     def test_create_new_release_without_description(self):
         data = {
@@ -51,7 +52,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         }
 
         response = self.client.post(
-            path=f'/api/v1/organizations/{self.org.id}/products/{self.product.id}/create/release/',
+            path=self.url_default,
             data=data,
             format="json"
         )
@@ -77,7 +78,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         }
 
         response = self.client.post(
-            path=f'/api/v1/organizations/{self.org.id}/products/{self.product.id}/create/release/',
+            path=self.url_default,
             data=data,
             format="json"
         )
@@ -104,13 +105,13 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         }
 
         response_release1 = self.client.post(
-            path=f'/api/v1/organizations/{self.org.id}/products/{self.product.id}/create/release/',
+            path=self.url_default,
             data=release1,
             format="json"
         )
 
         response_release2 = self.client.post(
-            path=f'/api/v1/organizations/{self.org.id}/products/{self.product.id}/create/release/',
+            path=self.url_default,
             data=release2,
             format="json"
         )
@@ -141,13 +142,13 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         }
 
         response_release1 = self.client.post(
-            path=f'/api/v1/organizations/{self.org.id}/products/{self.product.id}/create/release/',
+            path=self.url_default,
             data=release1,
             format="json"
         )
 
         response_release2 = self.client.post(
-            path=f'/api/v1/organizations/{self.org.id}/products/{self.product.id}/create/release/',
+            path=self.url_default,
             data=release2,
             format="json"
         )
@@ -168,7 +169,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         }
 
         response = self.client.post(
-            path=f'/api/v1/organizations/{self.org.id}/products/{self.product.id}/create/release/',
+            path=self.url_default,
             data=data,
             format="json"
         )
@@ -183,7 +184,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         }
 
         response = self.client.post(
-            path=f'/api/v1/organizations/{self.org.id}/products/{self.product.id}/create/release/',
+            path=self.url_default,
             data=data,
             format="json"
         )
@@ -198,11 +199,62 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         }
 
         response = self.client.post(
-            path=f'/api/v1/organizations/{self.org.id}/products/{self.product.id}/create/release/',
+            path=self.url_default,
             data=data,
             format="json"
         )
 
         self.assertEqual(response.status_code, 400)
 
-    
+    def test_get_list_releases(self):
+        for i in range(3):
+            Release.objects.create(
+                created_at=date.today(),
+                start_at=date.today(),
+                end_at=date.today() + timedelta(days=2),
+                release_name=f"Release {i}",
+                created_by=self.user,
+                product=self.product,
+                goal=self.goal
+            )
+        
+        response = self.client.get(path=self.url_default)
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_data["count"], 3)
+        self.assertEqual(len(response_data["results"]), 3)
+
+    def test_get_releases_by_id(self):
+        Release.objects.create(
+            id=999,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name="Release 999",
+            created_by=self.user,
+            product=self.product,
+            goal=self.goal
+        )
+        
+        response = self.client.get(path=f'{self.url_default}999/')
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_data["release_name"], "Release 999")
+        self.assertEqual(response_data["id"], 999)
+
+    def test_get_releases_by_id_not_found(self):
+        Release.objects.create(
+            id=999,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name="Release 999",
+            created_by=self.user,
+            product=self.product,
+            goal=self.goal
+        )
+        
+        response = self.client.get(path=f'{self.url_default}1000/')
+        self.assertEqual(response.status_code, 404)
