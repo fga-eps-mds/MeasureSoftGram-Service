@@ -333,12 +333,9 @@ class ProductsViewsSetCase(APITestCaseExpanded):
     def test_if_get_current_goal_url_is_working(self):
         actions, product = self.get_product_actions()
         product.goals.create(
-            release_name="v1.0",
             created_by=User.objects.create(
                 username="username", email="test_user@email.com"
             ),
-            start_at="2020-01-01T00:00:00-03:00",
-            end_at="2021-01-01T00:00:00-03:00",
             data={
                 "reliability": 53,
                 "maintainability": 53,
