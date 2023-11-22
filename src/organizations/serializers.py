@@ -81,12 +81,16 @@ class ProductSerializer(serializers.ModelSerializer):
     gaugeRedLimit = serializers.DecimalField(
         coerce_to_string=False,
         max_digits=3,
-        decimal_places= 2
+        decimal_places= 2,
+        required=False,
+        allow_null=True
     )
     gaugeYellowLimit = serializers.DecimalField(
         coerce_to_string=False,
         max_digits=3,
-        decimal_places= 2
+        decimal_places= 2,
+        required=False,
+        allow_null=True
     )
 
     class Meta:
