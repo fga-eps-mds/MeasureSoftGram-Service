@@ -212,6 +212,14 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         self.assertEqual(response_data["count"], 3)
         self.assertEqual(len(response_data["results"]), 3)
 
+    def test_get_list_releases_empty(self):        
+        response = self.client.get(path=self.url_default)
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_data["count"], 0)
+        self.assertEqual(len(response_data["results"]), 0)
+
     def test_get_releases_by_id(self):
         Release.objects.create(
             id=999,
@@ -245,3 +253,116 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         
         response = self.client.get(path=f'{self.url_default}1000/')
         self.assertEqual(response.status_code, 404)
+
+    def test_is_valid_release_without_the_existence_of_releases(self):
+        data = {
+            "nome": "Release 999",
+            "dt-inicial": "2023-11-24",
+            "dt-final": "2023-11-30"
+        }
+
+        response = self.client.get(
+            path=f'{self.url_default}is-valid/?{data["nome"]}&{data["dt-inicial"]}&{data["dt-final"]}',
+            data=data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["message"], 
+            "Parametros válidos para criação de Release"
+        )
+    
+    def test_is_valid_release_with_the_existence_of_releases_and_valid_datas(
+        self
+    ):
+        Release.objects.create(
+            id=999,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name="Release 999",
+            created_by=self.user,
+            product=self.product,
+            goal=self.goal
+        )
+
+        data = {
+            "nome": "Release 111",
+            "dt-inicial": date.today() + timedelta(days=3),
+            "dt-final":date.today() + timedelta(days=4)
+        }
+
+        response = self.client.get(
+            path=f'{self.url_default}is-valid/?{data["nome"]}&{data["dt-inicial"]}&{data["dt-final"]}',
+            data=data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["message"], 
+            "Parametros válidos para criação de Release"
+        )
+    
+    def test_is_valid_release_with_the_existence_of_releases_and_invalid_dates(
+        self
+    ):
+        Release.objects.create(
+            id=999,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name="Release 999",
+            created_by=self.user,
+            product=self.product,
+            goal=self.goal
+        )
+
+        data = {
+            "nome": "Release 111",
+            "dt-inicial": date.today(),
+            "dt-final":date.today() + timedelta(days=4)
+        }
+
+        response = self.client.get(
+            path=f'{self.url_default}is-valid/?{data["nome"]}&{data["dt-inicial"]}&{data["dt-final"]}',
+            data=data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json()["detail"], "Já existe uma release neste período"
+        )
+    
+    def test_is_valid_release_with_the_existence_of_releases_and_invalid_name(
+        self
+    ):
+        Release.objects.create(
+            id=999,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name="Release 999",
+            created_by=self.user,
+            product=self.product,
+            goal=self.goal
+        )
+
+        data = {
+            "nome": "Release 999",
+            "dt-inicial": date.today(),
+            "dt-final":date.today() + timedelta(days=4)
+        }
+
+        response = self.client.get(
+            path=f'{self.url_default}is-valid/?{data["nome"]}&{data["dt-inicial"]}&{data["dt-final"]}',
+            data=data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json()["detail"], "Já existe uma release com este nome"
+        )
