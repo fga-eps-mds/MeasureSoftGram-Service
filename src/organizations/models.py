@@ -86,6 +86,23 @@ class Repository(models.Model):
     key = models.SlugField(max_length=128, unique=False, blank=True)
     url = models.URLField(max_length=200, blank=True, null=True)
 
+    PLATFORM_CHOICES = (
+        ('github', 'GitHub'),
+        ('gitlab', 'GitLab'),
+        ('bitbucket', 'Bitbucket'),
+        ('subversion (SVN)', 'Subversion (SVN)'),
+        ('mercurial', 'Mercurial'),
+        ('aws code commit', 'AWS CodeCommit'),
+        ('azure repos', 'Azure Repos')
+    )
+
+    platform = models.CharField(
+        max_length=128, 
+        choices=PLATFORM_CHOICES, 
+        blank=True, 
+        null=True
+    )
+    
     description = models.TextField(
         max_length=512,
         null=True,

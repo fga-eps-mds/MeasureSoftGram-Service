@@ -69,6 +69,8 @@ class RepositoryViewSet(
         serializer.save(product=product)
         url = self.request.data.get("url")
         serializer.save(product=product, url=url)
+        platform = self.request.data.get("platform")
+        serializer.save(product = product, url=url, platform = platform)
 
     def get_queryset(self):
         qs = Repository.objects.all().order_by("-id").select_related("product")
