@@ -7,10 +7,6 @@ from goals.models import Goal
 class GoalAdmin(admin.ModelAdmin):
     list_display = (
         "id",
-        "release_name",
-        "start_at",
-        "end_at",
-        "product",
+        "data",
     )
-    search_fields = ("release_name",)
-    list_filter = ("product",)
+    search_fields = ("created_by",)

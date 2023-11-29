@@ -221,12 +221,9 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
 
         self.validate_goal_request(request_data, 201, expected_data)
 
-    def test_if_two_consecutives_requests_the_second_failure(self):
+    def test_if_two_consecutives_requests(self):
         request_data = {
-            "release_name": "v1.0.0",
-            "created_by": "username",
-            "start_at": "2022-08-19",
-            "end_at": "2022-09-19",
+            "allow_dynamic": False,
             "changes": [
                 {"characteristic_key": "functional_suitability", "delta": 10},
                 {"characteristic_key": "functional_suitability", "delta": 10},
@@ -240,7 +237,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         }
 
         self.validate_goal_request(request_data, 201, expected_data)
-        self.validate_goal_request(request_data, 400, expected_data)
+        self.validate_goal_request(request_data, 201, expected_data)
 
     def test_list_all_goals_in_the_release(self):
         url = reverse(
@@ -251,9 +248,6 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         for i in range(2):
             Goal.objects.create(
                 created_at=date.today(),
-                start_at=date.today(),
-                end_at=date.today() + timedelta(days=7),
-                release_name=f"Test {i}",
                 created_by=self.user,
                 product=self.product,
                 data={
