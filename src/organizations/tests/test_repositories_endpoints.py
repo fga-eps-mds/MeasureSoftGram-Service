@@ -96,11 +96,9 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-
+        
         expected_error_message = "Unable to verify the repository's URL."
-        self.assertIn(expected_error_message, response.data['error'])
-
+        self.assertIn(expected_error_message, response.data['url'][0])
 
     def test_create_repository_with_unsupported_scheme_url(self):
         data = {
@@ -132,12 +130,11 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         product = self.get_product(org)
         url = reverse("repository-list", args=[org.id, product.id])
         
-        breakpoint()
         response = self.client.post(url, data, format="json")
-        breakpoint()
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("The repository's URL is not accessible.", response.data['url'])
+
 
     def test_if_existing_repositories_is_being_listed(self):
         org = self.get_organization()

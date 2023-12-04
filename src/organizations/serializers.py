@@ -209,7 +209,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
 
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.SerializerMethodField()
+    url = serializers.CharField(required=False, allow_blank=True)
     product = serializers.SerializerMethodField()
     latest_values = serializers.SerializerMethodField()
     historical_values = serializers.SerializerMethodField()
@@ -230,23 +230,16 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         )
         extra_kwargs = {
             "key": {"read_only": True},
-            "url": {"required": False, "validators": []},
         }
 
     def validate(self, attrs):
-        """
-        Valida se o nome do repositório é único para o produto
-        """
+        breakpoint()
         name = attrs["name"]
         product = self.context["view"].get_product()
 
         qs = Repository.objects.filter(name=name, product=product)
-
         if qs.exists():
-            raise serializers.ValidationError(
-                "Repository with this name already exists."
-            )
-
+            raise serializers.ValidationError("Repository with this name already exists.")
         return attrs
 
     def validate_url(self, value):
@@ -269,6 +262,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
                 logger.error(f"URL accessibility validation failed with exception: {e}")
                 raise serializers.ValidationError("Unable to verify the repository's URL.")
         return value
+
 
     def get_url(self, obj: Repository):
         """

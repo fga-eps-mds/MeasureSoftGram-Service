@@ -72,6 +72,7 @@ class RepositoryViewSet(
     queryset = Repository.objects.all()
 
     def perform_create(self, serializer):
+        serializer.is_valid(raise_exception=True)
         breakpoint()
         logger.info("perform_create chamado com dados: " + str(self.request.data))
         product = self.get_product()
