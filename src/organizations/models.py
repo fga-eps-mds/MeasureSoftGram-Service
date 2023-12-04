@@ -93,7 +93,7 @@ class Repository(models.Model):
         ('subversion (SVN)', 'Subversion (SVN)'),
         ('mercurial', 'Mercurial'),
         ('aws code commit', 'AWS CodeCommit'),
-        ('azure repos', 'Azure Repos').
+        ('azure repos', 'Azure Repos'),
         ('outros', 'Outros')
     )
 
