@@ -1,6 +1,7 @@
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from organizations.models import Organization, Product, Repository
 from organizations.serializers import (
@@ -10,6 +11,12 @@ from organizations.serializers import (
     RepositorySerializer,
     RepositoryTSQMILatestValueSerializer,
 )
+
+#import pdb; pdb.set_trace() 
+
+import logging
+
+logger = logging.getLogger(__name__)
 
 class OrganizationViewSet(viewsets.ModelViewSet):
     queryset = Organization.objects.all().order_by("id").prefetch_related("products")
@@ -65,16 +72,15 @@ class RepositoryViewSet(
     queryset = Repository.objects.all()
 
     def perform_create(self, serializer):
+        breakpoint()
+        logger.info("perform_create chamado com dados: " + str(self.request.data))
         product = self.get_product()
         serializer.save(product=product)
-        url = self.request.data.get("url")
-        serializer.save(product=product, url=url)
-        platform = self.request.data.get("platform")
-        serializer.save(product = product, url=url, platform = platform)
 
     def get_queryset(self):
         qs = Repository.objects.all().order_by("-id").select_related("product")
         return qs.filter(product=self.kwargs["product_pk"])
+
 
 class RepositoriesTSQMILatestValueViewSet(
     RepositoryViewSetMixin,

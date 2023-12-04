@@ -1,3 +1,4 @@
+import logging
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -5,6 +6,14 @@ from rest_framework.validators import UniqueValidator
 from organizations.models import Organization, Product, Repository
 from tsqmi.models import TSQMI
 from tsqmi.serializers import TSQMISerializer
+from django.core.exceptions import ValidationError
+import requests
+from requests.exceptions import RequestException
+from urllib.parse import urlparse
+import pdb; pdb.set_trace() 
+
+logger = logging.getLogger(__name__)
+
 
 class OrganizationCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -221,7 +230,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         )
         extra_kwargs = {
             "key": {"read_only": True},
-            "url": {"required": False}
+            "url": {"required": False, "validators": []},
         }
 
     def validate(self, attrs):
@@ -239,6 +248,27 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             )
 
         return attrs
+
+    def validate_url(self, value):
+        breakpoint()
+        print("validate_url chamado com URL:", value)
+        logger.info(f"Validating URL: {value}")
+        if value:
+            parsed_url = urlparse(value)
+            if parsed_url.scheme not in ["http", "https"]:
+                logger.warning("URL scheme validation failed")
+                raise serializers.ValidationError("The URL must start with http or https.")
+
+            try:
+                response = requests.head(value, timeout=5)
+                if response.status_code >= 400:
+                    logger.warning(f"URL accessibility validation failed with status code: {response.status_code}") 
+                    raise serializers.ValidationError("The repository's URL is not accessible.")
+            except RequestException as e:
+                print(f"Exceção capturada em validate_url: {e}")
+                logger.error(f"URL accessibility validation failed with exception: {e}")
+                raise serializers.ValidationError("Unable to verify the repository's URL.")
+        return value
 
     def get_url(self, obj: Repository):
         """

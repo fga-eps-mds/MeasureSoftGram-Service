@@ -1,8 +1,10 @@
 import datetime as dt
 from unittest import mock
+from unittest.mock import patch, Mock
 from zoneinfo import ZoneInfo
 
 from rest_framework.exceptions import status
+from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
@@ -16,6 +18,9 @@ from subcharacteristics.models import (
 )
 from utils.mocks import Mocks
 from utils.tests import APITestCaseExpanded
+from unittest.mock import patch
+from requests.exceptions import ConnectionError, HTTPError
+#import pdb; pdb.set_trace()
 
 
 class PublicRepositoriesViewsSetCase(APITestCaseExpanded):
@@ -73,6 +78,66 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         self.assertEqual(data["count"], 1)
         self.assertEqual(repo["name"], "Test Repository")
         self.assertEqual(repo["description"], "Test Repository Description")
+
+    @patch('organizations.serializers.requests.head')
+    def test_create_a_new_repository_with_invalid_url(self, mock_head):
+        mock_head.side_effect = ConnectionError
+        print("Mock configurado para lançar ConnectionError")
+
+        data = {
+            "name": "Test Repository",
+            "description": "Test Repository Description",
+            "url": "http://invalidurl.com",
+        }
+        org = self.get_organization()
+        product = self.get_product(org)
+        url = reverse("repository-list", args=[org.id, product.id])
+
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("error", response.data)
+
+        expected_error_message = "Unable to verify the repository's URL."
+        self.assertIn(expected_error_message, response.data['error'])
+
+
+    def test_create_repository_with_unsupported_scheme_url(self):
+        data = {
+            "name": "Test Repository",
+            "description": "Test Repository Description",
+            "url": "ftp://invalidscheme.com"
+        }
+        org = self.get_organization()
+        product = self.get_product(org)
+        url = reverse("repository-list", args=[org.id, product.id])
+        
+        response = self.client.post(url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("The URL must start with http or https.", response.data['url'])
+
+    @patch('organizations.serializers.requests.head')
+    def test_create_repository_with_inaccessible_url(self, mock_head):
+        mock_response = Mock()
+        mock_response.status_code = 404
+        mock_head.return_value = mock_response
+
+        data = {
+            "name": "Test Repository",
+            "description": "Test Repository Description",
+            "url": "http://inaccessibleurl.com"
+        }
+        org = self.get_organization()
+        product = self.get_product(org)
+        url = reverse("repository-list", args=[org.id, product.id])
+        
+        breakpoint()
+        response = self.client.post(url, data, format="json")
+        breakpoint()
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("The repository's URL is not accessible.", response.data['url'])
 
     def test_if_existing_repositories_is_being_listed(self):
         org = self.get_organization()
