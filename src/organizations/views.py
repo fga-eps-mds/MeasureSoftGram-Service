@@ -14,9 +14,9 @@ from organizations.serializers import (
 
 #import pdb; pdb.set_trace() 
 
-import logging
+#import logging
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 class OrganizationViewSet(viewsets.ModelViewSet):
     queryset = Organization.objects.all().order_by("id").prefetch_related("products")
@@ -73,8 +73,6 @@ class RepositoryViewSet(
 
     def perform_create(self, serializer):
         serializer.is_valid(raise_exception=True)
-        breakpoint()
-        logger.info("perform_create chamado com dados: " + str(self.request.data))
         product = self.get_product()
         serializer.save(product=product)
 

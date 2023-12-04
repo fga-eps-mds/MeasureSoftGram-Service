@@ -82,7 +82,6 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     @patch('organizations.serializers.requests.head')
     def test_create_a_new_repository_with_invalid_url(self, mock_head):
         mock_head.side_effect = ConnectionError
-        print("Mock configurado para lançar ConnectionError")
 
         data = {
             "name": "Test Repository",

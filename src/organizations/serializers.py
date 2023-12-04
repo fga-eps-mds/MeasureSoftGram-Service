@@ -10,9 +10,9 @@ from django.core.exceptions import ValidationError
 import requests
 from requests.exceptions import RequestException
 from urllib.parse import urlparse
-import pdb; pdb.set_trace() 
+#import pdb; pdb.set_trace() 
 
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
 
 
 class OrganizationCreateSerializer(serializers.ModelSerializer):
@@ -233,7 +233,6 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         }
 
     def validate(self, attrs):
-        breakpoint()
         name = attrs["name"]
         product = self.context["view"].get_product()
 
@@ -243,23 +242,16 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         return attrs
 
     def validate_url(self, value):
-        breakpoint()
-        print("validate_url chamado com URL:", value)
-        logger.info(f"Validating URL: {value}")
         if value:
             parsed_url = urlparse(value)
             if parsed_url.scheme not in ["http", "https"]:
-                logger.warning("URL scheme validation failed")
                 raise serializers.ValidationError("The URL must start with http or https.")
 
             try:
                 response = requests.head(value, timeout=5)
                 if response.status_code >= 400:
-                    logger.warning(f"URL accessibility validation failed with status code: {response.status_code}") 
                     raise serializers.ValidationError("The repository's URL is not accessible.")
             except RequestException as e:
-                print(f"Exceção capturada em validate_url: {e}")
-                logger.error(f"URL accessibility validation failed with exception: {e}")
                 raise serializers.ValidationError("Unable to verify the repository's URL.")
         return value
 
