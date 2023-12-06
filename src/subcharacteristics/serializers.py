@@ -17,10 +17,10 @@ class SupportedSubCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedSubCharacteristic
         fields = (
-            "id",
-            "key",
-            "name",
-            "description",
+            'id',
+            'key',
+            'name',
+            'description',
         )
 
 
@@ -32,10 +32,10 @@ class CalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = CalculatedSubCharacteristic
         fields = (
-            "id",
-            "subcharacteristic_id",
-            "value",
-            "created_at",
+            'id',
+            'subcharacteristic_id',
+            'value',
+            'created_at',
         )
 
 
@@ -49,16 +49,16 @@ class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedSubCharacteristic
         fields = (
-            "id",
-            "key",
-            "name",
-            "description",
-            "latest",
+            'id',
+            'key',
+            'name',
+            'description',
+            'latest',
         )
 
     def get_latest(self, obj: SupportedSubCharacteristic):
         try:
-            repository = self.context["view"].get_repository()
+            repository = self.context['view'].get_repository()
 
             latest = obj.calculated_subcharacteristics.filter(
                 repository=repository
@@ -69,17 +69,19 @@ class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
             return None
 
 
-class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
+class CalculatedSubCharacteristicHistorySerializer(
+    serializers.ModelSerializer
+):
     history = serializers.SerializerMethodField()
 
     class Meta:
         model = SupportedSubCharacteristic
         fields = (
-            "id",
-            "key",
-            "name",
-            "description",
-            "history",
+            'id',
+            'key',
+            'name',
+            'description',
+            'history',
         )
 
     def get_history(self, obj: SupportedSubCharacteristic):
@@ -87,7 +89,7 @@ class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
         try:
             qs = obj.calculated_subcharacteristics.all()
 
-            repository = self.context["view"].get_repository()
+            repository = self.context['view'].get_repository()
             qs = qs.filter(repository=repository)
             qs = qs.reverse()
 
@@ -129,7 +131,7 @@ class SubCharacteristicsCalculationsRequestSerializer(serializers.Serializer):
         Valida se todas as subcaracterísticas solicitadas são suportadas
         """
         subcharacteristics_keys = [
-            subchar["key"] for subchar in attrs["subcharacteristics"]
+            subchar['key'] for subchar in attrs['subcharacteristics']
         ]
 
         unsuported_subchars: str = utils.validate_entity(
@@ -140,8 +142,8 @@ class SubCharacteristicsCalculationsRequestSerializer(serializers.Serializer):
         if unsuported_subchars:
             raise serializers.ValidationError(
                 (
-                    "The following subcharacteristics are "
-                    f"not supported: {unsuported_subchars}"
+                    'The following subcharacteristics are '
+                    f'not supported: {unsuported_subchars}'
                 )
             )
 

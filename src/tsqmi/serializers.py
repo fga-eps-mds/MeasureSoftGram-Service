@@ -12,13 +12,13 @@ class TSQMISerializer(serializers.ModelSerializer):
     class Meta:
         model = TSQMI
         fields = (
-            "id",
-            "value",
-            "created_at",
+            'id',
+            'value',
+            'created_at',
         )
         read_only_fields = (
-            "id",
-            "value",
+            'id',
+            'value',
         )
 
 

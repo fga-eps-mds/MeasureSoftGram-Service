@@ -14,10 +14,10 @@ class SupportedMeasureSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedMeasure
         fields = (
-            "id",
-            "key",
-            "name",
-            "description",
+            'id',
+            'key',
+            'name',
+            'description',
         )
 
 
@@ -47,14 +47,14 @@ class MeasuresCalculationsRequestSerializer(serializers.Serializer):
 
     def validate_measures(self, value):
         if not value:
-            raise serializers.ValidationError("No measures were provided")
+            raise serializers.ValidationError('No measures were provided')
         return value
 
     def validate(self, attrs):
         """
         Valida se todas as medidas solicitadas são suportadas
         """
-        measure_keys = [measure["key"] for measure in attrs["measures"]]
+        measure_keys = [measure['key'] for measure in attrs['measures']]
 
         unsuported_measures: str = utils.validate_entity(
             measure_keys,
@@ -63,7 +63,10 @@ class MeasuresCalculationsRequestSerializer(serializers.Serializer):
 
         if unsuported_measures:
             raise serializers.ValidationError(
-                ("The following measures are " f"not supported: {unsuported_measures}")
+                (
+                    'The following measures are '
+                    f'not supported: {unsuported_measures}'
+                )
             )
 
         return attrs
@@ -77,10 +80,10 @@ class CalculatedMeasureSerializer(serializers.ModelSerializer):
     class Meta:
         model = CalculatedMeasure
         fields = (
-            "id",
-            "measure_id",
-            "value",
-            "created_at",
+            'id',
+            'measure_id',
+            'value',
+            'created_at',
         )
 
 
@@ -95,18 +98,20 @@ class LatestMeasuresCalculationsRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedMeasure
         fields = (
-            "id",
-            "key",
-            "name",
-            "description",
-            "latest",
+            'id',
+            'key',
+            'name',
+            'description',
+            'latest',
         )
 
     def get_latest(self, obj: SupportedMeasure):
         try:
-            repository = self.context["view"].get_repository()
+            repository = self.context['view'].get_repository()
 
-            latest = obj.calculated_measures.filter(repository=repository).first()
+            latest = obj.calculated_measures.filter(
+                repository=repository
+            ).first()
 
             return CalculatedMeasureSerializer(latest).data
         except CalculatedMeasure.DoesNotExist:
@@ -119,11 +124,11 @@ class CalculatedMeasureHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedMeasure
         fields = (
-            "id",
-            "key",
-            "name",
-            "description",
-            "history",
+            'id',
+            'key',
+            'name',
+            'description',
+            'history',
         )
 
     def get_history(self, obj: SupportedMeasure):
@@ -132,7 +137,7 @@ class CalculatedMeasureHistorySerializer(serializers.ModelSerializer):
             # Os últimos 10 registros criados em ordem decrescente
             qs = obj.calculated_measures.all()
 
-            repository = self.context["view"].get_repository()
+            repository = self.context['view'].get_repository()
             qs = qs.filter(repository=repository)
             qs = qs.reverse()
 

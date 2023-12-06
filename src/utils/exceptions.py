@@ -33,11 +33,15 @@ class MeasureNotDefinedInPreConfiguration(
     pass
 
 
-class SubCharacteristicNotDefinedInPreConfiguration(EntityNotDefinedInPreConfiguration):
+class SubCharacteristicNotDefinedInPreConfiguration(
+    EntityNotDefinedInPreConfiguration
+):
     pass
 
 
-class CharacteristicNotDefinedInPreConfiguration(EntityNotDefinedInPreConfiguration):
+class CharacteristicNotDefinedInPreConfiguration(
+    EntityNotDefinedInPreConfiguration
+):
     pass
 
 
