@@ -10,10 +10,6 @@ from django.core.exceptions import ValidationError
 import requests
 from requests.exceptions import RequestException
 from urllib.parse import urlparse
-#import pdb; pdb.set_trace() 
-
-#logger = logging.getLogger(__name__)
-
 
 class OrganizationCreateSerializer(serializers.ModelSerializer):
     class Meta:

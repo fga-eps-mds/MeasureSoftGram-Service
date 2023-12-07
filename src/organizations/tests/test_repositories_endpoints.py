@@ -20,7 +20,6 @@ from utils.mocks import Mocks
 from utils.tests import APITestCaseExpanded
 from unittest.mock import patch
 from requests.exceptions import ConnectionError, HTTPError
-#import pdb; pdb.set_trace()
 
 
 class PublicRepositoriesViewsSetCase(APITestCaseExpanded):

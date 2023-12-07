@@ -12,12 +12,6 @@ from organizations.serializers import (
     RepositoryTSQMILatestValueSerializer,
 )
 
-#import pdb; pdb.set_trace() 
-
-#import logging
-
-#logger = logging.getLogger(__name__)
-
 class OrganizationViewSet(viewsets.ModelViewSet):
     queryset = Organization.objects.all().order_by("id").prefetch_related("products")
     serializer_class = OrganizationSerializer
