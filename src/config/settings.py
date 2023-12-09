@@ -72,6 +72,7 @@ THIRD_PARTY_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
+    'django_apscheduler',
 ]
 
 APPLICATION_APPS = [
@@ -433,3 +434,29 @@ GITHUB_METRICS = [
         },
     },
 ]
+
+# SCHEDULER_CONFIG = {
+#     "apscheduler.jobstores.default": {
+#         "class": "django_apscheduler.jobstores:DjangoJobStore",
+#     },
+#     "apscheduler.executors.default": {
+#         "class": "apscheduler.executors.pool:ThreadPoolExecutor",
+#         "max_workers": "20",
+#     },
+#     "apscheduler.job_defaults.coalesce": "false",
+#     "apscheduler.job_defaults.max_instances": "3",
+# }
+
+SCHEDULER_CONFIG = {
+    "apscheduler.jobstores.default": {
+        "class": "django_apscheduler.jobstores:DjangoJobStore",
+    },
+    "apscheduler.executors.default": {
+        "class": "apscheduler.executors.pool:ThreadPoolExecutor",
+        "max_workers": "1",
+    },
+    "apscheduler.job_defaults.coalesce": "false",
+    "apscheduler.job_defaults.max_instances": "1",
+    "apscheduler.timezone": "America/Sao_Paulo",
+}
+SCHEDULER_AUTOSTART = True
