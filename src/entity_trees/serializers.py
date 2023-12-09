@@ -19,11 +19,11 @@ class CharacteristicEntityRelationshipTreeSerializer(
     class Meta:
         model = SupportedCharacteristic
         fields = (
-            "id",
-            "name",
-            "key",
-            "description",
-            "subcharacteristics",
+            'id',
+            'name',
+            'key',
+            'description',
+            'subcharacteristics',
         )
 
     def get_subcharacteristics(self, obj: SupportedCharacteristic):
@@ -41,11 +41,11 @@ class SubCharacteristicEntityRelationshipTreeSerializer(
     class Meta:
         model = SupportedCharacteristic
         fields = (
-            "id",
-            "name",
-            "key",
-            "description",
-            "measures",
+            'id',
+            'name',
+            'key',
+            'description',
+            'measures',
         )
 
     def get_measures(self, obj: SupportedCharacteristic):
@@ -76,28 +76,28 @@ def pre_config_to_entity_tree(pre_config: PreConfig):
 
     data = []
 
-    for charac in pre_config.data["characteristics"]:
+    for charac in pre_config.data['characteristics']:
         c_data = SupportedCharacteristicSerializer(
-            characteristics_dict[charac["key"]],
+            characteristics_dict[charac['key']],
         ).data
 
-        c_data["subcharacteristics"] = []
+        c_data['subcharacteristics'] = []
 
-        for subcharac in charac["subcharacteristics"]:
+        for subcharac in charac['subcharacteristics']:
             s_data = SupportedSubCharacteristicSerializer(
-                subcharacteristics_dict[subcharac["key"]],
+                subcharacteristics_dict[subcharac['key']],
             ).data
 
-            s_data["measures"] = []
+            s_data['measures'] = []
 
-            for measure in subcharac["measures"]:
+            for measure in subcharac['measures']:
                 m_data = SupportedMeasureSerializer(
-                    measures_dict[measure["key"]],
+                    measures_dict[measure['key']],
                 ).data
 
-                s_data["measures"].append(m_data)
+                s_data['measures'].append(m_data)
 
-            c_data["subcharacteristics"].append(s_data)
+            c_data['subcharacteristics'].append(s_data)
 
         data.append(c_data)
 

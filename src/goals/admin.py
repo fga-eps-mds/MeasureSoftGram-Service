@@ -6,7 +6,7 @@ from goals.models import Goal
 @admin.register(Goal)
 class GoalAdmin(admin.ModelAdmin):
     list_display = (
-        "id",
-        "data",
+        'id',
+        'data',
     )
-    search_fields = ("created_by",)
+    search_fields = ('created_by',)

@@ -18,10 +18,10 @@ class SupportedCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedCharacteristic
         fields = (
-            "id",
-            "key",
-            "name",
-            "description",
+            'id',
+            'key',
+            'name',
+            'description',
         )
 
 
@@ -36,14 +36,14 @@ class BalanceMatrixSerializer(serializers.ModelSerializer):
     class Meta:
         model = BalanceMatrix
         fields = (
-            "id",
-            "source_characteristic",
-            "target_characteristic",
-            "relation_type",
+            'id',
+            'source_characteristic',
+            'target_characteristic',
+            'relation_type',
         )
 
         extra_kwargs = {
-            "key": {"read_only": True},
+            'key': {'read_only': True},
         }
 
 
@@ -55,10 +55,10 @@ class CalculatedCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = CalculatedCharacteristic
         fields = (
-            "id",
-            "characteristic_id",
-            "value",
-            "created_at",
+            'id',
+            'characteristic_id',
+            'value',
+            'created_at',
         )
 
 
@@ -72,16 +72,16 @@ class LatestCalculatedCharacteristicSerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedCharacteristic
         fields = (
-            "id",
-            "key",
-            "name",
-            "description",
-            "latest",
+            'id',
+            'key',
+            'name',
+            'description',
+            'latest',
         )
 
     def get_latest(self, obj: SupportedCharacteristic):
         try:
-            repository = self.context["view"].get_repository()
+            repository = self.context['view'].get_repository()
 
             latest = obj.calculated_characteristics.filter(
                 repository=repository
@@ -98,11 +98,11 @@ class CalculatedCharacteristicHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = SupportedCharacteristic
         fields = (
-            "id",
-            "key",
-            "name",
-            "description",
-            "history",
+            'id',
+            'key',
+            'name',
+            'description',
+            'history',
         )
 
     def get_history(self, obj: SupportedCharacteristic):
@@ -111,7 +111,7 @@ class CalculatedCharacteristicHistorySerializer(serializers.ModelSerializer):
         try:
             qs = obj.calculated_characteristics.all()
 
-            repository = self.context["view"].get_repository()
+            repository = self.context['view'].get_repository()
             qs = qs.filter(repository=repository)
             qs = qs.reverse()
 
@@ -153,7 +153,9 @@ class CharacteristicsCalculationsRequestSerializer(serializers.Serializer):
         """
         Valida se todas as características solicitadas são suportadas
         """
-        characteristics_keys = [char["key"] for char in attrs["characteristics"]]
+        characteristics_keys = [
+            char['key'] for char in attrs['characteristics']
+        ]
 
         unsuported_chars: str = utils.validate_entity(
             characteristics_keys,
@@ -163,8 +165,8 @@ class CharacteristicsCalculationsRequestSerializer(serializers.Serializer):
         if unsuported_chars:
             raise serializers.ValidationError(
                 (
-                    "The following characteristics are "
-                    f"not supported: {unsuported_chars}"
+                    'The following characteristics are '
+                    f'not supported: {unsuported_chars}'
                 )
             )
 

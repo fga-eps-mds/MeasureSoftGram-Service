@@ -20,15 +20,47 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Release',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    'id',
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
+                (
+                    'created_at',
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
                 ('start_at', models.DateTimeField()),
                 ('end_at', models.DateTimeField()),
                 ('release_name', models.CharField(max_length=255)),
-                ('description', models.TextField(blank=True, max_length=512, null=True)),
-                ('created_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('goal', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='goals.goal')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='organizations.product')),
+                (
+                    'description',
+                    models.TextField(blank=True, max_length=512, null=True),
+                ),
+                (
+                    'created_by',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    'goal',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='goals.goal',
+                    ),
+                ),
+                (
+                    'product',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='organizations.product',
+                    ),
+                ),
             ],
             options={
                 'ordering': ('-created_at',),

@@ -31,8 +31,8 @@ class SupportedEntitiesRelationshipTreeViewSet(
 
     def list(self, request, *args, **kwargs):
         qs = SupportedCharacteristic.objects.all().prefetch_related(
-            "subcharacteristics",
-            "subcharacteristics__measures",
+            'subcharacteristics',
+            'subcharacteristics__measures',
         )
 
         serializer = CharacteristicEntityRelationshipTreeSerializer(
@@ -58,8 +58,8 @@ class PreConfigEntitiesRelationshipTreeViewSet(
     def get_product(self):
         return get_object_or_404(
             Product,
-            id=self.kwargs["product_pk"],
-            organization_id=self.kwargs["organization_pk"],
+            id=self.kwargs['product_pk'],
+            organization_id=self.kwargs['organization_pk'],
         )
 
     def list(self, request, *args, **kwargs):

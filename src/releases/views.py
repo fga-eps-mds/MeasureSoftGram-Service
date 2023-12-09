@@ -15,12 +15,10 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
     queryset = Release.objects.all()
     serializer_class = ReleaseSerializer
 
-
     def get_queryset(self):
         product_key = self.kwargs['product_pk']
 
         return Release.objects.filter(product=product_key)
-
 
     @action(detail=False, methods=['get'], url_path='is-valid')
     def check_release(self, request, *args, **kwargs):
@@ -30,35 +28,38 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
         init_date = request.query_params.get('dt-inicial')
         final_date = request.query_params.get('dt-final')
 
-        serializer = CheckReleaseSerializer(data={
-            'nome': name_release,
-            'dt_inicial': init_date,
-            'dt_final': final_date
-        })
+        serializer = CheckReleaseSerializer(
+            data={
+                'nome': name_release,
+                'dt_inicial': init_date,
+                'dt_final': final_date,
+            }
+        )
         serializer.is_valid(raise_exception=True)
 
         release = Release.objects.filter(
-            product=product_key, release_name=name_release,
+            product=product_key,
+            release_name=name_release,
         ).first()
 
         if release:
             return Response(
-                data={'detail': 'Já existe uma release com este nome'}, 
-                status=400
+                data={'detail': 'Já existe uma release com este nome'},
+                status=400,
             )
 
         release = Release.objects.filter(
-            product=product_key, 
+            product=product_key,
             start_at__gte=init_date,
             start_at__lte=final_date,
             end_at__gte=init_date,
-            end_at__lte=final_date
+            end_at__lte=final_date,
         ).first()
 
         if release:
             return Response(
-                data={'detail': 'Já existe uma release neste período'}, 
-                status=400
+                data={'detail': 'Já existe uma release neste período'},
+                status=400,
             )
 
         return Response(

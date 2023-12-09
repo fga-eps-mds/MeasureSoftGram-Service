@@ -14,11 +14,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='product',
             name='gaugeRedLimit',
-            field=models.DecimalField(decimal_places=2, default=Decimal('0.33'), max_digits=3),
+            field=models.DecimalField(
+                decimal_places=2, default=Decimal('0.33'), max_digits=3
+            ),
         ),
         migrations.AddField(
             model_name='product',
             name='gaugeYellowLimit',
-            field=models.DecimalField(decimal_places=2, default=Decimal('0.66'), max_digits=3),
+            field=models.DecimalField(
+                decimal_places=2, default=Decimal('0.66'), max_digits=3
+            ),
         ),
     ]

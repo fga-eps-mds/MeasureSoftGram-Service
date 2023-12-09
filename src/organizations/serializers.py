@@ -1,3 +1,4 @@
+import logging
 from django.conf import settings
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -5,6 +6,11 @@ from rest_framework.validators import UniqueValidator
 from organizations.models import Organization, Product, Repository
 from tsqmi.models import TSQMI
 from tsqmi.serializers import TSQMISerializer
+from django.core.exceptions import ValidationError
+import requests
+from requests.exceptions import RequestException
+from urllib.parse import urlparse
+
 
 class OrganizationCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,8 +19,11 @@ class OrganizationCreateSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         user = self.context['request'].user
-        organization = Organization.objects.create(admin=user, **self.validated_data)
+        organization = Organization.objects.create(
+            admin=user, **self.validated_data
+        )
         return organization
+
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     products = serializers.SerializerMethodField()
@@ -23,19 +32,19 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Organization
         fields = (
-            "id",
-            "url",
-            "name",
-            "description",
-            "products",
-            "actions",
+            'id',
+            'url',
+            'name',
+            'description',
+            'products',
+            'actions',
         )
         extra_kwargs = {
-            "name": {
-                "validators": [
+            'name': {
+                'validators': [
                     UniqueValidator(
                         queryset=Organization.objects.all(),
-                        message="Organization with this name already exists.",
+                        message='Organization with this name already exists.',
                     )
                 ]
             },
@@ -45,28 +54,29 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
         products_urls = []
         for product in obj.products.all():
             url = reverse(
-                "product-detail",
+                'product-detail',
                 kwargs={
-                    "pk": product.id,
-                    "organization_pk": obj.id,
+                    'pk': product.id,
+                    'organization_pk': obj.id,
                 },
-                request=self.context["request"],
+                request=self.context['request'],
             )
             products_urls.append(url)
         return products_urls
 
     def get_actions(self, obj: Organization):
         create_a_new_product_url = reverse(
-            "product-list",
+            'product-list',
             kwargs={
-                "organization_pk": obj.id,
+                'organization_pk': obj.id,
             },
-            request=self.context["request"],
+            request=self.context['request'],
         )
 
         return {
-            "create a new product": create_a_new_product_url,
+            'create a new product': create_a_new_product_url,
         }
+
 
 class ProductSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
@@ -74,54 +84,58 @@ class ProductSerializer(serializers.ModelSerializer):
     actions = serializers.SerializerMethodField()
 
     organization = serializers.HyperlinkedRelatedField(
-        view_name="organization-detail",
+        view_name='organization-detail',
         read_only=True,
     )
 
     gaugeRedLimit = serializers.DecimalField(
         coerce_to_string=False,
         max_digits=3,
-        decimal_places= 2,
+        decimal_places=2,
         required=False,
-        allow_null=True
+        allow_null=True,
     )
     gaugeYellowLimit = serializers.DecimalField(
         coerce_to_string=False,
         max_digits=3,
-        decimal_places= 2,
+        decimal_places=2,
         required=False,
-        allow_null=True
+        allow_null=True,
     )
 
     class Meta:
         model = Product
         fields = (
-            "id",
-            "url",
-            "name",
-            "description",
-            "repositories",
-            "actions",
-            "organization",
-            "gaugeRedLimit",
-            "gaugeYellowLimit"
+            'id',
+            'url',
+            'name',
+            'description',
+            'repositories',
+            'actions',
+            'organization',
+            'gaugeRedLimit',
+            'gaugeYellowLimit',
         )
         extra_kwargs = {
-            "key": {"read_only": True},
+            'key': {'read_only': True},
         }
 
     def validate(self, attrs):
         """
         Valida se o nome do produto é único para a organização
         """
-        name = attrs["name"]
-        organization = self.context["view"].get_organization()
+        name = attrs['name']
+        organization = self.context['view'].get_organization()
         product_id = self.instance.id if self.instance else None
 
-        qs = Product.objects.filter(name=name, organization=organization).exclude(id=product_id)
+        qs = Product.objects.filter(
+            name=name, organization=organization
+        ).exclude(id=product_id)
 
         if qs.exists():
-            raise serializers.ValidationError("Product with this name already exists.")
+            raise serializers.ValidationError(
+                'Product with this name already exists.'
+            )
 
         return attrs
 
@@ -131,12 +145,12 @@ class ProductSerializer(serializers.ModelSerializer):
         """
 
         return reverse(
-            "product-detail",
+            'product-detail',
             kwargs={
-                "pk": obj.id,
-                "organization_pk": obj.organization.id,
+                'pk': obj.id,
+                'organization_pk': obj.organization.id,
             },
-            request=self.context["request"],
+            request=self.context['request'],
         )
 
     def get_repositories(self, obj: Product):
@@ -147,13 +161,13 @@ class ProductSerializer(serializers.ModelSerializer):
 
         for repository in obj.repositories.all():
             url = reverse(
-                "repository-detail",
+                'repository-detail',
                 kwargs={
-                    "pk": repository.id,
-                    "product_pk": obj.id,
-                    "organization_pk": obj.organization.id,
+                    'pk': repository.id,
+                    'product_pk': obj.id,
+                    'organization_pk': obj.organization.id,
                 },
-                request=self.context["request"],
+                request=self.context['request'],
             )
             repositories_urls.append(url)
         return repositories_urls
@@ -162,10 +176,10 @@ class ProductSerializer(serializers.ModelSerializer):
         return reverse(
             viewname,
             kwargs={
-                "product_pk": obj.id,
-                "organization_pk": obj.organization.id,
+                'product_pk': obj.id,
+                'organization_pk': obj.organization.id,
             },
-            request=self.context["request"],
+            request=self.context['request'],
         )
 
     def get_actions(self, obj: Product):
@@ -173,52 +187,60 @@ class ProductSerializer(serializers.ModelSerializer):
         Retorna o valor atuais das entidades associadas a um produto
         """
         create_a_new_repository_url = self.reverse_product_resource(
-            obj, "repository-list"
+            obj, 'repository-list'
         )
 
-        current_goal_url = self.reverse_product_resource(obj, "current-goal-list")
+        current_goal_url = self.reverse_product_resource(
+            obj, 'current-goal-list'
+        )
 
-        compare_goals_url = self.reverse_product_resource(obj, "all-goal-list")
+        compare_goals_url = self.reverse_product_resource(obj, 'all-goal-list')
 
-        create_a_new_goal_url = self.reverse_product_resource(obj, "create-goal-list")
+        create_a_new_goal_url = self.reverse_product_resource(
+            obj, 'create-goal-list'
+        )
 
         current_pre_config_url = self.reverse_product_resource(
-            obj, "current-pre-config-list"
+            obj, 'current-pre-config-list'
         )
 
         create_a_pre_config_url = self.reverse_product_resource(
-            obj, "create-pre-config-list"
+            obj, 'create-pre-config-list'
         )
 
-        pre_config_entity_relationship_tree_url = self.reverse_product_resource(
-            obj, "pre-config-entity-relationship-tree-list"
+        pre_config_entity_relationship_tree_url = (
+            self.reverse_product_resource(
+                obj, 'pre-config-entity-relationship-tree-list'
+            )
         )
 
         repositories_latest_tsqmis_url = self.reverse_product_resource(
             obj,
-            "repositories-tsqmi-latest-values-list",
+            'repositories-tsqmi-latest-values-list',
         )
 
-        repositories_tsqmi_historical_values_url = self.reverse_product_resource(
-            obj,
-            "repositories-tsqmi-historical-values-list",
+        repositories_tsqmi_historical_values_url = (
+            self.reverse_product_resource(
+                obj,
+                'repositories-tsqmi-historical-values-list',
+            )
         )
 
         return {
-            "create a new repository": create_a_new_repository_url,
-            "get current goal": current_goal_url,
-            "get compare all goals": compare_goals_url,
-            "get current pre-config": current_pre_config_url,
-            "get pre-config entity relationship tree": pre_config_entity_relationship_tree_url,
-            "get all repositories latest tsqmis": repositories_latest_tsqmis_url,
-            "get all repositories tsqmi historical values": repositories_tsqmi_historical_values_url,
-            "create a new goal": create_a_new_goal_url,
-            "create a new pre-config": create_a_pre_config_url,
+            'create a new repository': create_a_new_repository_url,
+            'get current goal': current_goal_url,
+            'get compare all goals': compare_goals_url,
+            'get current pre-config': current_pre_config_url,
+            'get pre-config entity relationship tree': pre_config_entity_relationship_tree_url,
+            'get all repositories latest tsqmis': repositories_latest_tsqmis_url,
+            'get all repositories tsqmi historical values': repositories_tsqmi_historical_values_url,
+            'create a new goal': create_a_new_goal_url,
+            'create a new pre-config': create_a_pre_config_url,
         }
 
 
 class RepositorySerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.SerializerMethodField()
+    url = serializers.CharField(required=False, allow_blank=True)
     product = serializers.SerializerMethodField()
     latest_values = serializers.SerializerMethodField()
     historical_values = serializers.SerializerMethodField()
@@ -235,26 +257,41 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "latest_values",
             "historical_values",
             "actions",
+            "platform",
         )
         extra_kwargs = {
-            "key": {"read_only": True},
+            'key': {'read_only': True},
         }
 
     def validate(self, attrs):
         """
         Valida se o nome do repositório é único para o produto
         """
-        name = attrs["name"]
-        product = self.context["view"].get_product()
+        name = attrs['name']
+        product = self.context['view'].get_product()
+        repository_id = self.instance.id if self.instance else None
 
-        qs = Repository.objects.filter(name=name, product=product)
-
+        qs = Repository.objects.filter(name=name, product=product).exclude(id=repository_id)
         if qs.exists():
             raise serializers.ValidationError(
-                "Repository with this name already exists."
+                'Repository with this name already exists.'
             )
 
         return attrs
+
+    def validate_url(self, value):
+        if value:
+            parsed_url = urlparse(value)
+            if parsed_url.scheme not in ["http", "https"]:
+                raise serializers.ValidationError("The URL must start with http or https.")
+
+            try:
+                response = requests.head(value, timeout=5)
+                if response.status_code >= 400:
+                    raise serializers.ValidationError("The repository's URL is not accessible.")
+            except RequestException:
+                raise serializers.ValidationError("Unable to verify the repository's URL.")
+        return value
 
     def get_url(self, obj: Repository):
         """
@@ -262,13 +299,13 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         """
 
         return reverse(
-            "repository-detail",
+            'repository-detail',
             kwargs={
-                "pk": obj.id,
-                "organization_pk": obj.product.organization.id,
-                "product_pk": obj.product.id,
+                'pk': obj.id,
+                'organization_pk': obj.product.organization.id,
+                'product_pk': obj.product.id,
             },
-            request=self.context["request"],
+            request=self.context['request'],
         )
 
     def get_product(self, obj: Repository):
@@ -277,23 +314,23 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         """
 
         return reverse(
-            "product-detail",
+            'product-detail',
             kwargs={
-                "pk": obj.product.id,
-                "organization_pk": obj.product.organization.id,
+                'pk': obj.product.id,
+                'organization_pk': obj.product.organization.id,
             },
-            request=self.context["request"],
+            request=self.context['request'],
         )
 
     def reverse_repository_resource(self, obj: Repository, viewname: str):
         return reverse(
             viewname,
             kwargs={
-                "repository_pk": obj.id,
-                "organization_pk": obj.product.organization.id,
-                "product_pk": obj.product.id,
+                'repository_pk': obj.id,
+                'organization_pk': obj.product.organization.id,
+                'product_pk': obj.product.id,
             },
-            request=self.context["request"],
+            request=self.context['request'],
         )
 
     def get_actions(self, obj):
@@ -301,47 +338,47 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         Lista todas as ações que podem ser feitas no repositório
         """
         collect_metric_url = self.reverse_repository_resource(
-            obj, "collectedmetric-list"
+            obj, 'collectedmetric-list'
         )
 
         calculate_measures_url = self.reverse_repository_resource(
             obj,
-            "calculate-measures-list",
+            'calculate-measures-list',
         )
 
         calculate_subcharacteristics_url = self.reverse_repository_resource(
             obj,
-            "calculate-subcharacteristics-list",
+            'calculate-subcharacteristics-list',
         )
 
         calculate_characteristics_url = self.reverse_repository_resource(
             obj,
-            "calculate-characteristics-list",
+            'calculate-characteristics-list',
         )
 
         calculate_tsqmi_url = self.reverse_repository_resource(
             obj,
-            "calculate-tsqmi-list",
+            'calculate-tsqmi-list',
         )
 
         github_collector_url = self.reverse_repository_resource(
             obj,
-            "github-collector-list",
+            'github-collector-list',
         )
 
         sonarqube_collector_url = self.reverse_repository_resource(
             obj,
-            "sonarqube-collector-list",
+            'sonarqube-collector-list',
         )
 
         return {
-            "collect metric": collect_metric_url,
-            "calculate measures": calculate_measures_url,
-            "calculate subcharacteristics": calculate_subcharacteristics_url,
-            "calculate characteristics": calculate_characteristics_url,
-            "calculate tsqmi": calculate_tsqmi_url,
-            "import metrics from github": github_collector_url,
-            "import metrics from SonarQube JSON": sonarqube_collector_url,
+            'collect metric': collect_metric_url,
+            'calculate measures': calculate_measures_url,
+            'calculate subcharacteristics': calculate_subcharacteristics_url,
+            'calculate characteristics': calculate_characteristics_url,
+            'calculate tsqmi': calculate_tsqmi_url,
+            'import metrics from github': github_collector_url,
+            'import metrics from SonarQube JSON': sonarqube_collector_url,
         }
 
     def get_historical_values(self, obj: Repository):
@@ -350,35 +387,39 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         """
         metrics_historical_values_url = self.reverse_repository_resource(
             obj,
-            "metrics-historical-values-list",
+            'metrics-historical-values-list',
         )
 
         measures_historical_values_url = self.reverse_repository_resource(
             obj,
-            "measures-historical-values-list",
+            'measures-historical-values-list',
         )
 
-        subcharacteristics_historical_values_url = self.reverse_repository_resource(
-            obj,
-            "subcharacteristics-historical-values-list",
+        subcharacteristics_historical_values_url = (
+            self.reverse_repository_resource(
+                obj,
+                'subcharacteristics-historical-values-list',
+            )
         )
 
-        characteristics_historical_values_url = self.reverse_repository_resource(
-            obj,
-            "characteristics-historical-values-list",
+        characteristics_historical_values_url = (
+            self.reverse_repository_resource(
+                obj,
+                'characteristics-historical-values-list',
+            )
         )
 
         tsqmi_historical_values_url = self.reverse_repository_resource(
             obj,
-            "tsqmi-historical-values-list",
+            'tsqmi-historical-values-list',
         )
 
         return {
-            "metrics": metrics_historical_values_url,
-            "measures": measures_historical_values_url,
-            "subcharacteristics": subcharacteristics_historical_values_url,
-            "characteristics": characteristics_historical_values_url,
-            "tsqmi": tsqmi_historical_values_url,
+            'metrics': metrics_historical_values_url,
+            'measures': measures_historical_values_url,
+            'subcharacteristics': subcharacteristics_historical_values_url,
+            'characteristics': characteristics_historical_values_url,
+            'tsqmi': tsqmi_historical_values_url,
         }
 
     def get_latest_values(self, obj: Repository):
@@ -387,35 +428,37 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         """
 
         metrics_historical_values_url = self.reverse_repository_resource(
-            obj, "latest-collected-metrics-list"
+            obj, 'latest-collected-metrics-list'
         )
 
         measures_latest_values_url = self.reverse_repository_resource(
             obj,
-            "latest-calculated-measures-list",
+            'latest-calculated-measures-list',
         )
 
-        subcharacteristics_latest_values_url = self.reverse_repository_resource(
-            obj,
-            "latest-calculated-subcharacteristics-list",
+        subcharacteristics_latest_values_url = (
+            self.reverse_repository_resource(
+                obj,
+                'latest-calculated-subcharacteristics-list',
+            )
         )
 
         characteristics_latest_values_url = self.reverse_repository_resource(
             obj,
-            "latest-calculated-characteristics-list",
+            'latest-calculated-characteristics-list',
         )
 
         tsqmi_latest_values_url = self.reverse_repository_resource(
             obj,
-            "latest-calculated-tsqmi-list",
+            'latest-calculated-tsqmi-list',
         )
 
         return {
-            "metrics": metrics_historical_values_url,
-            "measures": measures_latest_values_url,
-            "subcharacteristics": subcharacteristics_latest_values_url,
-            "characteristics": characteristics_latest_values_url,
-            "tsqmi": tsqmi_latest_values_url,
+            'metrics': metrics_historical_values_url,
+            'measures': measures_latest_values_url,
+            'subcharacteristics': subcharacteristics_latest_values_url,
+            'characteristics': characteristics_latest_values_url,
+            'tsqmi': tsqmi_latest_values_url,
         }
 
 
@@ -429,7 +472,7 @@ class RepositoryTSQMILatestValueSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Repository
-        fields = ("id", "url", "name", "current_tsqmi")
+        fields = ('id', 'url', 'name', 'current_tsqmi')
 
     def get_current_tsqmi(self, repository: Repository):
         tsqmi = repository.calculated_tsqmis.first()
@@ -440,12 +483,12 @@ class RepositoryTSQMILatestValueSerializer(serializers.ModelSerializer):
         Retorna a URL desse produto
         """
         return reverse(
-            "product-detail",
+            'product-detail',
             kwargs={
-                "pk": obj.id,
-                "organization_pk": obj.product.organization.id,
+                'pk': obj.id,
+                'organization_pk': obj.product.organization.id,
             },
-            request=self.context["request"],
+            request=self.context['request'],
         )
 
 
@@ -455,19 +498,19 @@ class RepositoriesTSQMIHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Repository
-        fields = ("id", "url", "name", "history")
+        fields = ('id', 'url', 'name', 'history')
 
     def get_url(self, obj):
         """
         Retorna a URL desse produto
         """
         return reverse(
-            "product-detail",
+            'product-detail',
             kwargs={
-                "pk": obj.id,
-                "organization_pk": obj.product.organization.id,
+                'pk': obj.id,
+                'organization_pk': obj.product.organization.id,
             },
-            request=self.context["request"],
+            request=self.context['request'],
         )
 
     def get_history(self, obj: Repository):
