@@ -39,7 +39,8 @@ class LatestCalculatedTSQMIViewSet(
         latest_tsqmi = repository.calculated_tsqmis.first()
         serializer = self.get_serializer(latest_tsqmi)
         return Response(serializer.data)
-    
+
+
 class LatestCalculatedTSQMIBadgeViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
@@ -53,7 +54,7 @@ class LatestCalculatedTSQMIBadgeViewSet(
             product_id=self.kwargs["product_pk"],
             product__organization_id=self.kwargs["organization_pk"],
         )
-    
+
     def set_stars(self, valor):
         if 0 < valor < 0.2:
             star = 1
@@ -73,7 +74,7 @@ class LatestCalculatedTSQMIBadgeViewSet(
         repository = self.get_repository()
         latest_tsqmi = repository.calculated_tsqmis.first()
         result = self.set_stars(latest_tsqmi.value)
-        
+
         svg_data = open(f'/src/tsqmi/media/{result}stars.svg', "rb").read()
         return HttpResponse(svg_data, content_type="image/svg+xml")
 
