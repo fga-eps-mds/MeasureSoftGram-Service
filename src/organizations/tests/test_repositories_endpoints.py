@@ -3,7 +3,6 @@ from unittest import mock
 from unittest.mock import patch, Mock
 from zoneinfo import ZoneInfo
 
-from rest_framework.exceptions import status
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
@@ -21,7 +20,6 @@ from subcharacteristics.models import (
 )
 from utils.mocks import Mocks
 from utils.tests import APITestCaseExpanded
-from unittest.mock import patch
 from requests.exceptions import ConnectionError, HTTPError
 
 
@@ -97,7 +95,7 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        
+
         expected_error_message = "Unable to verify the repository's URL."
         self.assertIn(expected_error_message, response.data['url'][0])
 
@@ -110,7 +108,7 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         org = self.get_organization()
         product = self.get_product(org)
         url = reverse("repository-list", args=[org.id, product.id])
-        
+
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -130,12 +128,11 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         org = self.get_organization()
         product = self.get_product(org)
         url = reverse("repository-list", args=[org.id, product.id])
-        
+
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("The repository's URL is not accessible.", response.data['url'])
-
 
     def test_if_existing_repositories_is_being_listed(self):
         org = self.get_organization()

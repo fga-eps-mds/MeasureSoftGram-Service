@@ -81,7 +81,6 @@ class RepositoryViewSet(
         return qs.filter(product=self.kwargs['product_pk'])
 
 
-
 class RepositoriesTSQMILatestValueViewSet(
     RepositoryViewSetMixin,
     mixins.ListModelMixin,

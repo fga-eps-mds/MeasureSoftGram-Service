@@ -289,10 +289,9 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
                 response = requests.head(value, timeout=5)
                 if response.status_code >= 400:
                     raise serializers.ValidationError("The repository's URL is not accessible.")
-            except RequestException as e:
+            except RequestException:
                 raise serializers.ValidationError("Unable to verify the repository's URL.")
         return value
-
 
     def get_url(self, obj: Repository):
         """

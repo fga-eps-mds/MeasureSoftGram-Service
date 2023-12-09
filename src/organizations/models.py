@@ -105,12 +105,12 @@ class Repository(models.Model):
     )
 
     platform = models.CharField(
-        max_length=128, 
-        choices=PLATFORM_CHOICES, 
-        blank=True, 
+        max_length=128,
+        choices=PLATFORM_CHOICES,
+        blank=True,
         null=True
     )
-    
+
     description = models.TextField(
         max_length=512,
         null=True,
