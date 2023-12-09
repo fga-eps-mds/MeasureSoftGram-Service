@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class TsqmiConfig(AppConfig):
-    default_auto_field = "django.db.models.BigAutoField"
-    name = "tsqmi"
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'tsqmi'

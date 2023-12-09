@@ -16,7 +16,7 @@ from accounts.serializers import (
     AccountsCreateSerializer,
     AccountsLoginSerializer,
     AccountsRetrieveSerializer,
-    UserListSerializer
+    UserListSerializer,
 )
 
 
@@ -39,7 +39,9 @@ class CreateAccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = AccountsCreateSerializer
 
 
-class RetrieveAccountViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class RetrieveAccountViewSet(
+    mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     ViewSet para recuperar informações de conta
     """
@@ -64,7 +66,7 @@ class LoginViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         result = serializer.save()
-        return Response({"key": result.key}, status=status.HTTP_200_OK)
+        return Response({'key': result.key}, status=status.HTTP_200_OK)
 
 
 class LogoutViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
@@ -78,7 +80,9 @@ class LogoutViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class RetrieveAPIAcessTokenViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class RetrieveAPIAcessTokenViewSet(
+    mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     ViewSet para recuperar o token de acesso da conta do usuário, o token vai ser utilizado na github action
     """
@@ -93,10 +97,11 @@ class RetrieveAPIAcessTokenViewSet(mixins.RetrieveModelMixin, viewsets.GenericVi
 
         return token
 
+
 class UserListViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet para listar todos os usuários
     """
+
     queryset = CustomUser.objects.all()
     serializer_class = UserListSerializer
-

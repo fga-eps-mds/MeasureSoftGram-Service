@@ -6,39 +6,39 @@ from organizations.models import Organization, Product, Repository
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = (
-        "id",
-        "name",
-        "key",
-        "description",
+        'id',
+        'name',
+        'key',
+        'description',
     )
     search_fields = (
-        "name",
-        "key",
+        'name',
+        'key',
     )
 
 
 @admin.register(Product)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = (
-        "id",
-        "name",
-        "key",
-        "description",
+        'id',
+        'name',
+        'key',
+        'description',
     )
-    search_fields = ("name",)
-    list_filter = ("organization",)
+    search_fields = ('name',)
+    list_filter = ('organization',)
 
 
 @admin.register(Repository)
 class RepositoryAdmin(admin.ModelAdmin):
     list_display = (
-        "id",
-        "name",
-        "key",
-        "description",
+        'id',
+        'name',
+        'key',
+        'description',
     )
-    search_fields = ("name",)
+    search_fields = ('name',)
     list_filter = (
-        "product",
-        "product__organization",
+        'product',
+        'product__organization',
     )

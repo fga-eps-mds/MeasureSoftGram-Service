@@ -33,15 +33,15 @@ class RepositoryMetricsMixin:
     def get_repository(self):
         return get_object_or_404(
             Repository,
-            id=self.kwargs["repository_pk"],
-            product_id=self.kwargs["product_pk"],
-            product__organization_id=self.kwargs["organization_pk"],
+            id=self.kwargs['repository_pk'],
+            product_id=self.kwargs['product_pk'],
+            product__organization_id=self.kwargs['organization_pk'],
         )
 
     def get_queryset(self):
         repository = self.get_repository()
         qs = repository.collected_metrics.all()
-        qs = qs.values_list("metric", flat=True).distinct()
+        qs = qs.values_list('metric', flat=True).distinct()
         return SupportedMetric.objects.filter(id__in=qs)
 
 
@@ -71,7 +71,7 @@ class LatestCollectedMetricModelViewSet(
     # TODO: Melhorar essa query
     # O desejável era que somente fosse realizado o
     # prefetch no último CollectedMetric de cada foreinkey
-    queryset = SupportedMetric.objects.prefetch_related("collected_metrics")
+    queryset = SupportedMetric.objects.prefetch_related('collected_metrics')
 
     # O Código abaixo é a forma como o django permite fazer
     # um prefetch customizado, mas não está funcinando
@@ -102,6 +102,6 @@ class CollectedMetricHistoryModelViewSet(
     """
 
     queryset = SupportedMetric.objects.prefetch_related(
-        "collected_metrics",
+        'collected_metrics',
     )
     serializer_class = CollectedMetricHistorySerializer

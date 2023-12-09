@@ -27,13 +27,10 @@ class AllGoalsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
         fields = (
-            "id",
-            "release_name",
-            "start_at",
-            "created_by",
-            "end_at",
-            "goal",
-            "accomplished",
+            'id',
+            'created_by',
+            'goal',
+            'accomplished',
         )
 
     def get_created_by(self, obj):
@@ -49,25 +46,20 @@ class AllGoalsSerializer(serializers.ModelSerializer):
         chars = (
             CalculatedCharacteristic.objects.filter(
                 repository__product=obj.product,
-                created_at__gte=obj.start_at,
-                created_at__lte=obj.end_at,
             )
-            .values("characteristic__key", "value")
-            .order_by("characteristic__id")
-            .distinct("characteristic__id")
+            .values('characteristic__key', 'value')
+            .order_by('characteristic__id')
+            .distinct('characteristic__id')
         )
-        return {char["characteristic__key"]: char["value"] for char in chars}
+        return {char['characteristic__key']: char['value'] for char in chars}
 
 
 class ReleasesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
         fields = (
-            "id",
-            "release_name",
-            "start_at",
-            "created_by",
-            "end_at",
+            'id',
+            'created_by',
         )
 
     def get_releases(self, obj):
@@ -88,13 +80,10 @@ class GoalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
         fields = (
-            "id",
-            "release_name",
-            "start_at",
-            "end_at",
-            "changes",
-            "data",
-            "allow_dynamic",
+            'id',
+            'changes',
+            'data',
+            'allow_dynamic',
         )
 
     def get_data(self, obj):
@@ -117,9 +106,11 @@ class GoalSerializer(serializers.ModelSerializer):
         selected_characteristics_keys = set(
             self.get_pre_config_characteristics(),
         )
-        changes = self.initial_data.get("changes", [])
+        changes = self.initial_data.get('changes', [])
 
-        characteristics_keys = {change["characteristic_key"] for change in changes}
+        characteristics_keys = {
+            change['characteristic_key'] for change in changes
+        }
 
         issubset = characteristics_keys.issubset(
             selected_characteristics_keys,
@@ -139,8 +130,8 @@ class GoalSerializer(serializers.ModelSerializer):
         if not is_valid and raise_exception:
             raise serializers.ValidationError(
                 (
-                    "It is not allowed to create goals with characteristics "
-                    "that were not selected in the pre-configuration."
+                    'It is not allowed to create goals with characteristics '
+                    'that were not selected in the pre-configuration.'
                 )
             )
 
@@ -149,61 +140,25 @@ class GoalSerializer(serializers.ModelSerializer):
     def get_product(self):
         product = None
 
-        if view := self.context.get("view", None):
+        if view := self.context.get('view', None):
             product = view.get_product()
 
         return product
 
-    def check_if_it_is_the_same_as_the_current_goal(
-        self,
-        valid_format=True,
-        raise_exception=False,
-    ):
-        product = self.get_product()
-        current_goal = product.goals.first()
-
-        if not current_goal:
-            return True
-
-        start_at: str = current_goal.start_at.strftime("%Y-%m-%d")
-        end_at: str = current_goal.end_at.strftime("%Y-%m-%d")
-        data: dict = self.changes_to_data()
-
-        is_the_same = (
-            current_goal.release_name == self.initial_data.get("release_name")
-            and start_at == self.initial_data.get("start_at")
-            and end_at == self.initial_data.get("end_at")
-            and current_goal.data == data
-        )
-
-        if is_the_same and raise_exception:
-            raise serializers.ValidationError(
-                (
-                    "It is not allowed to create goals that are the same as the "
-                    "current goal."
-                )
-            )
-
-        is_valid = not is_the_same
-        return is_valid and valid_format
-
     def is_valid(self, raise_exception=False):
         valid_format = super().is_valid(raise_exception)
 
-        is_valid_1 = self.check_if_all_characteristics_are_defined_in_the_pre_config(
-            valid_format=valid_format,
-            raise_exception=raise_exception,
+        is_valid_1 = (
+            self.check_if_all_characteristics_are_defined_in_the_pre_config(
+                valid_format=valid_format,
+                raise_exception=raise_exception,
+            )
         )
 
-        is_valid_2 = self.check_if_it_is_the_same_as_the_current_goal(
-            valid_format=valid_format,
-            raise_exception=raise_exception,
-        )
+        if not (is_valid_1) and raise_exception:
+            raise serializers.ValidationError('The goal is not valid.')
 
-        if not (is_valid_1 and is_valid_2) and raise_exception:
-            raise serializers.ValidationError("The goal is not valid.")
-
-        return is_valid_1 and is_valid_2
+        return is_valid_1
 
     def changes_to_data(self):
         """
@@ -213,13 +168,13 @@ class GoalSerializer(serializers.ModelSerializer):
         equalizer = Equalizer(selected_characteristics_keys)
 
         data = self.validated_data
-        changes = data.get("changes", [])
-        allow_dynamic = data.get("allow_dynamic", False)
+        changes = data.get('changes', [])
+        allow_dynamic = data.get('allow_dynamic', False)
 
         for change in changes:
             equalizer.update(
-                change["characteristic_key"],
-                change["delta"],
+                change['characteristic_key'],
+                change['delta'],
                 allow_dynamic,
             )
 
@@ -227,6 +182,6 @@ class GoalSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         data = self.changes_to_data()
-        self.validated_data.pop("changes")
-        self.validated_data.pop("allow_dynamic")
+        self.validated_data.pop('changes')
+        self.validated_data.pop('allow_dynamic')
         return super().save(data=data, **kwargs)
