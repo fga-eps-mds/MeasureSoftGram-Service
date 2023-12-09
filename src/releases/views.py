@@ -1,5 +1,6 @@
-from releases.serializers import CheckReleaseSerializer, ReleaseSerializer
+from releases.serializers import CheckReleaseSerializer, ReleaseSerializer, ReleaseAllSerializer
 from releases.models import Release
+from goals.models import Goal
 
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -65,3 +66,30 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
         return Response(
             {'message': 'Parametros válidos para criação de Release'}
         )
+
+    @action(
+        detail=False, 
+        methods=['get'], 
+        url_path='(?P<id>\d+)/planeed-x-accomplished'
+    )
+    def planned_x_accomplished(self, request, id=None,*args, **kwargs):
+        if id:
+            id = int(id)
+        else:
+            return Response(
+                {'detail': 'Id da release não informado'}, status=400
+            )
+
+        release = Release.objects.filter(id=id).first()
+
+        if release:
+            serializer = ReleaseAllSerializer(release)
+            return Response({
+                'release': serializer.data,
+                'planned': release.goal.data,
+                'accomplished': None,
+            })
+        else:
+            return Response(
+                {'detail': 'Release não encontrada'}, status=404
+            )
