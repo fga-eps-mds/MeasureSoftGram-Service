@@ -1,6 +1,7 @@
 from rest_framework import mixins, permissions, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from organizations.models import Organization, Product, Repository
 from organizations.serializers import (
@@ -71,6 +72,7 @@ class RepositoryViewSet(
     queryset = Repository.objects.all()
 
     def perform_create(self, serializer):
+        serializer.is_valid(raise_exception=True)
         product = self.get_product()
         serializer.save(product=product)
 
