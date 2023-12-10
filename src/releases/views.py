@@ -5,6 +5,7 @@ from releases.serializers import (
 )
 from releases.models import Release
 from goals.models import Goal
+from organizations.models import Repository
 from characteristics.models import CalculatedCharacteristic
 
 from rest_framework import viewsets
@@ -91,17 +92,47 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
 
         release = Release.objects.filter(id=id).first()
 
-        for (
-            calculated_characteristic
-        ) in CalculatedCharacteristic.objects.filter(release=release).all():
-            caracteristica = calculated_characteristic.characteristic.key
-            repository = calculated_characteristic.repository.name
+        result_calculated = CalculatedCharacteristic.objects.filter(
+            release=release
+        ).all()
 
-            if repository not in accomplished.keys():
-                accomplished[repository] = {}
-            accomplished[repository].update(
-                {caracteristica: calculated_characteristic.value}
+        if len(result_calculated) > 0:
+            for calculated_characteristic in result_calculated:
+                caracteristica = calculated_characteristic.characteristic.key
+                repository = calculated_characteristic.repository.name
+
+                if repository not in accomplished.keys():
+                    accomplished[repository] = {}
+                accomplished[repository].update(
+                    {caracteristica: calculated_characteristic.value}
+                )
+        else: 
+            result_calculated = []
+            product_key = int(self.kwargs['product_pk'])
+            ids_repositories = list(
+                Repository.objects
+                .filter(product_id=product_key)
+                .values_list('id', flat=True).all()
             )
+
+            for id_repository in ids_repositories:
+                calculated_characteristic = (
+                    CalculatedCharacteristic.objects
+                    .filter(
+                        repository_id=id_repository,
+                        release=None
+                    ).all().order_by('-created_at')[:2])
+                result_calculated = result_calculated + list(calculated_characteristic)
+
+            for calculated_characteristic in result_calculated:
+                caracteristica = calculated_characteristic.characteristic.key
+                repository = calculated_characteristic.repository.name
+
+                if repository not in accomplished.keys():
+                    accomplished[repository] = {}
+                accomplished[repository].update(
+                    {caracteristica: calculated_characteristic.value}
+                )
 
         if len(accomplished.keys()) > 0:
             for key_repository in accomplished:
