@@ -90,7 +90,27 @@ class Repository(models.Model):
         verbose_name_plural = 'Repositories'
 
     name = models.CharField(max_length=128)
-    key = models.SlugField(max_length=128, unique=False)
+    key = models.SlugField(max_length=128, unique=False, blank=True)
+    url = models.URLField(max_length=200, blank=True, null=True)
+
+    PLATFORM_CHOICES = (
+        ('github', 'GitHub'),
+        ('gitlab', 'GitLab'),
+        ('bitbucket', 'Bitbucket'),
+        ('subversion (SVN)', 'Subversion (SVN)'),
+        ('mercurial', 'Mercurial'),
+        ('aws code commit', 'AWS CodeCommit'),
+        ('azure repos', 'Azure Repos'),
+        ('outros', 'Outros')
+    )
+
+    platform = models.CharField(
+        max_length=128,
+        choices=PLATFORM_CHOICES,
+        blank=True,
+        null=True
+    )
+
     description = models.TextField(
         max_length=512,
         null=True,

@@ -437,18 +437,6 @@ GITHUB_METRICS = [
     },
 ]
 
-# SCHEDULER_CONFIG = {
-#     "apscheduler.jobstores.default": {
-#         "class": "django_apscheduler.jobstores:DjangoJobStore",
-#     },
-#     "apscheduler.executors.default": {
-#         "class": "apscheduler.executors.pool:ThreadPoolExecutor",
-#         "max_workers": "20",
-#     },
-#     "apscheduler.job_defaults.coalesce": "false",
-#     "apscheduler.job_defaults.max_instances": "3",
-# }
-
 SCHEDULER_CONFIG = {
     'apscheduler.jobstores.default': {
         'class': 'django_apscheduler.jobstores:DjangoJobStore',
@@ -462,3 +450,20 @@ SCHEDULER_CONFIG = {
     'apscheduler.timezone': 'America/Sao_Paulo',
 }
 SCHEDULER_AUTOSTART = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'INFO'),
+        },
+    },
+}
+
