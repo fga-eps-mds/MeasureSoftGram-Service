@@ -101,14 +101,11 @@ class Repository(models.Model):
         ('mercurial', 'Mercurial'),
         ('aws code commit', 'AWS CodeCommit'),
         ('azure repos', 'Azure Repos'),
-        ('outros', 'Outros')
+        ('outros', 'Outros'),
     )
 
     platform = models.CharField(
-        max_length=128,
-        choices=PLATFORM_CHOICES,
-        blank=True,
-        null=True
+        max_length=128, choices=PLATFORM_CHOICES, blank=True, null=True
     )
 
     description = models.TextField(

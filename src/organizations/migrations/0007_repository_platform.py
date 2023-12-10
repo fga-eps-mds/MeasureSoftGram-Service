@@ -13,6 +13,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='repository',
             name='platform',
-            field=models.CharField(blank=True, choices=[('github', 'GitHub'), ('gitlab', 'GitLab'), ('bitbucket', 'Bitbucket'), ('subversion (SVN)', 'Subversion (SVN)'), ('mercurial', 'Mercurial'), ('aws code commit', 'AWS CodeCommit'), ('azure repos', 'Azure Repos')], max_length=128, null=True),
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ('github', 'GitHub'),
+                    ('gitlab', 'GitLab'),
+                    ('bitbucket', 'Bitbucket'),
+                    ('subversion (SVN)', 'Subversion (SVN)'),
+                    ('mercurial', 'Mercurial'),
+                    ('aws code commit', 'AWS CodeCommit'),
+                    ('azure repos', 'Azure Repos'),
+                ],
+                max_length=128,
+                null=True,
+            ),
         ),
     ]
