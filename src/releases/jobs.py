@@ -103,7 +103,7 @@ def get_releases_and_create_results():
                     calculated_characteristics
                 )
                 print('Criou as características calculadas')
-            except Exception as e:
+            except Exception:
                 print('Erro ao criar as características calculadas')
                 continue
 

@@ -77,7 +77,7 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['get'],
-        url_path='(?P<id>\d+)/planeed-x-accomplished',
+        url_path=r'(?P<id>\d+)/planeed-x-accomplished',
     )
     def planned_x_accomplished(self, request, id=None, *args, **kwargs):
         if id:
@@ -97,7 +97,7 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
             caracteristica = calculated_characteristic.characteristic.key
             repository = calculated_characteristic.repository.name
 
-            if not repository in accomplished.keys():
+            if repository not in accomplished.keys():
                 accomplished[repository] = {}
             accomplished[repository].update(
                 {caracteristica: calculated_characteristic.value}
