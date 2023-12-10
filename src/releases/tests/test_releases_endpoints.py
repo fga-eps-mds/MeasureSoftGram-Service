@@ -391,36 +391,32 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             goal=self.goal,
         )
 
-        Repository.objects.create(
+        repository = Repository.objects.create(
             id=1,
             name='Msg',
             key='2023-2-Msg',
             product=self.product,
         )
 
-        SupportedCharacteristic(
-            id=1,
-            name='reliability',
-            key='reliability',
-        )
+        reliability = SupportedCharacteristic.objects.filter(
+            key='reliability'
+        ).first()
 
-        SupportedCharacteristic(
-            id=2,
-            name='maintainability',
-            key='maintainability',
-        )
+        maintainability = SupportedCharacteristic.objects.filter(
+            key='maintainability'
+        ).first()
 
         CalculatedCharacteristic.objects.create(
             release_id=999,
-            characteristic_id=1,
-            repository_id=1,
+            characteristic=reliability,
+            repository=repository,
             value=1,
         )
 
         CalculatedCharacteristic.objects.create(
             release_id=999,
-            characteristic_id=2,
-            repository_id=1,
+            characteristic=maintainability,
+            repository=repository,
             value=1,
         )
 
