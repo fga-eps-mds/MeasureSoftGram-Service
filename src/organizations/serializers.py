@@ -478,15 +478,17 @@ class RepositoryTSQMILatestValueSerializer(serializers.ModelSerializer):
         tsqmi = repository.calculated_tsqmis.first()
         return TSQMISerializer(tsqmi).data if tsqmi else {}
 
-    def get_url(self, obj):
+    def get_url(self, obj: Repository):
         """
-        Retorna a URL desse produto
+        Retorna a URL desse repositório com o último valor coletado de TSQMI
         """
+
         return reverse(
-            'product-detail',
+            'latest-calculated-tsqmi-list',
             kwargs={
-                'pk': obj.id,
+                'repository_pk': obj.id,
                 'organization_pk': obj.product.organization.id,
+                'product_pk': obj.product.id,
             },
             request=self.context['request'],
         )
