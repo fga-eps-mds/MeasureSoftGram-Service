@@ -6,7 +6,10 @@ from rest_framework.test import APIClient
 from goals.models import Goal
 from organizations.models import Repository
 from releases.models import Release
-from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
+from characteristics.models import (
+    CalculatedCharacteristic,
+    SupportedCharacteristic,
+)
 from utils.tests import APITestCaseExpanded
 
 

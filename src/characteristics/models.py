@@ -195,8 +195,8 @@ class CalculatedCharacteristic(models.Model):
         to='releases.Release',
         related_name='calculated_characteristics',
         on_delete=models.CASCADE,
-        null=True, 
-        blank=True
+        null=True,
+        blank=True,
     )
 
     # def __str__(self):

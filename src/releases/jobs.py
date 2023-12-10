@@ -17,6 +17,7 @@ from characteristics.models import (
 
 import sys
 
+
 def get_releases_and_create_results():
     today = timezone.now()
     today_min = today.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -25,26 +26,30 @@ def get_releases_and_create_results():
     releases = Release.objects.filter(
         end_at__lte=today_max, end_at__gte=today_min
     ).all()
-    
+
     if len(releases) == 0:
         return
-    
+
     for release in releases:
         repositories = Repository.objects.filter(
-            product_id=release.product_id # type: ignore
+            product_id=release.product_id  # type: ignore
         ).all()
-        
+
         for repository in repositories:
-            product = Product.objects.filter(id=repository.product_id).first() # type: ignore
+            product = Product.objects.filter(
+                id=repository.product_id
+            ).first()   # type: ignore
 
             data_characteristics = {
-                "characteristics": [
-                    { "key": "reliability" }, { "key": "maintainability" } 
+                'characteristics': [
+                    {'key': 'reliability'},
+                    {'key': 'maintainability'},
                 ]
             }
 
             characteristics_keys = [
-                characteristic['key'] for characteristic in data_characteristics['characteristics']
+                characteristic['key']
+                for characteristic in data_characteristics['characteristics']
             ]
 
             qs = SupportedCharacteristic.objects.filter(
@@ -54,8 +59,8 @@ def get_releases_and_create_results():
                 'subcharacteristics__calculated_subcharacteristics',
             )
 
-            pre_config = product.pre_configs.first() # type: ignore
-            
+            pre_config = product.pre_configs.first()   # type: ignore
+
             core_params = {'characteristics': []}
 
             char: SupportedCharacteristic
@@ -97,30 +102,30 @@ def get_releases_and_create_results():
                 CalculatedCharacteristic.objects.bulk_create(
                     calculated_characteristics
                 )
-                print("Criou as características calculadas")
+                print('Criou as características calculadas')
             except Exception as e:
-                print("Erro ao criar as características calculadas")
+                print('Erro ao criar as características calculadas')
                 continue
 
 
 def check_the_need_to_calculate_releases():
     scheduler = BackgroundScheduler()
-    scheduler.add_jobstore(DjangoJobStore(), "default")
+    scheduler.add_jobstore(DjangoJobStore(), 'default')
 
     scheduler.add_job(
-        get_releases_and_create_results, 
+        get_releases_and_create_results,
         trigger=CronTrigger(
             hour=00,
             minute=00,
         ),
-        name='get_releases_and_create_results', 
+        name='get_releases_and_create_results',
         jobstore='default',
         replace_existing=True,
         max_instances=1,
         misfire_grace_time=10,
-        coalesce= True,
+        coalesce=True,
         id='get_releases_and_create_results',
     )
     register_events(scheduler)
     scheduler.start()
-    print("Scheduler started...", file=sys.stdout)
+    print('Scheduler started...', file=sys.stdout)

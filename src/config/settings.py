@@ -448,15 +448,15 @@ GITHUB_METRICS = [
 # }
 
 SCHEDULER_CONFIG = {
-    "apscheduler.jobstores.default": {
-        "class": "django_apscheduler.jobstores:DjangoJobStore",
+    'apscheduler.jobstores.default': {
+        'class': 'django_apscheduler.jobstores:DjangoJobStore',
     },
-    "apscheduler.executors.default": {
-        "class": "apscheduler.executors.pool:ThreadPoolExecutor",
-        "max_workers": "1",
+    'apscheduler.executors.default': {
+        'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
+        'max_workers': '1',
     },
-    "apscheduler.job_defaults.coalesce": "false",
-    "apscheduler.job_defaults.max_instances": "1",
-    "apscheduler.timezone": "America/Sao_Paulo",
+    'apscheduler.job_defaults.coalesce': 'false',
+    'apscheduler.job_defaults.max_instances': '1',
+    'apscheduler.timezone': 'America/Sao_Paulo',
 }
 SCHEDULER_AUTOSTART = True

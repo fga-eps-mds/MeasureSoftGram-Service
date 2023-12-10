@@ -7,4 +7,5 @@ class ReleasesConfig(AppConfig):
 
     def ready(self):
         from . import jobs
+
         jobs.check_the_need_to_calculate_releases()

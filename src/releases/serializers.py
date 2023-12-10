@@ -102,4 +102,4 @@ class ReleaseAllSerializer(serializers.ModelSerializer):
 class ReleaseAccomplishedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goal
-        fields = ('data')
+        fields = 'data'

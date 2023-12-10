@@ -1,4 +1,8 @@
-from releases.serializers import CheckReleaseSerializer, ReleaseSerializer, ReleaseAllSerializer
+from releases.serializers import (
+    CheckReleaseSerializer,
+    ReleaseSerializer,
+    ReleaseAllSerializer,
+)
 from releases.models import Release
 from goals.models import Goal
 from characteristics.models import CalculatedCharacteristic
@@ -10,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from core.transformations import diff, norm_diff
+
 
 class CreateReleaseModelViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
@@ -36,7 +41,7 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
                 'nome': name_release,
                 'dt_inicial': init_date,
                 'dt_final': final_date,
-            } # type: ignore
+            }  # type: ignore
         )
         serializer.is_valid(raise_exception=True)
 
@@ -70,11 +75,11 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
         )
 
     @action(
-        detail=False, 
-        methods=['get'], 
-        url_path='(?P<id>\d+)/planeed-x-accomplished'
+        detail=False,
+        methods=['get'],
+        url_path='(?P<id>\d+)/planeed-x-accomplished',
     )
-    def planned_x_accomplished(self, request, id=None,*args, **kwargs):
+    def planned_x_accomplished(self, request, id=None, *args, **kwargs):
         if id:
             id = int(id)
         else:
@@ -86,25 +91,29 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
 
         release = Release.objects.filter(id=id).first()
 
-        for calculated_characteristic in CalculatedCharacteristic.objects.filter(release=release).all():
+        for (
+            calculated_characteristic
+        ) in CalculatedCharacteristic.objects.filter(release=release).all():
             caracteristica = calculated_characteristic.characteristic.key
             repository = calculated_characteristic.repository.name
 
             if not repository in accomplished.keys():
                 accomplished[repository] = {}
-            accomplished[repository].update({caracteristica: calculated_characteristic.value})
+            accomplished[repository].update(
+                {caracteristica: calculated_characteristic.value}
+            )
 
         if len(accomplished.keys()) > 0:
             for key_repository in accomplished:
                 result = diff(
                     [
-                        release.goal.data['reliability'] / 100, # type: ignore
-                        release.goal.data['maintainability'] / 100 # type: ignore
+                        release.goal.data['reliability'] / 100,  # type: ignore
+                        release.goal.data['maintainability'] / 100,  # type: ignore
                     ],
                     [
-                        accomplished[key_repository]['reliability'], 
-                        accomplished[key_repository]['maintainability']
-                    ]
+                        accomplished[key_repository]['reliability'],
+                        accomplished[key_repository]['maintainability'],
+                    ],
                 )
                 accomplished[key_repository] = result
         else:
@@ -112,15 +121,16 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
 
         if release:
             serializer = ReleaseAllSerializer(release)
-            return Response({
-                'release': serializer.data,
-                'planned': {
-                    'reliability': release.goal.data['reliability'] / 100, 
-                    'maintainability': release.goal.data['maintainability'] / 100
-                },
-                'accomplished': accomplished,
-            })
-        else:
             return Response(
-                {'detail': 'Release não encontrada'}, status=404
+                {
+                    'release': serializer.data,
+                    'planned': {
+                        'reliability': release.goal.data['reliability'] / 100,
+                        'maintainability': release.goal.data['maintainability']
+                        / 100,
+                    },
+                    'accomplished': accomplished,
+                }
             )
+        else:
+            return Response({'detail': 'Release não encontrada'}, status=404)
