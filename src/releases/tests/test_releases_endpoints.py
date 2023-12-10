@@ -4,7 +4,9 @@ from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from goals.models import Goal
+from organizations.models import Repository
 from releases.models import Release
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from utils.tests import APITestCaseExpanded
 
 
@@ -352,3 +354,76 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         self.assertEqual(
             response.json()['detail'], 'Já existe uma release com este nome'
         )
+
+    def test_planned_x_accomplished_without_accomplished(self):
+        Release.objects.create(
+            id=999,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name='Release 999',
+            created_by=self.user,
+            product=self.product,
+            goal=self.goal,
+        )
+
+        response = self.client.get(
+            path=f'{self.url_default}999/planeed-x-accomplished/'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['accomplished'], None)
+        assert 'reliability' in response.json()['planned'].keys()
+        assert 'maintainability' in response.json()['planned'].keys()
+
+    def test_planned_x_accomplished_with_accomplished(self):
+        Release.objects.create(
+            id=999,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name='Release 999',
+            created_by=self.user,
+            product=self.product,
+            goal=self.goal,
+        )
+
+        Repository.objects.create(
+            id=1,
+            name='Msg',
+            key='2023-2-Msg',
+            product=self.product,
+        )
+
+        SupportedCharacteristic(
+            id=1,
+            name='reliability',
+            key='reliability',
+        )
+
+        SupportedCharacteristic(
+            id=2,
+            name='maintainability',
+            key='maintainability',
+        )
+
+        CalculatedCharacteristic.objects.create(
+            release_id=999,
+            characteristic_id=1,
+            repository_id=1,
+            value=1,
+        )
+
+        CalculatedCharacteristic.objects.create(
+            release_id=999,
+            characteristic_id=2,
+            repository_id=1,
+            value=1,
+        )
+
+        response = self.client.get(
+            path=f'{self.url_default}999/planeed-x-accomplished/'
+        )
+
+        assert response.status_code == 200
+        assert response.json()['accomplished'] == {'Msg': [0, 0]}
