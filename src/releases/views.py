@@ -1,6 +1,7 @@
 from releases.serializers import CheckReleaseSerializer, ReleaseSerializer, ReleaseAllSerializer
 from releases.models import Release
 from goals.models import Goal
+from characteristics.models import CalculatedCharacteristic
 
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -8,6 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
+from core.transformations import diff, norm_diff
 
 class CreateReleaseModelViewSet(viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
@@ -34,7 +36,7 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
                 'nome': name_release,
                 'dt_inicial': init_date,
                 'dt_final': final_date,
-            }
+            } # type: ignore
         )
         serializer.is_valid(raise_exception=True)
 
@@ -80,14 +82,43 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
                 {'detail': 'Id da release não informado'}, status=400
             )
 
+        accomplished = {}
+
         release = Release.objects.filter(id=id).first()
+
+        for calculated_characteristic in CalculatedCharacteristic.objects.filter(release=release).all():
+            caracteristica = calculated_characteristic.characteristic.key
+            repository = calculated_characteristic.repository.name
+
+            if not repository in accomplished.keys():
+                accomplished[repository] = {}
+            accomplished[repository].update({caracteristica: calculated_characteristic.value})
+
+        if len(accomplished.keys()) > 0:
+            for key_repository in accomplished:
+                result = diff(
+                    [
+                        release.goal.data['reliability'] / 100, # type: ignore
+                        release.goal.data['maintainability'] / 100 # type: ignore
+                    ],
+                    [
+                        accomplished[key_repository]['reliability'], 
+                        accomplished[key_repository]['maintainability']
+                    ]
+                )
+                accomplished[key_repository] = result
+        else:
+            accomplished = None
 
         if release:
             serializer = ReleaseAllSerializer(release)
             return Response({
                 'release': serializer.data,
-                'planned': release.goal.data,
-                'accomplished': None,
+                'planned': {
+                    'reliability': release.goal.data['reliability'] / 100, 
+                    'maintainability': release.goal.data['maintainability'] / 100
+                },
+                'accomplished': accomplished,
             })
         else:
             return Response(

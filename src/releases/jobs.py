@@ -36,7 +36,6 @@ def get_releases_and_create_results():
         
         for repository in repositories:
             product = Product.objects.filter(id=repository.product_id).first() # type: ignore
-            organization_id = product.organization_id # type: ignore
 
             data_characteristics = {
                 "characteristics": [
