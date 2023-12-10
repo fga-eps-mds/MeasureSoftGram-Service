@@ -1,11 +1,14 @@
 from django.apps import AppConfig
 
+from config.settings import AMBIENT_TEST
+
 
 class ReleasesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'releases'
 
     def ready(self):
-        from . import jobs
+        if not AMBIENT_TEST:
+            from . import jobs
 
-        jobs.check_the_need_to_calculate_releases()
+            jobs.check_the_need_to_calculate_releases()

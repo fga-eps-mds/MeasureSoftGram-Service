@@ -240,6 +240,8 @@ CREATE_FAKE_DATA = os.getenv('CREATE_FAKE_DATA', 'False').lower() in (
     '1',
 )
 
+AMBIENT_TEST = os.getenv('AMBIENT_TEST', 'True').lower() in ('true', 't', '1')
+
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN', '')
 
 GITHUB_ISSUE_METRICS_THRESHOLD = int(
