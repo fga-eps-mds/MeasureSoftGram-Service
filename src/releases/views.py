@@ -7,6 +7,11 @@ from releases.models import Release
 from goals.models import Goal
 from organizations.models import Repository
 from characteristics.models import CalculatedCharacteristic
+from releases.service import (
+    get_process_calculated_characteristics,
+    get_calculated_characteristic_by_ids_repositories,
+    get_arrays_diff,
+)
 
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
@@ -89,63 +94,38 @@ class CreateReleaseModelViewSet(viewsets.ModelViewSet):
             )
 
         accomplished = {}
-
         release = Release.objects.filter(id=id).first()
-
         result_calculated = CalculatedCharacteristic.objects.filter(
             release=release
         ).all()
 
         if len(result_calculated) > 0:
-            for calculated_characteristic in result_calculated:
-                caracteristica = calculated_characteristic.characteristic.key
-                repository = calculated_characteristic.repository.name
-
-                if repository not in accomplished.keys():
-                    accomplished[repository] = {}
-                accomplished[repository].update(
-                    {caracteristica: calculated_characteristic.value}
-                )
-        else: 
-            result_calculated = []
+            accomplished = get_process_calculated_characteristics(
+                list(result_calculated)
+            )
+        else:
             product_key = int(self.kwargs['product_pk'])
             ids_repositories = list(
-                Repository.objects
-                .filter(product_id=product_key)
-                .values_list('id', flat=True).all()
+                Repository.objects.filter(product_id=product_key)
+                .values_list('id', flat=True)
+                .all()
             )
 
-            for id_repository in ids_repositories:
-                calculated_characteristic = (
-                    CalculatedCharacteristic.objects
-                    .filter(
-                        repository_id=id_repository,
-                        release=None
-                    ).all().order_by('-created_at')[:2])
-                result_calculated = result_calculated + list(calculated_characteristic)
-
-            for calculated_characteristic in result_calculated:
-                caracteristica = calculated_characteristic.characteristic.key
-                repository = calculated_characteristic.repository.name
-
-                if repository not in accomplished.keys():
-                    accomplished[repository] = {}
-                accomplished[repository].update(
-                    {caracteristica: calculated_characteristic.value}
+            result_calculated = (
+                get_calculated_characteristic_by_ids_repositories(
+                    ids_repositories
                 )
-
+            )
+            accomplished = get_process_calculated_characteristics(
+                list(result_calculated)
+            )
+        print(accomplished)
         if len(accomplished.keys()) > 0:
             for key_repository in accomplished:
-                result = diff(
-                    [
-                        release.goal.data['reliability'] / 100,  # type: ignore
-                        release.goal.data['maintainability'] / 100,  # type: ignore
-                    ],
-                    [
-                        accomplished[key_repository]['reliability'],
-                        accomplished[key_repository]['maintainability'],
-                    ],
+                arrays_rp_rd = get_arrays_diff(
+                    release.goal.data, accomplished[key_repository]
                 )
+                result = diff(arrays_rp_rd[0], arrays_rp_rd[1])
                 accomplished[key_repository] = result
         else:
             accomplished = None
