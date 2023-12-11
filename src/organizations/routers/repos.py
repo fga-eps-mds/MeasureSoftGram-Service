@@ -24,6 +24,7 @@ from subcharacteristics.views import (
 from tsqmi.views import (
     CalculatedTSQMIHistoryModelViewSet,
     CalculateTSQMI,
+    LatestCalculatedTSQMIBadgeViewSet,
     LatestCalculatedTSQMIViewSet,
 )
 
@@ -98,6 +99,11 @@ class RepoRouter(Router):
                 'name': 'latest-values/tsqmi',
                 'view': LatestCalculatedTSQMIViewSet,
                 'basename': 'latest-calculated-tsqmi',
+            },
+            {
+                "name": "latest-values/tsqmi/badge",
+                "view": LatestCalculatedTSQMIBadgeViewSet,
+                "basename": "latest-calculated-tsqmi-badge",
             },
         ]
 
