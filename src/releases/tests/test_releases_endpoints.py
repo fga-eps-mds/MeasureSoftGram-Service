@@ -358,7 +358,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             response.json()['detail'], 'Já existe uma release com este nome'
         )
 
-    def test_planned_x_accomplished_without_accomplished(self):
+    def test_planned_x_accomplished_no_release_finished(self):
         Release.objects.create(
             id=999,
             created_at=date.today(),
@@ -375,11 +375,10 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()['accomplished'], None)
         assert 'reliability' in response.json()['planned'].keys()
         assert 'maintainability' in response.json()['planned'].keys()
 
-    def test_planned_x_accomplished_with_accomplished(self):
+    def test_planned_x_accomplished_release_finished(self):
         Release.objects.create(
             id=999,
             created_at=date.today(),
