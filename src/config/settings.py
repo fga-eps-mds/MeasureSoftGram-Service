@@ -240,7 +240,7 @@ CREATE_FAKE_DATA = os.getenv('CREATE_FAKE_DATA', 'False').lower() in (
     '1',
 )
 
-AMBIENT_TEST = os.getenv('AMBIENT_TEST', 'True').lower() in ('true', 't', '1')
+AMBIENT_TEST_OR_DEV = os.getenv('AMBIENT_TEST_OR_DEV', 'True').lower() in ('true', 't', '1')
 
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN', '')
 
