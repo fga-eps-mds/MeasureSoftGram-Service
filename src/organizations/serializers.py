@@ -249,15 +249,15 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Repository
         fields = (
-            "id",
-            "url",
-            "name",
-            "description",
-            "product",
-            "latest_values",
-            "historical_values",
-            "actions",
-            "platform",
+            'id',
+            'url',
+            'name',
+            'description',
+            'product',
+            'latest_values',
+            'historical_values',
+            'actions',
+            'platform',
         )
         extra_kwargs = {
             'key': {'read_only': True},
@@ -271,7 +271,9 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         product = self.context['view'].get_product()
         repository_id = self.instance.id if self.instance else None
 
-        qs = Repository.objects.filter(name=name, product=product).exclude(id=repository_id)
+        qs = Repository.objects.filter(name=name, product=product).exclude(
+            id=repository_id
+        )
         if qs.exists():
             raise serializers.ValidationError(
                 'Repository with this name already exists.'
@@ -282,15 +284,21 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
     def validate_url(self, value):
         if value:
             parsed_url = urlparse(value)
-            if parsed_url.scheme not in ["http", "https"]:
-                raise serializers.ValidationError("The URL must start with http or https.")
+            if parsed_url.scheme not in ['http', 'https']:
+                raise serializers.ValidationError(
+                    'The URL must start with http or https.'
+                )
 
             try:
                 response = requests.head(value, timeout=5)
                 if response.status_code >= 400:
-                    raise serializers.ValidationError("The repository's URL is not accessible.")
+                    raise serializers.ValidationError(
+                        "The repository's URL is not accessible."
+                    )
             except RequestException:
-                raise serializers.ValidationError("Unable to verify the repository's URL.")
+                raise serializers.ValidationError(
+                    "Unable to verify the repository's URL."
+                )
         return value
 
     def get_url(self, obj: Repository):

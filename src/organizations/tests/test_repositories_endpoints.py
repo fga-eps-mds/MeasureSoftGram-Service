@@ -84,15 +84,15 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         mock_head.side_effect = ConnectionError
 
         data = {
-            "name": "Test Repository",
-            "description": "Test Repository Description",
-            "url": "http://invalidurl.com",
+            'name': 'Test Repository',
+            'description': 'Test Repository Description',
+            'url': 'http://invalidurl.com',
         }
         org = self.get_organization()
         product = self.get_product(org)
-        url = reverse("repository-list", args=[org.id, product.id])
+        url = reverse('repository-list', args=[org.id, product.id])
 
-        response = self.client.post(url, data, format="json")
+        response = self.client.post(url, data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -101,18 +101,20 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
     def test_create_repository_with_unsupported_scheme_url(self):
         data = {
-            "name": "Test Repository",
-            "description": "Test Repository Description",
-            "url": "ftp://invalidscheme.com"
+            'name': 'Test Repository',
+            'description': 'Test Repository Description',
+            'url': 'ftp://invalidscheme.com',
         }
         org = self.get_organization()
         product = self.get_product(org)
-        url = reverse("repository-list", args=[org.id, product.id])
+        url = reverse('repository-list', args=[org.id, product.id])
 
-        response = self.client.post(url, data, format="json")
+        response = self.client.post(url, data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("The URL must start with http or https.", response.data['url'])
+        self.assertIn(
+            'The URL must start with http or https.', response.data['url']
+        )
 
     @patch('organizations.serializers.requests.head')
     def test_create_repository_with_inaccessible_url(self, mock_head):
@@ -121,18 +123,20 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         mock_head.return_value = mock_response
 
         data = {
-            "name": "Test Repository",
-            "description": "Test Repository Description",
-            "url": "http://inaccessibleurl.com"
+            'name': 'Test Repository',
+            'description': 'Test Repository Description',
+            'url': 'http://inaccessibleurl.com',
         }
         org = self.get_organization()
         product = self.get_product(org)
-        url = reverse("repository-list", args=[org.id, product.id])
+        url = reverse('repository-list', args=[org.id, product.id])
 
-        response = self.client.post(url, data, format="json")
+        response = self.client.post(url, data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("The repository's URL is not accessible.", response.data['url'])
+        self.assertIn(
+            "The repository's URL is not accessible.", response.data['url']
+        )
 
     def test_if_existing_repositories_is_being_listed(self):
         org = self.get_organization()

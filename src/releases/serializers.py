@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from releases.models import Release
+from goals.models import Goal
 from accounts.models import CustomUser
 from organizations.models import Product
 
@@ -90,3 +91,15 @@ class CheckReleaseSerializer(serializers.Serializer):
             )
 
         return data
+
+
+class ReleaseAllSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Release
+        fields = '__all__'
+
+
+class ReleaseAccomplishedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Goal
+        fields = 'data'

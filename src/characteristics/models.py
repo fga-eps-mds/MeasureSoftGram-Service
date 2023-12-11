@@ -176,6 +176,7 @@ class CalculatedCharacteristic(models.Model):
         # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
         # os registros mais recentes vem primeiro (qs.first() == mais recente)
         ordering = ['-created_at']
+        unique_together = ['repository', 'release', 'characteristic']
 
     characteristic = models.ForeignKey(
         SupportedCharacteristic,
@@ -189,6 +190,13 @@ class CalculatedCharacteristic(models.Model):
         to='organizations.Repository',
         related_name='calculated_characteristics',
         on_delete=models.CASCADE,
+    )
+    release = models.ForeignKey(
+        to='releases.Release',
+        related_name='calculated_characteristics',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     # def __str__(self):

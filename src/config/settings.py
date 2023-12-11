@@ -72,6 +72,7 @@ THIRD_PARTY_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.github',
+    'django_apscheduler',
 ]
 
 APPLICATION_APPS = [
@@ -238,6 +239,8 @@ CREATE_FAKE_DATA = os.getenv('CREATE_FAKE_DATA', 'False').lower() in (
     't',
     '1',
 )
+
+AMBIENT_TEST = os.getenv('AMBIENT_TEST', 'True').lower() in ('true', 't', '1')
 
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN', '')
 
@@ -433,6 +436,20 @@ GITHUB_METRICS = [
         },
     },
 ]
+
+SCHEDULER_CONFIG = {
+    'apscheduler.jobstores.default': {
+        'class': 'django_apscheduler.jobstores:DjangoJobStore',
+    },
+    'apscheduler.executors.default': {
+        'class': 'apscheduler.executors.pool:ThreadPoolExecutor',
+        'max_workers': '1',
+    },
+    'apscheduler.job_defaults.coalesce': 'false',
+    'apscheduler.job_defaults.max_instances': '1',
+    'apscheduler.timezone': 'America/Sao_Paulo',
+}
+SCHEDULER_AUTOSTART = True
 
 LOGGING = {
     'version': 1,
