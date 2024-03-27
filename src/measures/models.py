@@ -28,8 +28,8 @@ class SupportedMeasure(models.Model):
 
     # Métricas que estão associadas no cálculo dessa medida
     metrics = models.ManyToManyField(
-        "metrics.SupportedMetric",
-        related_name="related_measures",
+        'metrics.SupportedMetric',
+        related_name='related_measures',
         blank=True,
     )
 
@@ -59,7 +59,9 @@ class SupportedMeasure(models.Model):
         return metric_params
 
     @staticmethod
-    def has_unsupported_measures(selected_measures_keys: Iterable[str]) -> Set[str]:
+    def has_unsupported_measures(
+        selected_measures_keys: Iterable[str],
+    ) -> Set[str]:
         """
         Verifica se existe alguma medida não suportada, e caso exista é
         retornado a lista das keys das medidas não suportadas.
@@ -90,19 +92,19 @@ class CalculatedMeasure(models.Model):
     class Meta:
         # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
         # os registros mais recentes vem primeiro (qs.first() == mais recente)
-        ordering = ["-created_at"]
+        ordering = ['-created_at']
 
     measure = models.ForeignKey(
         SupportedMeasure,
-        related_name="calculated_measures",
+        related_name='calculated_measures',
         on_delete=models.CASCADE,
     )
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
 
     repository = models.ForeignKey(
-        to="organizations.Repository",
-        related_name="calculated_measures",
+        to='organizations.Repository',
+        related_name='calculated_measures',
         on_delete=models.CASCADE,
     )
 

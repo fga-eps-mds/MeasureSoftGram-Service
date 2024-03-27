@@ -14,94 +14,94 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Organization",
+            name='Organization',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("name", models.CharField(max_length=128)),
-                ("key", models.SlugField(max_length=128, unique=True)),
+                ('name', models.CharField(max_length=128)),
+                ('key', models.SlugField(max_length=128, unique=True)),
                 (
-                    "description",
+                    'description',
                     models.TextField(blank=True, max_length=512, null=True),
                 ),
                 (
-                    "members",
+                    'members',
                     models.ManyToManyField(
                         blank=True,
-                        related_name="organizations",
+                        related_name='organizations',
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
             ],
         ),
         migrations.CreateModel(
-            name="Product",
+            name='Product',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("name", models.CharField(max_length=128)),
-                ("key", models.SlugField(max_length=128, unique=True)),
+                ('name', models.CharField(max_length=128)),
+                ('key', models.SlugField(max_length=128, unique=True)),
                 (
-                    "description",
+                    'description',
                     models.TextField(blank=True, max_length=512, null=True),
                 ),
                 (
-                    "organization",
+                    'organization',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="products",
-                        to="organizations.organization",
+                        related_name='products',
+                        to='organizations.organization',
                     ),
                 ),
             ],
             options={
-                "unique_together": {("key", "organization")},
+                'unique_together': {('key', 'organization')},
             },
         ),
         migrations.CreateModel(
-            name="Repository",
+            name='Repository',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("name", models.CharField(max_length=128)),
-                ("key", models.SlugField(max_length=128, unique=True)),
+                ('name', models.CharField(max_length=128)),
+                ('key', models.SlugField(max_length=128, unique=True)),
                 (
-                    "description",
+                    'description',
                     models.TextField(blank=True, max_length=512, null=True),
                 ),
                 (
-                    "product",
+                    'product',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="repositories",
-                        to="organizations.product",
+                        related_name='repositories',
+                        to='organizations.product',
                     ),
                 ),
             ],
             options={
-                "verbose_name_plural": "Repositories",
-                "unique_together": {("key", "product")},
+                'verbose_name_plural': 'Repositories',
+                'unique_together': {('key', 'product')},
             },
         ),
     ]

@@ -16,7 +16,10 @@ from django.db.utils import IntegrityError
 from django.utils import timezone
 
 import utils
-from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
+from characteristics.models import (
+    CalculatedCharacteristic,
+    SupportedCharacteristic,
+)
 from collectors.sonarqube.utils import import_sonar_metrics
 from goals.serializers import GoalSerializer
 from measures.models import CalculatedMeasure, SupportedMeasure
@@ -50,15 +53,15 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = "Registra os dados iniciais no banco de dados"
+    help = 'Registra os dados iniciais no banco de dados'
 
     def add_arguments(self, parser):
         # Create fake data
         parser.add_argument(
-            "--fake-data",
+            '--fake-data',
             type=bool,
             default=False,
-            help="Create fake data",
+            help='Create fake data',
         )
 
     def create_suported_measures(self):
@@ -76,10 +79,10 @@ class Command(BaseCommand):
                     name=measure_name,
                 )
 
-                logger.info(f"Creating supported measure {measure_key}")
+                logger.info(f'Creating supported measure {measure_key}')
 
                 metrics_keys = {
-                    metric for metric in measure_data[measure_key]["metrics"]
+                    metric for metric in measure_data[measure_key]['metrics']
                 }
 
                 metrics = SupportedMetric.objects.filter(
@@ -93,7 +96,7 @@ class Command(BaseCommand):
                 logger.info(
                     (
                         f"Metrics {','.join(metrics_keys)} "
-                        f"were associated to {measure_key}"
+                        f'were associated to {measure_key}'
                     )
                 )
 
@@ -102,7 +105,7 @@ class Command(BaseCommand):
         # self.create_github_supported_metrics()
 
     def create_sonarqube_supported_metrics(self):
-        sonar_endpoint = "https://sonarcloud.io/api/metrics/search"
+        sonar_endpoint = 'https://sonarcloud.io/api/metrics/search'
 
         try:
             request = requests.get(sonar_endpoint)
@@ -114,7 +117,7 @@ class Command(BaseCommand):
         except Exception:
             data = staticfiles.SONARQUBE_AVAILABLE_METRICS
 
-        self.model_generator(SupportedMetric, data["metrics"])
+        self.model_generator(SupportedMetric, data['metrics'])
 
         import_sonar_metrics(
             staticfiles.SONARQUBE_JSON,
@@ -125,9 +128,9 @@ class Command(BaseCommand):
     def create_github_supported_metrics(self):
         github_metrics = [
             SupportedMetric(
-                key=metric["key"],
-                name=metric["name"],
-                metric_type=metric["metric_type"],
+                key=metric['key'],
+                name=metric['name'],
+                metric_type=metric['metric_type'],
             )
             for metric in settings.GITHUB_METRICS
         ]
@@ -140,10 +143,10 @@ class Command(BaseCommand):
         for metric in metrics:
             with contextlib.suppress(IntegrityError):
                 model.objects.create(
-                    key=metric["key"],
-                    name=metric["name"],
-                    description=metric.get("description", ""),
-                    metric_type=metric["type"],
+                    key=metric['key'],
+                    name=metric['name'],
+                    description=metric.get('description', ''),
+                    metric_type=metric['type'],
                 )
 
     def create_fake_calculated_entity(
@@ -210,7 +213,7 @@ class Command(BaseCommand):
         def calculated_entity_factory(entity, created_at):
             return CalculatedMeasure(
                 measure=entity,
-                value=get_random_value("PERCENT"),
+                value=get_random_value('PERCENT'),
                 created_at=created_at,
                 repository=repository,
             )
@@ -230,21 +233,21 @@ class Command(BaseCommand):
     def create_suported_subcharacteristics(self):
         suported_subcharacteristics = [
             {
-                "key": "modifiability",
-                "name": "Modifiability",
-                "measures": [
-                    {"key": "duplication_absense"},
-                    {"key": "commented_file_density"},
-                    {"key": "non_complex_file_density"},
+                'key': 'modifiability',
+                'name': 'Modifiability',
+                'measures': [
+                    {'key': 'duplication_absense'},
+                    {'key': 'commented_file_density'},
+                    {'key': 'non_complex_file_density'},
                 ],
             },
             {
-                "key": "testing_status",
-                "name": "Testing Status",
-                "measures": [
-                    {"key": "test_coverage"},
-                    {"key": "test_builds"},
-                    {"key": "passed_tests"},
+                'key': 'testing_status',
+                'name': 'Testing Status',
+                'measures': [
+                    {'key': 'test_coverage'},
+                    {'key': 'test_builds'},
+                    {'key': 'passed_tests'},
                 ],
             },
             # {
@@ -261,12 +264,12 @@ class Command(BaseCommand):
                 klass = SupportedSubCharacteristic
 
                 sub_char, _ = klass.objects.get_or_create(
-                    name=subcharacteristic["name"],
-                    key=subcharacteristic["key"],
+                    name=subcharacteristic['name'],
+                    key=subcharacteristic['key'],
                 )
 
                 measures_keys = [
-                    measure["key"] for measure in subcharacteristic["measures"]
+                    measure['key'] for measure in subcharacteristic['measures']
                 ]
 
                 measures = SupportedMeasure.objects.filter(
@@ -281,17 +284,17 @@ class Command(BaseCommand):
     def create_suported_characteristics(self):
         suported_characteristics = [
             {
-                "key": "reliability",
-                "name": "Reliability",
-                "subcharacteristics": [
-                    {"key": "testing_status"},
+                'key': 'reliability',
+                'name': 'Reliability',
+                'subcharacteristics': [
+                    {'key': 'testing_status'},
                 ],
             },
             {
-                "key": "maintainability",
-                "name": "Maintainability",
-                "subcharacteristics": [
-                    {"key": "modifiability"},
+                'key': 'maintainability',
+                'name': 'Maintainability',
+                'subcharacteristics': [
+                    {'key': 'modifiability'},
                 ],
             },
             # {
@@ -312,13 +315,13 @@ class Command(BaseCommand):
 
     def create_fake_calculated_characteristics(self, repository):
         qs = SupportedCharacteristic.objects.annotate(
-            qty=Count("calculated_characteristics"),
+            qty=Count('calculated_characteristics'),
         )
 
         def calculated_entity_factory(entity, created_at):
             return CalculatedCharacteristic(
                 characteristic=entity,
-                value=get_random_value("PERCENT"),
+                value=get_random_value('PERCENT'),
                 created_at=created_at,
                 repository=repository,
             )
@@ -337,13 +340,13 @@ class Command(BaseCommand):
 
     def create_fake_calculated_subcharacteristics(self, repository):
         qs = SupportedSubCharacteristic.objects.annotate(
-            qty=Count("calculated_subcharacteristics"),
+            qty=Count('calculated_subcharacteristics'),
         )
 
         def calculated_entity_factory(entity, created_at):
             return CalculatedSubCharacteristic(
                 subcharacteristic=entity,
-                value=get_random_value("PERCENT"),
+                value=get_random_value('PERCENT'),
                 created_at=created_at,
                 repository=repository,
             )
@@ -362,7 +365,7 @@ class Command(BaseCommand):
 
     def create_default_pre_config(self, product):
         PreConfig.objects.get_or_create(
-            name="Default pre-config",
+            name='Default pre-config',
             data=staticfiles.DEFAULT_PRE_CONFIG,
             product=product,
         )
@@ -377,7 +380,7 @@ class Command(BaseCommand):
             def get_product():
                 return product
 
-        serializer.context["view"] = MockView
+        serializer.context['view'] = MockView
         serializer.is_valid(raise_exception=True)
         serializer.save(product=product)
 
@@ -395,7 +398,7 @@ class Command(BaseCommand):
         TSQMI.objects.bulk_create(
             [
                 TSQMI(
-                    value=get_random_value("PERCENT"),
+                    value=get_random_value('PERCENT'),
                     repository=repository,
                 )
                 for _ in range(MIN_NUMBER - qs.count())
@@ -405,26 +408,33 @@ class Command(BaseCommand):
     def create_fake_organizations(self):
         organizations = [
             Organization(
-                name="fga-eps-mds",
+                name='fga-eps-mds',
                 description=(
-                    ("Organização que agrupa os " "projetos de EPS e MDS da FGA.")
+                    (
+                        'Organização que agrupa os '
+                        'projetos de EPS e MDS da FGA.'
+                    )
                 ),
             ),
-            # Organization(
-            #     name='UnBArqDsw2021',
-            #     description=((
-            #         "Organização que agrupa os "
-            #         "projetos de Arquitetura e Desenvolvimento de "
-            #         "Software do semestre 2021.01"
-            #     )),
-            # ),
-            # Organization(
-            #     name='IHC-FGA-2020',
-            #     description=((
-            #         "Organização que agrupa os projetos da disciplina de "
-            #         "Interação Humano Computador"
-            #     )),
-            # ),
+            Organization(
+                name='UnBArqDsw2021',
+                description=(
+                    (
+                        'Organização que agrupa os '
+                        'projetos de Arquitetura e Desenvolvimento de '
+                        'Software do semestre 2021.01'
+                    )
+                ),
+            ),
+            Organization(
+                name='IHC-FGA-2020',
+                description=(
+                    (
+                        'Organização que agrupa os projetos da disciplina de '
+                        'Interação Humano Computador'
+                    )
+                ),
+            ),
         ]
 
         for organization in organizations:
@@ -440,47 +450,47 @@ class Command(BaseCommand):
         }
 
         products = [
-            # Product(
-            #     name='Animalesco',
-            #     description=(
-            #         "Uma aplicação para realizar o controle e "
-            #         "acompanhamento para com a saúde dos pets. "
-            #         "Os usuários, após se registrarem, podem "
-            #         "realizar o cadastro dos seus pets e a partir "
-            #         "disso fazer o acompanhamento do bichinho de "
-            #         "maneira digital."
-            #     ),
-            #     organization=organizations['UnBArqDsw2021'],
-            # ),
-            # Product(
-            #     name='BCE UnB',
-            #     description=(
-            #         "Este projeto possui o objetivo de analisar o "
-            #         "site da BCE, se propondo a sugerir melhorias "
-            #         "nos serviços de empréstimo de livros, "
-            #         "com base nos conceitos aprendidos na "
-            #         "discplina de IHC."
-            #     ),
-            #     organization=organizations['IHC-FGA-2020'],
-            # ),
             Product(
-                name="MeasureSoftGram",
+                name='Animalesco',
                 description=(
-                    "Este projeto que visa a construção de um "
-                    "sistema de análise quantitativa da qualidade "
-                    "de um sistema de software."
+                    'Uma aplicação para realizar o controle e '
+                    'acompanhamento para com a saúde dos pets. '
+                    'Os usuários, após se registrarem, podem '
+                    'realizar o cadastro dos seus pets e a partir '
+                    'disso fazer o acompanhamento do bichinho de '
+                    'maneira digital.'
                 ),
-                organization=organizations["fga-eps-mds"],
+                organization=organizations['UnBArqDsw2021'],
             ),
-            # Product(
-            #     name='Acacia',
-            #     description=(
-            #         "Este projeto que visa a construção de um "
-            #         "sistema de colaboração de colheita de "
-            #         "árvores frutíferas em ambiente urbano."
-            #     ),
-            #     organization=organizations['fga-eps-mds'],
-            # ),
+            Product(
+                name='BCE UnB',
+                description=(
+                    'Este projeto possui o objetivo de analisar o '
+                    'site da BCE, se propondo a sugerir melhorias '
+                    'nos serviços de empréstimo de livros, '
+                    'com base nos conceitos aprendidos na '
+                    'discplina de IHC.'
+                ),
+                organization=organizations['IHC-FGA-2020'],
+            ),
+            Product(
+                name='MeasureSoftGram',
+                description=(
+                    'Este projeto que visa a construção de um '
+                    'sistema de análise quantitativa da qualidade '
+                    'de um sistema de software.'
+                ),
+                organization=organizations['fga-eps-mds'],
+            ),
+            Product(
+                name='Acacia',
+                description=(
+                    'Este projeto que visa a construção de um '
+                    'sistema de colaboração de colheita de '
+                    'árvores frutíferas em ambiente urbano.'
+                ),
+                organization=organizations['fga-eps-mds'],
+            ),
         ]
 
         for product in products:
@@ -497,71 +507,66 @@ class Command(BaseCommand):
         products = {product.name: product for product in products}
 
         repositories = [
-            # Repository(
-            #     name='2019.2-Acacia',
-            #     description=(
-            #         "Repositório do backend do projeto Acacia."
-            #     ),
-            #     product=products['Acacia'],
-            # ),
-            # Repository(
-            #     name='2019.2-Acacia-Frontend',
-            #     description=(
-            #         "Repositório do frontend do projeto Acacia."
-            #     ),
-            #     product=products['Acacia'],
-            # ),
-            # Repository(
-            #     name='2019.2-Acacia-Frontend',
-            #     description=(
-            #         "Repositório do frontend do projeto Acacia."
-            #     ),
-            #     product=products['Acacia'],
-            # ),
-            # Repository(
-            #     name='2020.1-BCE',
-            #     description=(
-            #         "Repositório do projeto BCE UnB."
-            #     ),
-            #     product=products['BCE UnB'],
-            # ),
-            # Repository(
-            #     name='2021.1_G01_Animalesco_BackEnd',
-            #     description=(
-            #         "Repositório do backend do projeto Animalesco."
-            #     ),
-            #     product=products['Animalesco'],
-            # ),
-            # Repository(
-            #     name='2021.1_G01_Animalesco_FrontEnd',
-            #     description=(
-            #         "Repositório do frontend "
-            #         "do projeto Animalesco."
-            #     ),
-            #     product=products['Animalesco'],
-            # ),
             Repository(
-                name="2022-1-MeasureSoftGram-Service",
-                description=("Repositório do backend do projeto " "MeasureSoftGram."),
-                product=products["MeasureSoftGram"],
+                name='2019.2-Acacia',
+                description=('Repositório do backend do projeto Acacia.'),
+                product=products['Acacia'],
             ),
             Repository(
-                name="2022-1-MeasureSoftGram-Core",
+                name='2019.2-Acacia-Frontend',
+                description=('Repositório do frontend do projeto Acacia.'),
+                product=products['Acacia'],
+            ),
+            Repository(
+                name='2019.2-Acacia-Frontend',
+                description=('Repositório do frontend do projeto Acacia.'),
+                product=products['Acacia'],
+            ),
+            Repository(
+                name='2020.1-BCE',
+                description=('Repositório do projeto BCE UnB.'),
+                product=products['BCE UnB'],
+            ),
+            Repository(
+                name='2021.1_G01_Animalesco_BackEnd',
+                description=('Repositório do backend do projeto Animalesco.'),
+                product=products['Animalesco'],
+            ),
+            Repository(
+                name='2021.1_G01_Animalesco_FrontEnd',
                 description=(
-                    "Repositório da API do modelo matemático "
-                    "do projeto MeasureSoftGram"
+                    'Repositório do frontend ' 'do projeto Animalesco.'
                 ),
-                product=products["MeasureSoftGram"],
+                product=products['Animalesco'],
             ),
             Repository(
-                name="2022-1-MeasureSoftGram-Front",
-                description=("Repositório do frontend da projeto " "MeasureSoftGram"),
-                product=products["MeasureSoftGram"],
+                name='2022-1-MeasureSoftGram-Service',
+                description=(
+                    'Repositório do backend do projeto ' 'MeasureSoftGram.'
+                ),
+                product=products['MeasureSoftGram'],
             ),
             Repository(
-                name="2022-1-MeasureSoftGram-CLI",
-                description=("Repositório do CLI da projeto " "MeasureSoftGram"),
-                product=products["MeasureSoftGram"],
+                name='2022-1-MeasureSoftGram-Core',
+                description=(
+                    'Repositório da API do modelo matemático '
+                    'do projeto MeasureSoftGram'
+                ),
+                product=products['MeasureSoftGram'],
+            ),
+            Repository(
+                name='2022-1-MeasureSoftGram-Front',
+                description=(
+                    'Repositório do frontend da projeto ' 'MeasureSoftGram'
+                ),
+                product=products['MeasureSoftGram'],
+            ),
+            Repository(
+                name='2022-1-MeasureSoftGram-CLI',
+                description=(
+                    'Repositório do CLI da projeto ' 'MeasureSoftGram'
+                ),
+                product=products['MeasureSoftGram'],
             ),
         ]
 
@@ -574,14 +579,14 @@ class Command(BaseCommand):
             repository.save()
 
     def handle(self, *args, **kwargs):
-        self.fake_data = kwargs.get("fake_data")
+        self.fake_data = kwargs.get('fake_data')
 
         User = get_user_model()
         with contextlib.suppress(IntegrityError):
             User.objects.create_superuser(
-                username=os.getenv("SUPERADMIN_USERNAME", "admin"),
-                email=os.getenv("SUPERADMIN_EMAIL", "admin@admin.com"),
-                password=os.getenv("SUPERADMIN_PASSWORD", "admin"),
+                username=os.getenv('SUPERADMIN_USERNAME', 'admin'),
+                email=os.getenv('SUPERADMIN_EMAIL', 'admin@admin.com'),
+                password=os.getenv('SUPERADMIN_PASSWORD', 'admin'),
             )
 
         self.create_supported_metrics()
@@ -589,21 +594,21 @@ class Command(BaseCommand):
         self.create_suported_subcharacteristics()
         self.create_suported_characteristics()
         self.create_balance_matrix()
-        # self.create_fake_organizations()
-        # self.create_fake_products()
-        # self.create_fake_repositories()
+        self.create_fake_organizations()
+        self.create_fake_products()
+        self.create_fake_repositories()
 
-        # repositories = Repository.objects.all()
+        repositories = Repository.objects.all()
 
-        # if settings.CREATE_FAKE_DATA or self.fake_data:
-        #     for repository in repositories:
-        #         self.create_fake_collected_metrics(repository)
-        #         self.create_fake_calculated_measures(repository)
-        #         self.create_fake_calculated_subcharacteristics(repository)
-        #         self.create_fake_calculated_characteristics(repository)
-        #         self.create_fake_tsqmi_data(repository)
+        if settings.CREATE_FAKE_DATA or self.fake_data:
+            for repository in repositories:
+                self.create_fake_collected_metrics(repository)
+                self.create_fake_calculated_measures(repository)
+                self.create_fake_calculated_subcharacteristics(repository)
+                self.create_fake_calculated_characteristics(repository)
+                self.create_fake_tsqmi_data(repository)
 
-        # products = Product.objects.all()
+        products = Product.objects.all()
 
-        # for product in products:
-        #     self.create_a_goal(product)
+        for product in products:
+            self.create_a_goal(product)

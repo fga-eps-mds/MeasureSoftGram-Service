@@ -22,8 +22,8 @@ class SupportedCharacteristic(models.Model):
         blank=True,
     )
     subcharacteristics = models.ManyToManyField(
-        "subcharacteristics.SupportedSubCharacteristic",
-        related_name="related_characteristics",
+        'subcharacteristics.SupportedSubCharacteristic',
+        related_name='related_characteristics',
         blank=True,
     )
 
@@ -56,9 +56,9 @@ class SupportedCharacteristic(models.Model):
 
             chars_params.append(
                 {
-                    "key": key,
-                    "value": value,
-                    "weight": weight,
+                    'key': key,
+                    'value': value,
+                    'weight': weight,
                 }
             )
 
@@ -85,9 +85,9 @@ class SupportedCharacteristic(models.Model):
 
             subchars_params.append(
                 {
-                    "key": key,
-                    "value": value,
-                    "weight": weight,
+                    'key': key,
+                    'value': value,
+                    'weight': weight,
                 }
             )
 
@@ -107,7 +107,9 @@ class SupportedCharacteristic(models.Model):
         subcharacteristics_keys = set(subcharacteristics_keys)
 
         qs = self.subcharacteristics.all()
-        related_subcharacteristics: Set[str] = set(qs.values_list("key", flat=True))
+        related_subcharacteristics: Set[str] = set(
+            qs.values_list('key', flat=True)
+        )
 
         return subcharacteristics_keys - related_subcharacteristics
 
@@ -142,27 +144,27 @@ class SupportedCharacteristic(models.Model):
 
 class BalanceMatrix(models.Model):
     TYPE_CHOICES = (
-        ("+", "Positive"),  # Diretamente proporcional
-        ("-", "Negative"),  # Inversamente proporcional
+        ('+', 'Positive'),  # Diretamente proporcional
+        ('-', 'Negative'),  # Inversamente proporcional
     )
 
     source_characteristic = models.ForeignKey(
         SupportedCharacteristic,
         on_delete=models.CASCADE,
-        related_name="source_characteristic",
+        related_name='source_characteristic',
     )
     target_characteristic = models.ForeignKey(
         SupportedCharacteristic,
         on_delete=models.CASCADE,
-        related_name="target_characteristic",
+        related_name='target_characteristic',
     )
     relation_type = models.CharField(max_length=1, choices=TYPE_CHOICES)
 
     class Meta:
-        unique_together = ["source_characteristic", "target_characteristic"]
+        unique_together = ['source_characteristic', 'target_characteristic']
 
     def __str__(self):
-        return f"{self.source_characteristic} {self.relation_type} {self.target_characteristic}"
+        return f'{self.source_characteristic} {self.relation_type} {self.target_characteristic}'
 
 
 class CalculatedCharacteristic(models.Model):
@@ -173,20 +175,28 @@ class CalculatedCharacteristic(models.Model):
     class Meta:
         # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
         # os registros mais recentes vem primeiro (qs.first() == mais recente)
-        ordering = ["-created_at"]
+        ordering = ['-created_at']
+        unique_together = ['repository', 'release', 'characteristic']
 
     characteristic = models.ForeignKey(
         SupportedCharacteristic,
-        related_name="calculated_characteristics",
+        related_name='calculated_characteristics',
         on_delete=models.CASCADE,
     )
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)
 
     repository = models.ForeignKey(
-        to="organizations.Repository",
-        related_name="calculated_characteristics",
+        to='organizations.Repository',
+        related_name='calculated_characteristics',
         on_delete=models.CASCADE,
+    )
+    release = models.ForeignKey(
+        to='releases.Release',
+        related_name='calculated_characteristics',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
     )
 
     # def __str__(self):

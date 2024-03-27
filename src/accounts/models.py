@@ -9,7 +9,9 @@ from django.utils.translation import gettext_lazy as _
 
 class CustomUserManager(UserManager):
     def get_by_natural_key(self, username):
-        case_insensitive_username_field = f"{self.model.USERNAME_FIELD}__iexact"
+        case_insensitive_username_field = (
+            f'{self.model.USERNAME_FIELD}__iexact'
+        )
         return self.get(**{case_insensitive_username_field: username})
 
 
@@ -17,73 +19,75 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     username_validator = ASCIIUsernameValidator()
 
     username = models.CharField(
-        _("username"),
+        _('username'),
         max_length=150,
         unique=True,
         help_text=_(
             (
-                "Required. 150 characters or fewer. "
-                "Letters, digits and @/./+/-/_ only."
+                'Required. 150 characters or fewer. '
+                'Letters, digits and @/./+/-/_ only.'
             )
         ),
         validators=[username_validator],
         error_messages={
-            "unique": _("A user with that username already exists."),
+            'unique': _('A user with that username already exists.'),
         },
     )
 
     first_name = models.CharField(
-        _("first name"),
+        _('first name'),
         max_length=150,
         blank=True,
         null=True,
     )
 
     last_name = models.CharField(
-        _("last name"),
+        _('last name'),
         max_length=150,
         blank=True,
         null=True,
     )
 
     email = models.EmailField(
-        _("email address"),
+        _('email address'),
         unique=True,
         error_messages={
-            "unique": _("A user with that email address already exists."),
+            'unique': _('A user with that email address already exists.'),
         },
     )
 
     is_staff = models.BooleanField(
-        _("staff status"),
+        _('staff status'),
         default=False,
-        help_text=_(("Designates whether the user can log into this admin site.")),
+        help_text=_(
+            ('Designates whether the user can log into this admin site.')
+        ),
     )
 
     is_active = models.BooleanField(
-        _("active"),
+        _('active'),
         default=True,
         help_text=_(
             (
-                "Designates whether this user should be treated "
-                "as active. Unselect this instead of deleting accounts."
+                'Designates whether this user should be treated '
+                'as active. Unselect this instead of deleting accounts.'
             )
         ),
     )
 
     date_joined = models.DateTimeField(
-        _("date joined"),
+        _('date joined'),
         default=timezone.now,
     )
 
     objects = CustomUserManager()
 
-    EMAIL_FIELD = "email"
-    USERNAME_FIELD = "username"
+    EMAIL_FIELD = 'email'
+    USERNAME_FIELD = 'username'
 
     class Meta:
-        verbose_name = _("user")
-        verbose_name_plural = _("users")
+        verbose_name = _('user')
+        verbose_name_plural = _('users')
 
     def clean(self):
         super().clean()
@@ -94,7 +98,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         """
         Return the first_name plus the last_name, with a space in between.
         """
-        full_name = f"{self.first_name} {self.last_name}"
+        full_name = f'{self.first_name} {self.last_name}'
         return full_name.strip()
 
     def get_short_name(self):

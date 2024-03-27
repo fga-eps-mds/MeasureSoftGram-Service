@@ -7,42 +7,48 @@ from accounts.views import (
     LoginViewSet,
     RetrieveAPIAcessTokenViewSet,
     RetrieveAccountViewSet,
+    UserListViewSet,
 )
 
 urlpatterns = [
     re_path(
-        r"^accounts/",
+        r'^accounts/',
         include(
             [
                 re_path(
-                    r"^signin/$",
-                    CreateAccountViewSet.as_view({"post": "create"}),
-                    name="accounts-signin",
+                    r'^signin/$',
+                    CreateAccountViewSet.as_view({'post': 'create'}),
+                    name='accounts-signin',
                 ),
                 re_path(
-                    r"^login/$",
-                    LoginViewSet.as_view({"post": "create"}),
-                    name="accounts-login",
+                    r'^login/$',
+                    LoginViewSet.as_view({'post': 'create'}),
+                    name='accounts-login',
                 ),
                 re_path(
-                    r"^logout/$",
-                    LogoutViewSet.as_view({"delete": "destroy"}),
-                    name="accounts-logout",
+                    r'^logout/$',
+                    LogoutViewSet.as_view({'delete': 'destroy'}),
+                    name='accounts-logout',
                 ),
                 re_path(
-                    r"^$",
-                    RetrieveAccountViewSet.as_view({"get": "retrieve"}),
-                    name="accounts-retrieve",
+                    r'^$',
+                    RetrieveAccountViewSet.as_view({'get': 'retrieve'}),
+                    name='accounts-retrieve',
                 ),
                 re_path(
-                    r"^github/login/$",
+                    r'^github/login/$',
                     GithubLoginViewSet.as_view(),
-                    name="github-login",
+                    name='github-login',
                 ),
                 re_path(
-                    r"^access-token/$",
-                    RetrieveAPIAcessTokenViewSet.as_view({"get": "retrieve"}),
-                    name="api-token-retrieve",
+                    r'^access-token/$',
+                    RetrieveAPIAcessTokenViewSet.as_view({'get': 'retrieve'}),
+                    name='api-token-retrieve',
+                ),
+                re_path(
+                    r'^users/$',
+                    UserListViewSet.as_view({'get': 'list'}),
+                    name='user-list',
                 ),
             ]
         ),

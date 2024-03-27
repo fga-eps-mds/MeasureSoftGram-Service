@@ -13,20 +13,20 @@ class SupportedMetric(models.Model):
     """
 
     class Meta:
-        ordering = ["key"]
+        ordering = ['key']
 
     class SupportedMetricTypes(models.TextChoices):
-        INT = ("INT", "Integer")
-        FLOAT = ("FLOAT", "Float")
-        PERCENT = ("PERCENT", "Percent")
-        BOOL = ("BOOL", "Boolean")
-        STRING = ("STRING", "String")
-        DATA = ("DATA", "Data")
-        LEVEL = ("LEVEL", "Level")
-        MILLISEC = ("MILLISEC", "Milliseconds")
-        WORK_DUR = ("WORK_DUR", "Work Duration")
-        DISTRIB = ("DISTRIB", "Distribution")
-        RATING = ("RATING", "Rating")
+        INT = ('INT', 'Integer')
+        FLOAT = ('FLOAT', 'Float')
+        PERCENT = ('PERCENT', 'Percent')
+        BOOL = ('BOOL', 'Boolean')
+        STRING = ('STRING', 'String')
+        DATA = ('DATA', 'Data')
+        LEVEL = ('LEVEL', 'Level')
+        MILLISEC = ('MILLISEC', 'Milliseconds')
+        WORK_DUR = ('WORK_DUR', 'Work Duration')
+        DISTRIB = ('DISTRIB', 'Distribution')
+        RATING = ('RATING', 'Rating')
 
     # Identificador único da métrica
     key = models.CharField(max_length=128, unique=True)
@@ -51,23 +51,23 @@ class SupportedMetric(models.Model):
         """
         # Métricas que o parâmetro é uma lista de valores
         listed_values: Set[str] = {
-            "coverage",
-            "complexity",
-            "functions",
-            "comment_lines_density",
-            "duplicated_lines_density",
+            'coverage',
+            'complexity',
+            'functions',
+            'comment_lines_density',
+            'duplicated_lines_density',
         }
 
-        uts_values: Set[str] = {"test_execution_time", "tests"}
+        uts_values: Set[str] = {'test_execution_time', 'tests'}
 
         if self.key in listed_values:
-            return self.get_latest_metric_values(repository, qualifier="FIL")
+            return self.get_latest_metric_values(repository, qualifier='FIL')
         elif self.key in uts_values:
-            return self.get_latest_metric_values(repository, qualifier="UTS")
+            return self.get_latest_metric_values(repository, qualifier='UTS')
         elif self.key not in listed_values.union(uts_values):
             latest_metric = self.collected_metrics.filter(
                 repository=repository,
-                qualifier="TRK",
+                qualifier='TRK',
             ).first()
 
             if latest_metric:
@@ -96,7 +96,9 @@ class SupportedMetric(models.Model):
 
             # Remove hours, minutes and seconds
             begin = same_day.replace(hour=0, minute=0, second=0, microsecond=0)
-            end = same_day.replace(hour=23, minute=59, second=59, microsecond=0)
+            end = same_day.replace(
+                hour=23, minute=59, second=59, microsecond=0
+            )
 
             # Métrica de arquivos (inclusive de arquivos vazios)
             metrics_qs = self.collected_metrics.filter(
@@ -107,7 +109,7 @@ class SupportedMetric(models.Model):
             )
 
             # Métrica do número de linhas
-            ncloc_metric = SupportedMetric.objects.get(key="ncloc")
+            ncloc_metric = SupportedMetric.objects.get(key='ncloc')
 
             # Arquivos vazios (sem código relevante)
             qs = ncloc_metric.collected_metrics.filter(
@@ -116,12 +118,14 @@ class SupportedMetric(models.Model):
                 qualifier=qualifier,
                 value=0,
                 repository=repository,
-            ).values_list("path", flat=True)
+            ).values_list('path', flat=True)
 
             empty_files_set = set(qs)
 
             # Somente os valores dos arquivos que não são vazios
-            return [m.value for m in metrics_qs if m.path not in empty_files_set]
+            return [
+                m.value for m in metrics_qs if m.path not in empty_files_set
+            ]
 
         return []
 
@@ -141,11 +145,11 @@ class CollectedMetric(models.Model):
     class Meta:
         # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
         # os registros mais recentes vem primeiro (qs.first() == mais recente)
-        ordering = ["-created_at"]
+        ordering = ['-created_at']
 
     metric = models.ForeignKey(
         SupportedMetric,
-        related_name="collected_metrics",
+        related_name='collected_metrics',
         on_delete=models.CASCADE,
     )
     value = models.FloatField()
@@ -179,8 +183,8 @@ class CollectedMetric(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     repository = models.ForeignKey(
-        to="organizations.Repository",
-        related_name="collected_metrics",
+        to='organizations.Repository',
+        related_name='collected_metrics',
         on_delete=models.CASCADE,
     )
 

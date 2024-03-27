@@ -8,35 +8,38 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("organizations", "0001_initial"),
+        ('organizations', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="TSQMI",
+            name='TSQMI',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("value", models.FloatField()),
-                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
+                ('value', models.FloatField()),
                 (
-                    "repository",
+                    'created_at',
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                (
+                    'repository',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="calculated_tsqmis",
-                        to="organizations.repository",
+                        related_name='calculated_tsqmis',
+                        to='organizations.repository',
                     ),
                 ),
             ],
             options={
-                "ordering": ["-created_at"],
+                'ordering': ['-created_at'],
             },
         ),
     ]

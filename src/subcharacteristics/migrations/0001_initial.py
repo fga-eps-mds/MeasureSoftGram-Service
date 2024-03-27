@@ -9,72 +9,75 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("measures", "0001_initial"),
-        ("organizations", "0001_initial"),
+        ('measures', '0001_initial'),
+        ('organizations', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name="SupportedSubCharacteristic",
+            name='SupportedSubCharacteristic',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("name", models.CharField(max_length=128)),
-                ("key", models.CharField(max_length=128, unique=True)),
+                ('name', models.CharField(max_length=128)),
+                ('key', models.CharField(max_length=128, unique=True)),
                 (
-                    "description",
+                    'description',
                     models.TextField(blank=True, max_length=512, null=True),
                 ),
                 (
-                    "measures",
+                    'measures',
                     models.ManyToManyField(
                         blank=True,
-                        related_name="related_subcharacteristics",
-                        to="measures.supportedmeasure",
+                        related_name='related_subcharacteristics',
+                        to='measures.supportedmeasure',
                     ),
                 ),
             ],
         ),
         migrations.CreateModel(
-            name="CalculatedSubCharacteristic",
+            name='CalculatedSubCharacteristic',
             fields=[
                 (
-                    "id",
+                    'id',
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name="ID",
+                        verbose_name='ID',
                     ),
                 ),
-                ("value", models.FloatField()),
-                ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
+                ('value', models.FloatField()),
                 (
-                    "repository",
+                    'created_at',
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                (
+                    'repository',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="calculated_subcharacteristics",
-                        to="organizations.repository",
+                        related_name='calculated_subcharacteristics',
+                        to='organizations.repository',
                     ),
                 ),
                 (
-                    "subcharacteristic",
+                    'subcharacteristic',
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name="calculated_subcharacteristics",
-                        to="subcharacteristics.supportedsubcharacteristic",
+                        related_name='calculated_subcharacteristics',
+                        to='subcharacteristics.supportedsubcharacteristic',
                     ),
                 ),
             ],
             options={
-                "ordering": ["-created_at"],
+                'ordering': ['-created_at'],
             },
         ),
     ]

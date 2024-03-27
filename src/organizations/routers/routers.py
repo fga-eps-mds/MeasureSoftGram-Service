@@ -8,15 +8,17 @@ class Router:
             name,
             lookup=lookup,
         )
-        children = kwargs.pop("children")
+        children = kwargs.pop('children')
         if children:
             for child in children:
-                c_name = child.pop("name")
-                c_view = child.pop("view")
+                c_name = child.pop('name')
+                c_view = child.pop('view')
 
                 if c_name and c_view:
-                    basename = child.pop("basename")
+                    basename = child.pop('basename')
                     if basename:
-                        self.nested_router.register(c_name, c_view, basename=basename)
+                        self.nested_router.register(
+                            c_name, c_view, basename=basename
+                        )
                     else:
                         self.nested_router.register(c_name, c_view)

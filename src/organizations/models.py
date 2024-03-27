@@ -1,20 +1,16 @@
 from uuid import uuid4
-
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.text import slugify
-
 from pre_configs.models import PreConfig
 from utils import staticfiles
+from decimal import Decimal
 
 
 class Organization(models.Model):
-    """
-    Tabela que armazena os dados das organizações do sistema
-    """
 
     name = models.CharField(max_length=128)
-    key = models.SlugField(max_length=128, unique=True)
+    key = models.SlugField(max_length=128, unique=True, blank=True)
     description = models.TextField(
         max_length=512,
         null=True,
@@ -22,19 +18,23 @@ class Organization(models.Model):
     )
     members = models.ManyToManyField(
         get_user_model(),
-        related_name="organizations",
+        related_name='organizations',
+        blank=True,
+    )
+    admin = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name='admin_organizations',
+        null=True,
         blank=True,
     )
 
     def save(self, *args, **kwargs):
-        # A KEY é gerada somente na criação do objeto
         if not self.key:
             self.key = slugify(self.name)
-
-            # if Organization.objects.filter(key=self.key).exists():
-            #     random_num = uuid4().hex[:6]
-            #     self.key = f'{self.key}-{random_num}'
-
+            while Organization.objects.filter(key=self.key).exists():
+                random_num = uuid4().hex[:6]
+                self.key = f'{self.key}-{random_num}'
         return super().save(*args, **kwargs)
 
     def __str__(self):
@@ -42,17 +42,8 @@ class Organization(models.Model):
 
 
 class Product(models.Model):
-    """
-    Produto de software é a abstração de um
-    software que está sendo desenvolvido/mantido
-
-    Observação: Anteriormente se chamava Project, mas o cliente achou
-    melhor mudar esse nome, pois uma vez que o projeto é finalizado o
-    resultado é o produto de software.
-    """
-
     class Meta:
-        unique_together = (("key", "organization"),)
+        unique_together = (('key', 'organization'),)
 
     name = models.CharField(max_length=128)
     key = models.SlugField(max_length=128, unique=True)
@@ -64,7 +55,13 @@ class Product(models.Model):
     organization = models.ForeignKey(
         Organization,
         on_delete=models.CASCADE,
-        related_name="products",
+        related_name='products',
+    )
+    gaugeRedLimit = models.DecimalField(
+        max_digits=3, decimal_places=2, default=Decimal('0.33')
+    )
+    gaugeYellowLimit = models.DecimalField(
+        max_digits=3, decimal_places=2, default=Decimal('0.66')
     )
 
     def __str__(self):
@@ -73,32 +70,44 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = slugify(self.name)
-            self.key = f"{self.organization.key}-{self.key}"
-
-            # if Product.objects.filter(key=self.key).exists():
-            #     random_num = uuid4().hex[:6]
-            #     self.key = f'{self.key}-{random_num}'
+            self.key = f'{self.organization.key}-{self.key}'
+            while Product.objects.filter(key=self.key).exists():
+                random_num = uuid4().hex[:6]
+                self.key = f'{self.key}-{random_num}'
 
         super().save(*args, **kwargs)
 
         PreConfig.objects.get_or_create(
-            name="Default pre-config", data=staticfiles.DEFAULT_PRE_CONFIG, product=self
+            name='Default pre-config',
+            data=staticfiles.DEFAULT_PRE_CONFIG,
+            product=self,
         )
 
 
 class Repository(models.Model):
-    """
-    Um repositório é sempre de um projeto. Uma vez que um projeto pode ser
-    composto de vários repositórios de código, como por exemplo o
-    repositório do backend e do frontend.
-    """
-
     class Meta:
-        unique_together = (("key", "product"),)
-        verbose_name_plural = "Repositories"
+        unique_together = (('key', 'product'),)
+        verbose_name_plural = 'Repositories'
 
     name = models.CharField(max_length=128)
-    key = models.SlugField(max_length=128, unique=True)
+    key = models.SlugField(max_length=128, unique=False, blank=True)
+    url = models.URLField(max_length=200, blank=True, null=True)
+
+    PLATFORM_CHOICES = (
+        ('github', 'GitHub'),
+        ('gitlab', 'GitLab'),
+        ('bitbucket', 'Bitbucket'),
+        ('subversion (SVN)', 'Subversion (SVN)'),
+        ('mercurial', 'Mercurial'),
+        ('aws code commit', 'AWS CodeCommit'),
+        ('azure repos', 'Azure Repos'),
+        ('outros', 'Outros'),
+    )
+
+    platform = models.CharField(
+        max_length=128, choices=PLATFORM_CHOICES, blank=True, null=True
+    )
+
     description = models.TextField(
         max_length=512,
         null=True,
@@ -107,12 +116,12 @@ class Repository(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name="repositories",
+        related_name='repositories',
     )
 
     def save(self, *args, **kwargs):
         self.key = slugify(self.name)
-        self.key = f"{self.product.key}-{self.key}"
+        self.key = f'{self.product.key}-{self.key}'
         return super().save(*args, **kwargs)
 
     def __str__(self):
