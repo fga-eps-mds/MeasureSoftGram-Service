@@ -425,3 +425,71 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
 
         assert response.status_code == 200
         assert response.json()['accomplished'] == {'Msg': [0, 0]}
+
+    def test_get_analysis_data_no_release_finished(self):
+        Release.objects.create(
+            id=999,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name='Release 999',
+            created_by=self.user,
+            product=self.product,
+            goal=self.goal,
+        )
+
+        response = self.client.get(
+            path=f'{self.url_default}999/analysis_data/'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        assert 'reliability' in response.json()['planned'].keys()
+        assert 'maintainability' in response.json()['planned'].keys()
+
+    def test_get_analysis_data_release_finished(self):
+        Release.objects.create(
+            id=999,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name='Release 999',
+            created_by=self.user,
+            product=self.product,
+            goal=self.goal,
+        )
+
+        repository = Repository.objects.create(
+            id=1,
+            name='Repository_name',
+            key='2023-2-Msg',
+            product=self.product,
+        )
+
+        reliability = SupportedCharacteristic.objects.filter(
+            key='reliability'
+        ).first()
+
+        maintainability = SupportedCharacteristic.objects.filter(
+            key='maintainability'
+        ).first()
+
+        CalculatedCharacteristic.objects.create(
+            release_id=999,
+            characteristic=reliability,
+            repository=repository,
+            value=1,
+        )
+
+        CalculatedCharacteristic.objects.create(
+            release_id=999,
+            characteristic=maintainability,
+            repository=repository,
+            value=1,
+        )
+
+        response = self.client.get(
+            path=f'{self.url_default}999/analysis_data/'
+        )
+
+        assert response.status_code == 200
+        assert response.json()['accomplished'] == {'Repository_name': {'maintainability': 1.0, 'reliability': 1.0}}
