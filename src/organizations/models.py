@@ -118,6 +118,7 @@ class Repository(models.Model):
         on_delete=models.CASCADE,
         related_name='repositories',
     )
+    imported=models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.key = slugify(self.name)

@@ -258,6 +258,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             'historical_values',
             'actions',
             'platform',
+            'imported'
         )
         extra_kwargs = {
             'key': {'read_only': True},

@@ -113,6 +113,7 @@ class UserRepos(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet para os repositórios do github do user a partir de seu code
     """
+    permission_classes = (IsAuthenticated,)
 
     serializer_class = GitHubAccessTokenRetrieveSerializer
 

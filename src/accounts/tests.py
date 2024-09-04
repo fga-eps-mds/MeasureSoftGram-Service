@@ -208,12 +208,28 @@ class AccountsViews(APITestCaseExpanded):
         )
 
 
-    def test_github_token(self):
-        url = reverse('github-token')
-        self.client.credentials(
-            HTTP_AUTHORIZATION='Token '
-            + Token.objects.create(user=self.user).key
-        )
-        response = self.client.get(url, format='json')
+    def test_github_token(self, mock_get):
 
-        self.assertEqual(response.status_code, 200, response.json())
+        mock_get.side_effect = [
+            MockResponse({"access_token": "test_token"}, 200), 
+            MockResponse({"login": "test_user"}, 200),         
+            MockResponse({"items": []}, 200)                   
+        ]
+
+        url = reverse('user-repos')
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Token ' + Token.objects.create(user=self.user).key
+        )
+
+        response = self.client.get(url, {'code': 'test_code'}, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"items": []})
+    
+class MockResponse:
+    def __init__(self, json_data, status_code):
+        self.json_data = json_data
+        self.status_code = status_code
+
+    def json(self):
+        return self.json_data
