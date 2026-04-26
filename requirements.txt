@@ -7,7 +7,7 @@ djangorestframework==3.13.1
 drf_yasg==1.21.7
 freezegun==1.5.1
 gunicorn==20.1.0
-psycopg2-binary==2.9.3
+psycopg2-binary>=2.9.9
 pytz==2022.1
 sqlparse==0.4.4
 whitenoise==6.2.0
@@ -25,3 +25,4 @@ django-allauth==0.51.0
 dj-rest-auth==2.2.5
 msgram-core==1.4.9
 django-extensions==3.2.3
+setuptools<71
