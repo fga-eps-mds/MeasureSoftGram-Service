@@ -407,7 +407,7 @@ class Command(BaseCommand):
             product=product,
         )
 
-    def create_a_goal(self, product: Product):
+    def create_a_goal(self, product: Product, created_by):
         pre_config = product.release_configuration.first()
         data = get_random_goal_data(pre_config)
         serializer = GoalSerializer(data=data)
@@ -419,7 +419,7 @@ class Command(BaseCommand):
 
         serializer.context['view'] = MockView
         serializer.is_valid(raise_exception=True)
-        serializer.save(product=product)
+        serializer.save(product=product, created_by=created_by)
 
     def create_fake_tsqmi_data(self, repository):
         if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
@@ -625,6 +625,9 @@ class Command(BaseCommand):
                 email=os.getenv('SUPERADMIN_EMAIL', 'admin@admin.com'),
                 password=os.getenv('SUPERADMIN_PASSWORD', 'admin'),
             )
+        admin_user = User.objects.get(
+            username=os.getenv('SUPERADMIN_USERNAME', 'admin'),
+        )
 
         self.create_supported_metrics()
         self.create_suported_measures()
@@ -649,4 +652,4 @@ class Command(BaseCommand):
         products = Product.objects.all()
 
         for product in products:
-            self.create_a_goal(product)
+            self.create_a_goal(product, admin_user)
