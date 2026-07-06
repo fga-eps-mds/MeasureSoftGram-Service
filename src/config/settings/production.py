@@ -45,5 +45,6 @@ USE_X_FORWARDED_HOST = _env_flag("USE_X_FORWARDED_HOST", "False")
 # Clickjacking
 X_FRAME_OPTIONS = "DENY"
 
-# Em producao nao queremos CREATE_FAKE_DATA, mesmo que o env var venha ligado.
-CREATE_FAKE_DATA = False
+# CREATE_FAKE_DATA: desligado por default (producao real fica limpa), mas
+# pode ser ligado via env var para deploys de demonstracao/homologacao.
+CREATE_FAKE_DATA = _env_flag("CREATE_FAKE_DATA", "False")
