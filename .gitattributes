@@ -1,0 +1,11 @@
+# Normaliza line endings: LF no repositório, conversão automática no checkout
+* text=auto
+
+# Scripts bash sempre LF — nunca CRLF, mesmo em Windows
+*.sh text eol=lf
+
+# Arquivos binários: sem conversão
+*.png binary
+*.jpg binary
+*.ico binary
+*.pdf binary
