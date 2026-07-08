@@ -213,7 +213,8 @@ class GithubValidateView(APIView):
     permission_classes = ()  # Permitir acesso público para a verificação pré-login
 
     def post(self, request):
-        frontend_client_id = request.data.get('client_id')
+        frontend_client_id = request.data.get("client_id")
+        print("FRONTEND CLIENT ID RECEIVED:", frontend_client_id, "BACKEND:", backend_client_id)
         backend_client_id = getattr(settings, 'GITHUB_CLIENT_ID', '')
         backend_secret = getattr(settings, 'GITHUB_SECRET', '')
 

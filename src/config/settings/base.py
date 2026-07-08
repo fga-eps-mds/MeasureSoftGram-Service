@@ -31,6 +31,8 @@ ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5000",
     "http://127.0.0.1:5000",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
     os.getenv(
         "FRONTEND_DEV_URL",
         "https://2024-1-measure-soft-gram.vercel.app",
