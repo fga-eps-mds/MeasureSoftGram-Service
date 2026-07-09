@@ -27,6 +27,7 @@ from measures.models import CalculatedMeasure, SupportedMeasure
 from metrics.models import CollectedMetric, SupportedMetric
 from organizations.models import Organization, Product, Repository
 from release_configuration.models import ReleaseConfiguration
+from releases.models import Release
 from staticfiles import SUPPORTED_MEASURES
 from subcharacteristics.models import (
     CalculatedSubCharacteristic,
@@ -478,6 +479,25 @@ class Command(BaseCommand):
             product=product,
         )
 
+    def get_seed_user(self):
+        """
+        Retorna (criando se necessário) o usuário dono dos dados semente.
+
+        Com o login via GitHub, os dados só ficam visíveis para o usuário que
+        for membro da organização. Por isso os dados semente são vinculados à
+        conta de teste do GitHub (identificada pelo username do GitHub, que é o
+        valor que o allauth grava ao logar). Os valores podem ser sobrescritos
+        via variáveis de ambiente.
+        """
+        user_model = get_user_model()
+        username = os.getenv('SEED_GITHUB_USERNAME', 'msgramteste')
+        email = os.getenv('SEED_GITHUB_EMAIL', 'msgram.teste@gmail.com')
+        user, _ = user_model.objects.get_or_create(
+            username=username,
+            defaults={'email': email},
+        )
+        return user
+
     def create_a_goal(self, product: Product):
         if product.goals.exists():
             return
@@ -492,9 +512,54 @@ class Command(BaseCommand):
 
         serializer.context['view'] = MockView
         serializer.is_valid(raise_exception=True)
-        user_model = get_user_model()
-        admin = user_model.objects.filter(is_superuser=True).first()
-        serializer.save(product=product, created_by=admin)
+        serializer.save(product=product, created_by=self.get_seed_user())
+
+    def create_a_release(self, product: Product):
+        """
+        Cria releases de demonstração para um produto (uma concluída e uma em
+        andamento), vinculadas à goal do produto. As janelas ficam dentro dos
+        últimos ~90 dias, período coberto pelos dados fake, para que a
+        comparação planejado x realizado tenha dados.
+        """
+        if Release.objects.filter(product=product).exists():
+            return
+
+        goal = product.goals.first()
+        if goal is None:
+            return
+
+        seed_user = self.get_seed_user()
+        now = timezone.now()
+
+        releases = [
+            {
+                'release_name': f'{product.name} - Release 1',
+                'start_at': now - dt.timedelta(days=90),
+                'end_at': now - dt.timedelta(days=46),
+                'description': (
+                    'Release inicial (concluída) gerada para demonstração.'
+                ),
+            },
+            {
+                'release_name': f'{product.name} - Release 2',
+                'start_at': now - dt.timedelta(days=45),
+                'end_at': now + dt.timedelta(days=15),
+                'description': (
+                    'Release em andamento gerada para demonstração.'
+                ),
+            },
+        ]
+
+        for release_data in releases:
+            Release.objects.create(
+                release_name=release_data['release_name'],
+                start_at=release_data['start_at'],
+                end_at=release_data['end_at'],
+                description=release_data['description'],
+                created_by=seed_user,
+                product=product,
+                goal=goal,
+            )
 
     def create_fake_tsqmi_data(self, repository):
         if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
@@ -557,9 +622,18 @@ class Command(BaseCommand):
         ]
 
         for organization in organizations:
-            if Organization.objects.filter(name=organization.name).exists():
-                continue
-            organization.save()
+            existing = Organization.objects.filter(
+                name=organization.name
+            ).first()
+            if existing:
+                organization = existing
+            else:
+                organization.save()
+
+            if organization.admin is None:
+                organization.admin = self.get_seed_user()
+                organization.save()
+            organization.members.add(self.get_seed_user())
 
     def create_fake_products(self):
         organizations = Organization.objects.all()
@@ -708,6 +782,11 @@ class Command(BaseCommand):
             },
         )
 
+        if organization.admin is None:
+            organization.admin = self.get_seed_user()
+            organization.save()
+        organization.members.add(self.get_seed_user())
+
         product, _ = Product.objects.get_or_create(
             name='Badge Demo Product',
             organization=organization,
@@ -803,3 +882,4 @@ class Command(BaseCommand):
 
         for product in products:
             self.create_a_goal(product)
+            self.create_a_release(product)
