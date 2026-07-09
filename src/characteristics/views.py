@@ -1,11 +1,9 @@
-from resources import calculate_characteristics
 from rest_framework import mixins, status, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from characteristics.models import (
     BalanceMatrix,
-    CalculatedCharacteristic,
     SupportedCharacteristic,
 )
 from characteristics.serializers import (
@@ -15,10 +13,8 @@ from characteristics.serializers import (
     LatestCalculatedCharacteristicSerializer,
     SupportedCharacteristicSerializer,
 )
-from organizations.models import Product, Repository
+from organizations.models import Repository
 from organizations.mixins import UserScopedMixin
-from release_configuration.models import ReleaseConfiguration
-from utils.exceptions import SubCharacteristicNotDefinedInReleaseConfigurationuration
 
 
 class CalculateCharacteristicViewSet(
@@ -56,15 +52,15 @@ class BalanceMatrixViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             relation_type = balance_matrix.relation_type
 
             if source_key not in result:
-                result[source_key] = {'+': [], '-': []}
+                result[source_key] = {"+": [], "-": []}
 
             result[source_key][relation_type].append(target_key)
 
         data = {
-            'count': len(result),
-            'next': None,
-            'previous': None,
-            'result': result,
+            "count": len(result),
+            "next": None,
+            "previous": None,
+            "result": result,
         }
         return Response(data, status=status.HTTP_200_OK)
 
@@ -73,7 +69,7 @@ class RepositoryCharacteristicMixin(UserScopedMixin):
     def get_queryset(self):
         repository = self.get_repository()
         qs = repository.calculated_characteristics.all()
-        qs = qs.values_list('characteristic', flat=True).distinct()
+        qs = qs.values_list("characteristic", flat=True).distinct()
         return SupportedCharacteristic.objects.filter(id__in=qs)
 
 
@@ -88,7 +84,7 @@ class LatestCalculatedCharacteristicModelViewSet(
     """
 
     queryset = SupportedCharacteristic.objects.prefetch_related(
-        'calculated_characteristics'
+        "calculated_characteristics"
     )
     serializer_class = LatestCalculatedCharacteristicSerializer
 
@@ -104,7 +100,7 @@ class CalculatedCharacteristicHistoryModelViewSet(
     """
 
     queryset = SupportedCharacteristic.objects.prefetch_related(
-        'calculated_characteristics'
+        "calculated_characteristics"
     )
     serializer_class = CalculatedCharacteristicHistorySerializer
 
@@ -127,27 +123,29 @@ class LatestCalculatedCharacteristicBadgeViewSet(
     def get_repository(self):
         return get_object_or_404(
             Repository,
-            id=self.kwargs['repository_pk'],
-            product_id=self.kwargs['product_pk'],
-            product__organization_id=self.kwargs['organization_pk'],
+            id=self.kwargs["repository_pk"],
+            product_id=self.kwargs["product_pk"],
+            product__organization_id=self.kwargs["organization_pk"],
         )
 
     def list(self, request, *args, **kwargs):
-        from utils.badge import is_stale, render_badge_svg, render_stale_badge_svg
+        from utils.badge import (
+            is_stale,
+            render_badge_svg,
+            render_stale_badge_svg,
+        )
 
         repository = self.get_repository()
-        characteristic_key = self.kwargs.get('characteristic_key')
+        characteristic_key = self.kwargs.get("characteristic_key")
 
         characteristic = get_object_or_404(
             SupportedCharacteristic,
             key=characteristic_key,
         )
 
-        latest = (
-            repository.calculated_characteristics
-            .filter(characteristic=characteristic)
-            .first()
-        )
+        latest = repository.calculated_characteristics.filter(
+            characteristic=characteristic
+        ).first()
 
         label = characteristic.name
         if latest is None or is_stale(latest.created_at):

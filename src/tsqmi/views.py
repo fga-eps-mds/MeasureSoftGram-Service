@@ -1,25 +1,13 @@
-from datetime import timedelta
-
-from django.conf import settings
-from django.utils import timezone
-from resources import calculate_tsqmi
-from rest_framework import mixins, status, viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from utils.badge import is_stale, render_badge_svg, render_stale_badge_svg
 
-from characteristics.models import SupportedCharacteristic
-from measures.models import SupportedMeasure
-from metrics.models import SupportedMetric
-from organizations.models import Product, Repository
+from organizations.models import Repository
 from organizations.mixins import UserScopedMixin
-from tsqmi.models import TSQMI
 from tsqmi.serializers import (
-    TSQMICalculationRequestSerializer,
     TSQMISerializer,
 )
-from utils.exceptions import CharacteristicNotDefinedInReleaseConfigurationuration
-from django.http import HttpResponse
 
 
 class LatestCalculatedTSQMIViewSet(

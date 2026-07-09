@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0003_alter_repository_key'),
+        ("organizations", "0003_alter_repository_key"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='organization',
-            name='key',
+            model_name="organization",
+            name="key",
             field=models.SlugField(blank=True, max_length=128, unique=True),
         ),
     ]

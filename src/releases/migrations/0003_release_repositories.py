@@ -6,14 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0013_organization_avatar_url_organization_github_org_id_and_more'),
-        ('releases', '0002_alter_release_table'),
+        (
+            "organizations",
+            "0013_organization_avatar_url_organization_github_org_id_and_more",
+        ),
+        ("releases", "0002_alter_release_table"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='release',
-            name='repositories',
-            field=models.ManyToManyField(blank=True, related_name='releases', to='organizations.repository'),
+            model_name="release",
+            name="repositories",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="releases",
+                to="organizations.repository",
+            ),
         ),
     ]

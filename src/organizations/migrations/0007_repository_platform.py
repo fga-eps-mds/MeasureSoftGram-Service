@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0006_repository_url'),
+        ("organizations", "0006_repository_url"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='repository',
-            name='platform',
+            model_name="repository",
+            name="platform",
             field=models.CharField(
                 blank=True,
                 choices=[
-                    ('github', 'GitHub'),
-                    ('gitlab', 'GitLab'),
-                    ('bitbucket', 'Bitbucket'),
-                    ('subversion (SVN)', 'Subversion (SVN)'),
-                    ('mercurial', 'Mercurial'),
-                    ('aws code commit', 'AWS CodeCommit'),
-                    ('azure repos', 'Azure Repos'),
+                    ("github", "GitHub"),
+                    ("gitlab", "GitLab"),
+                    ("bitbucket", "Bitbucket"),
+                    ("subversion (SVN)", "Subversion (SVN)"),
+                    ("mercurial", "Mercurial"),
+                    ("aws code commit", "AWS CodeCommit"),
+                    ("azure repos", "Azure Repos"),
                 ],
                 max_length=128,
                 null=True,

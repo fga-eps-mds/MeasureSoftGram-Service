@@ -23,7 +23,6 @@ class EntityNotDefinedInReleaseConfigurationuration(ValueError):
     Exceção criada quando uma entidade é procurada em uma pré-configuração,
     mas esta entidade não foi selecionada na pré-configuração.
     """
-    pass
 
 
 class MeasureNotDefinedInReleaseConfigurationuration(
@@ -48,7 +47,5 @@ class InvalidReleaseConfigurationException(ValueError):
     pass
 
 
-class CalculateModelException(
-    Exception
-):
+class CalculateModelException(Exception):
     pass

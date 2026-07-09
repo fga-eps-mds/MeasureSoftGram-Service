@@ -1,9 +1,6 @@
-from datetime import date, timedelta
-from urllib import request
+from datetime import date
 
 from django.contrib.auth import get_user_model
-from django.core.management import call_command
-from django.test import TestCase
 from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
 
@@ -12,7 +9,6 @@ from organizations.management.commands.utils import (
     create_a_releaseconfig,
     create_supported_characteristics,
 )
-from organizations.models import Product, Repository
 from utils.tests import APITestCaseExpanded
 
 User = get_user_model()
@@ -22,29 +18,29 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
     def setUp(self):
         characteristics = [
             {
-                'key': 'functional_suitability',
-                'name': '',
-                'subcharacteristics': [
-                    {'key': 'testing_status'},
+                "key": "functional_suitability",
+                "name": "",
+                "subcharacteristics": [
+                    {"key": "testing_status"},
                 ],
             },
             {
-                'key': 'performance_efficiency',
-                'name': '',
-                'subcharacteristics': [
-                    {'key': 'testing_status'},
+                "key": "performance_efficiency",
+                "name": "",
+                "subcharacteristics": [
+                    {"key": "testing_status"},
                 ],
             },
             {
-                'key': 'security',
-                'name': '',
-                'subcharacteristics': [
-                    {'key': 'testing_status'},
+                "key": "security",
+                "name": "",
+                "subcharacteristics": [
+                    {"key": "testing_status"},
                 ],
             },
         ]
         create_supported_characteristics(characteristics)
-        characteristics_keys = [item['key'] for item in characteristics]
+        characteristics_keys = [item["key"] for item in characteristics]
 
         self.org = self.get_organization(add_user=False)
         self.product = self.get_product(self.org)
@@ -55,12 +51,12 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         )
 
         self.user = User.objects.create(
-            username='username',
-            first_name='test',
-            last_name='user',
-            email='test_user@email.com',
+            username="username",
+            first_name="test",
+            last_name="user",
+            email="test_user@email.com",
         )
-        self.password = 'testpass'
+        self.password = "testpass"
         self.user.set_password(self.password)
         self.user.save()
 
@@ -69,7 +65,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         self.org.save()
 
         self.client.credentials(
-            HTTP_AUTHORIZATION='Token '
+            HTTP_AUTHORIZATION="Token "
             + Token.objects.create(user=self.user).key
         )
 
@@ -80,34 +76,34 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         expected_data=None,
     ):
         url = reverse(
-            'create-goal-list',
+            "create-goal-list",
             args=[self.org.id, self.product.id],
         )
 
-        response = self.client.post(url, request_data, format='json')
+        response = self.client.post(url, request_data, format="json")
 
         self.assertEqual(response.status_code, expected_status_code)
 
         if response.status_code == 201:
-            response_data = response.json()['data']
+            response_data = response.json()["data"]
 
             if expected_data:
                 self.assertEqual(
                     response_data,
                     expected_data,
-                    'Equalizer returned a different value than expected',
+                    "Equalizer returned a different value than expected",
                 )
 
     def test_if_create_goal_reject_invalid_jsons(self):
         request_data = {
-            'release_name': 'v1.0.0',
-            'created_by': 'username',
-            'start_at': '2022-08-19',
-            'end_at': '2022-09-19',
-            'changes': [
+            "release_name": "v1.0.0",
+            "created_by": "username",
+            "start_at": "2022-08-19",
+            "end_at": "2022-09-19",
+            "changes": [
                 {
-                    'characteristic_key': 'non existent characteristic',
-                    'delta': 10,
+                    "characteristic_key": "non existent characteristic",
+                    "delta": 10,
                 },
             ],
         }
@@ -115,17 +111,17 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
 
     def tests_if_a_valid_request_with_no_changes_sets_all_weights_to_50(self):
         request_data = {
-            'release_name': 'v1.0.0',
-            'created_by': 'username',
-            'start_at': '2022-08-19',
-            'end_at': '2022-09-19',
-            'changes': [],
+            "release_name": "v1.0.0",
+            "created_by": "username",
+            "start_at": "2022-08-19",
+            "end_at": "2022-09-19",
+            "changes": [],
         }
 
         expected_data = {
-            'functional_suitability': 50,
-            'performance_efficiency': 50,
-            'security': 50,
+            "functional_suitability": 50,
+            "performance_efficiency": 50,
+            "security": 50,
         }
 
         self.validate_goal_request(request_data, 201, expected_data)
@@ -134,31 +130,31 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         self,
     ):
         request_data = {
-            'release_name': 'v1.0.0',
-            'created_by': 'username',
-            'start_at': '2022-08-19',
-            'end_at': '2022-09-19',
-            'changes': [
-                {'characteristic_key': 'functional_suitability', 'delta': 10},
-                {'characteristic_key': 'performance_efficiency', 'delta': -10},
-                {'characteristic_key': 'security', 'delta': 40},
+            "release_name": "v1.0.0",
+            "created_by": "username",
+            "start_at": "2022-08-19",
+            "end_at": "2022-09-19",
+            "changes": [
+                {"characteristic_key": "functional_suitability", "delta": 10},
+                {"characteristic_key": "performance_efficiency", "delta": -10},
+                {"characteristic_key": "security", "delta": 40},
             ],
         }
 
         expected_data = {
-            'functional_suitability': 70,
-            'performance_efficiency': 0,
-            'security': 90,
+            "functional_suitability": 70,
+            "performance_efficiency": 0,
+            "security": 90,
         }
 
         self.validate_goal_request(request_data, 201, expected_data)
 
     def tests_if_a_request_without_the_changes_key_is_refused(self):
         request_data = {
-            'release_name': 'v1.0.0',
-            'created_by': 'username',
-            'start_at': '2022-08-19',
-            'end_at': '2022-09-19',
+            "release_name": "v1.0.0",
+            "created_by": "username",
+            "start_at": "2022-08-19",
+            "end_at": "2022-09-19",
         }
 
         expected_status_code = 400
@@ -167,23 +163,23 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
 
     def tests_if_multiple_changes_to_the_same_entity_are_supported(self):
         request_data = {
-            'release_name': 'v1.0.0',
-            'created_by': 'username',
-            'start_at': '2022-08-19',
-            'end_at': '2022-09-19',
-            'changes': [
-                {'characteristic_key': 'functional_suitability', 'delta': 10},
-                {'characteristic_key': 'functional_suitability', 'delta': 10},
-                {'characteristic_key': 'functional_suitability', 'delta': 10},
-                {'characteristic_key': 'functional_suitability', 'delta': 10},
-                {'characteristic_key': 'functional_suitability', 'delta': 10},
+            "release_name": "v1.0.0",
+            "created_by": "username",
+            "start_at": "2022-08-19",
+            "end_at": "2022-09-19",
+            "changes": [
+                {"characteristic_key": "functional_suitability", "delta": 10},
+                {"characteristic_key": "functional_suitability", "delta": 10},
+                {"characteristic_key": "functional_suitability", "delta": 10},
+                {"characteristic_key": "functional_suitability", "delta": 10},
+                {"characteristic_key": "functional_suitability", "delta": 10},
             ],
         }
 
         expected_data = {
-            'functional_suitability': 100,
-            'performance_efficiency': 0,
-            'security': 0,
+            "functional_suitability": 100,
+            "performance_efficiency": 0,
+            "security": 0,
         }
 
         self.validate_goal_request(request_data, 201, expected_data)
@@ -192,20 +188,20 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         self,
     ):
         request_data = {
-            'release_name': 'v1.0.0',
-            'created_by': 'username',
-            'start_at': '2022-08-19',
-            'end_at': '2022-09-19',
-            'changes': [
-                {'characteristic_key': 'functional_suitability', 'delta': 10},
-                {'characteristic_key': 'functional_suitability', 'delta': -10},
+            "release_name": "v1.0.0",
+            "created_by": "username",
+            "start_at": "2022-08-19",
+            "end_at": "2022-09-19",
+            "changes": [
+                {"characteristic_key": "functional_suitability", "delta": 10},
+                {"characteristic_key": "functional_suitability", "delta": -10},
             ],
         }
 
         expected_data = {
-            'functional_suitability': 50,
-            'performance_efficiency': 50,
-            'security': 50,
+            "functional_suitability": 50,
+            "performance_efficiency": 50,
+            "security": 50,
         }
 
         self.validate_goal_request(request_data, 201, expected_data)
@@ -214,37 +210,37 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         self,
     ):
         request_data = {
-            'release_name': 'v1.0.0',
-            'created_by': 'username',
-            'start_at': '2022-08-19',
-            'end_at': '2022-09-19',
-            'changes': [
-                {'characteristic_key': 'functional_suitability', 'delta': 90},
-                {'characteristic_key': 'functional_suitability', 'delta': 90},
+            "release_name": "v1.0.0",
+            "created_by": "username",
+            "start_at": "2022-08-19",
+            "end_at": "2022-09-19",
+            "changes": [
+                {"characteristic_key": "functional_suitability", "delta": 90},
+                {"characteristic_key": "functional_suitability", "delta": 90},
             ],
         }
 
         expected_data = {
-            'functional_suitability': 100,
-            'performance_efficiency': 0,
-            'security': 0,
+            "functional_suitability": 100,
+            "performance_efficiency": 0,
+            "security": 0,
         }
 
         self.validate_goal_request(request_data, 201, expected_data)
 
     def test_if_two_consecutives_requests(self):
         request_data = {
-            'allow_dynamic': False,
-            'changes': [
-                {'characteristic_key': 'functional_suitability', 'delta': 10},
-                {'characteristic_key': 'functional_suitability', 'delta': 10},
+            "allow_dynamic": False,
+            "changes": [
+                {"characteristic_key": "functional_suitability", "delta": 10},
+                {"characteristic_key": "functional_suitability", "delta": 10},
             ],
         }
 
         expected_data = {
-            'functional_suitability': 70,
-            'performance_efficiency': 30,
-            'security': 30,
+            "functional_suitability": 70,
+            "performance_efficiency": 30,
+            "security": 30,
         }
 
         self.validate_goal_request(request_data, 201, expected_data)
@@ -252,7 +248,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
 
     def test_list_all_goals_in_the_release(self):
         url = reverse(
-            'all-goal-list',
+            "all-goal-list",
             args=[self.org.id, self.product.id],
         )
 
@@ -262,31 +258,33 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
                 created_by=self.user,
                 product=self.product,
                 data={
-                    'reliability': 53,
-                    'maintainability': 53,
-                    'functional_suitability': 53,
+                    "reliability": 53,
+                    "maintainability": 53,
+                    "functional_suitability": 53,
                 },
             )
 
-        response = self.client.get(url, format='json')
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 2)
 
         for i in range(2):
             with self.subTest(release=i):
                 self.assertEqual(
-                    self.user.username, response.json()[i]['created_by']
+                    self.user.username, response.json()[i]["created_by"]
                 )
 
     def test_product_without_goal_returns_404(self):
         self.product.goals.all().delete()
         url = reverse(
-            'current-goal-list',
+            "current-goal-list",
             args=[self.org.id, self.product.id],
         )
-        response = self.client.get(url, format='json')
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.json()['detail'], 'This product does not have a goal.')
+        self.assertEqual(
+            response.json()["detail"], "This product does not have a goal."
+        )
 
     def test_compare_goals_with_release_id_query_param(self):
         goal1 = Goal.objects.create(
@@ -294,9 +292,9 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
             created_by=self.user,
             product=self.product,
             data={
-                'reliability': 53,
-                'maintainability': 53,
-                'functional_suitability': 53,
+                "reliability": 53,
+                "maintainability": 53,
+                "functional_suitability": 53,
             },
         )
         Goal.objects.create(
@@ -304,16 +302,18 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
             created_by=self.user,
             product=self.product,
             data={
-                'reliability': 60,
-                'maintainability': 60,
-                'functional_suitability': 60,
+                "reliability": 60,
+                "maintainability": 60,
+                "functional_suitability": 60,
             },
         )
         url = reverse(
-            'all-goal-list',
+            "all-goal-list",
             args=[self.org.id, self.product.id],
         )
-        response = self.client.get(f"{url}?release_id={goal1.id}", format='json')
+        response = self.client.get(
+            f"{url}?release_id={goal1.id}", format="json"
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 1)
-        self.assertEqual(response.json()[0]['id'], goal1.id)
+        self.assertEqual(response.json()[0]["id"], goal1.id)

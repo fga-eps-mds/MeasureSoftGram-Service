@@ -5,13 +5,12 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.utils import timezone
 
-
 GRADE_MAP = [
-    (0.80, 'A', '#4c1'),
-    (0.60, 'B', '#97CA00'),
-    (0.40, 'C', '#dfb317'),
-    (0.20, 'D', '#fe7d37'),
-    (0.00, 'E', '#e05d44'),
+    (0.80, "A", "#4c1"),
+    (0.60, "B", "#97CA00"),
+    (0.40, "C", "#dfb317"),
+    (0.20, "D", "#fe7d37"),
+    (0.00, "E", "#e05d44"),
 ]
 
 BADGE_SVG_TEMPLATE = (
@@ -19,7 +18,7 @@ BADGE_SVG_TEMPLATE = (
     '<linearGradient id="a" x2="0" y2="100%">'
     '<stop offset="0" stop-color="#bbb" stop-opacity=".1"/>'
     '<stop offset="1" stop-opacity=".1"/>'
-    '</linearGradient>'
+    "</linearGradient>"
     '<rect rx="3" width="{width}" height="20" fill="#555"/>'
     '<rect rx="3" x="{label_width}" width="30" height="20" fill="{color}"/>'
     '<path fill="{color}" d="M{label_width} 0h4v20h-4z"/>'
@@ -27,13 +26,13 @@ BADGE_SVG_TEMPLATE = (
     '<g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,'
     'Verdana,Geneva,sans-serif" font-size="11">'
     '<text x="{label_center}" y="15" fill="#010101" fill-opacity=".3">'
-    '{label}</text>'
+    "{label}</text>"
     '<text x="{label_center}" y="14">{label}</text>'
     '<text x="{grade_center}" y="15" fill="#010101" fill-opacity=".3">'
-    '{grade}</text>'
+    "{grade}</text>"
     '<text x="{grade_center}" y="14">{grade}</text>'
-    '</g>'
-    '</svg>'
+    "</g>"
+    "</svg>"
 )
 
 BADGE_STALE_SVG_TEMPLATE = (
@@ -42,7 +41,7 @@ BADGE_STALE_SVG_TEMPLATE = (
     '<g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,'
     'Verdana,Geneva,sans-serif" font-size="11">'
     '<text x="{center}" y="14">{label} N/A</text>'
-    '</g></svg>'
+    "</g></svg>"
 )
 
 
@@ -51,7 +50,7 @@ def get_grade(value):
     for threshold, grade, color in GRADE_MAP:
         if value >= threshold:
             return grade, color
-    return 'E', '#e05d44'
+    return "E", "#e05d44"
 
 
 def is_stale(created_at):

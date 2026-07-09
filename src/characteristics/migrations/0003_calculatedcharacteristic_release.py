@@ -7,20 +7,20 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('releases', '0002_alter_release_table'),
-        ('characteristics', '0002_balancematrix'),
+        ("releases", "0002_alter_release_table"),
+        ("characteristics", "0002_balancematrix"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='calculatedcharacteristic',
-            name='release',
+            model_name="calculatedcharacteristic",
+            name="release",
             field=models.ForeignKey(
                 blank=True,
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                related_name='calculated_characteristics',
-                to='releases.release',
+                related_name="calculated_characteristics",
+                to="releases.release",
             ),
         ),
     ]

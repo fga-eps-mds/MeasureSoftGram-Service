@@ -7,9 +7,7 @@ from goals.models import Goal
 from goals.serializers import (
     GoalSerializer,
     AllGoalsSerializer,
-    ReleasesSerializer,
 )
-from organizations.models import Product
 from organizations.mixins import UserScopedMixin
 from accounts.models import CustomUser
 
@@ -24,18 +22,18 @@ class GoalModelViewSetMixin(
 
     def this_product_does_not_have_a_goal_reponse(self, product):
         create_a_new_goal_url = reverse(
-            'create-goal-list',
+            "create-goal-list",
             kwargs={
-                'product_pk': product.id,
-                'organization_pk': product.organization.id,
+                "product_pk": product.id,
+                "organization_pk": product.organization.id,
             },
             request=self.request,
         )
 
         data = {
-            'detail': 'This product does not have a goal.',
-            'actions': {
-                'create a new goal': create_a_new_goal_url,
+            "detail": "This product does not have a goal.",
+            "actions": {
+                "create a new goal": create_a_new_goal_url,
             },
         }
 
@@ -61,10 +59,10 @@ class CurrentGoalModelViewSet(GoalModelViewSetMixin):
 
 class CompareGoalsModelViewSet(GoalModelViewSetMixin):
     serializer_class = AllGoalsSerializer
-    serializer_args = {'many': True}
+    serializer_args = {"many": True}
 
     def get_goals(self, product):
-        release_id = self.request.query_params.get('release_id', None)
+        release_id = self.request.query_params.get("release_id", None)
         if release_id:
             return Goal.objects.filter(id=release_id)
         return Goal.objects.filter(product=product)

@@ -1,6 +1,7 @@
 """
 URLs para Grafana Proxy API.
 """
+
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
@@ -10,13 +11,17 @@ from .views import GrafanaProxyViewSet
 router = DefaultRouter()
 
 # URLs customizadas (sem router para mais controle)
-app_name = 'grafana_proxy'
+app_name = "grafana_proxy"
 
 urlpatterns = [
-    path('dashboards/', GrafanaProxyViewSet.as_view({'get': 'list_dashboards'}), name='dashboards'),
     path(
-        'dashboard/<str:pk>/',
-        GrafanaProxyViewSet.as_view({'get': 'get_dashboard'}),
-        name='dashboard',
+        "dashboards/",
+        GrafanaProxyViewSet.as_view({"get": "list_dashboards"}),
+        name="dashboards",
+    ),
+    path(
+        "dashboard/<str:pk>/",
+        GrafanaProxyViewSet.as_view({"get": "get_dashboard"}),
+        name="dashboard",
     ),
 ]

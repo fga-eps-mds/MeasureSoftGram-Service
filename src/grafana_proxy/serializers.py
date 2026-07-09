@@ -1,6 +1,7 @@
 """
 Serializers para respostas da API de proxy do Grafana.
 """
+
 from rest_framework import serializers
 
 from organizations.models import Repository
@@ -14,12 +15,12 @@ class GrafanaDashboardSerializer(serializers.Serializer):
     repository = serializers.SerializerMethodField()
 
     def get_repository(self, obj):
-        repository_id = obj.get('repository_id')
+        repository_id = obj.get("repository_id")
         if not repository_id:
             return None
         try:
             repo = Repository.objects.get(id=repository_id)
-            return {'id': repo.id, 'name': repo.name}
+            return {"id": repo.id, "name": repo.name}
         except Repository.DoesNotExist:
             return None
 

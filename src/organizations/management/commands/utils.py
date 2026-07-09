@@ -17,13 +17,13 @@ def create_supported_characteristics(suported_characteristics):
             klass = SupportedCharacteristic
 
             charact, _ = klass.objects.get_or_create(
-                name=characteristic['name'],
-                key=characteristic['key'],
+                name=characteristic["name"],
+                key=characteristic["key"],
             )
 
             subcharacteristics_keys = [
-                subcharacteristic['key']
-                for subcharacteristic in characteristic['subcharacteristics']
+                subcharacteristic["key"]
+                for subcharacteristic in characteristic["subcharacteristics"]
             ]
 
             subcharacteristics = SupportedSubCharacteristic.objects.filter(
@@ -59,7 +59,7 @@ def create_balance_matrix(
                     ),
                     relation_type=relation,
                 )
-                for relation in ['-', '+']
+                for relation in ["-", "+"]
                 for target_characteristic in relations.get(relation, [])
                 if source_characteristic in filtered_balance_matrix
                 and target_characteristic in filtered_balance_matrix
@@ -69,11 +69,11 @@ def create_balance_matrix(
 
 
 def force_the_sum_to_equal_100(entities_data: dict):
-    weight_sum = sum(entity['weight'] for entity in entities_data)
+    weight_sum = sum(entity["weight"] for entity in entities_data)
 
     if weight_sum != 100:
         entity = random.choice(entities_data)
-        entity['weight'] += 100 - weight_sum
+        entity["weight"] += 100 - weight_sum
 
     return entities_data
 
@@ -81,7 +81,7 @@ def force_the_sum_to_equal_100(entities_data: dict):
 def get_measures(subcharacteristic: SupportedSubCharacteristic):
     measures = subcharacteristic.measures.all()
     weight = 100 // measures.count()
-    data = [{'key': measure.key, 'weight': weight} for measure in measures]
+    data = [{"key": measure.key, "weight": weight} for measure in measures]
     data = force_the_sum_to_equal_100(data)
     return data
 
@@ -96,9 +96,9 @@ def get_subcharacteristics(characteristic: SupportedCharacteristic):
     for subcharacteristic in subcharacteristics:
         data.append(
             {
-                'key': subcharacteristic.key,
-                'weight': weight,
-                'measures': get_measures(subcharacteristic),
+                "key": subcharacteristic.key,
+                "weight": weight,
+                "measures": get_measures(subcharacteristic),
             }
         )
 
@@ -125,17 +125,17 @@ def create_a_releaseconfig(characteristics_keys, product):
     for characteristic in characteristics:
         data.append(
             {
-                'key': characteristic.key,
-                'weight': weight,
-                'subcharacteristics': get_subcharacteristics(characteristic),
+                "key": characteristic.key,
+                "weight": weight,
+                "subcharacteristics": get_subcharacteristics(characteristic),
             }
         )
 
     data = force_the_sum_to_equal_100(data)
-    release_config = {'characteristics': data}
+    release_config = {"characteristics": data}
 
     release_config = ReleaseConfiguration.objects.create(
-        name='custom release-config',
+        name="custom release-config",
         data=release_config,
         product=product,
     )
@@ -156,8 +156,8 @@ def get_random_changes(characteristics_keys):
     for _ in range(random.randint(5, 15)):
         changes.append(
             {
-                'characteristic_key': random.choice(characteristics_keys),
-                'delta': random.randint(-50, 50),
+                "characteristic_key": random.choice(characteristics_keys),
+                "delta": random.randint(-50, 50),
             }
         )
     return changes
@@ -169,7 +169,7 @@ def get_random_goal_data(pre_config: ReleaseConfiguration):
     no parâmetro.
     """
     characteristics_keys = [
-        obj['key'] for obj in pre_config.data['characteristics']
+        obj["key"] for obj in pre_config.data["characteristics"]
     ]
 
     major = random.randint(0, 9)
@@ -177,8 +177,8 @@ def get_random_goal_data(pre_config: ReleaseConfiguration):
     patch = random.randint(0, 9)
 
     return {
-        'release_name': f'v{major}.{minor}.{patch}',
-        'start_at': get_random_start_at(),
-        'end_at': get_random_end_at(),
-        'changes': get_random_changes(characteristics_keys),
+        "release_name": f"v{major}.{minor}.{patch}",
+        "start_at": get_random_start_at(),
+        "end_at": get_random_end_at(),
+        "changes": get_random_changes(characteristics_keys),
     }

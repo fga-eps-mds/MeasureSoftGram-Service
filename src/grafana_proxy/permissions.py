@@ -1,6 +1,7 @@
 """
 Permissões customizadas para controle de acesso aos dashboards.
 """
+
 import logging
 
 from rest_framework import permissions
@@ -30,7 +31,9 @@ class HasRepositoryAccess(permissions.BasePermission):
             return self._user_can_access_repository(request.user, obj)
         return False
 
-    def _user_can_access_repository(self, user, repository: Repository) -> bool:
+    def _user_can_access_repository(
+        self, user, repository: Repository
+    ) -> bool:
         """
         Verifica se o usuário tem acesso ao repositório através de:
         User → Organization → Product → Repository
@@ -48,7 +51,8 @@ class HasRepositoryAccess(permissions.BasePermission):
 
         # Verifica se o repositório pertence a uma organização administrada pelo usuário
         return Repository.objects.filter(
-            id=repository.id, product__organization__admin=user  # Admin da organização
+            id=repository.id,
+            product__organization__admin=user,  # Admin da organização
         ).exists()
 
 
@@ -66,7 +70,7 @@ class CanAccessProduct(permissions.BasePermission):
         if request.user.is_staff or request.user.is_superuser:
             return True
 
-        product_id = request.query_params.get('product_id')
+        product_id = request.query_params.get("product_id")
         if not product_id:
             return False
 
@@ -75,7 +79,7 @@ class CanAccessProduct(permissions.BasePermission):
                 id=product_id, organization__admin=request.user
             ).exists()
         except ValueError:
-            logger.warning(f'product_id inválido: {product_id}')
+            logger.warning(f"product_id inválido: {product_id}")
             return False
 
 
@@ -92,7 +96,7 @@ class CanAccessDashboard(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
 
-        repository_id = request.query_params.get('repository_id')
+        repository_id = request.query_params.get("repository_id")
 
         # Se não há repository_id, permite (dashboards gerais)
         if not repository_id:
@@ -101,10 +105,12 @@ class CanAccessDashboard(permissions.BasePermission):
         # Se há repository_id, valida acesso
         try:
             repository = Repository.objects.get(id=repository_id)
-            return HasRepositoryAccess()._user_can_access_repository(request.user, repository)
+            return HasRepositoryAccess()._user_can_access_repository(
+                request.user, repository
+            )
         except Repository.DoesNotExist:
-            logger.warning(f'Repository {repository_id} não encontrado')
+            logger.warning(f"Repository {repository_id} não encontrado")
             return False
         except ValueError:
-            logger.warning(f'repository_id inválido: {repository_id}')
+            logger.warning(f"repository_id inválido: {repository_id}")
             return False

@@ -1,7 +1,4 @@
-from resources import calculate_measures
-from rest_framework import mixins, status, viewsets
-from rest_framework.generics import get_object_or_404
-from rest_framework.response import Response
+from rest_framework import mixins, viewsets
 
 from measures.models import CalculatedMeasure, SupportedMeasure
 from measures.serializers import (
@@ -10,7 +7,6 @@ from measures.serializers import (
     MeasuresCalculationsRequestSerializer,
     SupportedMeasureSerializer,
 )
-from organizations.models import Product, Repository
 from organizations.mixins import UserScopedMixin
 
 
@@ -43,7 +39,7 @@ class RepositoryMeasuresMixin(UserScopedMixin):
     def get_queryset(self):
         repository = self.get_repository()
         qs = repository.calculated_measures.all()
-        qs = qs.values_list('measure', flat=True).distinct()
+        qs = qs.values_list("measure", flat=True).distinct()
         return SupportedMeasure.objects.filter(id__in=qs)
 
 
@@ -58,7 +54,7 @@ class LatestCalculatedMeasureModelViewSet(
     """
 
     queryset = SupportedMeasure.objects.prefetch_related(
-        'calculated_measures',
+        "calculated_measures",
     )
     serializer_class = LatestMeasuresCalculationsRequestSerializer
 
@@ -77,6 +73,6 @@ class CalculatedMeasureHistoryModelViewSet(
     """
 
     queryset = SupportedMeasure.objects.prefetch_related(
-        'calculated_measures',
+        "calculated_measures",
     )
     serializer_class = CalculatedMeasureHistorySerializer

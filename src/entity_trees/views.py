@@ -5,8 +5,8 @@ Isso é:
 * Características com subcaracterísticas
 * Subcaracterísticas com medidas
 """
+
 from rest_framework import mixins, viewsets
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from characteristics.models import SupportedCharacteristic
@@ -14,9 +14,7 @@ from entity_trees.serializers import (
     CharacteristicEntityRelationshipTreeSerializer,
     pre_config_to_entity_tree,
 )
-from organizations.models import Product
 from organizations.mixins import UserScopedMixin
-from release_configuration.models import ReleaseConfiguration
 
 
 class SupportedEntitiesRelationshipTreeViewSet(
@@ -32,8 +30,8 @@ class SupportedEntitiesRelationshipTreeViewSet(
 
     def list(self, request, *args, **kwargs):
         qs = SupportedCharacteristic.objects.all().prefetch_related(
-            'subcharacteristics',
-            'subcharacteristics__measures',
+            "subcharacteristics",
+            "subcharacteristics__measures",
         )
 
         serializer = CharacteristicEntityRelationshipTreeSerializer(

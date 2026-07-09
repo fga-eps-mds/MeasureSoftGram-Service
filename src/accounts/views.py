@@ -69,7 +69,7 @@ class LoginViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         result = serializer.save()
-        return Response({'key': result.key}, status=status.HTTP_200_OK)
+        return Response({"key": result.key}, status=status.HTTP_200_OK)
 
 
 class LogoutViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
@@ -114,36 +114,43 @@ class UserRepos(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet para os repositórios do github do user a partir de seu code
     """
+
     permission_classes = (IsAuthenticated,)
 
     serializer_class = GitHubAccessTokenRetrieveSerializer
 
     def retrieve(self, request):
-        code = request.query_params.get('code')
+        code = request.query_params.get("code")
 
-        headers = {'Accept': 'application/json'}
+        headers = {"Accept": "application/json"}
 
-        urlToken = 'https://github.com/login/oauth/access_token'
+        urlToken = "https://github.com/login/oauth/access_token"
         data = {
-            'client_id': settings.GITHUB_CLIENT_ID,
-            'client_secret': settings.GITHUB_SECRET,
-            'code': code,
-            'redirect_uri': settings.LOGIN_REDIRECT_URL
+            "client_id": settings.GITHUB_CLIENT_ID,
+            "client_secret": settings.GITHUB_SECRET,
+            "code": code,
+            "redirect_uri": settings.LOGIN_REDIRECT_URL,
         }
         response = requests.post(urlToken, data=data, headers=headers)
         token_data = response.json()
-        if 'access_token' not in token_data:
+        if "access_token" not in token_data:
             return Response(
-                {"error": "Falha na autenticação do GitHub", "details": token_data}
-                , status=status.HTTP_400_BAD_REQUEST)
+                {
+                    "error": "Falha na autenticação do GitHub",
+                    "details": token_data,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        headersUser = {'Authorization': f'Bearer {token_data["access_token"]}'}
-        urlRepos = 'https://api.github.com/user/repos?per_page=100'
+        headersUser = {"Authorization": f'Bearer {token_data["access_token"]}'}
+        urlRepos = "https://api.github.com/user/repos?per_page=100"
         responseRepos = requests.get(urlRepos, headers=headersUser)
         repos_data = responseRepos.json()
         formatted_response = {
-            "total_count": len(repos_data) if isinstance(repos_data, list) else 0,
-            "items": repos_data if isinstance(repos_data, list) else []
+            "total_count": (
+                len(repos_data) if isinstance(repos_data, list) else 0
+            ),
+            "items": repos_data if isinstance(repos_data, list) else [],
         }
 
         return Response(formatted_response, status=status.HTTP_200_OK)
@@ -157,50 +164,67 @@ class GitHubOrganizationsViewSet(viewsets.ViewSet):
         token = user.github_access_token
         if not token:
             from allauth.socialaccount.models import SocialToken
-            st = SocialToken.objects.filter(account__user=user, account__provider='github').first()
+
+            st = SocialToken.objects.filter(
+                account__user=user, account__provider="github"
+            ).first()
             if st:
                 token = st.token
                 user.github_access_token = token
                 user.save()
             else:
                 return Response(
-                    {"error": "GitHub account not linked or access token missing."},
-                    status=status.HTTP_400_BAD_REQUEST
+                    {
+                        "error": "GitHub account not linked or access token missing."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        headers = {"Authorization": f"token {token}", "Accept": "application/json"}
+        headers = {
+            "Authorization": f"token {token}",
+            "Accept": "application/json",
+        }
         results = []
 
         # 1. Fetch user's own profile (personal space)
         r_user = requests.get("https://api.github.com/user", headers=headers)
         if r_user.status_code == 200:
             user_data = r_user.json()
-            results.append({
-                "github_org_id": user_data.get("id"),
-                "github_org_name": user_data.get("login"),
-                "avatar_url": user_data.get("avatar_url"),
-                "description": "Personal account",
-            })
+            results.append(
+                {
+                    "github_org_id": user_data.get("id"),
+                    "github_org_name": user_data.get("login"),
+                    "avatar_url": user_data.get("avatar_url"),
+                    "description": "Personal account",
+                }
+            )
 
         # 2. Fetch user's organizations
-        r_orgs = requests.get("https://api.github.com/user/orgs", headers=headers)
+        r_orgs = requests.get(
+            "https://api.github.com/user/orgs", headers=headers
+        )
         if r_orgs.status_code == 200:
             orgs = r_orgs.json()
             for org in orgs:
                 if any(x["github_org_id"] == org.get("id") for x in results):
                     continue
-                results.append({
-                    "github_org_id": org.get("id"),
-                    "github_org_name": org.get("login"),
-                    "avatar_url": org.get("avatar_url"),
-                    "description": org.get("description"),
-                })
+                results.append(
+                    {
+                        "github_org_id": org.get("id"),
+                        "github_org_name": org.get("login"),
+                        "avatar_url": org.get("avatar_url"),
+                        "description": org.get("description"),
+                    }
+                )
         else:
             # If fetching orgs failed but user fetched successfully, return at least user
             if not results:
                 return Response(
-                    {"error": "Failed to fetch organizations from GitHub", "details": r_orgs.json()},
-                    status=r_orgs.status_code
+                    {
+                        "error": "Failed to fetch organizations from GitHub",
+                        "details": r_orgs.json(),
+                    },
+                    status=r_orgs.status_code,
                 )
 
         return Response(results, status=status.HTTP_200_OK)
@@ -210,24 +234,36 @@ class GithubValidateView(APIView):
     """
     Endpoint para validar as credenciais do GitHub (Client ID e Client Secret)
     """
+
     permission_classes = ()  # Permitir acesso público para a verificação pré-login
 
     def post(self, request):
         frontend_client_id = request.data.get("client_id")
-        print("FRONTEND CLIENT ID RECEIVED:", frontend_client_id, "BACKEND:", backend_client_id)
-        backend_client_id = getattr(settings, 'GITHUB_CLIENT_ID', '')
-        backend_secret = getattr(settings, 'GITHUB_SECRET', '')
+        backend_client_id = getattr(settings, "GITHUB_CLIENT_ID", "")
+        print(
+            "FRONTEND CLIENT ID RECEIVED:",
+            frontend_client_id,
+            "BACKEND:",
+            backend_client_id,
+        )
+        backend_secret = getattr(settings, "GITHUB_SECRET", "")
 
         if not backend_client_id or not backend_secret:
             return Response(
-                {'valid': False, 'reason': 'Backend GitHub credentials are not configured'},
-                status=status.HTTP_200_OK
+                {
+                    "valid": False,
+                    "reason": "Backend GitHub credentials are not configured",
+                },
+                status=status.HTTP_200_OK,
             )
 
         if frontend_client_id and frontend_client_id != backend_client_id:
             return Response(
-                {'valid': False, 'reason': 'Client ID mismatch between frontend and backend'},
-                status=status.HTTP_200_OK
+                {
+                    "valid": False,
+                    "reason": "Client ID mismatch between frontend and backend",
+                },
+                status=status.HTTP_200_OK,
             )
 
         try:
@@ -236,18 +272,21 @@ class GithubValidateView(APIView):
                 url,
                 json={"access_token": "dummy_verification_token"},
                 auth=(backend_client_id, backend_secret),
-                timeout=5
+                timeout=5,
             )
 
             # Se as credenciais estiverem erradas, a resposta será 401 Unauthorized (Bad credentials).
             # Se forem válidas mas o token dummy não existir, a resposta será 404 Not Found.
             if response.status_code == 401:
                 return Response(
-                    {'valid': False, 'reason': 'Invalid GitHub Client ID or Client Secret'},
-                    status=status.HTTP_200_OK
+                    {
+                        "valid": False,
+                        "reason": "Invalid GitHub Client ID or Client Secret",
+                    },
+                    status=status.HTTP_200_OK,
                 )
 
-            return Response({'valid': True}, status=status.HTTP_200_OK)
+            return Response({"valid": True}, status=status.HTTP_200_OK)
         except Exception:
             # Em caso de erro de rede ou timeout, assume como válido para não bloquear login
-            return Response({'valid': True}, status=status.HTTP_200_OK)
+            return Response({"valid": True}, status=status.HTTP_200_OK)
