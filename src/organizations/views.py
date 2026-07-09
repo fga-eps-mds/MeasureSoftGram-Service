@@ -237,14 +237,26 @@ class GitHubReposViewSet(UserScopedMixin, viewsets.ViewSet):
         else:
             url_fetch = f"https://api.github.com/orgs/{github_org_name}/repos?per_page=100"
 
-        r = requests.get(url_fetch, headers=headers)
-        if r.status_code != 200:
-            return Response(
-                {"error": f"Failed to fetch repositories for '{github_org_name}'", "details": r.json()},
-                status=r.status_code
-            )
+        repos = []
+        while url_fetch:
+            r = requests.get(url_fetch, headers=headers)
+            if r.status_code != 200:
+                return Response(
+                    {"error": f"Failed to fetch repositories for '{github_org_name}'", "details": r.json()},
+                    status=r.status_code
+                )
+            repos.extend(r.json())
+            
+            link_header = r.headers.get("Link")
+            url_fetch = None
+            if link_header:
+                links = link_header.split(',')
+                for link in links:
+                    parts = link.split(';')
+                    if len(parts) >= 2 and 'rel="next"' in parts[1]:
+                        url_fetch = parts[0].strip()[1:-1]
+                        break
 
-        repos = r.json()
         results = []
         for repo in repos:
             results.append({
