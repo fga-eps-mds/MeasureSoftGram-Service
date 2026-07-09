@@ -37,9 +37,12 @@ def get_releases_and_create_results():
         return
 
     for release in releases:
-        repositories = Repository.objects.filter(
-            product_id=release.product_id  # type: ignore
-        ).all()
+        if release.repositories.exists():
+            repositories = release.repositories.all()
+        else:
+            repositories = Repository.objects.filter(
+                product_id=release.product_id  # type: ignore
+            ).all()
 
         for repository in repositories:
             product = Product.objects.filter(

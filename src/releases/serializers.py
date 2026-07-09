@@ -3,10 +3,17 @@ from rest_framework import serializers
 from releases.models import Release
 from goals.models import Goal
 from accounts.models import CustomUser
-from organizations.models import Product
+from organizations.models import Product, Repository
 
 
 class ReleaseSerializer(serializers.ModelSerializer):
+    repositories_ids = serializers.PrimaryKeyRelatedField(
+        source='repositories',
+        queryset=Repository.objects.all(),
+        many=True,
+        required=True
+    )
+
     class Meta:
         model = Release
         fields = (
@@ -18,6 +25,7 @@ class ReleaseSerializer(serializers.ModelSerializer):
             'product',
             'goal',
             'description',
+            'repositories_ids'
         )
         read_only_fields = ('created_by', 'product')
 
@@ -61,7 +69,11 @@ class ReleaseSerializer(serializers.ModelSerializer):
             id=view.request.user.id
         )
         validated_data['product'] = product
-        return Release.objects.create(**validated_data)
+        repositories = validated_data.pop('repositories', [])
+        release_instance = Release.objects.create(**validated_data)
+        if repositories:
+            release_instance.repositories.set(repositories)
+        return release_instance
 
     def update(self, validated_data):
         view = self.context['view']

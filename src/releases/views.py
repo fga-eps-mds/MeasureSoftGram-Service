@@ -114,12 +114,15 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
                 list(result_calculated)
             )
         else:
-            product_key = int(self.kwargs['product_pk'])
-            ids_repositories = list(
-                Repository.objects.filter(product_id=product_key)
-                .values_list('id', flat=True)
-                .all()
-            )
+            if release.repositories.exists():
+                ids_repositories = list(release.repositories.values_list('id', flat=True))
+            else:
+                product_key = int(self.kwargs['product_pk'])
+                ids_repositories = list(
+                    Repository.objects.filter(product_id=product_key)
+                    .values_list('id', flat=True)
+                    .all()
+                )
 
             result_calculated = (
                 get_calculated_characteristic_by_ids_repositories(

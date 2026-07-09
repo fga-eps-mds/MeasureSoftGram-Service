@@ -23,6 +23,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
 
         self.org = self.get_organization()
         self.product = self.get_product(self.org)
+        self.repository = self.get_repository(self.product)
         self.goal = Goal.objects.create(
             created_at=date.today(),
             created_by_id=self.user.id,
@@ -40,6 +41,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             'start_at': '2023-11-24',
             'end_at': '2023-11-25',
             'goal': self.goal.id,
+            'repositories_ids': [self.repository.id],
         }
 
         response = self.client.post(
@@ -67,6 +69,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             'start_at': '2023-11-24',
             'end_at': '2023-11-25',
             'goal': self.goal.id,
+            'repositories_ids': [self.repository.id],
             'description': 'Apenas um testezinho',
         }
 
@@ -84,6 +87,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             'start_at': '2023-11-24',
             'end_at': '2023-11-30',
             'goal': self.goal.id,
+            'repositories_ids': [self.repository.id],
             'description': 'Essa tem que dar certo',
         }
 
@@ -92,6 +96,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             'start_at': '2023-11-29',
             'end_at': '2023-12-03',
             'goal': self.goal.id,
+            'repositories_ids': [self.repository.id],
             'description': 'Essa tem que dar errado',
         }
 
@@ -117,6 +122,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             'start_at': '2023-11-24',
             'end_at': '2023-11-30',
             'goal': self.goal.id,
+            'repositories_ids': [self.repository.id],
             'description': 'Essa tem que dar certo',
         }
 
@@ -125,6 +131,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             'start_at': '2023-12-01',
             'end_at': '2023-12-03',
             'goal': self.goal.id,
+            'repositories_ids': [self.repository.id],
             'description': 'Essa tem que dar errado',
         }
 
@@ -149,6 +156,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             'start_at': '2023-11-24',
             'end_at': '2023-11-30',
             'goal': self.goal.id,
+            'repositories_ids': [self.repository.id],
         }
 
         response = self.client.post(
@@ -174,6 +182,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         data = {
             'release_name': 'testezada do baum',
             'goal': self.goal.id,
+            'repositories_ids': [self.repository.id],
             'description': 'Essa tem que dar errado',
         }
 
