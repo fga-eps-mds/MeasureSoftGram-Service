@@ -20,9 +20,7 @@ class SchedulerLockTestCase(TestCase):
     def test_acquire_scheduler_lock_true_when_lock_free(self):
         """Primeiro worker pega o lock -> deve startar o scheduler."""
         with mock.patch("releases.jobs.connection") as conn:
-            cursor = (
-                conn.cursor.return_value.__enter__.return_value
-            )
+            cursor = conn.cursor.return_value.__enter__.return_value
             cursor.fetchone.return_value = (True,)
 
             self.assertTrue(jobs.acquire_scheduler_lock())
@@ -30,9 +28,7 @@ class SchedulerLockTestCase(TestCase):
     def test_acquire_scheduler_lock_false_when_already_held(self):
         """Workers seguintes nao pegam o lock -> nao sobem scheduler."""
         with mock.patch("releases.jobs.connection") as conn:
-            cursor = (
-                conn.cursor.return_value.__enter__.return_value
-            )
+            cursor = conn.cursor.return_value.__enter__.return_value
             cursor.fetchone.return_value = (False,)
 
             self.assertFalse(jobs.acquire_scheduler_lock())
@@ -41,9 +37,7 @@ class SchedulerLockTestCase(TestCase):
         """Sem o lock, check_the_need nao chama scheduler.start()."""
         with mock.patch(
             "releases.jobs.acquire_scheduler_lock", return_value=False
-        ), mock.patch(
-            "releases.jobs.BackgroundScheduler"
-        ) as scheduler_cls:
+        ), mock.patch("releases.jobs.BackgroundScheduler") as scheduler_cls:
             jobs.check_the_need_to_calculate_releases()
             scheduler_cls.return_value.start.assert_not_called()
 
@@ -51,9 +45,7 @@ class SchedulerLockTestCase(TestCase):
         """Com o lock, check_the_need sobe o scheduler normalmente."""
         with mock.patch(
             "releases.jobs.acquire_scheduler_lock", return_value=True
-        ), mock.patch(
-            "releases.jobs.register_events"
-        ), mock.patch(
+        ), mock.patch("releases.jobs.register_events"), mock.patch(
             "releases.jobs.BackgroundScheduler"
         ) as scheduler_cls:
             jobs.check_the_need_to_calculate_releases()

@@ -5,35 +5,39 @@ from utils.exceptions import InvalidReleaseConfigurationException
 
 
 class ReleaseConfigurationSerializer(serializers.ModelSerializer):
-    created_config = serializers.SerializerMethodField('has_created_config')
+    created_config = serializers.SerializerMethodField("has_created_config")
 
     class Meta:
         model = ReleaseConfiguration
-        fields = ('id', 'name', 'data', 'created_at', 'created_config')
+        fields = ("id", "name", "data", "created_at", "created_config")
         extra_kwargs = {
-            'created_at': {'read_only': True},
-            'created_config': {
-                'read_only': True,
+            "created_at": {"read_only": True},
+            "created_config": {
+                "read_only": True,
             },
         }
 
     def has_created_config(self, obj):
-        return len(ReleaseConfiguration.objects.values('id')) > 1
+        return len(ReleaseConfiguration.objects.values("id")) > 1
 
     def validate(self, attrs):
         """
         Valida se a pré-configuração que está sendo criada é válida
         """
         if self.instance:
-            raise ValueError("It's not allowed to edit a release-configuration")
+            raise ValueError(
+                "It's not allowed to edit a release-configuration"
+            )
 
-        data = attrs['data']
+        data = attrs["data"]
 
         try:
             ReleaseConfiguration.validate_measures(data)
             ReleaseConfiguration.validate_measures_weights(data)
             ReleaseConfiguration.validate_subcharacteristics(data)
-            ReleaseConfiguration.validate_subcharacteristics_measures_relation(data)
+            ReleaseConfiguration.validate_subcharacteristics_measures_relation(
+                data
+            )
             ReleaseConfiguration.validate_subcharacteristics_weights(data)
             ReleaseConfiguration.validate_characteristics(data)
             ReleaseConfiguration.validate_characteristics_subcharacteristics_relation(
@@ -63,7 +67,9 @@ class SubCharacteristicSerializer(serializers.Serializer):
 class CharacteristicSerializer(serializers.Serializer):
     key = serializers.CharField()
     weight = serializers.IntegerField()
-    subcharacteristics = serializers.ListField(child=SubCharacteristicSerializer())
+    subcharacteristics = serializers.ListField(
+        child=SubCharacteristicSerializer()
+    )
 
 
 class DefaultPreConfigSerializer(serializers.Serializer):

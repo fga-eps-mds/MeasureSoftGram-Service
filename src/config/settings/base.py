@@ -12,7 +12,6 @@ from pathlib import Path
 
 from django.core.management.utils import get_random_secret_key
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 # settings/base.py -> settings/ -> config/ -> src/
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -24,13 +23,19 @@ SECRET_KEY = os.getenv("SECRET_KEY", get_random_secret_key())
 # DEBUG controlado pelos modulos especificos (dev/test/production).
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
 
-ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
+ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+    if h.strip()
+]
 
 
 # Allowed origins on CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5000",
     "http://127.0.0.1:5000",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
     os.getenv(
         "FRONTEND_DEV_URL",
         "https://2024-1-measure-soft-gram.vercel.app",
@@ -71,7 +76,7 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.github",
     "django_apscheduler",
-    "drf_yasg"
+    "drf_yasg",
 ]
 
 APPLICATION_APPS = [
@@ -104,14 +109,16 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware"
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    o.strip() for o in os.getenv(
+    o.strip()
+    for o in os.getenv(
         "CSRF_TRUSTED_ORIGINS",
-        "https://*.2023-2-measuresoftgram-service-production.up.railway.app"
-    ).split(",") if o.strip()
+        "https://*.2023-2-measuresoftgram-service-production.up.railway.app",
+    ).split(",")
+    if o.strip()
 ]
 ROOT_URLCONF = "config.urls"
 
@@ -238,7 +245,9 @@ AMBIENT_TEST_OR_DEV = os.getenv("AMBIENT_TEST_OR_DEV", "True").lower() in (
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
-GITHUB_ISSUE_METRICS_THRESHOLD = int(os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7"))
+GITHUB_ISSUE_METRICS_THRESHOLD = int(
+    os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7")
+)
 
 MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(
     os.getenv(
@@ -269,7 +278,11 @@ GITHUB_SUPPORTED_MEASURES = [
             ]
         }
     },
-    {"ci_feedback_time": {"metrics": ["sum_ci_feedback_times", "total_builds"]}},
+    {
+        "ci_feedback_time": {
+            "metrics": ["sum_ci_feedback_times", "total_builds"]
+        }
+    },
 ]
 
 SCHEDULER_CONFIG = {
@@ -314,9 +327,12 @@ BADGE_STALENESS_DAYS = int(os.getenv("BADGE_STALENESS_DAYS", "30"))
 
 # Grafana Proxy Configuration
 GRAFANA_CONFIG = {
-    'BASE_URL': os.getenv('GRAFANA_BASE_URL', 'http://grafana:3000'),  # NOSONAR — rede interna Docker
-    'PUBLIC_URL': os.getenv('GRAFANA_PUBLIC_URL', 'http://localhost:5000'),  # NOSONAR — URL de dev
-    'USERNAME': os.getenv('GRAFANA_USERNAME', 'admin'),
-    'PASSWORD': os.getenv('GRAFANA_PASSWORD', ''),  # sem default — obrigatório via env
-    'TIMEOUT': int(os.getenv('GRAFANA_TIMEOUT', '10')),
+    # NOSONAR — rede interna Docker
+    "BASE_URL": os.getenv("GRAFANA_BASE_URL", "http://grafana:3000"),
+    # NOSONAR — URL de dev
+    "PUBLIC_URL": os.getenv("GRAFANA_PUBLIC_URL", "http://localhost:5000"),
+    "USERNAME": os.getenv("GRAFANA_USERNAME", "admin"),
+    # sem default — obrigatório via env
+    "PASSWORD": os.getenv("GRAFANA_PASSWORD", ""),
+    "TIMEOUT": int(os.getenv("GRAFANA_TIMEOUT", "10")),
 }

@@ -26,25 +26,37 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
     def test_create_badge_demo_repositories_is_idempotent(self):
         repositories = self.command.create_badge_demo_repositories()
 
-        self.assertEqual(set(repositories.keys()), {'A', 'B', 'C', 'D', 'E', 'N/A'})
-        self.assertTrue(Organization.objects.filter(name='Badge Demo Organization').exists())
+        self.assertEqual(
+            set(repositories.keys()), {"A", "B", "C", "D", "E", "N/A"}
+        )
+        self.assertTrue(
+            Organization.objects.filter(
+                name="Badge Demo Organization"
+            ).exists()
+        )
 
-        organization = Organization.objects.get(name='Badge Demo Organization')
+        organization = Organization.objects.get(name="Badge Demo Organization")
         product = Product.objects.get(
-            name='Badge Demo Product',
+            name="Badge Demo Product",
             organization=organization,
         )
 
-        self.assertEqual(product.repositories.count(), len(BADGE_DEMO_REPOSITORIES))
+        self.assertEqual(
+            product.repositories.count(), len(BADGE_DEMO_REPOSITORIES)
+        )
 
         repositories_again = self.command.create_badge_demo_repositories()
-        self.assertEqual(set(repositories_again.keys()), set(repositories.keys()))
-        self.assertEqual(product.repositories.count(), len(BADGE_DEMO_REPOSITORIES))
+        self.assertEqual(
+            set(repositories_again.keys()), set(repositories.keys())
+        )
+        self.assertEqual(
+            product.repositories.count(), len(BADGE_DEMO_REPOSITORIES)
+        )
 
     def test_create_badge_demo_values_populates_expected_counts(self):
         repositories = self.command.create_badge_demo_repositories()
 
-        repository_a = repositories['A']
+        repository_a = repositories["A"]
         TSQMI.objects.create(value=0.01, repository=repository_a)
         CalculatedCharacteristic.objects.create(
             characteristic=SupportedCharacteristic.objects.first(),
@@ -56,13 +68,15 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
 
         expected_characteristic_count = SupportedCharacteristic.objects.count()
         expected_values = {
-            item['grade']: item['value'] for item in BADGE_DEMO_REPOSITORIES
+            item["grade"]: item["value"] for item in BADGE_DEMO_REPOSITORIES
         }
 
         for grade, repository in repositories.items():
-            if grade == 'N/A':
+            if grade == "N/A":
                 self.assertFalse(repository.calculated_tsqmis.exists())
-                self.assertFalse(repository.calculated_characteristics.exists())
+                self.assertFalse(
+                    repository.calculated_characteristics.exists()
+                )
                 continue
 
             self.assertEqual(repository.calculated_tsqmis.count(), 1)
@@ -75,44 +89,60 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
                 expected_values[grade],
             )
             self.assertEqual(
-                set(repository.calculated_characteristics.values_list('value', flat=True)),
+                set(
+                    repository.calculated_characteristics.values_list(
+                        "value", flat=True
+                    )
+                ),
                 {expected_values[grade]},
             )
 
     def test_handle_enters_badge_demo_branch(
         self,
     ):
-        with patch.object(Command, 'create_supported_metrics'), patch.object(
-            Command, 'create_suported_measures'
-        ), patch.object(Command, 'create_github_suported_measures'), patch.object(
-            Command, 'create_supported_subcharacteristics'
-        ), patch.object(Command, 'create_supported_characteristics'), patch.object(
-            Command, 'create_balance_matrix'
-        ), patch.object(Command, 'create_fake_organizations'), patch.object(
-            Command, 'create_fake_products'
-        ), patch.object(Command, 'create_fake_repositories'), patch.object(
-            Command, 'create_fake_collected_metrics'
-        ) as mock_create_fake_collected_metrics, patch.object(
-            Command, 'create_fake_calculated_measures'
+        with patch.object(Command, "create_supported_metrics"), patch.object(
+            Command, "create_suported_measures"
         ), patch.object(
-            Command, 'create_fake_calculated_subcharacteristics'
-        ), patch.object(Command, 'create_fake_calculated_characteristics'), patch.object(
-            Command, 'create_fake_tsqmi_data'
+            Command, "create_github_suported_measures"
+        ), patch.object(
+            Command, "create_supported_subcharacteristics"
+        ), patch.object(
+            Command, "create_supported_characteristics"
+        ), patch.object(
+            Command, "create_balance_matrix"
+        ), patch.object(
+            Command, "create_fake_organizations"
+        ), patch.object(
+            Command, "create_fake_products"
+        ), patch.object(
+            Command, "create_fake_repositories"
+        ), patch.object(
+            Command, "create_fake_collected_metrics"
+        ) as mock_create_fake_collected_metrics, patch.object(
+            Command, "create_fake_calculated_measures"
+        ), patch.object(
+            Command, "create_fake_calculated_subcharacteristics"
+        ), patch.object(
+            Command, "create_fake_calculated_characteristics"
+        ), patch.object(
+            Command, "create_fake_tsqmi_data"
         ) as mock_create_fake_tsqmi_data, patch.object(
-            Command, 'create_badge_demo_repositories'
+            Command, "create_badge_demo_repositories"
         ) as mock_create_badge_demo_repositories, patch.object(
-            Command, 'create_badge_demo_values'
+            Command, "create_badge_demo_values"
         ) as mock_create_badge_demo_values, patch.object(
-            Command, 'create_a_goal'
+            Command, "create_a_goal"
         ), patch(
-            'organizations.management.commands.load_initial_data.Repository.objects.all'
+            "organizations.management.commands.load_initial_data.Repository.objects.all"
         ) as mock_repository_all, patch(
-            'organizations.management.commands.load_initial_data.get_user_model'
+            "organizations.management.commands.load_initial_data.get_user_model"
         ) as mock_get_user_model:
-            mock_create_badge_demo_repositories.return_value = {'A': Mock()}
+            mock_create_badge_demo_repositories.return_value = {"A": Mock()}
             mock_repository_all.return_value = [Mock()]
             mock_user_model = Mock()
-            mock_user_model.objects.create_superuser.side_effect = IntegrityError()
+            mock_user_model.objects.create_superuser.side_effect = (
+                IntegrityError()
+            )
             mock_get_user_model.return_value = mock_user_model
 
             self.command.handle(fake_data=True)
@@ -161,7 +191,9 @@ class LoadInitialDataFakeDataTestCase(APITestCaseExpanded):
         self.command.fake_data = True
         self.command.create_fake_calculated_measures(self.repository)
         self.assertTrue(
-            CalculatedMeasure.objects.filter(repository=self.repository).exists()
+            CalculatedMeasure.objects.filter(
+                repository=self.repository
+            ).exists()
         )
 
     @override_settings(CREATE_FAKE_DATA=False)
@@ -169,5 +201,7 @@ class LoadInitialDataFakeDataTestCase(APITestCaseExpanded):
         self.command.fake_data = False
         self.command.create_fake_calculated_measures(self.repository)
         self.assertFalse(
-            CalculatedMeasure.objects.filter(repository=self.repository).exists()
+            CalculatedMeasure.objects.filter(
+                repository=self.repository
+            ).exists()
         )

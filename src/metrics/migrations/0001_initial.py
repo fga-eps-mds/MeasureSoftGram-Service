@@ -9,105 +9,105 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('organizations', '0001_initial'),
+        ("organizations", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SupportedMetric',
+            name="SupportedMetric",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name='ID',
+                        verbose_name="ID",
                     ),
                 ),
-                ('key', models.CharField(max_length=128, unique=True)),
+                ("key", models.CharField(max_length=128, unique=True)),
                 (
-                    'metric_type',
+                    "metric_type",
                     models.CharField(
                         choices=[
-                            ('INT', 'Integer'),
-                            ('FLOAT', 'Float'),
-                            ('PERCENT', 'Percent'),
-                            ('BOOL', 'Boolean'),
-                            ('STRING', 'String'),
-                            ('DATA', 'Data'),
-                            ('LEVEL', 'Level'),
-                            ('MILLISEC', 'Milliseconds'),
-                            ('WORK_DUR', 'Work Duration'),
-                            ('DISTRIB', 'Distribution'),
-                            ('RATING', 'Rating'),
+                            ("INT", "Integer"),
+                            ("FLOAT", "Float"),
+                            ("PERCENT", "Percent"),
+                            ("BOOL", "Boolean"),
+                            ("STRING", "String"),
+                            ("DATA", "Data"),
+                            ("LEVEL", "Level"),
+                            ("MILLISEC", "Milliseconds"),
+                            ("WORK_DUR", "Work Duration"),
+                            ("DISTRIB", "Distribution"),
+                            ("RATING", "Rating"),
                         ],
-                        default='FLOAT',
+                        default="FLOAT",
                         max_length=15,
                     ),
                 ),
-                ('name', models.CharField(max_length=128)),
+                ("name", models.CharField(max_length=128)),
                 (
-                    'description',
+                    "description",
                     models.TextField(blank=True, max_length=512, null=True),
                 ),
             ],
             options={
-                'ordering': ['key'],
+                "ordering": ["key"],
             },
         ),
         migrations.CreateModel(
-            name='CollectedMetric',
+            name="CollectedMetric",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name='ID',
+                        verbose_name="ID",
                     ),
                 ),
-                ('value', models.FloatField()),
+                ("value", models.FloatField()),
                 (
-                    'path',
+                    "path",
                     models.CharField(
                         blank=True, default=None, max_length=255, null=True
                     ),
                 ),
                 (
-                    'qualifier',
+                    "qualifier",
                     models.CharField(
                         blank=True, default=None, max_length=5, null=True
                     ),
                 ),
                 (
-                    'dynamic_key',
+                    "dynamic_key",
                     models.CharField(blank=True, max_length=128, null=True),
                 ),
                 (
-                    'created_at',
+                    "created_at",
                     models.DateTimeField(default=django.utils.timezone.now),
                 ),
                 (
-                    'metric',
+                    "metric",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name='collected_metrics',
-                        to='metrics.supportedmetric',
+                        related_name="collected_metrics",
+                        to="metrics.supportedmetric",
                     ),
                 ),
                 (
-                    'repository',
+                    "repository",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        related_name='calculated_metrics',
-                        to='organizations.repository',
+                        related_name="calculated_metrics",
+                        to="organizations.repository",
                     ),
                 ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
     ]

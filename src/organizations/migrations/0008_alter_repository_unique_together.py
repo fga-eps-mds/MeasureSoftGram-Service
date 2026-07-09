@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0007_repository_platform'),
+        ("organizations", "0007_repository_platform"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='repository',
-            unique_together={('name', 'key', 'product')},
+            name="repository",
+            unique_together={("name", "key", "product")},
         ),
     ]

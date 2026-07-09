@@ -6,7 +6,6 @@ from apscheduler.triggers.cron import CronTrigger
 from django_apscheduler.jobstores import DjangoJobStore, register_events
 from django.db import connection
 from django.utils import timezone
-from django_apscheduler.models import DjangoJobExecution
 
 from releases.models import Release
 from organizations.models import Repository
@@ -37,37 +36,40 @@ def get_releases_and_create_results():
         return
 
     for release in releases:
-        repositories = Repository.objects.filter(
-            product_id=release.product_id  # type: ignore
-        ).all()
+        if release.repositories.exists():
+            repositories = release.repositories.all()
+        else:
+            repositories = Repository.objects.filter(
+                product_id=release.product_id  # type: ignore
+            ).all()
 
         for repository in repositories:
             product = Product.objects.filter(
                 id=repository.product_id
-            ).first()   # type: ignore
+            ).first()  # type: ignore
 
             data_characteristics = {
-                'characteristics': [
-                    {'key': 'reliability'},
-                    {'key': 'maintainability'},
+                "characteristics": [
+                    {"key": "reliability"},
+                    {"key": "maintainability"},
                 ]
             }
 
             characteristics_keys = [
-                characteristic['key']
-                for characteristic in data_characteristics['characteristics']
+                characteristic["key"]
+                for characteristic in data_characteristics["characteristics"]
             ]
 
             qs = SupportedCharacteristic.objects.filter(
                 key__in=characteristics_keys
             ).prefetch_related(
-                'subcharacteristics',
-                'subcharacteristics__calculated_subcharacteristics',
+                "subcharacteristics",
+                "subcharacteristics__calculated_subcharacteristics",
             )
 
-            pre_config = product.release_configuration.first()   # type: ignore
+            pre_config = product.release_configuration.first()  # type: ignore
 
-            core_params = {'characteristics': []}
+            core_params = {"characteristics": []}
 
             char: SupportedCharacteristic
             for char in qs:
@@ -75,18 +77,18 @@ def get_releases_and_create_results():
                     pre_config,
                 )
 
-                core_params['characteristics'].append(
+                core_params["characteristics"].append(
                     {
-                        'key': char.key,
-                        'subcharacteristics': subchars_params,
+                        "key": char.key,
+                        "subcharacteristics": subchars_params,
                     }
                 )
 
             calculate_result = calculate_characteristics(core_params)
 
             calculated_values = {
-                characteristic['key']: characteristic['value']
-                for characteristic in calculate_result['characteristics']
+                characteristic["key"]: characteristic["value"]
+                for characteristic in calculate_result["characteristics"]
             }
 
             calculated_characteristics = []
@@ -108,9 +110,9 @@ def get_releases_and_create_results():
                 CalculatedCharacteristic.objects.bulk_create(
                     calculated_characteristics
                 )
-                print('Criou as características calculadas')
+                print("Criou as características calculadas")
             except Exception:
-                print('Erro ao criar as características calculadas')
+                print("Erro ao criar as características calculadas")
                 continue
 
 
@@ -134,7 +136,7 @@ def acquire_scheduler_lock():
     try:
         with connection.cursor() as cursor:
             cursor.execute(
-                'SELECT pg_try_advisory_lock(%s)',
+                "SELECT pg_try_advisory_lock(%s)",
                 [SCHEDULER_ADVISORY_LOCK_KEY],
             )
             row = cursor.fetchone()
@@ -149,13 +151,13 @@ def acquire_scheduler_lock():
 def check_the_need_to_calculate_releases():
     if not acquire_scheduler_lock():
         print(
-            'Scheduler ja iniciado por outro worker, ignorando...',
+            "Scheduler ja iniciado por outro worker, ignorando...",
             file=sys.stdout,
         )
         return
 
     scheduler = BackgroundScheduler()
-    scheduler.add_jobstore(DjangoJobStore(), 'default')
+    scheduler.add_jobstore(DjangoJobStore(), "default")
 
     scheduler.add_job(
         get_releases_and_create_results,
@@ -163,14 +165,14 @@ def check_the_need_to_calculate_releases():
             hour=00,
             minute=00,
         ),
-        name='get_releases_and_create_results',
-        jobstore='default',
+        name="get_releases_and_create_results",
+        jobstore="default",
         replace_existing=True,
         max_instances=1,
         misfire_grace_time=10,
         coalesce=True,
-        id='get_releases_and_create_results',
+        id="get_releases_and_create_results",
     )
     register_events(scheduler)
     scheduler.start()
-    print('Scheduler started...', file=sys.stdout)
+    print("Scheduler started...", file=sys.stdout)

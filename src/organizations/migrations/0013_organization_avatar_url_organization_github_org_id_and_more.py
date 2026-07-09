@@ -6,33 +6,33 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0012_repository_imported'),
+        ("organizations", "0012_repository_imported"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='organization',
-            name='avatar_url',
+            model_name="organization",
+            name="avatar_url",
             field=models.URLField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='organization',
-            name='github_org_id',
+            model_name="organization",
+            name="github_org_id",
             field=models.BigIntegerField(blank=True, null=True, unique=True),
         ),
         migrations.AddField(
-            model_name='organization',
-            name='github_org_name',
+            model_name="organization",
+            name="github_org_name",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='github_full_name',
+            model_name="repository",
+            name="github_full_name",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='repository',
-            name='github_repo_id',
+            model_name="repository",
+            name="github_repo_id",
             field=models.BigIntegerField(blank=True, null=True),
         ),
     ]

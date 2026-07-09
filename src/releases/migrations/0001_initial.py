@@ -11,59 +11,59 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('organizations', '0001_initial'),
-        ('goals', '0003_alter_goal_created_by'),
+        ("organizations", "0001_initial"),
+        ("goals", "0003_alter_goal_created_by"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Release',
+            name="Release",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.BigAutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name='ID',
+                        verbose_name="ID",
                     ),
                 ),
                 (
-                    'created_at',
+                    "created_at",
                     models.DateTimeField(default=django.utils.timezone.now),
                 ),
-                ('start_at', models.DateTimeField()),
-                ('end_at', models.DateTimeField()),
-                ('release_name', models.CharField(max_length=255)),
+                ("start_at", models.DateTimeField()),
+                ("end_at", models.DateTimeField()),
+                ("release_name", models.CharField(max_length=255)),
                 (
-                    'description',
+                    "description",
                     models.TextField(blank=True, max_length=512, null=True),
                 ),
                 (
-                    'created_by',
+                    "created_by",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to=settings.AUTH_USER_MODEL,
                     ),
                 ),
                 (
-                    'goal',
+                    "goal",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to='goals.goal',
+                        to="goals.goal",
                     ),
                 ),
                 (
-                    'product',
+                    "product",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to='organizations.product',
+                        to="organizations.product",
                     ),
                 ),
             ],
             options={
-                'ordering': ('-created_at',),
+                "ordering": ("-created_at",),
             },
         ),
     ]

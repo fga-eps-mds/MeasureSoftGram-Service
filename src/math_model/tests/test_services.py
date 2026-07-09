@@ -9,6 +9,7 @@ A persistência mora em persist_all dentro de transaction.atomic.
 Testes de integração end-to-end do endpoint vivem em
 test_atomicity_smoke.py.
 """
+
 from freezegun import freeze_time
 
 from utils.tests import APITestCaseExpanded
@@ -36,7 +37,7 @@ class MathModelServicesTest(APITestCaseExpanded):
         self.product = self.get_product(self.org)
         self.repository = self.get_repository(self.product)
         ReleaseConfiguration.objects.get_or_create(
-            name='Default pre-config',
+            name="Default pre-config",
             data=staticfiles.DEFAULT_PRE_CONFIG,
             product=self.product,
         )
@@ -48,54 +49,89 @@ class MathModelServicesTest(APITestCaseExpanded):
         que alimentam as 8 medidas do DEFAULT_PRE_CONFIG."""
         metrics = []
         listed_fil = [
-            'coverage', 'complexity', 'functions',
-            'comment_lines_density', 'duplicated_lines_density',
+            "coverage",
+            "complexity",
+            "functions",
+            "comment_lines_density",
+            "duplicated_lines_density",
         ]
-        uts = ['test_execution_time', 'tests']
-        trk = ['test_failures', 'test_errors']
+        uts = ["test_execution_time", "tests"]
+        trk = ["test_failures", "test_errors"]
         github = [
-            'total_issues', 'resolved_issues',
-            'sum_ci_feedback_times', 'total_builds',
+            "total_issues",
+            "resolved_issues",
+            "sum_ci_feedback_times",
+            "total_builds",
         ]
 
-        for keys, qualifier in [(listed_fil, 'FIL'), (uts, 'UTS'), (trk, 'TRK')]:
+        for keys, qualifier in [
+            (listed_fil, "FIL"),
+            (uts, "UTS"),
+            (trk, "TRK"),
+        ]:
             for sm in SupportedMetric.objects.filter(key__in=keys):
                 # 2 valores cada — necessário pra que listas cheguem
                 # ao msgram-core como list (não desempacotadas).
-                metrics.append(CollectedMetric(
-                    value=0.1, metric=sm, repository=self.repository,
-                    qualifier=qualifier,
-                ))
-                metrics.append(CollectedMetric(
-                    value=0.2, metric=sm, repository=self.repository,
-                    qualifier=qualifier,
-                ))
+                metrics.append(
+                    CollectedMetric(
+                        value=0.1,
+                        metric=sm,
+                        repository=self.repository,
+                        qualifier=qualifier,
+                    )
+                )
+                metrics.append(
+                    CollectedMetric(
+                        value=0.2,
+                        metric=sm,
+                        repository=self.repository,
+                        qualifier=qualifier,
+                    )
+                )
 
         for sm in SupportedMetric.objects.filter(key__in=github):
-            metrics.append(CollectedMetric(
-                value=1, metric=sm, repository=self.repository,
-                qualifier='TRK',
-            ))
+            metrics.append(
+                CollectedMetric(
+                    value=1,
+                    metric=sm,
+                    repository=self.repository,
+                    qualifier="TRK",
+                )
+            )
 
         return metrics
 
     def test_if_parse_release_config(self):
-        from release_configuration.serializers import ReleaseConfigurationSerializer
+        from release_configuration.serializers import (
+            ReleaseConfigurationSerializer,
+        )
+
         config_serializer = ReleaseConfigurationSerializer(self.release_config)
-        char_keys, subchar_keys, measure_keys = utils.parse_release_configuration(
-            config_serializer.data,
+        char_keys, subchar_keys, measure_keys = (
+            utils.parse_release_configuration(
+                config_serializer.data,
+            )
         )
         assert char_keys == [
-            'reliability', 'maintainability', 'functional_suitability',
+            "reliability",
+            "maintainability",
+            "functional_suitability",
         ]
         assert subchar_keys == [
-            'testing_status', 'maturity', 'modifiability',
-            'functional_completeness',
+            "testing_status",
+            "maturity",
+            "modifiability",
+            "functional_completeness",
         ]
         assert measure_keys == [
-            'passed_tests', 'test_builds', 'test_coverage',
-            'ci_feedback_time', 'non_complex_file_density',
-            'commented_file_density', 'duplication_absense', 'team_throughput',
+            "passed_tests",
+            "test_builds",
+            "test_coverage",
+            "ci_feedback_time",
+            "non_complex_file_density",
+            "commented_file_density",
+            "duplication_absense",
+            "team_throughput",
         ]
 
     def test_build_calculated_measures_returns_instances_and_values(self):
@@ -105,7 +141,9 @@ class MathModelServicesTest(APITestCaseExpanded):
         measure_keys = [m.key for m in SupportedMeasure.objects.all()]
 
         instances, values = self.services.build_calculated_measures(
-            measure_keys, self.release_config, collected,
+            measure_keys,
+            self.release_config,
+            collected,
         )
 
         # Não persistiu nada
@@ -119,20 +157,22 @@ class MathModelServicesTest(APITestCaseExpanded):
         assert all(isinstance(v, float) for v in values.values())
 
     def test_build_calculated_subcharacteristics_uses_in_memory_values(self):
-        measure_values = {
-            m.key: 0.1 for m in SupportedMeasure.objects.all()
-        }
+        measure_values = {m.key: 0.1 for m in SupportedMeasure.objects.all()}
         subchar_keys = [
             s.key for s in self.release_config.get_subcharacteristics_qs()
         ]
 
         instances, values = self.services.build_calculated_subcharacteristics(
-            subchar_keys, self.release_config, measure_values,
+            subchar_keys,
+            self.release_config,
+            measure_values,
         )
 
         assert CalculatedSubCharacteristic.objects.count() == 0
         assert len(instances) == len(subchar_keys)
-        assert all(isinstance(i, CalculatedSubCharacteristic) for i in instances)
+        assert all(
+            isinstance(i, CalculatedSubCharacteristic) for i in instances
+        )
         assert all(i.pk is None for i in instances)
         assert set(values.keys()) == set(subchar_keys)
 
@@ -145,7 +185,9 @@ class MathModelServicesTest(APITestCaseExpanded):
         ]
 
         instances, values = self.services.build_calculated_characteristics(
-            char_keys, self.release_config, subchar_values,
+            char_keys,
+            self.release_config,
+            subchar_values,
         )
 
         assert CalculatedCharacteristic.objects.count() == 0
@@ -180,18 +222,30 @@ class MathModelServicesTest(APITestCaseExpanded):
         ]
 
         measures, measure_values = self.services.build_calculated_measures(
-            measure_keys, self.release_config, collected,
+            measure_keys,
+            self.release_config,
+            collected,
         )
-        subchars, subchar_values = self.services.build_calculated_subcharacteristics(
-            subchar_keys, self.release_config, measure_values,
+        subchars, subchar_values = (
+            self.services.build_calculated_subcharacteristics(
+                subchar_keys,
+                self.release_config,
+                measure_values,
+            )
         )
         chars, char_values = self.services.build_calculated_characteristics(
-            char_keys, self.release_config, subchar_values,
+            char_keys,
+            self.release_config,
+            subchar_values,
         )
         tsqmi = self.services.build_tsqmi(self.release_config, char_values)
 
         response = self.services.persist_all(
-            collected, measures, subchars, chars, tsqmi,
+            collected,
+            measures,
+            subchars,
+            chars,
+            tsqmi,
         )
 
         # Tudo persistido
@@ -202,6 +256,11 @@ class MathModelServicesTest(APITestCaseExpanded):
         assert TSQMI.objects.count() == 1
 
         # Resposta tem as 5 chaves serializadas
-        for key in ('metrics', 'measures', 'subcharacteristics',
-                    'characteristics', 'tsqmi'):
+        for key in (
+            "metrics",
+            "measures",
+            "subcharacteristics",
+            "characteristics",
+            "tsqmi",
+        ):
             assert key in response

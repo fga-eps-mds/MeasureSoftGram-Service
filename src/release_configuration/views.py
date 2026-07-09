@@ -1,12 +1,12 @@
 from rest_framework import mixins, status, viewsets
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from organizations.models import Product
 from organizations.mixins import UserScopedMixin
 from release_configuration.models import ReleaseConfiguration
-from measures.models import SupportedMeasure
-from release_configuration.serializers import ReleaseConfigurationSerializer, DefaultPreConfigSerializer
+from release_configuration.serializers import (
+    ReleaseConfigurationSerializer,
+    DefaultPreConfigSerializer,
+)
 from staticfiles import SUPPORTED_MEASURES
 
 from utils import staticfiles

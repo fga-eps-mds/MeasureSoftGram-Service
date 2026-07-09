@@ -18,13 +18,13 @@ class Organization(models.Model):
     )
     members = models.ManyToManyField(
         get_user_model(),
-        related_name='organizations',
+        related_name="organizations",
         blank=True,
     )
     admin = models.ForeignKey(
         get_user_model(),
         on_delete=models.CASCADE,
-        related_name='admin_organizations',
+        related_name="admin_organizations",
         null=True,
         blank=True,
     )
@@ -37,7 +37,7 @@ class Organization(models.Model):
             self.key = slugify(self.name)
             while Organization.objects.filter(key=self.key).exists():
                 random_num = uuid4().hex[:6]
-                self.key = f'{self.key}-{random_num}'
+                self.key = f"{self.key}-{random_num}"
         return super().save(*args, **kwargs)
 
     def __str__(self):
@@ -46,7 +46,7 @@ class Organization(models.Model):
 
 class Product(models.Model):
     class Meta:
-        unique_together = (('key', 'organization'),)
+        unique_together = (("key", "organization"),)
 
     name = models.CharField(max_length=128)
     key = models.SlugField(max_length=128, unique=True)
@@ -58,13 +58,13 @@ class Product(models.Model):
     organization = models.ForeignKey(
         Organization,
         on_delete=models.CASCADE,
-        related_name='products',
+        related_name="products",
     )
     gaugeRedLimit = models.DecimalField(
-        max_digits=3, decimal_places=2, default=Decimal('0.33')
+        max_digits=3, decimal_places=2, default=Decimal("0.33")
     )
     gaugeYellowLimit = models.DecimalField(
-        max_digits=3, decimal_places=2, default=Decimal('0.66')
+        max_digits=3, decimal_places=2, default=Decimal("0.66")
     )
 
     def __str__(self):
@@ -73,15 +73,15 @@ class Product(models.Model):
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = slugify(self.name)
-            self.key = f'{self.organization.key}-{self.key}'
+            self.key = f"{self.organization.key}-{self.key}"
             while Product.objects.filter(key=self.key).exists():
                 random_num = uuid4().hex[:6]
-                self.key = f'{self.key}-{random_num}'
+                self.key = f"{self.key}-{random_num}"
 
         super().save(*args, **kwargs)
 
         ReleaseConfiguration.objects.get_or_create(
-            name='Default pre-config',
+            name="Default pre-config",
             data=staticfiles.DEFAULT_PRE_CONFIG,
             product=self,
         )
@@ -89,22 +89,22 @@ class Product(models.Model):
 
 class Repository(models.Model):
     class Meta:
-        unique_together = (('key', 'product'),)
-        verbose_name_plural = 'Repositories'
+        unique_together = (("key", "product"),)
+        verbose_name_plural = "Repositories"
 
     name = models.CharField(max_length=128)
     key = models.SlugField(max_length=128, unique=False, blank=True)
     url = models.URLField(max_length=200, blank=True, null=True)
 
     PLATFORM_CHOICES = (
-        ('github', 'GitHub'),
-        ('gitlab', 'GitLab'),
-        ('bitbucket', 'Bitbucket'),
-        ('subversion (SVN)', 'Subversion (SVN)'),
-        ('mercurial', 'Mercurial'),
-        ('aws code commit', 'AWS CodeCommit'),
-        ('azure repos', 'Azure Repos'),
-        ('outros', 'Outros'),
+        ("github", "GitHub"),
+        ("gitlab", "GitLab"),
+        ("bitbucket", "Bitbucket"),
+        ("subversion (SVN)", "Subversion (SVN)"),
+        ("mercurial", "Mercurial"),
+        ("aws code commit", "AWS CodeCommit"),
+        ("azure repos", "Azure Repos"),
+        ("outros", "Outros"),
     )
 
     platform = models.CharField(
@@ -119,7 +119,7 @@ class Repository(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='repositories',
+        related_name="repositories",
     )
 
     imported = models.BooleanField(default=False)
@@ -128,14 +128,19 @@ class Repository(models.Model):
 
     def save(self, *args, **kwargs):
         self.key = slugify(self.name)
-        self.key = f'{self.product.key}-{self.key}'
+        self.key = f"{self.product.key}-{self.key}"
 
-        if self.platform == 'github' and self.url and not self.github_full_name:
+        if (
+            self.platform == "github"
+            and self.url
+            and not self.github_full_name
+        ):
             from urllib.parse import urlparse
+
             try:
                 parsed = urlparse(self.url)
-                if 'github.com' in parsed.netloc:
-                    parts = [p for p in parsed.path.split('/') if p]
+                if "github.com" in parsed.netloc:
+                    parts = [p for p in parsed.path.split("/") if p]
                     if len(parts) >= 2:
                         self.github_full_name = f"{parts[0]}/{parts[1]}"
             except Exception:

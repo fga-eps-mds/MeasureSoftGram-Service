@@ -8,7 +8,6 @@ APScheduler desligado pra nao subir o cron job em testes.
 from .base import *  # noqa: F401,F403
 from .base import DATABASES, LOGGING
 
-
 DEBUG = False
 
 DATABASES["default"]["NAME"] = f"{DATABASES['default']['NAME']}_test"

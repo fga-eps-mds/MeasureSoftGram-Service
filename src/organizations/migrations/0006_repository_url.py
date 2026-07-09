@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0005_alter_repository_key'),
+        ("organizations", "0005_alter_repository_key"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='repository',
-            name='url',
+            model_name="repository",
+            name="url",
             field=models.URLField(blank=True, null=True),
         ),
     ]

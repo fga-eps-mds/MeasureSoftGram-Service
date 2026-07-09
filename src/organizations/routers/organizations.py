@@ -6,18 +6,18 @@ class OrgRouter(Router):
     def __init__(self, parent_router, **children):
         super().__init__(
             parent_router,
-            'organizations',
-            'organization',
+            "organizations",
+            "organization",
             children=[
                 {
-                    'name': 'products',
-                    'view': ProductViewSet,
-                    'basename': '',
+                    "name": "products",
+                    "view": ProductViewSet,
+                    "basename": "",
                 },
                 {
-                    'name': 'github-repos',
-                    'view': GitHubReposViewSet,
-                    'basename': 'github-repos',
+                    "name": "github-repos",
+                    "view": GitHubReposViewSet,
+                    "basename": "github-repos",
                 },
                 *children,
             ],

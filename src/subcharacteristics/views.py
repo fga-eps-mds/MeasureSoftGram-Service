@@ -1,19 +1,12 @@
-from resources import calculate_subcharacteristics
-from rest_framework import mixins, status, viewsets
-from rest_framework.generics import get_object_or_404
-from rest_framework.response import Response
+from rest_framework import mixins, viewsets
 
-import utils
-from organizations.models import Product, Repository
 from organizations.mixins import UserScopedMixin
 from subcharacteristics.models import (
-    CalculatedSubCharacteristic,
     SupportedSubCharacteristic,
 )
 from subcharacteristics.serializers import (
     CalculatedSubCharacteristicHistorySerializer,
     LatestCalculatedSubCharacteristicSerializer,
-    SubCharacteristicsCalculationsRequestSerializer,
     SupportedSubCharacteristicSerializer,
 )
 
@@ -34,7 +27,7 @@ class RepositorySubCharacteristicMixin(UserScopedMixin):
     def get_queryset(self):
         repository = self.get_repository()
         qs = repository.calculated_subcharacteristics.all()
-        qs = qs.values_list('subcharacteristic', flat=True).distinct()
+        qs = qs.values_list("subcharacteristic", flat=True).distinct()
         return SupportedSubCharacteristic.objects.filter(id__in=qs)
 
 
@@ -49,7 +42,7 @@ class LatestCalculatedSubCharacteristicModelViewSet(
     """
 
     queryset = SupportedSubCharacteristic.objects.prefetch_related(
-        'calculated_subcharacteristics',
+        "calculated_subcharacteristics",
     )
     serializer_class = LatestCalculatedSubCharacteristicSerializer
 
@@ -65,6 +58,6 @@ class CalculatedSubCharacteristicHistoryModelViewSet(
     """
 
     queryset = SupportedSubCharacteristic.objects.prefetch_related(
-        'calculated_subcharacteristics',
+        "calculated_subcharacteristics",
     )
     serializer_class = CalculatedSubCharacteristicHistorySerializer
