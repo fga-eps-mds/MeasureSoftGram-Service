@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth import get_user_model
+from django.test import SimpleTestCase
 from parameterized import parameterized
 from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
@@ -555,3 +556,24 @@ class AccountsViews(APITestCaseExpanded):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["valid"])
+
+
+class AccountsAppConfigTest(SimpleTestCase):
+    def test_ready_imports_signals(self):
+        # Regressao 283ce41 ("fix: lint erros"): o ready() de AccountsConfig
+        # trocou "import accounts.signals" por "pass", desconectando o receiver
+        # save_github_token. Sem ele nenhum login persiste o github_access_token
+        # e /accounts/github-organizations/ passa a responder 400. O ready()
+        # precisa importar o modulo de signals pra registrar o receiver.
+        import sys
+
+        from django.apps import apps
+
+        sys.modules.pop("accounts.signals", None)
+        apps.get_app_config("accounts").ready()
+
+        self.assertIn(
+            "accounts.signals",
+            sys.modules,
+            "AccountsConfig.ready() deve importar accounts.signals",
+        )
