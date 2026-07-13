@@ -235,12 +235,16 @@ class Command(BaseCommand):
         all_timestamps = _make_timestamps(self.days, self.end_date)
 
         # IMPORTANTE: Para o pulso ECG funcionar, características e TSQMI devem estar nas MESMAS datas
-        # Seleciona 10 timestamps espaçados uniformemente para TSQMI e características
+        # Seleciona 10 timestamps espaçados uniformemente (incluindo o mais recente) para
+        # TSQMI e características — o painel "Planejado vs Realizado" só considera os
+        # últimos 7 dias, então a última amostra precisa ficar perto de `self.end_date`.
         TSQMI_MEASUREMENTS = 10
-        step = max(1, len(all_timestamps) // TSQMI_MEASUREMENTS)
-        tsqmi_timestamps = [
-            all_timestamps[i * step] for i in range(TSQMI_MEASUREMENTS)
+        last_idx = len(all_timestamps) - 1
+        indices = [
+            round(i * last_idx / (TSQMI_MEASUREMENTS - 1))
+            for i in range(TSQMI_MEASUREMENTS)
         ]
+        tsqmi_timestamps = [all_timestamps[i] for i in indices]
 
         if self.clean_tsqmi:
             TSQMI.objects.filter(repository=repo).delete()
