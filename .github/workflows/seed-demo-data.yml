@@ -1,0 +1,41 @@
+name: Seed Grafana Demo Data (Prod)
+
+# Popula/atualiza os dados MOCKADOS da conta de demonstracao (msgramteste)
+# direto na producao, via runner self-hosted (unico jeito de rodar comandos
+# na VPS sem acesso SSH direto).
+#
+# Escopo travado nos repositorios de demo conhecidos (REPO_PROFILES em
+# seed_grafana.py) -- --clean-all e --clean-tsqmi filtram por --repos, entao
+# NUNCA tocam em dados reais de outras equipes.
+#
+# Uso: aba Actions -> "Seed Grafana Demo Data (Prod)" -> Run workflow ->
+#   escrever SEED no campo de confirmacao.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Digite SEED para confirmar (recria os dados mockados de demo)'
+        required: true
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  seed:
+    runs-on: [self-hosted, msgram-prod]
+    steps:
+      - name: Validar confirmação
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "SEED" ]; then
+            echo "Confirmação inválida. Digite exatamente SEED no input pra prosseguir."
+            exit 1
+          fi
+
+      - name: Rodar seed_grafana (escopo travado nos repos de demo)
+        run: |
+          docker exec msgram_service python manage.py seed_grafana \
+            --days 180 --clean-tsqmi --clean-all \
+            --repos "2019.2-Acacia,2019.2-Acacia-Frontend,2020.1-BCE,2021.1_G01_Animalesco_BackEnd,2021.1_G01_Animalesco_FrontEnd,2022-1-MeasureSoftGram-Service,2022-1-MeasureSoftGram-Core,2022-1-MeasureSoftGram-Front,2022-1-MeasureSoftGram-CLI" \
+            --grafana-url http://grafana:3000
