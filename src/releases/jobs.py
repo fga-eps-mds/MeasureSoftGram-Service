@@ -1,22 +1,17 @@
-from resources import calculate_characteristics
+import sys
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-
-from django_apscheduler.jobstores import DjangoJobStore, register_events
 from django.conf import settings
 from django.db import connection
 from django.utils import timezone
+from django_apscheduler.jobstores import DjangoJobStore, register_events
+from resources import calculate_characteristics
 
+from characteristics.models import (CalculatedCharacteristic,
+                                    SupportedCharacteristic)
+from organizations.models import Product, Repository
 from releases.models import Release
-from organizations.models import Repository
-from organizations.models import Product
-from characteristics.models import (
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
-
-import sys
 
 # Chave fixa do advisory lock de sessao do Postgres usado para eleger um
 # unico worker como dono do scheduler. Qualquer int de 64 bits estavel
@@ -108,9 +103,7 @@ def get_releases_and_create_results():
                 )
 
             try:
-                CalculatedCharacteristic.objects.bulk_create(
-                    calculated_characteristics
-                )
+                CalculatedCharacteristic.objects.bulk_create(calculated_characteristics)
                 print("Criou as características calculadas")
             except Exception:
                 print("Erro ao criar as características calculadas")

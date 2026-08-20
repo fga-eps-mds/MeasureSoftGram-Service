@@ -17,8 +17,6 @@ class Router:
                 if c_name and c_view:
                     basename = child.pop("basename")
                     if basename:
-                        self.nested_router.register(
-                            c_name, c_view, basename=basename
-                        )
+                        self.nested_router.register(c_name, c_view, basename=basename)
                     else:
                         self.nested_router.register(c_name, c_view)

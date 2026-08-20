@@ -9,9 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 class CustomUserManager(UserManager):
     def get_by_natural_key(self, username):
-        case_insensitive_username_field = (
-            f"{self.model.USERNAME_FIELD}__iexact"
-        )
+        case_insensitive_username_field = f"{self.model.USERNAME_FIELD}__iexact"
         return self.get(**{case_insensitive_username_field: username})
 
 
@@ -59,9 +57,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(
         _("staff status"),
         default=False,
-        help_text=_(
-            ("Designates whether the user can log into this admin site.")
-        ),
+        help_text=_(("Designates whether the user can log into this admin site.")),
     )
 
     is_active = models.BooleanField(
@@ -82,9 +78,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     objects = CustomUserManager()
 
-    github_access_token = models.CharField(
-        max_length=255, blank=True, null=True
-    )
+    github_access_token = models.CharField(max_length=255, blank=True, null=True)
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "username"

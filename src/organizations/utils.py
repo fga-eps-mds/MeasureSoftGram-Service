@@ -1,9 +1,11 @@
 import logging
+
 import requests
+
 from math_model.services import MathModelServices
-from release_configuration.serializers import ReleaseConfigurationSerializer
 from math_model.utils import parse_release_configuration
 from release_configuration.models import ReleaseConfiguration
+from release_configuration.serializers import ReleaseConfigurationSerializer
 from utils import staticfiles
 
 logger = logging.getLogger(__name__)
@@ -75,9 +77,7 @@ def get_default_mock_payload():
 
 
 def _trigger_github_workflow(repo_full_name, headers):
-    url_workflows = (
-        f"https://api.github.com/repos/{repo_full_name}/actions/workflows"
-    )
+    url_workflows = f"https://api.github.com/repos/{repo_full_name}/actions/workflows"
     try:
         r = requests.get(url_workflows, headers=headers, timeout=10)
         if r.status_code != 200:
@@ -139,9 +139,7 @@ def onboard_repository_async(repository, user):
             "Authorization": f"token {token}",
             "Accept": "application/vnd.github.v3+json",
         }
-        has_triggered_workflow = _trigger_github_workflow(
-            repo_full_name, headers
-        )
+        has_triggered_workflow = _trigger_github_workflow(repo_full_name, headers)
 
     if not has_triggered_workflow:
         logger.info(
@@ -149,24 +147,18 @@ def onboard_repository_async(repository, user):
         )
         try:
             product = repository.product
-            release_configuration, _ = (
-                ReleaseConfiguration.objects.get_or_create(
-                    name="Default pre-config",
-                    product=product,
-                    defaults={
-                        "data": staticfiles.DEFAULT_PRE_CONFIG,
-                    },
-                )
+            release_configuration, _ = ReleaseConfiguration.objects.get_or_create(
+                name="Default pre-config",
+                product=product,
+                defaults={
+                    "data": staticfiles.DEFAULT_PRE_CONFIG,
+                },
             )
 
             services = MathModelServices(repository, product)
-            config_serializer = ReleaseConfigurationSerializer(
-                release_configuration
-            )
-            char_keys, subchar_keys, measure_keys = (
-                parse_release_configuration(
-                    config_serializer.data,
-                )
+            config_serializer = ReleaseConfigurationSerializer(release_configuration)
+            char_keys, subchar_keys, measure_keys = parse_release_configuration(
+                config_serializer.data,
             )
 
             mock_payload = get_default_mock_payload()
@@ -176,12 +168,10 @@ def onboard_repository_async(repository, user):
                 release_configuration,
                 collected_metrics,
             )
-            subchars, subchar_values = (
-                services.build_calculated_subcharacteristics(
-                    subchar_keys,
-                    release_configuration,
-                    measure_values,
-                )
+            subchars, subchar_values = services.build_calculated_subcharacteristics(
+                subchar_keys,
+                release_configuration,
+                measure_values,
             )
             chars, char_values = services.build_calculated_characteristics(
                 char_keys,

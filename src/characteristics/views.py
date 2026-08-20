@@ -2,19 +2,14 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from characteristics.models import (
-    BalanceMatrix,
-    SupportedCharacteristic,
-)
+from characteristics.models import BalanceMatrix, SupportedCharacteristic
 from characteristics.serializers import (
-    BalanceMatrixSerializer,
-    CalculatedCharacteristicHistorySerializer,
+    BalanceMatrixSerializer, CalculatedCharacteristicHistorySerializer,
     CharacteristicsCalculationsRequestSerializer,
     LatestCalculatedCharacteristicSerializer,
-    SupportedCharacteristicSerializer,
-)
-from organizations.models import Repository
+    SupportedCharacteristicSerializer)
 from organizations.mixins import UserScopedMixin
+from organizations.models import Repository
 
 
 class CalculateCharacteristicViewSet(
@@ -129,11 +124,8 @@ class LatestCalculatedCharacteristicBadgeViewSet(
         )
 
     def list(self, request, *args, **kwargs):
-        from utils.badge import (
-            is_stale,
-            render_badge_svg,
-            render_stale_badge_svg,
-        )
+        from utils.badge import (is_stale, render_badge_svg,
+                                 render_stale_badge_svg)
 
         repository = self.get_repository()
         characteristic_key = self.kwargs.get("characteristic_key")

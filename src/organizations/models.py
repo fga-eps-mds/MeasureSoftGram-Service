@@ -1,10 +1,12 @@
+from decimal import Decimal
 from uuid import uuid4
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.text import slugify
+
 from release_configuration.models import ReleaseConfiguration
 from utils import staticfiles
-from decimal import Decimal
 
 
 class Organization(models.Model):
@@ -130,11 +132,7 @@ class Repository(models.Model):
         self.key = slugify(self.name)
         self.key = f"{self.product.key}-{self.key}"
 
-        if (
-            self.platform == "github"
-            and self.url
-            and not self.github_full_name
-        ):
+        if self.platform == "github" and self.url and not self.github_full_name:
             from urllib.parse import urlparse
 
             try:

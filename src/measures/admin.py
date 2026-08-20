@@ -62,10 +62,7 @@ class MetricsMeasuresAssociation(admin.ModelAdmin):
     """
 
     def changelist_view(self, request, extra_context=None):
-        msg = (
-            "Tabela que armazena a relação entre "
-            "as MEDIDAS e suas MÉTRICAS."
-        )
+        msg = "Tabela que armazena a relação entre " "as MEDIDAS e suas MÉTRICAS."
         messages.add_message(request, messages.INFO, msg)
         return super().changelist_view(request, extra_context)
 

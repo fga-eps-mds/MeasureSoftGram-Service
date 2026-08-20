@@ -22,6 +22,7 @@ Uso:
     python manage.py seed_grafana --repos "MeasureSoftGram-Service,MeasureSoftGram-Front"
     python manage.py seed_grafana --clean-all  # Limpa e recria todos os dados
 """
+
 import datetime as dt
 import json
 import math
@@ -34,20 +35,16 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from characteristics.models import (
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
+from characteristics.models import (CalculatedCharacteristic,
+                                    SupportedCharacteristic)
 from goals.models import Goal
 from measures.models import CalculatedMeasure, SupportedMeasure
 from metrics.models import CollectedMetric, SupportedMetric
 from organizations.models import Product, Repository
 from release_configuration.models import ReleaseConfiguration
 from releases.models import Release
-from subcharacteristics.models import (
-    CalculatedSubCharacteristic,
-    SupportedSubCharacteristic,
-)
+from subcharacteristics.models import (CalculatedSubCharacteristic,
+                                       SupportedSubCharacteristic)
 from tsqmi.models import TSQMI
 
 User = get_user_model()
@@ -79,9 +76,7 @@ def _clamp(v, lo=0.0, hi=1.0):
     return max(lo, min(hi, v))
 
 
-def _trend_value(
-    day_idx: int, profile_name: str, char_offset: float = 0.0
-) -> float:
+def _trend_value(day_idx: int, profile_name: str, char_offset: float = 0.0) -> float:
     p = TREND_PROFILES[profile_name]
     base = _clamp(p["base"] + char_offset)
     linear = p["slope"] * day_idx
@@ -107,9 +102,7 @@ class Command(BaseCommand):
     help = "Popula banco com dados ricos para visualização no Grafana"
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--days", type=int, default=180, help="Dias de histórico"
-        )
+        parser.add_argument("--days", type=int, default=180, help="Dias de histórico")
         parser.add_argument(
             "--repos",
             type=str,
@@ -151,9 +144,7 @@ class Command(BaseCommand):
         self.days = kwargs["days"]
         self.clean_tsqmi = kwargs["clean_tsqmi"]
         self.clean_all = kwargs["clean_all"]
-        repo_filter = [
-            r.strip() for r in kwargs["repos"].split(",") if r.strip()
-        ]
+        repo_filter = [r.strip() for r in kwargs["repos"].split(",") if r.strip()]
 
         self.admin = User.objects.filter(is_superuser=True).first()
         if not self.admin:
@@ -179,16 +170,12 @@ class Command(BaseCommand):
             deleted = CalculatedCharacteristic.objects.filter(
                 repository__in=repos
             ).delete()
-            self.stdout.write(
-                f"  → {deleted[0]} características calculadas removidas"
-            )
+            self.stdout.write(f"  → {deleted[0]} características calculadas removidas")
 
             deleted_measures = CalculatedMeasure.objects.filter(
                 repository__in=repos
             ).delete()
-            self.stdout.write(
-                f"  → {deleted_measures[0]} medidas calculadas removidas"
-            )
+            self.stdout.write(f"  → {deleted_measures[0]} medidas calculadas removidas")
 
             deleted_subchars = CalculatedSubCharacteristic.objects.filter(
                 repository__in=repos
@@ -200,9 +187,7 @@ class Command(BaseCommand):
             deleted_metrics = CollectedMetric.objects.filter(
                 repository__in=repos
             ).delete()
-            self.stdout.write(
-                f"  → {deleted_metrics[0]} métricas coletadas removidas"
-            )
+            self.stdout.write(f"  → {deleted_metrics[0]} métricas coletadas removidas")
             self.stdout.write("")
 
         self.stdout.write(
@@ -278,9 +263,7 @@ class Command(BaseCommand):
         to_create = []
         for ts in sampled_timestamps:
             for metric in metrics[:8]:  # métricas principais
-                for path in random.sample(
-                    FILE_PATHS, k=min(8, len(FILE_PATHS))
-                ):
+                for path in random.sample(FILE_PATHS, k=min(8, len(FILE_PATHS))):
                     qualifier = "FIL" if "test" not in path else "UTS"
                     to_create.append(
                         CollectedMetric(
@@ -346,14 +329,10 @@ class Command(BaseCommand):
                     )
                 )
 
-        CalculatedSubCharacteristic.objects.bulk_create(
-            to_create, batch_size=1000
-        )
+        CalculatedSubCharacteristic.objects.bulk_create(to_create, batch_size=1000)
         self.stdout.write(f"    CalculatedSubChar: +{len(to_create)}")
 
-    def _seed_calculated_chars(
-        self, repo: Repository, profile: str, timestamps: list
-    ):
+    def _seed_calculated_chars(self, repo: Repository, profile: str, timestamps: list):
         """
         Cria características calculadas usando exatamente os timestamps fornecidos.
 
@@ -388,23 +367,17 @@ class Command(BaseCommand):
             # Criar TODAS as características para CADA timestamp
             # Isso evita valores NULL no dashboard quando agrupamos por data
             for char in chars:
-                sub_profile, offset = char_profiles.get(
-                    char.key, (profile, 0.0)
-                )
+                sub_profile, offset = char_profiles.get(char.key, (profile, 0.0))
                 to_create.append(
                     CalculatedCharacteristic(
                         characteristic=char,
-                        value=_trend_value(
-                            day_idx, sub_profile, char_offset=offset
-                        ),
+                        value=_trend_value(day_idx, sub_profile, char_offset=offset),
                         created_at=ts,
                         repository=repo,
                     )
                 )
 
-        CalculatedCharacteristic.objects.bulk_create(
-            to_create, batch_size=1000
-        )
+        CalculatedCharacteristic.objects.bulk_create(to_create, batch_size=1000)
         expected = len(timestamps) * len(chars)
         actual = len(to_create)
         if expected != actual:
@@ -432,9 +405,7 @@ class Command(BaseCommand):
         TSQMI_MEASUREMENTS = len(timestamps)
 
         if existing >= TSQMI_MEASUREMENTS:
-            self.stdout.write(
-                f"    TSQMI: já tem {existing} registros, pulando"
-            )
+            self.stdout.write(f"    TSQMI: já tem {existing} registros, pulando")
             return
 
         to_create = []
@@ -463,9 +434,7 @@ class Command(BaseCommand):
         self.stdout.write("Criando Goals e Releases...")
 
         products = Product.objects.all()
-        chars = list(
-            SupportedCharacteristic.objects.values_list("key", flat=True)
-        )
+        chars = list(SupportedCharacteristic.objects.values_list("key", flat=True))
 
         for product in products:
             pre_config = product.release_configuration.first()
@@ -475,9 +444,7 @@ class Command(BaseCommand):
             # 4 releases trimestrais cobrindo os últimos `self.days` dias
             quarter = self.days // 4
             for q in range(4):
-                start_at = self.end_date - dt.timedelta(
-                    days=self.days - q * quarter
-                )
+                start_at = self.end_date - dt.timedelta(days=self.days - q * quarter)
                 end_at = start_at + dt.timedelta(days=quarter)
                 release_name = f"v{2025 + q // 4}.{q % 4 + 1}.0"
 
@@ -503,9 +470,7 @@ class Command(BaseCommand):
 
         goals_count = Goal.objects.count()
         releases_count = Release.objects.count()
-        self.stdout.write(
-            f"  Goals: {goals_count}  |  Releases: {releases_count}"
-        )
+        self.stdout.write(f"  Goals: {goals_count}  |  Releases: {releases_count}")
 
     def _build_goal_data(self, pre_config: ReleaseConfiguration) -> dict:
         """Gera um dicionário de pesos aleatórios válido para o equalizador."""
@@ -654,9 +619,7 @@ ORDER BY r.char_name"""
         """Cria ou atualiza o painel ECharts no dashboard '1. Visão Geral de Qualidade'."""
         import base64
 
-        self.stdout.write(
-            "Atualizando painel Grafana (Planejado vs Realizado)..."
-        )
+        self.stdout.write("Atualizando painel Grafana (Planejado vs Realizado)...")
 
         auth = base64.b64encode(f"{user}:{password}".encode()).decode()
         headers = {
@@ -664,9 +627,7 @@ ORDER BY r.char_name"""
             "Content-Type": "application/json",
         }
 
-        base_url = (
-            grafana_url if grafana_url.endswith("/") else grafana_url + "/"
-        )
+        base_url = grafana_url if grafana_url.endswith("/") else grafana_url + "/"
 
         def build_url(path):
             clean_path = path.lstrip("/")
@@ -711,13 +672,9 @@ ORDER BY r.char_name"""
             )
             return
 
-        target = next(
-            (d for d in search if "Visão Geral" in d.get("title", "")), None
-        )
+        target = next((d for d in search if "Visão Geral" in d.get("title", "")), None)
         if not target:
-            self.stderr.write(
-                '  Dashboard "Visão Geral de Qualidade" não encontrado.'
-            )
+            self.stderr.write('  Dashboard "Visão Geral de Qualidade" não encontrado.')
             return
 
         raw = grafana_get(f'/api/dashboards/uid/{target["uid"]}')
@@ -731,11 +688,7 @@ ORDER BY r.char_name"""
             "title": "Planejado vs Realizado (por Característica)",
             "type": "volkovlabs-echarts-panel",
             "gridPos": next(
-                (
-                    p["gridPos"]
-                    for p in dashboard["panels"]
-                    if p.get("id") == 8
-                ),
+                (p["gridPos"] for p in dashboard["panels"] if p.get("id") == 8),
                 {"h": 16, "w": 10, "x": 8, "y": 8},
             ),
             "fieldConfig": {"defaults": {}, "overrides": []},

@@ -1,10 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
-from accounts.models import CustomUser
 
-from organizations.management.commands.load_initial_data import (
-    Command as LoadInitialDataCommand,
-)
+from accounts.models import CustomUser
+from organizations.management.commands.load_initial_data import \
+    Command as LoadInitialDataCommand
 from organizations.models import Organization
 
 

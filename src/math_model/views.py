@@ -2,8 +2,8 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
 from math_model.services import MathModelServices
-from release_configuration.serializers import ReleaseConfigurationSerializer
 from organizations.mixins import UserScopedMixin
+from release_configuration.serializers import ReleaseConfigurationSerializer
 from utils.exceptions import CalculateModelException
 
 from .utils import parse_release_configuration
@@ -22,9 +22,7 @@ class CalculateMathModelViewSet(
         services = MathModelServices(repository, product)
 
         release_configuration = product.release_configuration.first()
-        config_serializer = ReleaseConfigurationSerializer(
-            release_configuration
-        )
+        config_serializer = ReleaseConfigurationSerializer(release_configuration)
         char_keys, subchar_keys, measure_keys = parse_release_configuration(
             config_serializer.data,
         )
@@ -37,12 +35,10 @@ class CalculateMathModelViewSet(
                 release_configuration,
                 collected_metrics,
             )
-            subchars, subchar_values = (
-                services.build_calculated_subcharacteristics(
-                    subchar_keys,
-                    release_configuration,
-                    measure_values,
-                )
+            subchars, subchar_values = services.build_calculated_subcharacteristics(
+                subchar_keys,
+                release_configuration,
+                measure_values,
             )
             chars, char_values = services.build_calculated_characteristics(
                 char_keys,

@@ -12,22 +12,18 @@ test_atomicity_smoke.py.
 
 from freezegun import freeze_time
 
-from utils.tests import APITestCaseExpanded
-from utils import staticfiles
-from release_configuration.models import ReleaseConfiguration
-from metrics.models import SupportedMetric, CollectedMetric
-from measures.models import CalculatedMeasure, SupportedMeasure
-from subcharacteristics.models import (
-    CalculatedSubCharacteristic,
-    SupportedSubCharacteristic,
-)
-from characteristics.models import (
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
-from tsqmi.models import TSQMI
-from math_model.services import MathModelServices
+from characteristics.models import (CalculatedCharacteristic,
+                                    SupportedCharacteristic)
 from math_model import utils
+from math_model.services import MathModelServices
+from measures.models import CalculatedMeasure, SupportedMeasure
+from metrics.models import CollectedMetric, SupportedMetric
+from release_configuration.models import ReleaseConfiguration
+from subcharacteristics.models import (CalculatedSubCharacteristic,
+                                       SupportedSubCharacteristic)
+from tsqmi.models import TSQMI
+from utils import staticfiles
+from utils.tests import APITestCaseExpanded
 
 
 @freeze_time("2024-09-08 20:00:00")
@@ -102,15 +98,12 @@ class MathModelServicesTest(APITestCaseExpanded):
         return metrics
 
     def test_if_parse_release_config(self):
-        from release_configuration.serializers import (
-            ReleaseConfigurationSerializer,
-        )
+        from release_configuration.serializers import \
+            ReleaseConfigurationSerializer
 
         config_serializer = ReleaseConfigurationSerializer(self.release_config)
-        char_keys, subchar_keys, measure_keys = (
-            utils.parse_release_configuration(
-                config_serializer.data,
-            )
+        char_keys, subchar_keys, measure_keys = utils.parse_release_configuration(
+            config_serializer.data,
         )
         assert char_keys == [
             "reliability",
@@ -158,9 +151,7 @@ class MathModelServicesTest(APITestCaseExpanded):
 
     def test_build_calculated_subcharacteristics_uses_in_memory_values(self):
         measure_values = {m.key: 0.1 for m in SupportedMeasure.objects.all()}
-        subchar_keys = [
-            s.key for s in self.release_config.get_subcharacteristics_qs()
-        ]
+        subchar_keys = [s.key for s in self.release_config.get_subcharacteristics_qs()]
 
         instances, values = self.services.build_calculated_subcharacteristics(
             subchar_keys,
@@ -170,19 +161,13 @@ class MathModelServicesTest(APITestCaseExpanded):
 
         assert CalculatedSubCharacteristic.objects.count() == 0
         assert len(instances) == len(subchar_keys)
-        assert all(
-            isinstance(i, CalculatedSubCharacteristic) for i in instances
-        )
+        assert all(isinstance(i, CalculatedSubCharacteristic) for i in instances)
         assert all(i.pk is None for i in instances)
         assert set(values.keys()) == set(subchar_keys)
 
     def test_build_calculated_characteristics_uses_in_memory_values(self):
-        subchar_values = {
-            s.key: 0.1 for s in SupportedSubCharacteristic.objects.all()
-        }
-        char_keys = [
-            c.key for c in self.release_config.get_characteristics_qs()
-        ]
+        subchar_values = {s.key: 0.1 for s in SupportedSubCharacteristic.objects.all()}
+        char_keys = [c.key for c in self.release_config.get_characteristics_qs()]
 
         instances, values = self.services.build_calculated_characteristics(
             char_keys,
@@ -197,9 +182,7 @@ class MathModelServicesTest(APITestCaseExpanded):
         assert set(values.keys()) == set(char_keys)
 
     def test_build_tsqmi_returns_unsaved_instance(self):
-        char_values = {
-            c.key: 0.1 for c in SupportedCharacteristic.objects.all()
-        }
+        char_values = {c.key: 0.1 for c in SupportedCharacteristic.objects.all()}
 
         tsqmi = self.services.build_tsqmi(self.release_config, char_values)
 
@@ -214,24 +197,18 @@ class MathModelServicesTest(APITestCaseExpanded):
         retorna serializers."""
         collected = self._build_collected_metrics_for_all_measures()
         measure_keys = [m.key for m in SupportedMeasure.objects.all()]
-        subchar_keys = [
-            s.key for s in self.release_config.get_subcharacteristics_qs()
-        ]
-        char_keys = [
-            c.key for c in self.release_config.get_characteristics_qs()
-        ]
+        subchar_keys = [s.key for s in self.release_config.get_subcharacteristics_qs()]
+        char_keys = [c.key for c in self.release_config.get_characteristics_qs()]
 
         measures, measure_values = self.services.build_calculated_measures(
             measure_keys,
             self.release_config,
             collected,
         )
-        subchars, subchar_values = (
-            self.services.build_calculated_subcharacteristics(
-                subchar_keys,
-                self.release_config,
-                measure_values,
-            )
+        subchars, subchar_values = self.services.build_calculated_subcharacteristics(
+            subchar_keys,
+            self.release_config,
+            measure_values,
         )
         chars, char_values = self.services.build_calculated_characteristics(
             char_keys,

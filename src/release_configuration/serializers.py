@@ -25,9 +25,7 @@ class ReleaseConfigurationSerializer(serializers.ModelSerializer):
         Valida se a pré-configuração que está sendo criada é válida
         """
         if self.instance:
-            raise ValueError(
-                "It's not allowed to edit a release-configuration"
-            )
+            raise ValueError("It's not allowed to edit a release-configuration")
 
         data = attrs["data"]
 
@@ -35,9 +33,7 @@ class ReleaseConfigurationSerializer(serializers.ModelSerializer):
             ReleaseConfiguration.validate_measures(data)
             ReleaseConfiguration.validate_measures_weights(data)
             ReleaseConfiguration.validate_subcharacteristics(data)
-            ReleaseConfiguration.validate_subcharacteristics_measures_relation(
-                data
-            )
+            ReleaseConfiguration.validate_subcharacteristics_measures_relation(data)
             ReleaseConfiguration.validate_subcharacteristics_weights(data)
             ReleaseConfiguration.validate_characteristics(data)
             ReleaseConfiguration.validate_characteristics_subcharacteristics_relation(
@@ -67,9 +63,7 @@ class SubCharacteristicSerializer(serializers.Serializer):
 class CharacteristicSerializer(serializers.Serializer):
     key = serializers.CharField()
     weight = serializers.IntegerField()
-    subcharacteristics = serializers.ListField(
-        child=SubCharacteristicSerializer()
-    )
+    subcharacteristics = serializers.ListField(child=SubCharacteristicSerializer())
 
 
 class DefaultPreConfigSerializer(serializers.Serializer):

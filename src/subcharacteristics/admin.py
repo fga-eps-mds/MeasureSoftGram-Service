@@ -1,9 +1,7 @@
 from django.contrib import admin, messages
 
-from subcharacteristics.models import (
-    CalculatedSubCharacteristic,
-    SupportedSubCharacteristic,
-)
+from subcharacteristics.models import (CalculatedSubCharacteristic,
+                                       SupportedSubCharacteristic)
 
 
 @admin.register(SupportedSubCharacteristic)
@@ -50,9 +48,7 @@ class MeasureSubCharacteristicAssociation(admin.ModelAdmin):
         return obj.supportedsubcharacteristic.key
 
     get_subcharacteristic_key.short_description = "SubCharacteristic key"
-    get_subcharacteristic_key.admin_order_field = (
-        "supportedsubcharacteristic__key"
-    )
+    get_subcharacteristic_key.admin_order_field = "supportedsubcharacteristic__key"
 
     def get_measure_key(self, obj):
         return obj.supportedmeasure.key

@@ -3,28 +3,19 @@
 from django.test import override_settings
 from django.utils import timezone
 from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APIClient, APITestCase
 
-from characteristics.models import (
-    BalanceMatrix,
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
+from characteristics.models import (BalanceMatrix, CalculatedCharacteristic,
+                                    SupportedCharacteristic)
 from utils.tests import APITestCaseExpanded
 
 
 class BalanceMatrixViewSetTest(APITestCase):
     def setUp(self):
         # Create test data
-        characteristic1 = SupportedCharacteristic.objects.create(
-            key="characteristic1"
-        )
-        characteristic2 = SupportedCharacteristic.objects.create(
-            key="characteristic2"
-        )
-        characteristic3 = SupportedCharacteristic.objects.create(
-            key="characteristic3"
-        )
+        characteristic1 = SupportedCharacteristic.objects.create(key="characteristic1")
+        characteristic2 = SupportedCharacteristic.objects.create(key="characteristic2")
+        characteristic3 = SupportedCharacteristic.objects.create(key="characteristic3")
 
         BalanceMatrix.objects.create(
             source_characteristic=characteristic1,

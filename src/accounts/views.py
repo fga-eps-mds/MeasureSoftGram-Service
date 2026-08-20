@@ -1,26 +1,21 @@
-from django.conf import settings
 import requests
-
-from rest_framework import mixins, viewsets, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.models import Token
-from rest_framework.views import APIView
-
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-
 from dj_rest_auth.registration.views import SocialLoginView
+from django.conf import settings
+from rest_framework import mixins, status, viewsets
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from accounts.models import CustomUser
-from accounts.serializers import (
-    APIAcessTokenRetrieveSerializer,
-    AccountsCreateSerializer,
-    AccountsLoginSerializer,
-    AccountsRetrieveSerializer,
-    GitHubAccessTokenRetrieveSerializer,
-    UserListSerializer,
-)
+from accounts.serializers import (AccountsCreateSerializer,
+                                  AccountsLoginSerializer,
+                                  AccountsRetrieveSerializer,
+                                  APIAcessTokenRetrieveSerializer,
+                                  GitHubAccessTokenRetrieveSerializer,
+                                  UserListSerializer)
 
 
 class GithubLoginViewSet(SocialLoginView):
@@ -42,9 +37,7 @@ class CreateAccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = AccountsCreateSerializer
 
 
-class RetrieveAccountViewSet(
-    mixins.RetrieveModelMixin, viewsets.GenericViewSet
-):
+class RetrieveAccountViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     ViewSet para recuperar informações de conta
     """
@@ -83,9 +76,7 @@ class LogoutViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class RetrieveAPIAcessTokenViewSet(
-    mixins.RetrieveModelMixin, viewsets.GenericViewSet
-):
+class RetrieveAPIAcessTokenViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     """
     ViewSet para recuperar o token de acesso da conta do usuário, o token vai ser utilizado na github action
     """
@@ -147,9 +138,7 @@ class UserRepos(viewsets.ReadOnlyModelViewSet):
         responseRepos = requests.get(urlRepos, headers=headersUser)
         repos_data = responseRepos.json()
         formatted_response = {
-            "total_count": (
-                len(repos_data) if isinstance(repos_data, list) else 0
-            ),
+            "total_count": (len(repos_data) if isinstance(repos_data, list) else 0),
             "items": repos_data if isinstance(repos_data, list) else [],
         }
 
@@ -174,9 +163,7 @@ class GitHubOrganizationsViewSet(viewsets.ViewSet):
                 user.save()
             else:
                 return Response(
-                    {
-                        "error": "GitHub account not linked or access token missing."
-                    },
+                    {"error": "GitHub account not linked or access token missing."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
@@ -200,9 +187,7 @@ class GitHubOrganizationsViewSet(viewsets.ViewSet):
             )
 
         # 2. Fetch user's organizations
-        r_orgs = requests.get(
-            "https://api.github.com/user/orgs", headers=headers
-        )
+        r_orgs = requests.get("https://api.github.com/user/orgs", headers=headers)
         if r_orgs.status_code == 200:
             orgs = r_orgs.json()
             for org in orgs:

@@ -2,29 +2,20 @@ from collections import defaultdict
 from typing import Dict, List, Tuple
 
 from django.db import transaction
+from resources import (calculate_characteristics, calculate_measures,
+                       calculate_subcharacteristics, calculate_tsqmi)
 
-from characteristics.models import (
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
+from characteristics.models import (CalculatedCharacteristic,
+                                    SupportedCharacteristic)
 from characteristics.serializers import CalculatedCharacteristicSerializer
 from measures.models import CalculatedMeasure, SupportedMeasure
 from measures.serializers import CalculatedMeasureSerializer
 from metrics.models import CollectedMetric, SupportedMetric
 from metrics.serializers import CollectedMetricSerializer
-from resources import (
-    calculate_characteristics,
-    calculate_measures,
-    calculate_subcharacteristics,
-    calculate_tsqmi,
-)
-from subcharacteristics.models import (
-    CalculatedSubCharacteristic,
-    SupportedSubCharacteristic,
-)
-from subcharacteristics.serializers import (
-    CalculatedSubCharacteristicSerializer,
-)
+from subcharacteristics.models import (CalculatedSubCharacteristic,
+                                       SupportedSubCharacteristic)
+from subcharacteristics.serializers import \
+    CalculatedSubCharacteristicSerializer
 from tsqmi.models import TSQMI
 from tsqmi.serializers import TSQMISerializer
 
@@ -74,9 +65,7 @@ class MathModelServices:
     def build_collected_metrics(self, data: dict) -> List[CollectedMetric]:
         """Constrói instâncias não-persistidas de CollectedMetric a
         partir do payload bruto da Action (SonarQube + GitHub)."""
-        supported_metrics = {
-            sm.key: sm for sm in SupportedMetric.objects.all()
-        }
+        supported_metrics = {sm.key: sm for sm in SupportedMetric.objects.all()}
 
         collected: List[CollectedMetric] = []
 
@@ -121,9 +110,9 @@ class MathModelServices:
         """Calcula medidas a partir das métricas em memória."""
         metric_index = self._index_metrics_by_key(collected_metrics)
 
-        qs = SupportedMeasure.objects.filter(
-            key__in=measure_keys
-        ).prefetch_related("metrics")
+        qs = SupportedMeasure.objects.filter(key__in=measure_keys).prefetch_related(
+            "metrics"
+        )
 
         core_params = {"measures": []}
         for measure in qs:
@@ -198,8 +187,7 @@ class MathModelServices:
 
         calculated_result = calculate_subcharacteristics(core_params)
         calculated_values = {
-            s["key"]: s["value"]
-            for s in calculated_result["subcharacteristics"]
+            s["key"]: s["value"] for s in calculated_result["subcharacteristics"]
         }
 
         instances: List[CalculatedSubCharacteristic] = []
@@ -304,9 +292,7 @@ class MathModelServices:
         propagação de exceção pra fora do @transaction.atomic.
         """
         saved_metrics = CollectedMetric.objects.bulk_create(collected_metrics)
-        saved_measures = CalculatedMeasure.objects.bulk_create(
-            calculated_measures
-        )
+        saved_measures = CalculatedMeasure.objects.bulk_create(calculated_measures)
         saved_subchars = CalculatedSubCharacteristic.objects.bulk_create(
             calculated_subchars,
         )
@@ -316,12 +302,8 @@ class MathModelServices:
         tsqmi.save()
 
         return {
-            "metrics": CollectedMetricSerializer(
-                saved_metrics, many=True
-            ).data,
-            "measures": CalculatedMeasureSerializer(
-                saved_measures, many=True
-            ).data,
+            "metrics": CollectedMetricSerializer(saved_metrics, many=True).data,
+            "measures": CalculatedMeasureSerializer(saved_measures, many=True).data,
             "subcharacteristics": CalculatedSubCharacteristicSerializer(
                 saved_subchars,
                 many=True,

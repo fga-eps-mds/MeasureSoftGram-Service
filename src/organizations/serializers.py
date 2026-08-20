@@ -1,13 +1,15 @@
+from urllib.parse import urlparse
+
+import requests
 from django.conf import settings
+from requests.exceptions import RequestException
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueValidator
+
 from organizations.models import Organization, Product, Repository
 from tsqmi.models import TSQMI
 from tsqmi.serializers import TSQMISerializer
-import requests
-from requests.exceptions import RequestException
-from urllib.parse import urlparse
 
 
 class OrganizationCreateSerializer(serializers.ModelSerializer):
@@ -17,9 +19,7 @@ class OrganizationCreateSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
         user = self.context["request"].user
-        organization = Organization.objects.create(
-            admin=user, **self.validated_data
-        )
+        organization = Organization.objects.create(admin=user, **self.validated_data)
         return organization
 
 
@@ -126,14 +126,12 @@ class ProductSerializer(serializers.ModelSerializer):
         organization = self.context["view"].get_organization()
         product_id = self.instance.id if self.instance else None
 
-        qs = Product.objects.filter(
-            name=name, organization=organization
-        ).exclude(id=product_id)
+        qs = Product.objects.filter(name=name, organization=organization).exclude(
+            id=product_id
+        )
 
         if qs.exists():
-            raise serializers.ValidationError(
-                "Product with this name already exists."
-            )
+            raise serializers.ValidationError("Product with this name already exists.")
 
         return attrs
 
@@ -188,15 +186,11 @@ class ProductSerializer(serializers.ModelSerializer):
             obj, "repository-list"
         )
 
-        current_goal_url = self.reverse_product_resource(
-            obj, "current-goal-list"
-        )
+        current_goal_url = self.reverse_product_resource(obj, "current-goal-list")
 
         compare_goals_url = self.reverse_product_resource(obj, "all-goal-list")
 
-        create_a_new_goal_url = self.reverse_product_resource(
-            obj, "create-goal-list"
-        )
+        create_a_new_goal_url = self.reverse_product_resource(obj, "create-goal-list")
 
         current_release_config_url = self.reverse_product_resource(
             obj, "current-release-config-list"
@@ -206,10 +200,8 @@ class ProductSerializer(serializers.ModelSerializer):
             obj, "create-release-config-list"
         )
 
-        pre_config_entity_relationship_tree_url = (
-            self.reverse_product_resource(
-                obj, "release-config-entity-relationship-tree-list"
-            )
+        pre_config_entity_relationship_tree_url = self.reverse_product_resource(
+            obj, "release-config-entity-relationship-tree-list"
         )
 
         repositories_latest_tsqmis_url = self.reverse_product_resource(
@@ -217,11 +209,9 @@ class ProductSerializer(serializers.ModelSerializer):
             "repositories-tsqmi-latest-values-list",
         )
 
-        repositories_tsqmi_historical_values_url = (
-            self.reverse_product_resource(
-                obj,
-                "repositories-tsqmi-historical-values-list",
-            )
+        repositories_tsqmi_historical_values_url = self.reverse_product_resource(
+            obj,
+            "repositories-tsqmi-historical-values-list",
         )
 
         return {
@@ -405,18 +395,14 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "measures-historical-values-list",
         )
 
-        subcharacteristics_historical_values_url = (
-            self.reverse_repository_resource(
-                obj,
-                "subcharacteristics-historical-values-list",
-            )
+        subcharacteristics_historical_values_url = self.reverse_repository_resource(
+            obj,
+            "subcharacteristics-historical-values-list",
         )
 
-        characteristics_historical_values_url = (
-            self.reverse_repository_resource(
-                obj,
-                "characteristics-historical-values-list",
-            )
+        characteristics_historical_values_url = self.reverse_repository_resource(
+            obj,
+            "characteristics-historical-values-list",
         )
 
         tsqmi_historical_values_url = self.reverse_repository_resource(
@@ -446,11 +432,9 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "latest-calculated-measures-list",
         )
 
-        subcharacteristics_latest_values_url = (
-            self.reverse_repository_resource(
-                obj,
-                "latest-calculated-subcharacteristics-list",
-            )
+        subcharacteristics_latest_values_url = self.reverse_repository_resource(
+            obj,
+            "latest-calculated-subcharacteristics-list",
         )
 
         characteristics_latest_values_url = self.reverse_repository_resource(

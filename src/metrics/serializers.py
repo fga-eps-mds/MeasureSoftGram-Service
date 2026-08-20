@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.urls import reverse_lazy
-from rest_framework import serializers
 from django.utils.dateparse import parse_date
+from rest_framework import serializers
 
 from metrics.models import CollectedMetric, SupportedMetric
 
@@ -72,9 +72,7 @@ class LatestCollectedMetricSerializer(serializers.ModelSerializer):
         try:
             repository = self.context["view"].get_repository()
 
-            latest = obj.collected_metrics.filter(
-                repository=repository
-            ).first()
+            latest = obj.collected_metrics.filter(repository=repository).first()
 
             return CollectedMetricSerializer(latest).data
         except CollectedMetric.DoesNotExist:

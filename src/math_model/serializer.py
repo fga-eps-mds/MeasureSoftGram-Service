@@ -1,11 +1,10 @@
 from rest_framework import serializers
 
-from metrics.serializers import CollectedMetricSerializer
 from characteristics.serializers import CalculatedCharacteristicSerializer
-from subcharacteristics.serializers import (
-    CalculatedSubCharacteristicSerializer,
-)
 from measures.serializers import CalculatedMeasureSerializer
+from metrics.serializers import CollectedMetricSerializer
+from subcharacteristics.serializers import \
+    CalculatedSubCharacteristicSerializer
 from tsqmi.serializers import TSQMISerializer
 
 

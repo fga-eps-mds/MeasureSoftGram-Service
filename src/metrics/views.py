@@ -1,11 +1,9 @@
-from rest_framework import mixins, viewsets, permissions
+from rest_framework import mixins, permissions, viewsets
 
 from metrics.models import SupportedMetric
-from metrics.serializers import (
-    CollectedMetricHistorySerializer,
-    LatestCollectedMetricSerializer,
-    SupportedMetricSerializer,
-)
+from metrics.serializers import (CollectedMetricHistorySerializer,
+                                 LatestCollectedMetricSerializer,
+                                 SupportedMetricSerializer)
 from organizations.mixins import UserScopedMixin
 
 

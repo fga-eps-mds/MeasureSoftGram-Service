@@ -1,22 +1,14 @@
-from entity_trees.views import (
-    ReleaseConfigurationEntitiesRelationshipTreeViewSet,
-)
-from goals.views import (
-    CompareGoalsModelViewSet,
-    CreateGoalModelViewSet,
-    CurrentGoalModelViewSet,
-)
+from entity_trees.views import \
+    ReleaseConfigurationEntitiesRelationshipTreeViewSet
+from goals.views import (CompareGoalsModelViewSet, CreateGoalModelViewSet,
+                         CurrentGoalModelViewSet)
 from organizations.routers.routers import Router
-from organizations.views import (
-    RepositoriesTSQMIHistoryViewSet,
-    RepositoriesTSQMILatestValueViewSet,
-    RepositoryViewSet,
-)
-from release_configuration.views import (
-    CreateReleaseConfigModelViewSet,
-    CurrentReleaseConfigModelViewSet,
-    DefaultPreConfigModelViewSet,
-)
+from organizations.views import (RepositoriesTSQMIHistoryViewSet,
+                                 RepositoriesTSQMILatestValueViewSet,
+                                 RepositoryViewSet)
+from release_configuration.views import (CreateReleaseConfigModelViewSet,
+                                         CurrentReleaseConfigModelViewSet,
+                                         DefaultPreConfigModelViewSet)
 from releases.views import ReleaseModelViewSet
 
 

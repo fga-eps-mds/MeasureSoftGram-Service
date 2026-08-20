@@ -3,13 +3,11 @@ from datetime import date, timedelta
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
+from characteristics.models import (CalculatedCharacteristic,
+                                    SupportedCharacteristic)
 from goals.models import Goal
 from organizations.models import Repository
 from releases.models import Release
-from characteristics.models import (
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
 from utils.tests import APITestCaseExpanded
 
 
@@ -30,7 +28,9 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             product=self.product,
             data={"reliability": 53, "maintainability": 53},
         )
-        self.url_default = f"/api/v1/organizations/{self.org.id}/products/{self.product.id}/release/"
+        self.url_default = (
+            f"/api/v1/organizations/{self.org.id}/products/{self.product.id}/release/"
+        )
 
     def test_create_new_release_without_description(self):
         data = {
@@ -41,9 +41,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             "repositories_ids": [self.repository.id],
         }
 
-        response = self.client.post(
-            path=self.url_default, data=data, format="json"
-        )
+        response = self.client.post(path=self.url_default, data=data, format="json")
         self.assertEqual(response.status_code, 201)
 
         response_json = response.json()
@@ -52,9 +50,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         self.assertEqual(
             response_json["start_at"], f"{data['start_at']}T00:00:00-03:00"
         )
-        self.assertEqual(
-            response_json["end_at"], f"{data['end_at']}T00:00:00-03:00"
-        )
+        self.assertEqual(response_json["end_at"], f"{data['end_at']}T00:00:00-03:00")
         self.assertEqual(response_json["created_by"], self.user.id)
         self.assertEqual(response_json["product"], self.product.id)
         self.assertEqual(response_json["goal"], data["goal"])
@@ -70,9 +66,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             "description": "Apenas um testezinho",
         }
 
-        response = self.client.post(
-            path=self.url_default, data=data, format="json"
-        )
+        response = self.client.post(path=self.url_default, data=data, format="json")
         self.assertEqual(response.status_code, 201)
 
         response_json = response.json()
@@ -156,9 +150,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             "repositories_ids": [self.repository.id],
         }
 
-        response = self.client.post(
-            path=self.url_default, data=data, format="json"
-        )
+        response = self.client.post(path=self.url_default, data=data, format="json")
 
         self.assertEqual(response.status_code, 400)
 
@@ -169,9 +161,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             "end_at": "2023-11-30",
         }
 
-        response = self.client.post(
-            path=self.url_default, data=data, format="json"
-        )
+        response = self.client.post(path=self.url_default, data=data, format="json")
 
         self.assertEqual(response.status_code, 400)
 
@@ -183,9 +173,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             "description": "Essa tem que dar errado",
         }
 
-        response = self.client.post(
-            path=self.url_default, data=data, format="json"
-        )
+        response = self.client.post(path=self.url_default, data=data, format="json")
 
         self.assertEqual(response.status_code, 400)
 
@@ -445,9 +433,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             product=self.product,
         )
 
-        reliability = SupportedCharacteristic.objects.filter(
-            key="reliability"
-        ).first()
+        reliability = SupportedCharacteristic.objects.filter(key="reliability").first()
 
         maintainability = SupportedCharacteristic.objects.filter(
             key="maintainability"
@@ -486,9 +472,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             goal=self.goal,
         )
 
-        response = self.client.get(
-            path=f"{self.url_default}999/analysis_data/"
-        )
+        response = self.client.get(path=f"{self.url_default}999/analysis_data/")
 
         planned = [
             {"name": "reliability", "value": 0.53},
@@ -510,9 +494,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             goal=self.goal,
         )
 
-        reliability = SupportedCharacteristic.objects.filter(
-            key="reliability"
-        ).first()
+        reliability = SupportedCharacteristic.objects.filter(key="reliability").first()
 
         maintainability = SupportedCharacteristic.objects.filter(
             key="maintainability"
@@ -539,9 +521,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             value=1,
         )
 
-        response = self.client.get(
-            path=f"{self.url_default}999/analysis_data/"
-        )
+        response = self.client.get(path=f"{self.url_default}999/analysis_data/")
 
         accomplished = [
             {
@@ -558,9 +538,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         assert response.json()["accomplished"] == accomplished
 
     def test_get_analysis_data_release_not_found(self):
-        response = self.client.get(
-            path=f"{self.url_default}999/analysis_data/"
-        )
+        response = self.client.get(path=f"{self.url_default}999/analysis_data/")
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Release não encontrada"

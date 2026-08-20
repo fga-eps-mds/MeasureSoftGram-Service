@@ -55,14 +55,10 @@ class AccountsViews(APITestCaseExpanded):
         self.assertEqual(response.status_code, 201, response.json())
 
         self.assertEqual(User.objects.count(), 1)
-        self.assertEqual(
-            Token.objects.filter(user=User.objects.first()).count(), 1
-        )
+        self.assertEqual(Token.objects.filter(user=User.objects.first()).count(), 1)
         self.assertEqual(Token.objects.first().key, response.json()["key"])
 
-    @parameterized.expand(
-        [("username", "username"), ("email", "email address")]
-    )
+    @parameterized.expand([("username", "username"), ("email", "email address")])
     def test_fail_create_account_already_exists(self, field, error):
         url = reverse("accounts-signin")
         data = self._data_signin
@@ -84,9 +80,7 @@ class AccountsViews(APITestCaseExpanded):
         )
 
         self.assertEqual(response.status_code, 200, response.json())
-        self.assertEqual(
-            Token.objects.get(user=self.user).key, response.json()["key"]
-        )
+        self.assertEqual(Token.objects.get(user=self.user).key, response.json()["key"])
 
     def test_fail_login_username_and_email(self):
         url = reverse("accounts-login")
@@ -101,9 +95,7 @@ class AccountsViews(APITestCaseExpanded):
         )
 
         self.assertEqual(response.status_code, 400, response.json())
-        self.assertIn(
-            "ONLY Username OR email.", response.json()["non_field_errors"]
-        )
+        self.assertIn("ONLY Username OR email.", response.json()["non_field_errors"])
 
     def test_fail_login_nor_username_nor_email(self):
         url = reverse("accounts-login")
@@ -116,9 +108,7 @@ class AccountsViews(APITestCaseExpanded):
             "Username OR email required.", response.json()["non_field_errors"]
         )
 
-    @parameterized.expand(
-        [("username", "invalid"), ("email", "invalid@email.com")]
-    )
+    @parameterized.expand([("username", "invalid"), ("email", "invalid@email.com")])
     def test_fail_login_nonexistent_user(self, field, value):
         url = reverse("accounts-login")
         response = self.client.post(
@@ -148,8 +138,7 @@ class AccountsViews(APITestCaseExpanded):
     def test_retrieve_account(self):
         url = reverse("accounts-retrieve")
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         response = self.client.get(url, format="json")
 
@@ -157,9 +146,7 @@ class AccountsViews(APITestCaseExpanded):
         fields = ("username", "first_name", "last_name", "email")
         for field in fields:
             with self.subTest(field=field):
-                self.assertEqual(
-                    getattr(self.user, field), response.json()[field]
-                )
+                self.assertEqual(getattr(self.user, field), response.json()[field])
 
     def test_retrieve_accounts_via_github(self):
         url = reverse("accounts-retrieve")
@@ -175,8 +162,7 @@ class AccountsViews(APITestCaseExpanded):
         )
 
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         response = self.client.get(url, format="json")
 
@@ -200,15 +186,12 @@ class AccountsViews(APITestCaseExpanded):
     def test_access_token(self):
         url = reverse("api-token-retrieve")
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         response = self.client.get(url, format="json")
 
         self.assertEqual(response.status_code, 200, response.json())
-        self.assertEqual(
-            Token.objects.get(user=self.user).key, response.json()["key"]
-        )
+        self.assertEqual(Token.objects.get(user=self.user).key, response.json()["key"])
 
     @patch("accounts.views.requests.get")
     @patch("accounts.views.requests.post")
@@ -224,8 +207,7 @@ class AccountsViews(APITestCaseExpanded):
         mock_get.return_value = mock_get_response
 
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         url = reverse("user-repos")
         response = self.client.get(url, {"code": "valid_code"}, format="json")
@@ -237,23 +219,18 @@ class AccountsViews(APITestCaseExpanded):
     @patch("accounts.views.requests.post")
     def test_user_repos_github_auth_failure(self, mock_post):
         mock_post_response = MagicMock()
-        mock_post_response.json.return_value = {
-            "error": "bad_verification_code"
-        }
+        mock_post_response.json.return_value = {"error": "bad_verification_code"}
         mock_post.return_value = mock_post_response
 
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         url = reverse("user-repos")
         response = self.client.get(url, {"code": "bad_code"}, format="json")
 
         self.assertEqual(response.status_code, 400)
         self.assertIn("error", response.json())
-        self.assertEqual(
-            response.json()["error"], "Falha na autenticação do GitHub"
-        )
+        self.assertEqual(response.json()["error"], "Falha na autenticação do GitHub")
 
     @patch("accounts.views.requests.get")
     @patch("accounts.views.requests.post")
@@ -267,8 +244,7 @@ class AccountsViews(APITestCaseExpanded):
         mock_get.return_value = mock_get_response
 
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         url = reverse("user-repos")
         response = self.client.get(url, {"code": "valid_code"}, format="json")
@@ -311,8 +287,7 @@ class AccountsViews(APITestCaseExpanded):
         mock_get.side_effect = side_effect
 
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
@@ -331,9 +306,10 @@ class AccountsViews(APITestCaseExpanded):
         mock_post.return_value = mock_response
 
         url = reverse("github-validate")
-        with patch(
-            "django.conf.settings.GITHUB_CLIENT_ID", "test_client_id"
-        ), patch("django.conf.settings.GITHUB_SECRET", "test_secret"):
+        with (
+            patch("django.conf.settings.GITHUB_CLIENT_ID", "test_client_id"),
+            patch("django.conf.settings.GITHUB_SECRET", "test_secret"),
+        ):
             response = self.client.post(
                 url, {"client_id": "test_client_id"}, format="json"
             )
@@ -348,9 +324,10 @@ class AccountsViews(APITestCaseExpanded):
         mock_post.return_value = mock_response
 
         url = reverse("github-validate")
-        with patch(
-            "django.conf.settings.GITHUB_CLIENT_ID", "test_client_id"
-        ), patch("django.conf.settings.GITHUB_SECRET", "test_secret"):
+        with (
+            patch("django.conf.settings.GITHUB_CLIENT_ID", "test_client_id"),
+            patch("django.conf.settings.GITHUB_SECRET", "test_secret"),
+        ):
             response = self.client.post(
                 url, {"client_id": "test_client_id"}, format="json"
             )
@@ -364,9 +341,10 @@ class AccountsViews(APITestCaseExpanded):
 
     def test_github_validate_mismatch(self):
         url = reverse("github-validate")
-        with patch(
-            "django.conf.settings.GITHUB_CLIENT_ID", "backend_client_id"
-        ), patch("django.conf.settings.GITHUB_SECRET", "test_secret"):
+        with (
+            patch("django.conf.settings.GITHUB_CLIENT_ID", "backend_client_id"),
+            patch("django.conf.settings.GITHUB_SECRET", "test_secret"),
+        ):
             response = self.client.post(
                 url, {"client_id": "frontend_client_id"}, format="json"
             )
@@ -380,12 +358,11 @@ class AccountsViews(APITestCaseExpanded):
 
     def test_github_validate_not_configured(self):
         url = reverse("github-validate")
-        with patch("django.conf.settings.GITHUB_CLIENT_ID", ""), patch(
-            "django.conf.settings.GITHUB_SECRET", ""
+        with (
+            patch("django.conf.settings.GITHUB_CLIENT_ID", ""),
+            patch("django.conf.settings.GITHUB_SECRET", ""),
         ):
-            response = self.client.post(
-                url, {"client_id": "any_id"}, format="json"
-            )
+            response = self.client.post(url, {"client_id": "any_id"}, format="json")
 
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.json()["valid"])
@@ -414,11 +391,8 @@ class AccountsViews(APITestCaseExpanded):
 
     @patch("accounts.views.requests.get")
     def test_github_organizations_with_social_token(self, mock_get):
-        from allauth.socialaccount.models import (
-            SocialAccount,
-            SocialToken,
-            SocialApp,
-        )
+        from allauth.socialaccount.models import (SocialAccount, SocialApp,
+                                                  SocialToken)
 
         self.user.github_access_token = None
         self.user.save()
@@ -453,8 +427,7 @@ class AccountsViews(APITestCaseExpanded):
         mock_get.side_effect = side_effect
 
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
@@ -469,8 +442,7 @@ class AccountsViews(APITestCaseExpanded):
         self.user.save()
 
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
@@ -509,8 +481,7 @@ class AccountsViews(APITestCaseExpanded):
         mock_get.side_effect = side_effect
 
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
@@ -531,8 +502,7 @@ class AccountsViews(APITestCaseExpanded):
         mock_get.side_effect = side_effect
 
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
@@ -547,9 +517,10 @@ class AccountsViews(APITestCaseExpanded):
         mock_post.side_effect = Exception("Connection error")
 
         url = reverse("github-validate")
-        with patch(
-            "django.conf.settings.GITHUB_CLIENT_ID", "test_client_id"
-        ), patch("django.conf.settings.GITHUB_SECRET", "test_secret"):
+        with (
+            patch("django.conf.settings.GITHUB_CLIENT_ID", "test_client_id"),
+            patch("django.conf.settings.GITHUB_SECRET", "test_secret"),
+        ):
             response = self.client.post(
                 url, {"client_id": "test_client_id"}, format="json"
             )

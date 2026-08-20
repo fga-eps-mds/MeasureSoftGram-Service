@@ -63,10 +63,7 @@ class MeasuresCalculationsRequestSerializer(serializers.Serializer):
 
         if unsuported_measures:
             raise serializers.ValidationError(
-                (
-                    "The following measures are "
-                    f"not supported: {unsuported_measures}"
-                )
+                ("The following measures are " f"not supported: {unsuported_measures}")
             )
 
         return attrs
@@ -109,9 +106,7 @@ class LatestMeasuresCalculationsRequestSerializer(serializers.ModelSerializer):
         try:
             repository = self.context["view"].get_repository()
 
-            latest = obj.calculated_measures.filter(
-                repository=repository
-            ).first()
+            latest = obj.calculated_measures.filter(repository=repository).first()
 
             return CalculatedMeasureSerializer(latest).data
         except CalculatedMeasure.DoesNotExist:

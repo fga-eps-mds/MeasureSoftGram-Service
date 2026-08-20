@@ -1,31 +1,23 @@
-from rest_framework import mixins, permissions, viewsets, status
-from rest_framework.response import Response
 import requests
+from rest_framework import mixins, permissions, status, viewsets
+from rest_framework.response import Response
 
-from organizations.models import Organization, Product, Repository
 from organizations.mixins import UserScopedMixin
-from organizations.serializers import (
-    OrganizationSerializer,
-    ProductSerializer,
-    RepositoriesTSQMIHistorySerializer,
-    RepositorySerializer,
-    RepositoryTSQMILatestValueSerializer,
-)
+from organizations.models import Organization, Product, Repository
+from organizations.serializers import (OrganizationSerializer,
+                                       ProductSerializer,
+                                       RepositoriesTSQMIHistorySerializer,
+                                       RepositorySerializer,
+                                       RepositoryTSQMILatestValueSerializer)
 
 
 class OrganizationViewSet(UserScopedMixin, viewsets.ModelViewSet):
-    queryset = (
-        Organization.objects.all().order_by("id").prefetch_related("products")
-    )
+    queryset = Organization.objects.all().order_by("id").prefetch_related("products")
     serializer_class = OrganizationSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return (
-            self.get_user_organizations()
-            .order_by("id")
-            .prefetch_related("products")
-        )
+        return self.get_user_organizations().order_by("id").prefetch_related("products")
 
     def perform_create(self, serializer):
         org = serializer.save(admin=self.request.user)
@@ -78,6 +70,7 @@ class RepositoryViewSet(
 
         if not getattr(settings, "TESTING", False):
             import threading
+
             from organizations.utils import onboard_repository_async
 
             thread = threading.Thread(
@@ -211,24 +204,16 @@ class ImportOrganizationViewSet(viewsets.ViewSet):
                 "github_org_name": github_org_name,
                 "avatar_url": org_data.get("avatar_url"),
                 "description": (
-                    org_data.get("bio")
-                    if is_personal
-                    else org_data.get("description")
+                    org_data.get("bio") if is_personal else org_data.get("description")
                 ),
             },
         )
         if not created:
-            org.name = (
-                org_data.get("name")
-                or org_data.get("login")
-                or github_org_name
-            )
+            org.name = org_data.get("name") or org_data.get("login") or github_org_name
             org.github_org_name = github_org_name
             org.avatar_url = org_data.get("avatar_url")
             org.description = (
-                org_data.get("bio")
-                if is_personal
-                else org_data.get("description")
+                org_data.get("bio") if is_personal else org_data.get("description")
             )
             org.save()
 
@@ -280,9 +265,13 @@ class GitHubReposViewSet(UserScopedMixin, viewsets.ViewSet):
         }
 
         if is_personal:
-            url_fetch = "https://api.github.com/user/repos?affiliation=owner&per_page=100"
+            url_fetch = (
+                "https://api.github.com/user/repos?affiliation=owner&per_page=100"
+            )
         else:
-            url_fetch = f"https://api.github.com/orgs/{github_org_name}/repos?per_page=100"
+            url_fetch = (
+                f"https://api.github.com/orgs/{github_org_name}/repos?per_page=100"
+            )
 
         repos = []
         while url_fetch:

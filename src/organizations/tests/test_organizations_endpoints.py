@@ -1,11 +1,12 @@
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+
+from django.contrib.auth import get_user_model
+from django.urls import reverse
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
 from organizations.models import Organization
 from utils.tests import APITestCaseExpanded
-from django.contrib.auth import get_user_model
-from django.urls import reverse
 
 
 class PublicOrganizationsViewsTestCase(APITestCaseExpanded):
@@ -43,9 +44,7 @@ class OrganizationsViewsTestCase(APITestCaseExpanded):
         self.assertEqual(data["name"], "Test Organization")
         self.assertEqual(data["description"], "Test Organization Description")
 
-        organization_created = Organization.objects.get(
-            name="Test Organization"
-        )
+        organization_created = Organization.objects.get(name="Test Organization")
         self.assertEqual(organization_created.admin, self.user)
 
         qs = Organization.objects.filter(name="Test Organization")
@@ -168,9 +167,7 @@ class OrganizationsViewsTestCase(APITestCaseExpanded):
             "description": "Test Product Description 2",
         }
 
-        response = self.client.post(
-            create_new_product_url, data, format="json"
-        )
+        response = self.client.post(create_new_product_url, data, format="json")
 
         self.assertEqual(response.status_code, 201)
 
@@ -284,21 +281,15 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
         url = reverse("organizations-import-list")
         response = self.client.post(url, {}, format="json")
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.json()["error"], "github_org_name is required."
-        )
+        self.assertEqual(response.json()["error"], "github_org_name is required.")
 
     def test_import_org_no_token(self):
         url = reverse("organizations-import-list")
         self.user.github_access_token = None
         self.user.save()
-        response = self.client.post(
-            url, {"github_org_name": "some-org"}, format="json"
-        )
+        response = self.client.post(url, {"github_org_name": "some-org"}, format="json")
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.json()["error"], "GitHub account not linked."
-        )
+        self.assertEqual(response.json()["error"], "GitHub account not linked.")
 
     @patch("organizations.views.requests.get")
     def test_import_org_fetch_fail(self, mock_get):
@@ -311,9 +302,7 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
         mock_resp.json.return_value = {"message": "Not Found"}
         mock_get.return_value = mock_resp
 
-        response = self.client.post(
-            url, {"github_org_name": "some-org"}, format="json"
-        )
+        response = self.client.post(url, {"github_org_name": "some-org"}, format="json")
         self.assertEqual(response.status_code, 404)
         self.assertEqual(
             response.json()["error"], "Failed to fetch metadata from GitHub"
@@ -414,11 +403,8 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
 
     @patch("organizations.views.requests.get")
     def test_import_org_via_social_token(self, mock_get):
-        from allauth.socialaccount.models import (
-            SocialAccount,
-            SocialToken,
-            SocialApp,
-        )
+        from allauth.socialaccount.models import (SocialAccount, SocialApp,
+                                                  SocialToken)
 
         url = reverse("organizations-import-list")
         self.user.github_access_token = None
@@ -489,9 +475,7 @@ class GitHubReposViewsTestCase(APITestCaseExpanded):
         url = reverse("github-repos-list", kwargs={"organization_pk": org.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.json()["error"], "GitHub account not linked."
-        )
+        self.assertEqual(response.json()["error"], "GitHub account not linked.")
 
     @patch("organizations.views.requests.get")
     def test_list_repos_success_personal(self, mock_get):
@@ -545,11 +529,8 @@ class GitHubReposViewsTestCase(APITestCaseExpanded):
 
     @patch("organizations.views.requests.get")
     def test_list_repos_via_social_token(self, mock_get):
-        from allauth.socialaccount.models import (
-            SocialAccount,
-            SocialToken,
-            SocialApp,
-        )
+        from allauth.socialaccount.models import (SocialAccount, SocialApp,
+                                                  SocialToken)
 
         org = self.get_organization(name="Org Linked")
         org.github_org_name = "test-user"

@@ -13,10 +13,8 @@ from rest_framework.response import Response
 from organizations.models import Repository
 
 from .permissions import CanAccessDashboard, CanAccessProduct
-from .serializers import (
-    GrafanaDashboardListSerializer,
-    GrafanaDashboardSerializer,
-)
+from .serializers import (GrafanaDashboardListSerializer,
+                          GrafanaDashboardSerializer)
 from .services import GrafanaAPIClient
 
 logger = logging.getLogger(__name__)
@@ -44,9 +42,7 @@ class GrafanaProxyViewSet(viewsets.ViewSet):
                     "title": dash["title"],
                     "description": dash.get("description", ""),
                     "tags": dash.get("tags", []),
-                    "has_repo_selector": self._dashboard_has_repo_selector(
-                        dash["uid"]
-                    ),
+                    "has_repo_selector": self._dashboard_has_repo_selector(dash["uid"]),
                 }
             )
 
@@ -69,9 +65,7 @@ class GrafanaProxyViewSet(viewsets.ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        dashboard_data = self.grafana_client.get_dashboard_by_uid(
-            dashboard_uid
-        )
+        dashboard_data = self.grafana_client.get_dashboard_by_uid(dashboard_uid)
         if not dashboard_data:
             return Response(
                 {"detail": "Dashboard not found."},
@@ -81,9 +75,7 @@ class GrafanaProxyViewSet(viewsets.ViewSet):
         product_permission = CanAccessProduct()
         if not product_permission.has_permission(request, self):
             return Response(
-                {
-                    "detail": "You do not have permission to access this product."
-                },
+                {"detail": "You do not have permission to access this product."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -91,18 +83,14 @@ class GrafanaProxyViewSet(viewsets.ViewSet):
             repo_permission = CanAccessDashboard()
             if not repo_permission.has_permission(request, self):
                 return Response(
-                    {
-                        "detail": "You do not have permission to access this repository."
-                    },
+                    {"detail": "You do not have permission to access this repository."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
             if not Repository.objects.filter(
                 id=repository_id, product_id=product_id
             ).exists():
                 return Response(
-                    {
-                        "detail": "Repository does not belong to the specified product."
-                    },
+                    {"detail": "Repository does not belong to the specified product."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 

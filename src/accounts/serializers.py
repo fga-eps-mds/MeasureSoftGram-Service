@@ -80,9 +80,7 @@ class AccountsLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Username or email nonexistent.")
 
         if not self.user.check_password(attrs["password"]):
-            raise serializers.ValidationError(
-                "Invalid username/email or password"
-            )
+            raise serializers.ValidationError("Invalid username/email or password")
 
         return attrs
 

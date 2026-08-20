@@ -20,9 +20,7 @@ class TestUnauthenticatedConfigEndpoints(APITestCaseExpanded):
         self.prod = self.get_product(self.org)
 
     def test_that_unauthorized_is_prohibited(self):
-        response = self.request.get(
-            _get_product_detail(self.org.id, self.prod.id)
-        )
+        response = self.request.get(_get_product_detail(self.org.id, self.prod.id))
         self.assertIsNotNone(self.org.id)
         self.assertIsNotNone(self.prod.id)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -38,23 +36,17 @@ class TestConfigEnpoints(APITestCaseExpanded):
         self.prod = self.get_product(self.org)
 
     def test_user_not_created_configs(self):
-        detail_items = self.request.get(
-            _get_product_detail(self.org.id, self.prod.id)
-        )
+        detail_items = self.request.get(_get_product_detail(self.org.id, self.prod.id))
         pre_config_uri = detail_items.json()["actions"]
         self.assertIsNotNone(pre_config_uri)
 
-        configs_resp = self.request.get(
-            pre_config_uri["get current release-config"]
-        )
+        configs_resp = self.request.get(pre_config_uri["get current release-config"])
 
         self.assertEqual(configs_resp.status_code, status.HTTP_200_OK)
         self.assertFalse(configs_resp.json()["created_config"])
 
     def test_user_created_configs(self):
-        detail_items = self.request.get(
-            _get_product_detail(self.org.id, self.prod.id)
-        )
+        detail_items = self.request.get(_get_product_detail(self.org.id, self.prod.id))
         pre_config_uri = detail_items.json()["actions"]
 
         measures = [
@@ -86,9 +78,7 @@ class TestConfigEnpoints(APITestCaseExpanded):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        configs_resp = self.request.get(
-            pre_config_uri["get current release-config"]
-        )
+        configs_resp = self.request.get(pre_config_uri["get current release-config"])
         print(configs_resp.json())
 
         self.assertIn(
@@ -123,13 +113,11 @@ class TestReleaseConfigurationImmutability(APITestCaseExpanded):
 
     def test_that_reverse_manager_update_is_prohibited(self):
         with self.assertRaises(ValueError):
-            self.prod.release_configuration.filter(
-                pk=self.config.pk
-            ).update(data={"hacked": True})
+            self.prod.release_configuration.filter(pk=self.config.pk).update(
+                data={"hacked": True}
+            )
 
     def test_that_bulk_update_is_prohibited(self):
         self.config.data = {"hacked": True}
         with self.assertRaises(ValueError):
-            ReleaseConfiguration.objects.bulk_update(
-                [self.config], ["data"]
-            )
+            ReleaseConfiguration.objects.bulk_update([self.config], ["data"])

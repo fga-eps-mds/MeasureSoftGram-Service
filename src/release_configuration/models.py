@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from util import Checker  # util do core
+
 import utils
 from characteristics.models import SupportedCharacteristic
 from measures.models import SupportedMeasure
@@ -21,14 +22,10 @@ class ImmutableQuerySet(models.QuerySet):
     """
 
     def update(self, *args, **kwargs):
-        raise ValueError(
-            "It's not allowed to edit a release-configuration"
-        )
+        raise ValueError("It's not allowed to edit a release-configuration")
 
     def bulk_update(self, *args, **kwargs):
-        raise ValueError(
-            "It's not allowed to edit a release-configuration"
-        )
+        raise ValueError("It's not allowed to edit a release-configuration")
 
 
 class ReleaseConfiguration(models.Model):
@@ -67,9 +64,7 @@ class ReleaseConfiguration(models.Model):
         está sendo criada ou editada é ou não válida
         """
         if self.id:
-            raise ValueError(
-                "It's not allowed to edit a release-configuration"
-            )
+            raise ValueError("It's not allowed to edit a release-configuration")
 
         self.validate_measures(self.data)
         self.validate_measures_weights(self.data)
@@ -105,9 +100,7 @@ class ReleaseConfiguration(models.Model):
 
         return None
 
-    def get_subcharacteristic_weight(
-        self, subcharacteristic_key: str
-    ) -> float:
+    def get_subcharacteristic_weight(self, subcharacteristic_key: str) -> float:
         for characteristic in self.data["characteristics"]:
             for subcharacteristic in characteristic["subcharacteristics"]:
                 if subcharacteristic["key"] == subcharacteristic_key:
@@ -188,8 +181,7 @@ class ReleaseConfiguration(models.Model):
         for characteristic in data["characteristics"]:
             for subcharacteristic in characteristic["subcharacteristics"]:
                 sum_of_weights: int = sum(
-                    measure["weight"]
-                    for measure in subcharacteristic["measures"]
+                    measure["weight"] for measure in subcharacteristic["measures"]
                 )
 
                 if sum_of_weights != 100:
@@ -245,12 +237,8 @@ class ReleaseConfiguration(models.Model):
                     measure["key"] for measure in subcharacteristic["measures"]
                 }
 
-                if invalid_measures := subchar.has_unsupported_measures(
-                    sub_measures
-                ):
-                    invalid_measures: list = [
-                        f"`{key}`" for key in invalid_measures
-                    ]
+                if invalid_measures := subchar.has_unsupported_measures(sub_measures):
+                    invalid_measures: list = [f"`{key}`" for key in invalid_measures]
                     invalid_measures: str = ", ".join(invalid_measures)
 
                     raise InvalidReleaseConfigurationException(
@@ -348,8 +336,7 @@ class ReleaseConfiguration(models.Model):
         Raises a `InvalidReleaseConfigurationException` caso alguma weight não seja
         """
         sum_of_weights: int = sum(
-            characteristic["weight"]
-            for characteristic in data["characteristics"]
+            characteristic["weight"] for characteristic in data["characteristics"]
         )
 
         if sum_of_weights != 100:
@@ -377,10 +364,7 @@ class ReleaseConfiguration(models.Model):
         for characteristic in data["characteristics"]:
             for subcharacteristic in characteristic["subcharacteristics"]:
                 for measure in subcharacteristic["measures"]:
-                    if (
-                        "min_threshold" not in measure
-                        or "max_threshold" not in measure
-                    ):
+                    if "min_threshold" not in measure or "max_threshold" not in measure:
                         continue
                     try:
                         Checker.check_threshold(

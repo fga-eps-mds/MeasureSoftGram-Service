@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
+from accounts.models import CustomUser
 from characteristics.models import CalculatedCharacteristic
 from goals.models import Equalizer, Goal
-from accounts.models import CustomUser
 
 
 class CharacteristicDeltaSerializer(serializers.Serializer):
@@ -107,9 +107,7 @@ class GoalSerializer(serializers.ModelSerializer):
         )
         changes = self.initial_data.get("changes", [])
 
-        characteristics_keys = {
-            change["characteristic_key"] for change in changes
-        }
+        characteristics_keys = {change["characteristic_key"] for change in changes}
 
         issubset = characteristics_keys.issubset(
             selected_characteristics_keys,
@@ -147,11 +145,9 @@ class GoalSerializer(serializers.ModelSerializer):
     def is_valid(self, raise_exception=False):
         valid_format = super().is_valid(raise_exception=raise_exception)
 
-        is_valid_1 = (
-            self.check_if_all_characteristics_are_defined_in_the_pre_config(
-                valid_format=valid_format,
-                raise_exception=raise_exception,
-            )
+        is_valid_1 = self.check_if_all_characteristics_are_defined_in_the_pre_config(
+            valid_format=valid_format,
+            raise_exception=raise_exception,
         )
 
         if not (is_valid_1) and raise_exception:

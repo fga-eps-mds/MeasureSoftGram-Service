@@ -356,9 +356,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         get_all_repositories_tsqmi_historical_values_url = actions[
             "get all repositories tsqmi historical values"
         ]
-        response = self.client.get(
-            get_all_repositories_tsqmi_historical_values_url
-        )
+        response = self.client.get(get_all_repositories_tsqmi_historical_values_url)
         self.assertEqual(response.status_code, 200)
 
     def test_if_is_not_allowed_to_create_products_with_same_name(self):

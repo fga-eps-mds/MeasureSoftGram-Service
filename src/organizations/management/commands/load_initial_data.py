@@ -7,7 +7,6 @@ import random
 
 # 3rd Party Imports
 from django.conf import settings
-
 # Django Imports
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -16,10 +15,8 @@ from django.db.utils import IntegrityError
 from django.utils import timezone
 
 import utils
-from characteristics.models import (
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
+from characteristics.models import (CalculatedCharacteristic,
+                                    SupportedCharacteristic)
 from goals.serializers import GoalSerializer
 from measures.models import CalculatedMeasure, SupportedMeasure
 from metrics.models import CollectedMetric, SupportedMetric
@@ -27,26 +24,15 @@ from organizations.models import Organization, Product, Repository
 from release_configuration.models import ReleaseConfiguration
 from releases.models import Release
 from staticfiles import SUPPORTED_MEASURES
-from subcharacteristics.models import (
-    CalculatedSubCharacteristic,
-    SupportedSubCharacteristic,
-)
+from subcharacteristics.models import (CalculatedSubCharacteristic,
+                                       SupportedSubCharacteristic)
 from tsqmi.models import TSQMI
-
 # Local Imports
-from utils import (
-    exceptions,
-    get_random_path,
-    get_random_qualifier,
-    get_random_value,
-    staticfiles,
-)
+from utils import (exceptions, get_random_path, get_random_qualifier,
+                   get_random_value, staticfiles)
 
-from .utils import (
-    create_balance_matrix,
-    create_supported_characteristics,
-    get_random_goal_data,
-)
+from .utils import (create_balance_matrix, create_supported_characteristics,
+                    get_random_goal_data)
 
 logger = logging.getLogger(__name__)
 
@@ -131,10 +117,8 @@ class Command(BaseCommand):
 
                 measure.metrics.set(metrics)
                 logger.info(
-                    
-                        f"Metrics {','.join(metrics_keys)} "
-                        f"were associated to {measure_key}"
-                    
+                    f"Metrics {','.join(metrics_keys)} "
+                    f"were associated to {measure_key}"
                 )
 
     def create_github_suported_measures(self):
@@ -165,10 +149,8 @@ class Command(BaseCommand):
 
                 measure.metrics.set(metrics)
                 logger.info(
-                    
-                        f"Metrics {','.join(metrics_keys)} "
-                        f"were associated to {measure_key}"
-                    
+                    f"Metrics {','.join(metrics_keys)} "
+                    f"were associated to {measure_key}"
                 )
 
     def create_supported_metrics(self):
@@ -243,9 +225,7 @@ class Command(BaseCommand):
                 jitter = random.randint(-(step // 4), step // 4)
                 offset = max(0, min(step * i + jitter, total_seconds))
                 created_at = timezone.make_aware(
-                    dt.datetime.fromtimestamp(
-                        int(start_date.timestamp()) + offset
-                    )
+                    dt.datetime.fromtimestamp(int(start_date.timestamp()) + offset)
                 )
                 fake_calculated_entities.append(
                     calculated_entity_factory(entity, created_at),
@@ -291,9 +271,7 @@ class Command(BaseCommand):
                 current_entity[0] = entity
                 state[0] = random.uniform(0.5, 0.85)
             val = state[0]
-            state[0] = max(
-                0.05, min(0.95, state[0] + random.uniform(-0.04, 0.04))
-            )
+            state[0] = max(0.05, min(0.95, state[0] + random.uniform(-0.04, 0.04)))
             return CalculatedMeasure(
                 measure=entity,
                 value=val,
@@ -414,9 +392,7 @@ class Command(BaseCommand):
                 current_entity[0] = entity
                 state[0] = random.uniform(0.5, 0.85)
             val = state[0]
-            state[0] = max(
-                0.05, min(0.95, state[0] + random.uniform(-0.04, 0.04))
-            )
+            state[0] = max(0.05, min(0.95, state[0] + random.uniform(-0.04, 0.04)))
             return CalculatedCharacteristic(
                 characteristic=entity,
                 value=val,
@@ -448,9 +424,7 @@ class Command(BaseCommand):
                 current_entity[0] = entity
                 state[0] = random.uniform(0.5, 0.85)
             val = state[0]
-            state[0] = max(
-                0.05, min(0.95, state[0] + random.uniform(-0.04, 0.04))
-            )
+            state[0] = max(0.05, min(0.95, state[0] + random.uniform(-0.04, 0.04)))
             return CalculatedSubCharacteristic(
                 subcharacteristic=entity,
                 value=val,
@@ -542,9 +516,7 @@ class Command(BaseCommand):
                 "release_name": f"{product.name} - Release 2",
                 "start_at": now - dt.timedelta(days=45),
                 "end_at": now + dt.timedelta(days=15),
-                "description": (
-                    "Release em andamento gerada para demonstração."
-                ),
+                "description": ("Release em andamento gerada para demonstração."),
             },
         ]
 
@@ -594,37 +566,28 @@ class Command(BaseCommand):
             Organization(
                 name="fga-eps-mds",
                 description=(
-                    
-                        "Organização que agrupa os "
-                        "projetos de EPS e MDS da FGA."
-                    
+                    "Organização que agrupa os " "projetos de EPS e MDS da FGA."
                 ),
             ),
             Organization(
                 name="UnBArqDsw2021",
                 description=(
-                    
-                        "Organização que agrupa os "
-                        "projetos de Arquitetura e Desenvolvimento de "
-                        "Software do semestre 2021.01"
-                    
+                    "Organização que agrupa os "
+                    "projetos de Arquitetura e Desenvolvimento de "
+                    "Software do semestre 2021.01"
                 ),
             ),
             Organization(
                 name="IHC-FGA-2020",
                 description=(
-                    
-                        "Organização que agrupa os projetos da disciplina de "
-                        "Interação Humano Computador"
-                    
+                    "Organização que agrupa os projetos da disciplina de "
+                    "Interação Humano Computador"
                 ),
             ),
         ]
 
         for organization in organizations:
-            existing = Organization.objects.filter(
-                name=organization.name
-            ).first()
+            existing = Organization.objects.filter(name=organization.name).first()
             if existing:
                 organization = existing
             else:

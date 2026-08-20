@@ -30,9 +30,7 @@ CSRF_COOKIE_SECURE = _env_flag("CSRF_COOKIE_SECURE", "False")
 
 # HSTS: default 0 (desligado). Em prod com TLS, setar p/ 31536000 (1 ano).
 SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0"))
-SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_flag(
-    "SECURE_HSTS_INCLUDE_SUBDOMAINS", "False"
-)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = _env_flag("SECURE_HSTS_INCLUDE_SUBDOMAINS", "False")
 SECURE_HSTS_PRELOAD = _env_flag("SECURE_HSTS_PRELOAD", "False")
 
 # Atras de proxy: confiar no header X-Forwarded-Proto pra detectar https

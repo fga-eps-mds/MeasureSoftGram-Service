@@ -1,8 +1,8 @@
+from datetime import timedelta
 from typing import Set, Union
 
 from django.db import models
 from django.utils import timezone
-from datetime import timedelta
 
 
 class SupportedMetric(models.Model):
@@ -136,9 +136,7 @@ class SupportedMetric(models.Model):
             empty_files_set = set(qs)
 
             # Somente os valores dos arquivos que não são vazios
-            return [
-                m.value for m in metrics_qs if m.path not in empty_files_set
-            ]
+            return [m.value for m in metrics_qs if m.path not in empty_files_set]
 
         return []
 

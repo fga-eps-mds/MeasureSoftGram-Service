@@ -168,9 +168,7 @@ def get_random_goal_data(pre_config: ReleaseConfiguration):
     Função que gera um objetivo aleatório com base na pré-configuração passada
     no parâmetro.
     """
-    characteristics_keys = [
-        obj["key"] for obj in pre_config.data["characteristics"]
-    ]
+    characteristics_keys = [obj["key"] for obj in pre_config.data["characteristics"]]
 
     major = random.randint(0, 9)
     minor = random.randint(0, 9)

@@ -1,5 +1,5 @@
 from organizations.routers.routers import Router
-from organizations.views import ProductViewSet, GitHubReposViewSet
+from organizations.views import GitHubReposViewSet, ProductViewSet
 
 
 class OrgRouter(Router):

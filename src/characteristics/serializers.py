@@ -3,11 +3,8 @@ from django.utils import timezone
 from rest_framework import serializers
 
 import utils
-from characteristics.models import (
-    BalanceMatrix,
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
+from characteristics.models import (BalanceMatrix, CalculatedCharacteristic,
+                                    SupportedCharacteristic)
 
 
 class SupportedCharacteristicSerializer(serializers.ModelSerializer):
@@ -153,9 +150,7 @@ class CharacteristicsCalculationsRequestSerializer(serializers.Serializer):
         """
         Valida se todas as características solicitadas são suportadas
         """
-        characteristics_keys = [
-            char["key"] for char in attrs["characteristics"]
-        ]
+        characteristics_keys = [char["key"] for char in attrs["characteristics"]]
 
         unsuported_chars: str = utils.validate_entity(
             characteristics_keys,

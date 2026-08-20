@@ -1,10 +1,7 @@
 from django.contrib import admin, messages
 
-from characteristics.models import (
-    BalanceMatrix,
-    CalculatedCharacteristic,
-    SupportedCharacteristic,
-)
+from characteristics.models import (BalanceMatrix, CalculatedCharacteristic,
+                                    SupportedCharacteristic)
 
 
 @admin.register(SupportedCharacteristic)
@@ -51,9 +48,7 @@ class SubCharacteristicCharacteristicAssociation(admin.ModelAdmin):
         return obj.supportedsubcharacteristic.key
 
     get_subcharacteristic_key.short_description = "SubCharacteristic key"
-    get_subcharacteristic_key.admin_order_field = (
-        "supportedsubcharacteristic__key"
-    )
+    get_subcharacteristic_key.admin_order_field = "supportedsubcharacteristic__key"
 
     def get_characteristic_key(self, obj):
         return obj.supportedcharacteristic.key

@@ -30,9 +30,7 @@ class GrafanaAPIClient:
         )
         self.timeout = settings.GRAFANA_CONFIG.get("TIMEOUT", 10)
 
-    def get_dashboards(
-        self, tag: str = "measuresoftgram"
-    ) -> List[Dict[str, Any]]:
+    def get_dashboards(self, tag: str = "measuresoftgram") -> List[Dict[str, Any]]:
         """
         Lista todos os dashboards com a tag especificada.
 
@@ -51,9 +49,7 @@ class GrafanaAPIClient:
             )  # NOSONAR
             response.raise_for_status()
             dashboards = response.json()
-            logger.info(
-                f'Encontrados {len(dashboards)} dashboards com tag "{tag}"'
-            )
+            logger.info(f'Encontrados {len(dashboards)} dashboards com tag "{tag}"')
             return dashboards
         except requests.RequestException as e:
             logger.error(f"Erro ao buscar dashboards do Grafana: {e}")
@@ -141,9 +137,7 @@ class GrafanaAPIClient:
         logger.debug(f"URL construída para dashboard {uid}: {url}")
         return url
 
-    def proxy_dashboard(
-        self, dashboard_url: str
-    ) -> Optional[requests.Response]:
+    def proxy_dashboard(self, dashboard_url: str) -> Optional[requests.Response]:
         """
         Faz proxy reverso para o Grafana e retorna a resposta completa.
 
@@ -157,9 +151,7 @@ class GrafanaAPIClient:
 
         try:
             # NOSONAR — rede interna Docker
-            response = requests.get(
-                full_url, auth=self.auth, timeout=self.timeout
-            )
+            response = requests.get(full_url, auth=self.auth, timeout=self.timeout)
             response.raise_for_status()
             logger.info(f"Proxy bem-sucedido para {dashboard_url}")
             return response

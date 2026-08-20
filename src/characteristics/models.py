@@ -100,9 +100,7 @@ class SupportedCharacteristic(models.Model):
         subcharacteristics_keys = set(subcharacteristics_keys)
 
         qs = self.subcharacteristics.all()
-        related_subcharacteristics: Set[str] = set(
-            qs.values_list("key", flat=True)
-        )
+        related_subcharacteristics: Set[str] = set(qs.values_list("key", flat=True))
 
         return subcharacteristics_keys - related_subcharacteristics
 

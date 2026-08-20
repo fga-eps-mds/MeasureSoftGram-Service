@@ -1,7 +1,8 @@
+import numpy as np
+from core.transformations import diff, norm_diff
+
 from characteristics.models import CalculatedCharacteristic
 from releases.models import Release
-from core.transformations import norm_diff, diff
-import numpy as np
 
 
 def calculate_diff(planned, accomplished):
@@ -58,9 +59,7 @@ def get_accomplished_values(release: Release, repositories_ids: list[int]):
             repositories_ids
         )
 
-    return get_process_calculated_characteristics_to_list(
-        list(result_calculated)
-    )
+    return get_process_calculated_characteristics_to_list(list(result_calculated))
 
 
 def get_process_calculated_characteristics_to_list(
@@ -127,10 +126,7 @@ def calculate_norm_diff(planned_values, accomplished_characteristics):
             accomplished_value = None
 
             for accomplished_characteristic in accomplished_characteristics:
-                if (
-                    accomplished_characteristic["name"]
-                    == planned_characteristic_name
-                ):
+                if accomplished_characteristic["name"] == planned_characteristic_name:
                     accomplished_value = accomplished_characteristic["value"]
 
             if accomplished_value is None:
@@ -141,9 +137,7 @@ def calculate_norm_diff(planned_values, accomplished_characteristics):
                 return None
 
             if accomplished_value < 0 or accomplished_value > 1:
-                print(
-                    "Accomplished characteristic value should be between 0 and 1."
-                )
+                print("Accomplished characteristic value should be between 0 and 1.")
                 return None
 
             rd.append(accomplished_value)
@@ -193,10 +187,7 @@ def get_arrays_diff(goal_data: dict, characteristic_repo: dict):
         "functional_suitability",
     ):
         try:
-            if (
-                goal_data[characteristic]
-                and characteristic_repo[characteristic]
-            ):
+            if goal_data[characteristic] and characteristic_repo[characteristic]:
                 array_rp.append(goal_data[characteristic] / 100)
                 array_rd.append(characteristic_repo[characteristic])
         except Exception:

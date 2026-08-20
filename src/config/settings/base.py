@@ -245,9 +245,7 @@ AMBIENT_TEST_OR_DEV = os.getenv("AMBIENT_TEST_OR_DEV", "True").lower() in (
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
-GITHUB_ISSUE_METRICS_THRESHOLD = int(
-    os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7")
-)
+GITHUB_ISSUE_METRICS_THRESHOLD = int(os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7"))
 
 MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(
     os.getenv(
@@ -278,11 +276,7 @@ GITHUB_SUPPORTED_MEASURES = [
             ]
         }
     },
-    {
-        "ci_feedback_time": {
-            "metrics": ["sum_ci_feedback_times", "total_builds"]
-        }
-    },
+    {"ci_feedback_time": {"metrics": ["sum_ci_feedback_times", "total_builds"]}},
 ]
 
 SCHEDULER_CONFIG = {
@@ -328,7 +322,9 @@ BADGE_STALENESS_DAYS = int(os.getenv("BADGE_STALENESS_DAYS", "30"))
 # Grafana Proxy Configuration
 GRAFANA_CONFIG = {
     # NOSONAR — rede interna Docker
-    "BASE_URL": os.getenv("GRAFANA_BASE_URL", "http://grafana:3000"),  # NOSONAR — rede interna Docker
+    "BASE_URL": os.getenv(
+        "GRAFANA_BASE_URL", "http://grafana:3000"
+    ),  # NOSONAR — rede interna Docker
     # NOSONAR — URL de dev
     "PUBLIC_URL": os.getenv("GRAFANA_PUBLIC_URL", "http://localhost:5000"),
     "USERNAME": os.getenv("GRAFANA_USERNAME", "admin"),

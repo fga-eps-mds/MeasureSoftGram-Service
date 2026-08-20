@@ -6,9 +6,7 @@ from rest_framework.reverse import reverse
 
 from goals.models import Goal
 from organizations.management.commands.utils import (
-    create_a_releaseconfig,
-    create_supported_characteristics,
-)
+    create_a_releaseconfig, create_supported_characteristics)
 from utils.tests import APITestCaseExpanded
 
 User = get_user_model()
@@ -65,8 +63,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         self.org.save()
 
         self.client.credentials(
-            HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(user=self.user).key
+            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
         )
 
     def validate_goal_request(
@@ -270,9 +267,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
 
         for i in range(2):
             with self.subTest(release=i):
-                self.assertEqual(
-                    self.user.username, response.json()[i]["created_by"]
-                )
+                self.assertEqual(self.user.username, response.json()[i]["created_by"])
 
     def test_product_without_goal_returns_404(self):
         self.product.goals.all().delete()
@@ -311,9 +306,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
             "all-goal-list",
             args=[self.org.id, self.product.id],
         )
-        response = self.client.get(
-            f"{url}?release_id={goal1.id}", format="json"
-        )
+        response = self.client.get(f"{url}?release_id={goal1.id}", format="json")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 1)
         self.assertEqual(response.json()[0]["id"], goal1.id)

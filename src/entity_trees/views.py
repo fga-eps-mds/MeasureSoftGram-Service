@@ -11,9 +11,7 @@ from rest_framework.response import Response
 
 from characteristics.models import SupportedCharacteristic
 from entity_trees.serializers import (
-    CharacteristicEntityRelationshipTreeSerializer,
-    pre_config_to_entity_tree,
-)
+    CharacteristicEntityRelationshipTreeSerializer, pre_config_to_entity_tree)
 from organizations.mixins import UserScopedMixin
 
 

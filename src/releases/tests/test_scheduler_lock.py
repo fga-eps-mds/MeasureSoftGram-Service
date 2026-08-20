@@ -35,18 +35,19 @@ class SchedulerLockTestCase(TestCase):
 
     def test_check_the_need_skips_start_when_lock_not_acquired(self):
         """Sem o lock, check_the_need nao chama scheduler.start()."""
-        with mock.patch(
-            "releases.jobs.acquire_scheduler_lock", return_value=False
-        ), mock.patch("releases.jobs.BackgroundScheduler") as scheduler_cls:
+        with (
+            mock.patch("releases.jobs.acquire_scheduler_lock", return_value=False),
+            mock.patch("releases.jobs.BackgroundScheduler") as scheduler_cls,
+        ):
             jobs.check_the_need_to_calculate_releases()
             scheduler_cls.return_value.start.assert_not_called()
 
     def test_check_the_need_starts_when_lock_acquired(self):
         """Com o lock, check_the_need sobe o scheduler normalmente."""
-        with mock.patch(
-            "releases.jobs.acquire_scheduler_lock", return_value=True
-        ), mock.patch("releases.jobs.register_events"), mock.patch(
-            "releases.jobs.BackgroundScheduler"
-        ) as scheduler_cls:
+        with (
+            mock.patch("releases.jobs.acquire_scheduler_lock", return_value=True),
+            mock.patch("releases.jobs.register_events"),
+            mock.patch("releases.jobs.BackgroundScheduler") as scheduler_cls,
+        ):
             jobs.check_the_need_to_calculate_releases()
             scheduler_cls.return_value.start.assert_called_once()

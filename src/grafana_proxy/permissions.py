@@ -31,9 +31,7 @@ class HasRepositoryAccess(permissions.BasePermission):
             return self._user_can_access_repository(request.user, obj)
         return False
 
-    def _user_can_access_repository(
-        self, user, repository: Repository
-    ) -> bool:
+    def _user_can_access_repository(self, user, repository: Repository) -> bool:
         """
         Verifica se o usuário tem acesso ao repositório através de:
         User → Organization → Product → Repository

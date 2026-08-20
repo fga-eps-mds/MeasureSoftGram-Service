@@ -30,9 +30,7 @@ class ProductSaveReleaseConfigurationCase(APITestCaseExpanded):
         changed_pre_config = copy.deepcopy(staticfiles.DEFAULT_PRE_CONFIG)
         changed_pre_config["version"] = "next"
 
-        with patch.object(
-            staticfiles, "DEFAULT_PRE_CONFIG", changed_pre_config
-        ):
+        with patch.object(staticfiles, "DEFAULT_PRE_CONFIG", changed_pre_config):
             product.name = "Renamed Product"
             product.save()
 

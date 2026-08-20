@@ -16,22 +16,22 @@ metrics/models.py:113. Após o refactor "calcula em memória", a função
 SupportedMetric.get_latest_metric_value não é consultada durante o POST.
 """
 
-from django.contrib.auth import get_user_model
-from rest_framework.authtoken.models import Token
 from unittest.mock import patch
 
+from django.contrib.auth import get_user_model
 from freezegun import freeze_time
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 
-from utils.tests import APITestCaseExpanded
+from characteristics.models import CalculatedCharacteristic
+from measures.models import CalculatedMeasure
+from metrics.models import CollectedMetric, SupportedMetric
+from release_configuration.models import ReleaseConfiguration
+from subcharacteristics.models import CalculatedSubCharacteristic
+from tsqmi.models import TSQMI
 from utils import staticfiles
 from utils.exceptions import CalculateModelException
-from release_configuration.models import ReleaseConfiguration
-from metrics.models import SupportedMetric, CollectedMetric
-from measures.models import CalculatedMeasure
-from subcharacteristics.models import CalculatedSubCharacteristic
-from characteristics.models import CalculatedCharacteristic
-from tsqmi.models import TSQMI
+from utils.tests import APITestCaseExpanded
 
 
 def _full_payload():
@@ -219,8 +219,7 @@ class MathModelAtomicitySmokeTest(APITestCaseExpanded):
             )
 
         assert response.status_code == status.HTTP_201_CREATED, (
-            f"esperava 201, recebeu {response.status_code}: "
-            f"{response.content!r}"
+            f"esperava 201, recebeu {response.status_code}: " f"{response.content!r}"
         )
 
         assert call_log == [], (
@@ -242,8 +241,7 @@ class MathModelAtomicitySmokeTest(APITestCaseExpanded):
         response = self.client.post(self.url, _full_payload(), format="json")
 
         assert response.status_code == status.HTTP_201_CREATED, (
-            f"esperava 201, recebeu {response.status_code}: "
-            f"{response.content!r}"
+            f"esperava 201, recebeu {response.status_code}: " f"{response.content!r}"
         )
 
         body = response.json()

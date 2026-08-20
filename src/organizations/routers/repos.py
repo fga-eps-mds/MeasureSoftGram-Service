@@ -1,26 +1,17 @@
-from characteristics.views import (
-    CalculatedCharacteristicHistoryModelViewSet,
-    LatestCalculatedCharacteristicModelViewSet,
-)
+from characteristics.views import (CalculatedCharacteristicHistoryModelViewSet,
+                                   LatestCalculatedCharacteristicModelViewSet)
 from math_model.views import CalculateMathModelViewSet
-from measures.views import (
-    CalculatedMeasureHistoryModelViewSet,
-    LatestCalculatedMeasureModelViewSet,
-)
-from metrics.views import (
-    CollectedMetricHistoryModelViewSet,
-    LatestCollectedMetricModelViewSet,
-)
+from measures.views import (CalculatedMeasureHistoryModelViewSet,
+                            LatestCalculatedMeasureModelViewSet)
+from metrics.views import (CollectedMetricHistoryModelViewSet,
+                           LatestCollectedMetricModelViewSet)
 from organizations.routers.routers import Router
 from subcharacteristics.views import (
     CalculatedSubCharacteristicHistoryModelViewSet,
-    LatestCalculatedSubCharacteristicModelViewSet,
-)
-from tsqmi.views import (
-    CalculatedTSQMIHistoryModelViewSet,
-    LatestCalculatedTSQMIBadgeViewSet,
-    LatestCalculatedTSQMIViewSet,
-)
+    LatestCalculatedSubCharacteristicModelViewSet)
+from tsqmi.views import (CalculatedTSQMIHistoryModelViewSet,
+                         LatestCalculatedTSQMIBadgeViewSet,
+                         LatestCalculatedTSQMIViewSet)
 
 
 class RepoRouter(Router):

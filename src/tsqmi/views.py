@@ -1,13 +1,11 @@
 from rest_framework import mixins, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
-from utils.badge import is_stale, render_badge_svg, render_stale_badge_svg
 
-from organizations.models import Repository
 from organizations.mixins import UserScopedMixin
-from tsqmi.serializers import (
-    TSQMISerializer,
-)
+from organizations.models import Repository
+from tsqmi.serializers import TSQMISerializer
+from utils.badge import is_stale, render_badge_svg, render_stale_badge_svg
 
 
 class LatestCalculatedTSQMIViewSet(

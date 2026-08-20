@@ -1,17 +1,15 @@
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import MagicMock, Mock, patch
 
-from organizations.utils import (
-    onboard_repository_async,
-    get_default_mock_payload,
-)
+from requests.exceptions import ConnectionError
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APIClient
 
 from metrics.models import CollectedMetric
 from organizations.models import Repository
+from organizations.utils import (get_default_mock_payload,
+                                 onboard_repository_async)
 from utils.tests import APITestCaseExpanded
-from requests.exceptions import ConnectionError
 
 
 class PublicRepositoriesViewsSetCase(APITestCaseExpanded):
@@ -103,9 +101,7 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn(
-            "The URL must start with http or https.", response.data["url"]
-        )
+        self.assertIn("The URL must start with http or https.", response.data["url"])
 
     @patch("organizations.serializers.requests.head")
     def test_create_repository_with_inaccessible_url(self, mock_head):
@@ -125,9 +121,7 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         response = self.client.post(url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn(
-            "The repository's URL is not accessible.", response.data["url"]
-        )
+        self.assertIn("The repository's URL is not accessible.", response.data["url"])
 
     @patch("organizations.serializers.requests.head")
     def test_create_github_repository_authenticated(self, mock_head):
@@ -161,14 +155,9 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         )
 
     @patch("organizations.serializers.requests.head")
-    def test_create_github_repository_authenticated_via_social_token(
-        self, mock_head
-    ):
-        from allauth.socialaccount.models import (
-            SocialAccount,
-            SocialToken,
-            SocialApp,
-        )
+    def test_create_github_repository_authenticated_via_social_token(self, mock_head):
+        from allauth.socialaccount.models import (SocialAccount, SocialApp,
+                                                  SocialToken)
 
         mock_response = Mock()
         mock_response.status_code = 200
@@ -280,18 +269,14 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
             "description": "Test Repository Description Updated",
         }
 
-        url = reverse(
-            "repository-detail", args=[org.id, product.id, repository.id]
-        )
+        url = reverse("repository-detail", args=[org.id, product.id, repository.id])
         response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, 200)
 
         data = response.json()
 
         self.assertEqual(data["name"], "Test Repository Updated")
-        self.assertEqual(
-            data["description"], "Test Repository Description Updated"
-        )
+        self.assertEqual(data["description"], "Test Repository Description Updated")
 
         qs = Repository.objects.filter(name="Test Repository Updated")
 
@@ -301,34 +286,26 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         repository = qs.first()
 
         self.assertEqual(repository.name, "Test Repository Updated")
-        self.assertEqual(
-            repository.description, "Test Repository Description Updated"
-        )
+        self.assertEqual(repository.description, "Test Repository Description Updated")
 
         self.assertEqual(repository.product, product)
         self.assertEqual(repository.product.organization, org)
 
-        url = reverse(
-            "repository-detail", args=[org.id, product.id, repository.id]
-        )
+        url = reverse("repository-detail", args=[org.id, product.id, repository.id])
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 200)
 
         data = response.json()
 
         self.assertEqual(data["name"], "Test Repository Updated")
-        self.assertEqual(
-            data["description"], "Test Repository Description Updated"
-        )
+        self.assertEqual(data["description"], "Test Repository Description Updated")
 
     def test_delete_a_existing_repository(self):
         org = self.get_organization()
         product = self.get_product(org)
         repository = self.get_repository(product)
 
-        url = reverse(
-            "repository-detail", args=[org.id, product.id, repository.id]
-        )
+        url = reverse("repository-detail", args=[org.id, product.id, repository.id])
         response = self.client.delete(url, format="json")
         self.assertEqual(response.status_code, 204)
 
@@ -337,9 +314,7 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
         self.assertEqual(qs.exists(), False)
         self.assertEqual(qs.count(), 0)
 
-        url = reverse(
-            "repository-detail", args=[org.id, product.id, repository.id]
-        )
+        url = reverse("repository-detail", args=[org.id, product.id, repository.id])
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 404)
 
@@ -471,9 +446,7 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
 
     @patch("organizations.utils.requests.get")
     @patch("organizations.utils.requests.post")
-    def test_onboard_repository_async_github_success(
-        self, mock_post, mock_get
-    ):
+    def test_onboard_repository_async_github_success(self, mock_post, mock_get):
         def side_effect(url, headers=None, timeout=None):
             resp = MagicMock()
             resp.status_code = 200
@@ -514,12 +487,9 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
         onboard_repository_async(self.repository, self.user)
 
         self.assertTrue(
-            CollectedMetric.objects.filter(repository=self.repository).count()
-            > 0
+            CollectedMetric.objects.filter(repository=self.repository).count() > 0
         )
-        self.assertTrue(
-            TSQMI.objects.filter(repository=self.repository).count() > 0
-        )
+        self.assertTrue(TSQMI.objects.filter(repository=self.repository).count() > 0)
 
     @patch("organizations.utils.requests.get")
     def test_onboard_repository_async_exception_handled(self, mock_get):
@@ -529,9 +499,7 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
 
         onboard_repository_async(self.repository, self.user)
 
-        self.assertTrue(
-            TSQMI.objects.filter(repository=self.repository).count() > 0
-        )
+        self.assertTrue(TSQMI.objects.filter(repository=self.repository).count() > 0)
 
     def test_get_default_mock_payload(self):
         payload = get_default_mock_payload()
@@ -544,12 +512,11 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
         TSQMI.objects.create(repository=self.repository, value=0.85)
         TSQMI.objects.create(repository=self.repository, value=0.90)
 
-        from organizations.serializers import (
-            RepositoryTSQMILatestValueSerializer,
-            RepositoriesTSQMIHistorySerializer,
-        )
-
         from rest_framework.test import APIRequestFactory
+
+        from organizations.serializers import (
+            RepositoriesTSQMIHistorySerializer,
+            RepositoryTSQMILatestValueSerializer)
 
         factory = APIRequestFactory()
         request = factory.get("/")

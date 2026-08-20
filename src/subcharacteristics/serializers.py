@@ -3,10 +3,8 @@ from django.utils import timezone
 from rest_framework import serializers
 
 import utils
-from subcharacteristics.models import (
-    CalculatedSubCharacteristic,
-    SupportedSubCharacteristic,
-)
+from subcharacteristics.models import (CalculatedSubCharacteristic,
+                                       SupportedSubCharacteristic)
 
 
 class SupportedSubCharacteristicSerializer(serializers.ModelSerializer):
@@ -69,9 +67,7 @@ class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
             return None
 
 
-class CalculatedSubCharacteristicHistorySerializer(
-    serializers.ModelSerializer
-):
+class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
     history = serializers.SerializerMethodField()
 
     class Meta:

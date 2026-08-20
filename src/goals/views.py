@@ -3,13 +3,10 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from goals.models import Goal
-from goals.serializers import (
-    GoalSerializer,
-    AllGoalsSerializer,
-)
-from organizations.mixins import UserScopedMixin
 from accounts.models import CustomUser
+from goals.models import Goal
+from goals.serializers import AllGoalsSerializer, GoalSerializer
+from organizations.mixins import UserScopedMixin
 
 
 class GoalModelViewSetMixin(

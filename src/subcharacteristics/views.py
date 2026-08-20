@@ -1,14 +1,11 @@
 from rest_framework import mixins, viewsets
 
 from organizations.mixins import UserScopedMixin
-from subcharacteristics.models import (
-    SupportedSubCharacteristic,
-)
+from subcharacteristics.models import SupportedSubCharacteristic
 from subcharacteristics.serializers import (
     CalculatedSubCharacteristicHistorySerializer,
     LatestCalculatedSubCharacteristicSerializer,
-    SupportedSubCharacteristicSerializer,
-)
+    SupportedSubCharacteristicSerializer)
 
 
 class SupportedSubCharacteristicModelViewSet(

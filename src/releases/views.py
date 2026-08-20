@@ -1,30 +1,21 @@
-from releases.serializers import (
-    CheckReleaseSerializer,
-    ReleaseSerializer,
-    ReleaseAllSerializer,
-)
-from releases.models import Release
-from organizations.models import Repository
-from organizations.mixins import UserScopedMixin
-from characteristics.models import CalculatedCharacteristic
-from releases.service import (
-    get_accomplished_values,
-    get_norm_diff,
-    get_planned_values,
-    get_process_calculated_characteristics,
-    get_calculated_characteristic_by_ids_repositories,
-    get_arrays_diff,
-    calculate_diff,
-    update_release_end_at,
-)
-
+from core.transformations import diff
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
-from core.transformations import diff
+from characteristics.models import CalculatedCharacteristic
+from organizations.mixins import UserScopedMixin
+from organizations.models import Repository
+from releases.models import Release
+from releases.serializers import (CheckReleaseSerializer, ReleaseAllSerializer,
+                                  ReleaseSerializer)
+from releases.service import (
+    calculate_diff, get_accomplished_values, get_arrays_diff,
+    get_calculated_characteristic_by_ids_repositories, get_norm_diff,
+    get_planned_values, get_process_calculated_characteristics,
+    update_release_end_at)
 
 
 class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
@@ -88,9 +79,7 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
                 status=400,
             )
 
-        return Response(
-            {"message": "Parametros válidos para criação de Release"}
-        )
+        return Response({"message": "Parametros válidos para criação de Release"})
 
     @action(
         detail=False,
@@ -101,9 +90,7 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
         if id:
             id = int(id)
         else:
-            return Response(
-                {"detail": "Id da release não informado"}, status=400
-            )
+            return Response({"detail": "Id da release não informado"}, status=400)
 
         accomplished = {}
         release = Release.objects.filter(id=id).first()
@@ -128,10 +115,8 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
                     .all()
                 )
 
-            result_calculated = (
-                get_calculated_characteristic_by_ids_repositories(
-                    ids_repositories
-                )
+            result_calculated = get_calculated_characteristic_by_ids_repositories(
+                ids_repositories
             )
             accomplished = get_process_calculated_characteristics(
                 list(result_calculated)
@@ -154,8 +139,7 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
                     "release": serializer.data,
                     "planned": {
                         "reliability": release.goal.data["reliability"] / 100,
-                        "maintainability": release.goal.data["maintainability"]
-                        / 100,
+                        "maintainability": release.goal.data["maintainability"] / 100,
                     },
                     "accomplished": accomplished,
                 }
@@ -181,12 +165,8 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
 
         serialized_release = ReleaseAllSerializer(release).data
         planned_values = get_planned_values(release)
-        accomplished_values = get_accomplished_values(
-            release, repositories_ids
-        )
-        accomplished_with_norm_diff = get_norm_diff(
-            planned_values, accomplished_values
-        )
+        accomplished_values = get_accomplished_values(release, repositories_ids)
+        accomplished_with_norm_diff = get_norm_diff(planned_values, accomplished_values)
         accomplished_values_with_diff_and_norm_diff = calculate_diff(
             planned_values, accomplished_with_norm_diff
         )
@@ -205,9 +185,7 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
         new_end_at = request.data.get("end_at")
 
         if not new_end_at:
-            return Response(
-                {"detail": "O campo end_at é obrigatório."}, status=400
-            )
+            return Response({"detail": "O campo end_at é obrigatório."}, status=400)
 
         # Utilizando o serviço para atualizar o end_at
         release = update_release_end_at(pk, new_end_at)  # type: ignore

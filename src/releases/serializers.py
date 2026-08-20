@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
-from releases.models import Release
-from goals.models import Goal
 from accounts.models import CustomUser
+from goals.models import Goal
 from organizations.models import Product, Repository
+from releases.models import Release
 
 
 class ReleaseSerializer(serializers.ModelSerializer):
@@ -29,9 +29,7 @@ class ReleaseSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("created_by", "product")
 
-    def verify_fields_releases(
-        self, releases, date_start, date_end, release_name
-    ):
+    def verify_fields_releases(self, releases, date_start, date_end, release_name):
         if date_start > date_end:
             raise serializers.ValidationError(
                 {"message": "The start date must be less than the end date"}
@@ -65,9 +63,7 @@ class ReleaseSerializer(serializers.ModelSerializer):
             validated_data["release_name"],
         )
 
-        validated_data["created_by"] = CustomUser.objects.get(
-            id=view.request.user.id
-        )
+        validated_data["created_by"] = CustomUser.objects.get(id=view.request.user.id)
         validated_data["product"] = product
         repositories = validated_data.pop("repositories", [])
         release_instance = Release.objects.create(**validated_data)

@@ -1,25 +1,23 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework_nested import routers
-from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
 from rest_framework import permissions
+from rest_framework_nested import routers
 
 from accounts import urls as accounts_urls
+from characteristics.views import (BalanceMatrixViewSet,
+                                   LatestCalculatedCharacteristicBadgeViewSet,
+                                   SupportedCharacteristicModelViewSet)
 from config.health import health_check
-from characteristics.views import (
-    BalanceMatrixViewSet,
-    LatestCalculatedCharacteristicBadgeViewSet,
-    SupportedCharacteristicModelViewSet,
-)
 from entity_trees.views import SupportedEntitiesRelationshipTreeViewSet
 from measures.views import SupportedMeasureModelViewSet
 from metrics.views import SupportedMetricModelViewSet
 from organizations.routers.organizations import OrgRouter
 from organizations.routers.products import ProductRouter
 from organizations.routers.repos import RepoRouter
-from organizations.views import OrganizationViewSet, ImportOrganizationViewSet
+from organizations.views import ImportOrganizationViewSet, OrganizationViewSet
 from subcharacteristics.views import SupportedSubCharacteristicModelViewSet
 
 
@@ -29,9 +27,7 @@ def register_supported_entities_endpoints(router):
     router.register(
         "supported-subcharacteristics", SupportedSubCharacteristicModelViewSet
     )
-    router.register(
-        "supported-characteristics", SupportedCharacteristicModelViewSet
-    )
+    router.register("supported-characteristics", SupportedCharacteristicModelViewSet)
     router.register(
         "entity-relationship-tree",
         SupportedEntitiesRelationshipTreeViewSet,
@@ -89,8 +85,7 @@ urlpatterns = [
     path("api/v1/", include(accounts_urls.urlpatterns)),
     path("api/v1/grafana/", include("grafana_proxy.urls")),
     path(
-        REPO_PREFIX
-        + "latest-values/characteristics/<str:characteristic_key>/badge/",
+        REPO_PREFIX + "latest-values/characteristics/<str:characteristic_key>/badge/",
         LatestCalculatedCharacteristicBadgeViewSet.as_view({"get": "list"}),
         name="characteristic-badge",
     ),

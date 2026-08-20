@@ -86,9 +86,7 @@ class GoalImmutabilityTestCase(APITestCaseExpanded):
     def test_reverse_manager_update_raises(self):
         goal = self.create_goal({"reliability": 53})
         with self.assertRaises(ValueError):
-            self.product.goals.filter(pk=goal.pk).update(
-                data={"reliability": 99}
-            )
+            self.product.goals.filter(pk=goal.pk).update(data={"reliability": 99})
 
     def test_bulk_update_raises(self):
         goal = self.create_goal({"reliability": 53})
