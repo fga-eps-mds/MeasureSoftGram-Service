@@ -33,31 +33,25 @@ jobs:
           python-version: "3.12"
 
       - name: Instalar uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0
 
       - name: Instalar dependências
-        run: uv sync --frozen --no-install-project --all-extras
+        run: uv sync --frozen --no-install-project --no-build --all-extras
 
       - name: Rodar testes
         run: |
-          uv run coverage erase
-          uv run coverage run -m pytest src -vv --junitxml=./junit.xml
-          uv run coverage xml -o coverage.xml
-          uv run coverage report --show-missing
+          uv run --locked --no-build coverage eraseerage erase
+          uv run --locked --no-build coverage run -m pytest src -vv --junitxml=./junit.xml./junit.xml
+          uv run --locked --no-build coverage xml -o coverage.xmloverage.xml
+          uv run --locked --no-build coverage report --show-missinghow-missing
 
       - name: Rodar Migrations
         run: |
-          uv run python src/manage.py migrate
-          uv run python src/manage.py makemigrations --check --dry-run
-
-      - name: Scanner do SonarCloud
-        uses: SonarSource/sonarcloud-github-action@v2.3.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          uv run --locked --no-build python src/manage.py migrate.py migrate
+          uv run --locked --no-build python src/manage.py makemigrations --check --dry-runk --dry-run
 
       - name: Envia cobertura para o Codecov
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac #v5.5.5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./
