@@ -2,9 +2,9 @@ name: Rodar Testes
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   build:
@@ -20,7 +20,11 @@ jobs:
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v4
@@ -36,22 +40,22 @@ jobs:
         uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0
 
       - name: Instalar dependências
-        run: uv sync --frozen --no-install-project --no-build --all-extras
+        run: uv sync --frozen --no-install-project --all-extras
 
       - name: Rodar testes
         run: |
-          uv run --locked --no-build coverage eraseerage erase
-          uv run --locked --no-build coverage run -m pytest src -vv --junitxml=./junit.xml./junit.xml
-          uv run --locked --no-build coverage xml -o coverage.xmloverage.xml
-          uv run --locked --no-build coverage report --show-missinghow-missing
+          uv run --locked coverage erase
+          uv run --locked coverage run -m pytest src -vv --junitxml=./junit.xml
+          uv run --locked coverage xml -o coverage.xml
+          uv run --locked coverage report --show-missing
 
       - name: Rodar Migrations
         run: |
-          uv run --locked --no-build python src/manage.py migrate.py migrate
-          uv run --locked --no-build python src/manage.py makemigrations --check --dry-runk --dry-run
+          uv run --locked python src/manage.py migrate
+          uv run --locked python src/manage.py makemigrations --check --dry-run
 
       - name: Envia cobertura para o Codecov
-        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac #v5.5.5
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./
