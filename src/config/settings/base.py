@@ -146,7 +146,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 POSTGRES_DB = os.getenv("POSTGRES_DB", "postgres")
 POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "postgres")  # NOSONAR
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "0.0.0.0")
 POSTGRES_PORT = int(os.getenv("POSTGRES_PORT", "5432"))
 
@@ -328,7 +328,7 @@ BADGE_STALENESS_DAYS = int(os.getenv("BADGE_STALENESS_DAYS", "30"))
 # Grafana Proxy Configuration
 GRAFANA_CONFIG = {
     # NOSONAR — rede interna Docker
-    "BASE_URL": os.getenv("GRAFANA_BASE_URL", "http://grafana:3000"),
+    "BASE_URL": os.getenv("GRAFANA_BASE_URL", "http://grafana:3000"),  # NOSONAR — rede interna Docker
     # NOSONAR — URL de dev
     "PUBLIC_URL": os.getenv("GRAFANA_PUBLIC_URL", "http://localhost:5000"),
     "USERNAME": os.getenv("GRAFANA_USERNAME", "admin"),

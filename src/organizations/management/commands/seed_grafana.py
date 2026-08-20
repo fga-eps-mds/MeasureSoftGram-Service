@@ -22,13 +22,13 @@ Uso:
     python manage.py seed_grafana --repos "MeasureSoftGram-Service,MeasureSoftGram-Front"
     python manage.py seed_grafana --clean-all  # Limpa e recria todos os dados
 """
-
+import datetime as dt
 import json
 import math
 import random
-import datetime as dt
-import urllib.request
 import urllib.error
+import urllib.parse
+import urllib.request
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -664,10 +664,22 @@ ORDER BY r.char_name"""
             "Content-Type": "application/json",
         }
 
+        base_url = (
+            grafana_url if grafana_url.endswith("/") else grafana_url + "/"
+        )
+
+        def build_url(path):
+            clean_path = path.lstrip("/")
+            final_url = urllib.parse.urljoin(base_url, clean_path)
+            if not final_url.startswith(base_url):
+                raise ValueError(
+                    "Caminho inválido: tentativa de manipulação de URL detectada."
+                )
+            return final_url
+
         def grafana_get(path):
-            req = urllib.request.Request(
-                f"{grafana_url}{path}", headers=headers
-            )
+            req = urllib.request.Request(build_url(path), headers=headers)
+
             try:
                 with urllib.request.urlopen(req, timeout=5) as r:
                     return json.load(r)
@@ -680,7 +692,7 @@ ORDER BY r.char_name"""
         def grafana_post(path, payload):
             data = json.dumps(payload).encode()
             req = urllib.request.Request(
-                f"{grafana_url}{path}",
+                build_url(path),
                 data=data,
                 headers=headers,
                 method="POST",

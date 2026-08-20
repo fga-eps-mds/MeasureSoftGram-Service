@@ -109,7 +109,7 @@ class Command(BaseCommand):
         suportadas atualmente e as métricas que cada medida é dependente
         """
         for measure_data in SUPPORTED_MEASURES:
-            measure_key = list(measure_data.keys())[0]
+            measure_key = next(iter(measure_data))
             with contextlib.suppress(IntegrityError):
                 measure_name = utils.namefy(measure_key)
 
@@ -120,9 +120,7 @@ class Command(BaseCommand):
 
                 logger.info(f"Creating supported measure {measure_key}")
 
-                metrics_keys = {
-                    metric for metric in measure_data[measure_key]["metrics"]
-                }
+                metrics_keys = set(measure_data[measure_key]["metrics"])
 
                 metrics = SupportedMetric.objects.filter(
                     key__in=metrics_keys,
@@ -133,10 +131,10 @@ class Command(BaseCommand):
 
                 measure.metrics.set(metrics)
                 logger.info(
-                    (
+                    
                         f"Metrics {','.join(metrics_keys)} "
                         f"were associated to {measure_key}"
-                    )
+                    
                 )
 
     def create_github_suported_measures(self):
@@ -145,7 +143,7 @@ class Command(BaseCommand):
         suportadas atualmente e as métricas que cada medida é dependente
         """
         for measure_data in settings.GITHUB_SUPPORTED_MEASURES:
-            measure_key = list(measure_data.keys())[0]
+            measure_key = next(iter(measure_data))
             with contextlib.suppress(IntegrityError):
                 measure_name = utils.namefy(measure_key)
 
@@ -156,9 +154,7 @@ class Command(BaseCommand):
 
                 logger.info(f"Creating supported measure {measure_key}")
 
-                metrics_keys = {
-                    metric for metric in measure_data[measure_key]["metrics"]
-                }
+                metrics_keys = set(measure_data[measure_key]["metrics"])
 
                 metrics = SupportedMetric.objects.filter(
                     key__in=metrics_keys,
@@ -169,10 +165,10 @@ class Command(BaseCommand):
 
                 measure.metrics.set(metrics)
                 logger.info(
-                    (
+                    
                         f"Metrics {','.join(metrics_keys)} "
                         f"were associated to {measure_key}"
-                    )
+                    
                 )
 
     def create_supported_metrics(self):
@@ -598,29 +594,29 @@ class Command(BaseCommand):
             Organization(
                 name="fga-eps-mds",
                 description=(
-                    (
+                    
                         "Organização que agrupa os "
                         "projetos de EPS e MDS da FGA."
-                    )
+                    
                 ),
             ),
             Organization(
                 name="UnBArqDsw2021",
                 description=(
-                    (
+                    
                         "Organização que agrupa os "
                         "projetos de Arquitetura e Desenvolvimento de "
                         "Software do semestre 2021.01"
-                    )
+                    
                 ),
             ),
             Organization(
                 name="IHC-FGA-2020",
                 description=(
-                    (
+                    
                         "Organização que agrupa os projetos da disciplina de "
                         "Interação Humano Computador"
-                    )
+                    
                 ),
             ),
         ]
@@ -731,16 +727,12 @@ class Command(BaseCommand):
             ),
             Repository(
                 name="2021.1_G01_Animalesco_FrontEnd",
-                description=(
-                    "Repositório do frontend " "do projeto Animalesco."
-                ),
+                description="Repositório do frontend do projeto Animalesco.",
                 product=products["Animalesco"],
             ),
             Repository(
                 name="2022-1-MeasureSoftGram-Service",
-                description=(
-                    "Repositório do backend do projeto " "MeasureSoftGram."
-                ),
+                description="Repositório do backend do projeto MeasureSoftGram.",
                 product=products["MeasureSoftGram"],
             ),
             Repository(
@@ -753,16 +745,12 @@ class Command(BaseCommand):
             ),
             Repository(
                 name="2022-1-MeasureSoftGram-Front",
-                description=(
-                    "Repositório do frontend da projeto " "MeasureSoftGram"
-                ),
+                description="Repositório do frontend da projeto MeasureSoftGram",
                 product=products["MeasureSoftGram"],
             ),
             Repository(
                 name="2022-1-MeasureSoftGram-CLI",
-                description=(
-                    "Repositório do CLI da projeto " "MeasureSoftGram"
-                ),
+                description="Repositório do CLI da projeto MeasureSoftGram",
                 product=products["MeasureSoftGram"],
             ),
         ]

@@ -30,7 +30,7 @@ python3 manage.py migrate --noinput
 # load_initial_data popula entidades suportadas. Em prod, rodar a cada
 # subida pode re-popular/sobrescrever, condicionado por env. Ligar no
 # 1o deploy (RUN_LOAD_INITIAL_DATA=true) e desligar depois.
-if [ "${RUN_LOAD_INITIAL_DATA:-true}" = "true" ]; then
+if [[ "${RUN_LOAD_INITIAL_DATA:-true}" = "true" ]]; then
   echo '======= PREPOPULATING THE DATABASE'
   python3 manage.py load_initial_data
 else
