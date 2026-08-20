@@ -31,20 +31,27 @@ EXPOSE 8080
 
 WORKDIR /src
 
-# curl pra healthcheck/diagnostico do proprio service em runtime
-RUN apt-get update \
+# 1. Criar um grupo e um usuário de sistema sem privilégios (UID/GID padrão 1000)
+RUN addgroup --system --gid 1000 appgroup \
+    && adduser --system --uid 1000 --ingroup appgroup appuser \
+    && apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# curl pra healthcheck/diagnostico do proprio service em runtime
 # Copiar venv do builder
 COPY --from=builder /app/.venv /app/.venv
 
 # Copiar código
 COPY src /src/
 
-# Garantir bit de execucao do entrypoint (necessario quando a imagem roda
-# por conta propria, ex: `docker compose pull` + up sem command no compose).
-RUN chmod +x /src/start_service.sh
+# 2. Ajustar o ownership dos diretórios que a aplicação precisa acessar
+# e garantir bit de execucao do entrypoint
+RUN chown -R appuser:appgroup /src /app/.venv \
+    && chmod +x /src/start_service.sh
+
+# 3. Trocar para o usuário non-root ANTES de rodar a aplicação
+USER appuser
 
 # Entrypoint default: migra, collectstatic e sobe gunicorn (ver script).
 CMD ["./start_service.sh"]

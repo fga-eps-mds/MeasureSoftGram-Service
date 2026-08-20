@@ -24,6 +24,7 @@ services:
     container_name: service
     build:
       context: .
+      dockerfile: Dockerfile.dev
     command: ["./start_service.sh"]
     ports:
       - "8080:8080"
