@@ -1,5 +1,6 @@
-from organizations.models import Repository, Product
 from rest_framework.generics import get_object_or_404
+
+from organizations.models import Product, Repository
 
 
 def get_repository(organization_id, product_id, repository_id):

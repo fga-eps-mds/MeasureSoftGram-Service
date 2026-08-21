@@ -1,32 +1,32 @@
 # flake8: noqa
 # pylint: skip-file
 DEFAULT_PRE_CONFIG = {
-    'characteristics': [
+    "characteristics": [
         {
-            'key': 'reliability',
-            'weight': 34,
-            'subcharacteristics': [
+            "key": "reliability",
+            "weight": 34,
+            "subcharacteristics": [
                 {
-                    'key': 'testing_status',
-                    'weight': 50,
-                    'measures': [
+                    "key": "testing_status",
+                    "weight": 50,
+                    "measures": [
                         {
-                            'key': 'passed_tests',
-                            'weight': 33,
-                            'min_threshold': 0,
-                            'max_threshold': 1,
+                            "key": "passed_tests",
+                            "weight": 33,
+                            "min_threshold": 0,
+                            "max_threshold": 1,
                         },
                         {
-                            'key': 'test_builds',
-                            'weight': 33,
-                            'min_threshold': 0,
-                            'max_threshold': 300000,
+                            "key": "test_builds",
+                            "weight": 33,
+                            "min_threshold": 0,
+                            "max_threshold": 300000,
                         },
                         {
-                            'key': 'test_coverage',
-                            'weight': 34,
-                            'min_threshold': 60,
-                            'max_threshold': 100,
+                            "key": "test_coverage",
+                            "weight": 34,
+                            "min_threshold": 60,
+                            "max_threshold": 100,
                         },
                     ],
                 },
@@ -45,30 +45,30 @@ DEFAULT_PRE_CONFIG = {
             ],
         },
         {
-            'key': 'maintainability',
-            'weight': 33,
-            'subcharacteristics': [
+            "key": "maintainability",
+            "weight": 33,
+            "subcharacteristics": [
                 {
-                    'key': 'modifiability',
-                    'weight': 100,
-                    'measures': [
+                    "key": "modifiability",
+                    "weight": 100,
+                    "measures": [
                         {
-                            'key': 'non_complex_file_density',
-                            'weight': 33,
-                            'min_threshold': 0,
-                            'max_threshold': 10,
+                            "key": "non_complex_file_density",
+                            "weight": 33,
+                            "min_threshold": 0,
+                            "max_threshold": 10,
                         },
                         {
-                            'key': 'commented_file_density',
-                            'weight': 33,
-                            'min_threshold': 10,
-                            'max_threshold': 30,
+                            "key": "commented_file_density",
+                            "weight": 33,
+                            "min_threshold": 10,
+                            "max_threshold": 30,
                         },
                         {
-                            'key': 'duplication_absense',
-                            'weight': 34,
-                            'min_threshold': 0,
-                            'max_threshold': 5,
+                            "key": "duplication_absense",
+                            "weight": 34,
+                            "min_threshold": 0,
+                            "max_threshold": 5,
                         },
                     ],
                 }

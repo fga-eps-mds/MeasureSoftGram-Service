@@ -1,0 +1,26 @@
+# Dockerfile.dev
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH"
+
+WORKDIR /src
+
+# Instala ferramentas básicas
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia os arquivos de dependência e sincroniza
+COPY pyproject.toml uv.lock /app/
+WORKDIR /app
+RUN uv sync --frozen
+
+# Volta para o diretório de código
+WORKDIR /src
+
+# Em dev, rodamos como root mesmo.
+CMD ["./start_service.sh"]

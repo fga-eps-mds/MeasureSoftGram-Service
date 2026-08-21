@@ -1,0 +1,35 @@
+name: Publish Docker Image
+
+# Builda a imagem do Service no CI cloud (ubuntu-latest) e publica no
+# DockerHub. A box de producao so faz PULL (deploy-prod.yml), nunca build.
+# Publica em push pra develop pra garantir imagem fresca a cada merge.
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Login no DockerHub
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f #v4.6.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build e Push da imagem
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a #v7.3.0
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          # latest pra deploy simples + sha pra rollback/deploy deterministico.
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/service:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/service:${{ github.sha }}

@@ -2,11 +2,10 @@ name: Export de métricas
 
 on:
   push:
-    branches: [main]
+    branches: [main,develop]
     tags:
       - "v*"
   workflow_dispatch:
-
 jobs:
   release:
     runs-on: "ubuntu-latest"
@@ -19,25 +18,28 @@ jobs:
         run: mkdir analytics-raw-data
 
       - name: Coletar métricas no SonarCloud
-        run: python parser.py ${{ github.event.repository.name }} ${{ github.ref_name }}
+        run: pip install --only-binary=:all: requests==2.32.3 --break-system-packages && python parser.py ${{ github.event.repository.name }} ${{ github.ref_name }}
 
       - name: Envia métricas para repo de Doc
+        env:
+          USER_EMAIL: ${{ secrets.USER_EMAIL }}
+          USER_NAME: ${{ secrets.USER_NAME }}
+          API_TOKEN_DOC: ${{ secrets.API_TOKEN_DOC }}
         run: |
-          git config --global user.email "${{secrets.USER_EMAIL}}"
-          git config --global user.name "${{secrets.USER_NAME}}"
-          git clone --single-branch --branch main "https://x-access-token:${{secrets.API_TOKEN_DOC}}@github.com/fga-eps-mds/2024.1-MeasureSoftGram-DOC" doc
-          mkdir -p doc/analytics-raw-data
-          cp -R analytics-raw-data/*.json doc/analytics-raw-data
-          cd doc
+          git config --global user.email "$USER_EMAIL"
+          git config --global user.name "$USER_NAME"
+          git clone --single-branch --branch main "https://x-access-token:$API_TOKEN_DOC@github.com/fga-eps-mds/2026.1-MeasureSoftGram-DOC" doc
+          mkdir -p doc/Analytics/data
+          cp -R analytics-raw-data/*.json doc/Analytics/data
+          cd doc/
           git add .
           git commit -m "Adicionando métricas do repositório ${{ github.event.repository.name }} ${{ github.ref_name }}"
           git push
 
       - name: Envia métricas como assets da release
         if: startsWith(github.ref, 'refs/tags')
-        uses: AButler/upload-release-assets@v2.0
+        uses: AButler/upload-release-assets@34491005a5d7ec239a784e460807ce844fde7962 #v4.0.0
         with:
           files: 'analytics-raw-data/*'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token: ${{ secrets.TOKEN_GITHUB }}
           release-tag: ${{ github.ref_name }}
-

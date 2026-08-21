@@ -6,20 +6,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('goals', '0003_alter_goal_created_by'),
+        ("goals", "0003_alter_goal_created_by"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='goal',
-            name='end_at',
+            model_name="goal",
+            name="end_at",
         ),
         migrations.RemoveField(
-            model_name='goal',
-            name='release_name',
+            model_name="goal",
+            name="release_name",
         ),
         migrations.RemoveField(
-            model_name='goal',
-            name='start_at',
+            model_name="goal",
+            name="start_at",
         ),
     ]

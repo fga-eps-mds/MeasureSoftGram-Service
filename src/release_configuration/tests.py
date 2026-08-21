@@ -10,7 +10,7 @@ from utils.tests import APITestCaseExpanded
 
 
 def _get_product_detail(*args):
-    return reverse('product-detail', args=args)
+    return reverse("product-detail", args=args)
 
 
 class TestUnauthenticatedConfigEndpoints(APITestCaseExpanded):
@@ -20,9 +20,7 @@ class TestUnauthenticatedConfigEndpoints(APITestCaseExpanded):
         self.prod = self.get_product(self.org)
 
     def test_that_unauthorized_is_prohibited(self):
-        response = self.request.get(
-            _get_product_detail(self.org.id, self.prod.id)
-        )
+        response = self.request.get(_get_product_detail(self.org.id, self.prod.id))
         self.assertIsNotNone(self.org.id)
         self.assertIsNotNone(self.prod.id)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -38,69 +36,88 @@ class TestConfigEnpoints(APITestCaseExpanded):
         self.prod = self.get_product(self.org)
 
     def test_user_not_created_configs(self):
-        detail_items = self.request.get(
-            _get_product_detail(self.org.id, self.prod.id)
-        )
-        pre_config_uri = detail_items.json()['actions']
+        detail_items = self.request.get(_get_product_detail(self.org.id, self.prod.id))
+        pre_config_uri = detail_items.json()["actions"]
         self.assertIsNotNone(pre_config_uri)
 
-        configs_resp = self.request.get(
-            pre_config_uri['get current release-config']
-        )
+        configs_resp = self.request.get(pre_config_uri["get current release-config"])
 
         self.assertEqual(configs_resp.status_code, status.HTTP_200_OK)
-        self.assertFalse(configs_resp.json()['created_config'])
+        self.assertFalse(configs_resp.json()["created_config"])
 
     def test_user_created_configs(self):
-        detail_items = self.request.get(
-            _get_product_detail(self.org.id, self.prod.id)
-        )
-        pre_config_uri = detail_items.json()['actions']
+        detail_items = self.request.get(_get_product_detail(self.org.id, self.prod.id))
+        pre_config_uri = detail_items.json()["actions"]
 
         measures = [
             {
-                'key': 'passed_tests',
-                'weight': 100,
-                'min_threshold': 0,
-                'max_threshold': 1,
+                "key": "passed_tests",
+                "weight": 100,
+                "min_threshold": 0,
+                "max_threshold": 1,
             }
         ]
         subcharacteristics = [
-            {'key': 'testing_status', 'weight': 100, 'measures': measures}
+            {"key": "testing_status", "weight": 100, "measures": measures}
         ]
         characteristics = [
             {
-                'key': 'reliability',
-                'weight': 100,
-                'subcharacteristics': subcharacteristics,
+                "key": "reliability",
+                "weight": 100,
+                "subcharacteristics": subcharacteristics,
             }
         ]
 
         data = {
-            'name': 'Test release-config',
-            'data': {'characteristics': characteristics},
+            "name": "Test release-config",
+            "data": {"characteristics": characteristics},
         }
         response = self.request.post(
-            pre_config_uri['create a new release-config'], data, format='json'
+            pre_config_uri["create a new release-config"], data, format="json"
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        configs_resp = self.request.get(
-            pre_config_uri['get current release-config']
-        )
+        configs_resp = self.request.get(pre_config_uri["get current release-config"])
         print(configs_resp.json())
 
         self.assertIn(
             dict(
                 filter(
-                    lambda item_tuple: item_tuple[0] == 'id',
+                    lambda item_tuple: item_tuple[0] == "id",
                     configs_resp.json().items(),
                 )
             ),
-            ReleaseConfiguration.objects.values('id').filter(
-                id=configs_resp.json()['id']
+            ReleaseConfiguration.objects.values("id").filter(
+                id=configs_resp.json()["id"]
             ),
         )
         self.assertEqual(configs_resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(configs_resp.json()['created_config'])
+        self.assertTrue(configs_resp.json()["created_config"])
+
+
+class TestReleaseConfigurationImmutability(APITestCaseExpanded):
+    def setUp(self):
+        self.user = self.get_or_create_test_user()
+        self.org = self.get_organization()
+        self.prod = self.get_product(self.org)
+        # Product.save() cria automaticamente uma release-config default
+        self.config = self.prod.release_configuration.first()
+
+    def test_that_queryset_update_is_prohibited(self):
+        self.assertIsNotNone(self.config)
+        with self.assertRaises(ValueError):
+            ReleaseConfiguration.objects.filter(pk=self.config.pk).update(
+                data={"hacked": True}
+            )
+
+    def test_that_reverse_manager_update_is_prohibited(self):
+        with self.assertRaises(ValueError):
+            self.prod.release_configuration.filter(pk=self.config.pk).update(
+                data={"hacked": True}
+            )
+
+    def test_that_bulk_update_is_prohibited(self):
+        self.config.data = {"hacked": True}
+        with self.assertRaises(ValueError):
+            ReleaseConfiguration.objects.bulk_update([self.config], ["data"])

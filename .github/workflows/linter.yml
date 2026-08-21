@@ -12,15 +12,18 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.12"
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0
 
       - name: Instalar flake8
-        run: pip install flake8
+        run: uv tool install flake8==7.3.0
 
       - name: Run flake8
         run: flake8 src/

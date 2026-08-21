@@ -1,28 +1,21 @@
 from rest_framework import mixins, status, viewsets
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
-from organizations.models import Product
+from organizations.mixins import UserScopedMixin
 from release_configuration.models import ReleaseConfiguration
-from measures.models import SupportedMeasure
-from release_configuration.serializers import ReleaseConfigurationSerializer, DefaultPreConfigSerializer
+from release_configuration.serializers import (DefaultPreConfigSerializer,
+                                               ReleaseConfigurationSerializer)
 from staticfiles import SUPPORTED_MEASURES
-
 from utils import staticfiles
 
 
 class CurrentReleaseConfigModelViewSet(
+    UserScopedMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = ReleaseConfiguration.objects.all()
     serializer_class = ReleaseConfigurationSerializer
-
-    def get_product(self):
-        return get_object_or_404(
-            Product,
-            id=self.kwargs["product_pk"],
-        )
 
     def list(self, request, *args, **kwargs):
         # first() == mais recente == pre configuração atual
@@ -33,17 +26,12 @@ class CurrentReleaseConfigModelViewSet(
 
 
 class DefaultPreConfigModelViewSet(
+    UserScopedMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = ReleaseConfiguration.objects.all()
     serializer_class = ReleaseConfigurationSerializer
-
-    def get_product(self):
-        return get_object_or_404(
-            Product,
-            id=self.kwargs["product_pk"],
-        )
 
     def list(self, request, *args, **kwargs):
         pre_config = staticfiles.DEFAULT_PRE_CONFIG
@@ -52,17 +40,12 @@ class DefaultPreConfigModelViewSet(
 
 
 class CreateReleaseConfigModelViewSet(
+    UserScopedMixin,
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
     serializer_class = ReleaseConfigurationSerializer
     queryset = ReleaseConfiguration.objects.all()
-
-    def get_product(self):
-        return get_object_or_404(
-            Product,
-            id=self.kwargs["product_pk"],
-        )
 
     def perform_create(self, serializer):
         product = self.get_product()

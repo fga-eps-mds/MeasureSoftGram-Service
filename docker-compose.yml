@@ -1,34 +1,80 @@
-version: "3.8"
-
 volumes:
   service_postgres_data:
-  pip_cache:
-
+  grafana_data:
 
 services:
   db:
     container_name: db
-    image: postgres:latest
+    image: postgres:18-alpine
+    # Bind so localhost (host) — evita conflito com Postgres do host na 0.0.0.0:5432.
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
-      - service_postgres_data:/var/lib/postgresql/data
+      - service_postgres_data:/var/lib/postgresql
     env_file:
       - ./env-vars/.postgres.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
   service:
     container_name: service
     build:
       context: .
-    command: [ "./start_service.sh" ]
+      dockerfile: Dockerfile.dev
+    command: ["./start_service.sh"]
     ports:
-      - "8080:80" # Main port
-      - "8181:8181" # Debug port
+      - "8080:8080"
     volumes:
-      - ./src:/src
-      - pip_cache:/usr/local/lib/python3/site-packages
+      - ./src:/src:z
     env_file:
       - ./env-vars/.service.env
       - ./env-vars/.postgres.env
+    environment:
+      DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE:-config.settings.dev}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      # start_period cobre migrations + load_initial_data + collectstatic
+      # que rodam antes do gunicorn subir (start_service.sh).
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+    develop:
+      watch:
+        - action: sync
+          path: ./src
+          target: /src
+        - action: rebuild
+          path: ./pyproject.toml
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    ports:
+      - "5000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/etc/grafana/dashboards
+    env_file:
+      - ./env-vars/.postgres.env
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin123  # NOSONAR — credencial de dev local, nunca vai a produção
+      GF_INSTALL_PLUGINS: volkovlabs-echarts-panel
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: volkovlabs-echarts-panel
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped

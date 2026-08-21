@@ -5,20 +5,20 @@ from utils.exceptions import InvalidReleaseConfigurationException
 
 
 class ReleaseConfigurationSerializer(serializers.ModelSerializer):
-    created_config = serializers.SerializerMethodField('has_created_config')
+    created_config = serializers.SerializerMethodField("has_created_config")
 
     class Meta:
         model = ReleaseConfiguration
-        fields = ('id', 'name', 'data', 'created_at', 'created_config')
+        fields = ("id", "name", "data", "created_at", "created_config")
         extra_kwargs = {
-            'created_at': {'read_only': True},
-            'created_config': {
-                'read_only': True,
+            "created_at": {"read_only": True},
+            "created_config": {
+                "read_only": True,
             },
         }
 
     def has_created_config(self, obj):
-        return len(ReleaseConfiguration.objects.values('id')) > 1
+        return len(ReleaseConfiguration.objects.values("id")) > 1
 
     def validate(self, attrs):
         """
@@ -27,7 +27,7 @@ class ReleaseConfigurationSerializer(serializers.ModelSerializer):
         if self.instance:
             raise ValueError("It's not allowed to edit a release-configuration")
 
-        data = attrs['data']
+        data = attrs["data"]
 
         try:
             ReleaseConfiguration.validate_measures(data)

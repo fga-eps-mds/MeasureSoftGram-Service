@@ -6,20 +6,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('releases', '0002_alter_release_table'),
+        ("releases", "0002_alter_release_table"),
         (
-            'organizations',
-            '0005_product_gaugeredlimit_product_gaugeyellowlimit',
+            "organizations",
+            "0005_product_gaugeredlimit_product_gaugeyellowlimit",
         ),
         (
-            'characteristics',
-            '0004_alter_calculatedcharacteristic_unique_together',
+            "characteristics",
+            "0004_alter_calculatedcharacteristic_unique_together",
         ),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='calculatedcharacteristic',
-            unique_together={('repository', 'release', 'characteristic')},
+            name="calculatedcharacteristic",
+            unique_together={("repository", "release", "characteristic")},
         ),
     ]

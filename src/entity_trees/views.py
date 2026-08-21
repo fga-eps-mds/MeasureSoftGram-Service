@@ -5,17 +5,14 @@ Isso é:
 * Características com subcaracterísticas
 * Subcaracterísticas com medidas
 """
+
 from rest_framework import mixins, viewsets
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from characteristics.models import SupportedCharacteristic
 from entity_trees.serializers import (
-    CharacteristicEntityRelationshipTreeSerializer,
-    pre_config_to_entity_tree,
-)
-from organizations.models import Product
-from release_configuration.models import ReleaseConfiguration
+    CharacteristicEntityRelationshipTreeSerializer, pre_config_to_entity_tree)
+from organizations.mixins import UserScopedMixin
 
 
 class SupportedEntitiesRelationshipTreeViewSet(
@@ -31,8 +28,8 @@ class SupportedEntitiesRelationshipTreeViewSet(
 
     def list(self, request, *args, **kwargs):
         qs = SupportedCharacteristic.objects.all().prefetch_related(
-            'subcharacteristics',
-            'subcharacteristics__measures',
+            "subcharacteristics",
+            "subcharacteristics__measures",
         )
 
         serializer = CharacteristicEntityRelationshipTreeSerializer(
@@ -44,6 +41,7 @@ class SupportedEntitiesRelationshipTreeViewSet(
 
 
 class ReleaseConfigurationEntitiesRelationshipTreeViewSet(
+    UserScopedMixin,
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
@@ -54,13 +52,6 @@ class ReleaseConfigurationEntitiesRelationshipTreeViewSet(
 
     serializer_class = CharacteristicEntityRelationshipTreeSerializer
     queryset = SupportedCharacteristic.objects.all()
-
-    def get_product(self):
-        return get_object_or_404(
-            Product,
-            id=self.kwargs['product_pk'],
-            organization_id=self.kwargs['organization_pk'],
-        )
 
     def list(self, request, *args, **kwargs):
         product = self.get_product()

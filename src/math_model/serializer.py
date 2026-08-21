@@ -1,15 +1,11 @@
 from rest_framework import serializers
 
-from characteristics.models import SupportedCharacteristic
-from characteristics.serializers import SupportedCharacteristicSerializer
-from measures.serializers import SupportedMeasureSerializer
-from release_configuration.models import ReleaseConfiguration
-from metrics.serializers import CollectedMetricSerializer
 from characteristics.serializers import CalculatedCharacteristicSerializer
-from subcharacteristics.serializers import CalculatedSubCharacteristicSerializer
 from measures.serializers import CalculatedMeasureSerializer
+from metrics.serializers import CollectedMetricSerializer
+from subcharacteristics.serializers import \
+    CalculatedSubCharacteristicSerializer
 from tsqmi.serializers import TSQMISerializer
-from subcharacteristics.serializers import SupportedSubCharacteristicSerializer
 
 
 class GithubJSONSerializer(serializers.Serializer):

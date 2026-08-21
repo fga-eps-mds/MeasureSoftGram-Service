@@ -2,9 +2,9 @@ name: Rodar Testes
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
 
     services:
       db:
-        image: postgres
+        image: postgres:18-alpine
         env:
           POSTGRES_DB: postgres
           POSTGRES_USER: postgres
@@ -20,45 +20,42 @@ jobs:
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
-      - name: Instalar requirements
-        run: pip install -r requirements.txt
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@ae62891fec2bb8e7d6c99fc78c9fec3a63790f8d # v10.0
 
-      - name: Instalar tox
-        run: pip install tox
+      - name: Instalar dependências
+        run: uv sync --frozen --no-install-project --all-extras
 
       - name: Rodar testes
-        run: tox
+        run: |
+          uv run --locked coverage erase
+          uv run --locked coverage run -m pytest src -vv --junitxml=./junit.xml
+          uv run --locked coverage xml -o coverage.xml
+          uv run --locked coverage report --show-missing
 
       - name: Rodar Migrations
         run: |
-          python src/manage.py migrate
-          python src/manage.py makemigrations --check --dry-run
-
-      - name: Corrige reports path
-        run: |
-          sed -i 's/<source>\/home\/runner\/work\/2023-2-MeasureSoftGram-Service\/2023-2-MeasureSoftGram-Service<\/source>/<source>\/github\/workspace<\/source>/g' coverage.xml
-          sed -i 's/classname="/classname="src./g' junit.xml
-
-      - name: Scanner do SonarCloud
-        uses: SonarSource/sonarcloud-github-action@v2.3.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          uv run --locked python src/manage.py migrate
+          uv run --locked python src/manage.py makemigrations --check --dry-run
 
       - name: Envia cobertura para o Codecov
-        uses: codecov/codecov-action@v4.0.1
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           directory: ./
@@ -66,5 +63,5 @@ jobs:
           fail_ci_if_error: true
           files: ./coverage.xml
           flags: unittests
-          name: 2024.1-MeasureSoftGram-Service
+          name: 2026.1-MeasureSoftGram-Service
           verbose: true
