@@ -31,6 +31,11 @@
   "python.autoComplete.extraPaths": [
     "${workspaceFolder}/src"
   ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "src"
+  ],
   "python.analysis.typeCheckingMode": "basic",
   "files.trimTrailingWhitespace": true,
   "files.insertFinalNewline": true
