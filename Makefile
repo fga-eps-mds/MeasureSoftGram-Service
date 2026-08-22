@@ -3,7 +3,7 @@ COMPOSE = docker compose
 .PHONY: help env setup dev seed up down restart build rebuild logs ps clear \
         migrate migrations shell superuser \
         test test-smoke test-cov lint format migrations-check check \
-        bash
+        hooks bash
 
 help:
 	@echo "Targets disponiveis:"
@@ -27,6 +27,7 @@ help:
 	@echo "  test-cov     - pytest com coverage"
 	@echo "  lint         - flake8 src/ (mesma checagem do CI)"
 	@echo "  format       - black + isort no src/ (opt-in, nao roda no CI)"
+	@echo "  hooks        - instala os git hooks do pre-commit (Conventional Commits + Linters)"
 	@echo "  migrations-check - detecta model sem migration (mesma checagem do CI)"
 	@echo "  check        - lint + test + migrations-check (espelha o CI local)"
 	@echo "  bash         - bash dentro do service"
@@ -142,3 +143,19 @@ migrations-check:
 
 # Espelha localmente os gates do CI: flake8 + suite de testes + migrations.
 check: lint test migrations-check
+
+# Instala os git hooks do pre-commit (Conventional Commits + Linters)
+hooks:
+	@if command -v pre-commit >/dev/null 2>&1; then \
+		pre-commit install --hook-type pre-commit --hook-type commit-msg; \
+	elif command -v uv >/dev/null 2>&1; then \
+		uv run pre-commit install --hook-type pre-commit --hook-type commit-msg; \
+	elif command -v uvx >/dev/null 2>&1; then \
+		uvx pre-commit install --hook-type pre-commit --hook-type commit-msg; \
+	elif command -v pip3 >/dev/null 2>&1; then \
+		pip3 install --user pre-commit && pre-commit install --hook-type pre-commit --hook-type commit-msg; \
+	else \
+		echo "Pre-commit ou uv nao encontrados. Instale o pre-commit para habilitar os hooks."; \
+		exit 1; \
+	fi
+	@echo ">>> Git hooks instalados com sucesso (pre-commit + commit-msg)!"
