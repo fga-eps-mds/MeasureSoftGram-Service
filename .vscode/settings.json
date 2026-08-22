@@ -1,7 +1,37 @@
 {
   "[python]": {
-    "editor.defaultFormatter": "ms-python.black-formatter"
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
   },
-  "python.formatting.provider": "none",
-  "python.analysis.typeCheckingMode": "basic"
+  "editor.rulers": [119],
+  "black-formatter.args": ["--line-length", "119"],
+  "flake8.args": ["--config=.flake8"],
+  "isort.args": ["--profile", "black", "--line-length", "119"],
+  "sonarlint.rules": {
+    "python:S100": { "level": "on" },
+    "python:S1192": { "level": "on" }
+  },
+  "sonarlint.connectedMode.connections.sonarcloud": [
+    {
+      "connectionId": "fga-eps-mds",
+      "organizationKey": "fga-eps-mds-1"
+    }
+  ],
+  "sonarlint.connectedMode.project": {
+    "connectionId": "fga-eps-mds",
+    "projectKey": "fga-eps-mds_2026.2-MeasureSoftGram-Service"
+  },
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/src"
+  ],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/src"
+  ],
+  "python.analysis.typeCheckingMode": "basic",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
 }
