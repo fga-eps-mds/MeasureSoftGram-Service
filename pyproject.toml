@@ -38,6 +38,10 @@ dev = [
     "tox==3.27.1",
     "freezegun==1.5.1",
     "coverage",
+    "pre-commit>=3.7.0",
+    "black>=24.8.0",
+    "isort>=5.13.2",
+    "flake8>=7.1.1",
 ]
 
 [tool.uv]

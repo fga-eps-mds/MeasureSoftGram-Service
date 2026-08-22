@@ -1,0 +1,42 @@
+# .pre-commit-config.yaml
+# Configuração dos git hooks locais do MeasureSoftGram Service
+repos:
+  # 1. Validação de mensagens de commit (Conventional Commits)
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.4.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args: [feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert, improve]
+
+  # 2. Higienização geral de arquivos
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+
+  # 3. Formatação do código Python com Black (linha máxima 119)
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        args: ['--line-length=119']
+
+  # 4. Ordenação de imports com isort
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ['--profile', 'black', '--line-length', '119']
+
+  # 5. Linter com Flake8 usando a configuração de .flake8
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+        additional_dependencies: []
