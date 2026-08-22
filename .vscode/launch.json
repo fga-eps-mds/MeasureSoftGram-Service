@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Docker: Attach to Django",
+      "type": "debugpy",
+      "request": "attach",
+      "connect": {
+        "host": "localhost",
+        "port": 5678
+      },
+      "pathMappings": [
+        {
+          "localRoot": "${workspaceFolder}/src",
+          "remoteRoot": "/src"
+        }
+      ]
+    },
+    {
+      "name": "Python: Debug Current Test File (Local)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "purpose": ["debug-test"],
+      "cwd": "${workspaceFolder}/src",
+      "env": {
+        "DJANGO_SETTINGS_MODULE": "config.settings.test"
+      }
+    }
+  ]
+}
