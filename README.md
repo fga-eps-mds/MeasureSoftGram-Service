@@ -88,6 +88,16 @@ Para popular os dados iniciais de entidades suportadas e provisionar os dashboar
 make seed
 ```
 
+### 5. Configurar os Git Hooks (Pre-commit)
+
+Para garantir a padronização do código e das mensagens de commit no repositório local (validação de Conventional Commits, formatação com Black/isort e linter com Flake8), instale os hooks do git:
+
+```bash
+make hooks
+```
+
+> O comando detecta automaticamente o gerenciador disponível (`pre-commit`, `uv`, `uvx` ou `pip3`) e instala os hooks de `pre-commit` e `commit-msg`.
+
 ---
 
 ## Principais Comandos do Makefile
@@ -107,6 +117,7 @@ O `Makefile` centraliza todos os comandos essenciais para a operação do projet
 | `make rebuild` | Recria a stack (`down` + `build` + `up`) |
 | `make clear` | Remove containers, volumes e órfãos (`docker compose down -v --remove-orphans`) |
 | `make seed` | Popula o banco com dados iniciais e dashboards do Grafana |
+| `make hooks` | Instala os git hooks do pre-commit (Conventional Commits + Linters) |
 | `make migrate` | Executa as migrações do banco de dados no container |
 | `make migrations` | Cria novas migrações Django (`makemigrations`) |
 | `make shell` | Abre o shell interativo do Django (`manage.py shell`) |
