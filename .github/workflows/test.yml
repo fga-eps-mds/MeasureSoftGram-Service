@@ -42,6 +42,10 @@ jobs:
       - name: Instalar dependências
         run: uv sync --frozen --no-install-project --all-extras
 
+      - name: Rodar Linter (flake8)
+        run: |
+          uv run --locked flake8 src/
+
       - name: Rodar testes
         run: |
           uv run --locked coverage erase
@@ -53,15 +57,3 @@ jobs:
         run: |
           uv run --locked python src/manage.py migrate
           uv run --locked python src/manage.py makemigrations --check --dry-run
-
-      - name: Envia cobertura para o Codecov
-        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: ./
-          env_vars: OS,PYTHON
-          fail_ci_if_error: true
-          files: ./coverage.xml
-          flags: unittests
-          name: 2026.1-MeasureSoftGram-Service
-          verbose: true
