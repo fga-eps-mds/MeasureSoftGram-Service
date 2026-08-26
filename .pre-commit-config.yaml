@@ -21,19 +21,17 @@ repos:
       - id: check-added-large-files
         args: ['--maxkb=1000']
 
-  # 3. Formatação do código Python com Black (linha máxima 119)
+  # 3. Formatação do código Python com Black (lê pyproject.toml)
   - repo: https://github.com/psf/black
     rev: 24.8.0
     hooks:
       - id: black
-        args: ['--line-length=119']
 
-  # 4. Ordenação de imports com isort
+  # 4. Ordenação de imports com isort (lê pyproject.toml)
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
-        args: ['--profile', 'black', '--line-length', '119']
 
   # 5. Linter com Flake8 usando a configuração de .flake8
   - repo: https://github.com/pycqa/flake8

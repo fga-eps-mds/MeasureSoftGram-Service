@@ -44,7 +44,7 @@ jobs:
 
       - name: Rodar Linter (flake8)
         run: |
-          uv run --locked flake8 src/
+          uvx --no-build flake8==7.1.1 src/
 
       - name: Rodar testes
         run: |
