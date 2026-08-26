@@ -4,10 +4,12 @@ from rest_framework.response import Response
 
 from characteristics.models import BalanceMatrix, SupportedCharacteristic
 from characteristics.serializers import (
-    BalanceMatrixSerializer, CalculatedCharacteristicHistorySerializer,
+    BalanceMatrixSerializer,
+    CalculatedCharacteristicHistorySerializer,
     CharacteristicsCalculationsRequestSerializer,
     LatestCalculatedCharacteristicSerializer,
-    SupportedCharacteristicSerializer)
+    SupportedCharacteristicSerializer,
+)
 from organizations.mixins import UserScopedMixin
 from organizations.models import Repository
 
@@ -78,9 +80,7 @@ class LatestCalculatedCharacteristicModelViewSet(
     ViewSet para recuperar o último valor calculado da característica
     """
 
-    queryset = SupportedCharacteristic.objects.prefetch_related(
-        "calculated_characteristics"
-    )
+    queryset = SupportedCharacteristic.objects.prefetch_related("calculated_characteristics")
     serializer_class = LatestCalculatedCharacteristicSerializer
 
 
@@ -94,9 +94,7 @@ class CalculatedCharacteristicHistoryModelViewSet(
     ViewSet para recuperar o histórico de características calculadas
     """
 
-    queryset = SupportedCharacteristic.objects.prefetch_related(
-        "calculated_characteristics"
-    )
+    queryset = SupportedCharacteristic.objects.prefetch_related("calculated_characteristics")
     serializer_class = CalculatedCharacteristicHistorySerializer
 
 
@@ -124,8 +122,7 @@ class LatestCalculatedCharacteristicBadgeViewSet(
         )
 
     def list(self, request, *args, **kwargs):
-        from utils.badge import (is_stale, render_badge_svg,
-                                 render_stale_badge_svg)
+        from utils.badge import is_stale, render_badge_svg, render_stale_badge_svg
 
         repository = self.get_repository()
         characteristic_key = self.kwargs.get("characteristic_key")
@@ -135,9 +132,7 @@ class LatestCalculatedCharacteristicBadgeViewSet(
             key=characteristic_key,
         )
 
-        latest = repository.calculated_characteristics.filter(
-            characteristic=characteristic
-        ).first()
+        latest = repository.calculated_characteristics.filter(characteristic=characteristic).first()
 
         label = characteristic.name
         if latest is None or is_stale(latest.created_at):

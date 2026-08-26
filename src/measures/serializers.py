@@ -62,9 +62,7 @@ class MeasuresCalculationsRequestSerializer(serializers.Serializer):
         )
 
         if unsuported_measures:
-            raise serializers.ValidationError(
-                ("The following measures are " f"not supported: {unsuported_measures}")
-            )
+            raise serializers.ValidationError(("The following measures are " f"not supported: {unsuported_measures}"))
 
         return attrs
 

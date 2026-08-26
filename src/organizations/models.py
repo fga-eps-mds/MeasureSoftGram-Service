@@ -62,12 +62,8 @@ class Product(models.Model):
         on_delete=models.CASCADE,
         related_name="products",
     )
-    gaugeRedLimit = models.DecimalField(
-        max_digits=3, decimal_places=2, default=Decimal("0.33")
-    )
-    gaugeYellowLimit = models.DecimalField(
-        max_digits=3, decimal_places=2, default=Decimal("0.66")
-    )
+    gaugeRedLimit = models.DecimalField(max_digits=3, decimal_places=2, default=Decimal("0.33"))
+    gaugeYellowLimit = models.DecimalField(max_digits=3, decimal_places=2, default=Decimal("0.66"))
 
     def __str__(self):
         return self.name
@@ -109,9 +105,7 @@ class Repository(models.Model):
         ("outros", "Outros"),
     )
 
-    platform = models.CharField(
-        max_length=128, choices=PLATFORM_CHOICES, blank=True, null=True
-    )
+    platform = models.CharField(max_length=128, choices=PLATFORM_CHOICES, blank=True, null=True)
 
     description = models.TextField(
         max_length=512,

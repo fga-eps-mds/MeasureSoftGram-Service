@@ -3,8 +3,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 import utils
-from subcharacteristics.models import (CalculatedSubCharacteristic,
-                                       SupportedSubCharacteristic)
+from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
 
 
 class SupportedSubCharacteristicSerializer(serializers.ModelSerializer):
@@ -58,9 +57,7 @@ class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
         try:
             repository = self.context["view"].get_repository()
 
-            latest = obj.calculated_subcharacteristics.filter(
-                repository=repository
-            ).first()
+            latest = obj.calculated_subcharacteristics.filter(repository=repository).first()
 
             return CalculatedSubCharacteristicSerializer(latest).data
         except SupportedSubCharacteristic.DoesNotExist:
@@ -126,9 +123,7 @@ class SubCharacteristicsCalculationsRequestSerializer(serializers.Serializer):
         """
         Valida se todas as subcaracterísticas solicitadas são suportadas
         """
-        subcharacteristics_keys = [
-            subchar["key"] for subchar in attrs["subcharacteristics"]
-        ]
+        subcharacteristics_keys = [subchar["key"] for subchar in attrs["subcharacteristics"]]
 
         unsuported_subchars: str = utils.validate_entity(
             subcharacteristics_keys,
@@ -137,10 +132,7 @@ class SubCharacteristicsCalculationsRequestSerializer(serializers.Serializer):
 
         if unsuported_subchars:
             raise serializers.ValidationError(
-                (
-                    "The following subcharacteristics are "
-                    f"not supported: {unsuported_subchars}"
-                )
+                ("The following subcharacteristics are " f"not supported: {unsuported_subchars}")
             )
 
         return attrs

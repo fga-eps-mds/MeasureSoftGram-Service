@@ -7,9 +7,11 @@ from rest_framework import permissions
 from rest_framework_nested import routers
 
 from accounts import urls as accounts_urls
-from characteristics.views import (BalanceMatrixViewSet,
-                                   LatestCalculatedCharacteristicBadgeViewSet,
-                                   SupportedCharacteristicModelViewSet)
+from characteristics.views import (
+    BalanceMatrixViewSet,
+    LatestCalculatedCharacteristicBadgeViewSet,
+    SupportedCharacteristicModelViewSet,
+)
 from config.health import health_check
 from entity_trees.views import SupportedEntitiesRelationshipTreeViewSet
 from measures.views import SupportedMeasureModelViewSet
@@ -24,9 +26,7 @@ from subcharacteristics.views import SupportedSubCharacteristicModelViewSet
 def register_supported_entities_endpoints(router):
     router.register("supported-metrics", SupportedMetricModelViewSet)
     router.register("supported-measures", SupportedMeasureModelViewSet)
-    router.register(
-        "supported-subcharacteristics", SupportedSubCharacteristicModelViewSet
-    )
+    router.register("supported-subcharacteristics", SupportedSubCharacteristicModelViewSet)
     router.register("supported-characteristics", SupportedCharacteristicModelViewSet)
     router.register(
         "entity-relationship-tree",
@@ -70,9 +70,7 @@ schema_view = get_schema_view(
 )
 
 REPO_PREFIX = (
-    "api/v1/organizations/<int:organization_pk>/"
-    "products/<int:product_pk>/"
-    "repositories/<int:repository_pk>/"
+    "api/v1/organizations/<int:organization_pk>/" "products/<int:product_pk>/" "repositories/<int:repository_pk>/"
 )
 
 urlpatterns = [

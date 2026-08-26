@@ -3,8 +3,7 @@ from django.utils import timezone
 from rest_framework import serializers
 
 import utils
-from characteristics.models import (BalanceMatrix, CalculatedCharacteristic,
-                                    SupportedCharacteristic)
+from characteristics.models import BalanceMatrix, CalculatedCharacteristic, SupportedCharacteristic
 
 
 class SupportedCharacteristicSerializer(serializers.ModelSerializer):
@@ -80,9 +79,7 @@ class LatestCalculatedCharacteristicSerializer(serializers.ModelSerializer):
         try:
             repository = self.context["view"].get_repository()
 
-            latest = obj.calculated_characteristics.filter(
-                repository=repository
-            ).first()
+            latest = obj.calculated_characteristics.filter(repository=repository).first()
 
             return CalculatedCharacteristicSerializer(latest).data
         except SupportedCharacteristic.DoesNotExist:
@@ -159,10 +156,7 @@ class CharacteristicsCalculationsRequestSerializer(serializers.Serializer):
 
         if unsuported_chars:
             raise serializers.ValidationError(
-                (
-                    "The following characteristics are "
-                    f"not supported: {unsuported_chars}"
-                )
+                ("The following characteristics are " f"not supported: {unsuported_chars}")
             )
 
         return attrs

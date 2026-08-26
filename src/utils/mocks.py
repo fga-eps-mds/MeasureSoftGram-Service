@@ -27,12 +27,7 @@ class Mocks:
     @staticmethod
     def calculate_entity(params, entity_name):
         _status_code = int(os.getenv("RESPONSE_HTTP_STATUS_CODE", "200"))
-        _json = {
-            entity_name: [
-                {"key": entity["key"], "value": random.random()}
-                for entity in params[entity_name]
-            ]
-        }
+        _json = {entity_name: [{"key": entity["key"], "value": random.random()} for entity in params[entity_name]]}
         return IResponse(_json=_json, _status_code=_status_code)
 
     @staticmethod

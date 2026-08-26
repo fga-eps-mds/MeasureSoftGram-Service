@@ -2,20 +2,16 @@ from collections import defaultdict
 from typing import Dict, List, Tuple
 
 from django.db import transaction
-from resources import (calculate_characteristics, calculate_measures,
-                       calculate_subcharacteristics, calculate_tsqmi)
+from resources import calculate_characteristics, calculate_measures, calculate_subcharacteristics, calculate_tsqmi
 
-from characteristics.models import (CalculatedCharacteristic,
-                                    SupportedCharacteristic)
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from characteristics.serializers import CalculatedCharacteristicSerializer
 from measures.models import CalculatedMeasure, SupportedMeasure
 from measures.serializers import CalculatedMeasureSerializer
 from metrics.models import CollectedMetric, SupportedMetric
 from metrics.serializers import CollectedMetricSerializer
-from subcharacteristics.models import (CalculatedSubCharacteristic,
-                                       SupportedSubCharacteristic)
-from subcharacteristics.serializers import \
-    CalculatedSubCharacteristicSerializer
+from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
+from subcharacteristics.serializers import CalculatedSubCharacteristicSerializer
 from tsqmi.models import TSQMI
 from tsqmi.serializers import TSQMISerializer
 
@@ -110,9 +106,7 @@ class MathModelServices:
         """Calcula medidas a partir das métricas em memória."""
         metric_index = self._index_metrics_by_key(collected_metrics)
 
-        qs = SupportedMeasure.objects.filter(key__in=measure_keys).prefetch_related(
-            "metrics"
-        )
+        qs = SupportedMeasure.objects.filter(key__in=measure_keys).prefetch_related("metrics")
 
         core_params = {"measures": []}
         for measure in qs:
@@ -127,11 +121,7 @@ class MathModelServices:
                         "metrics": [
                             {
                                 "key": key,
-                                "value": (
-                                    [float(v) for v in value]
-                                    if isinstance(value, list)
-                                    else [float(value)]
-                                ),
+                                "value": ([float(v) for v in value] if isinstance(value, list) else [float(value)]),
                             }
                             for key, value in metric_params.items()
                         ],
@@ -142,9 +132,7 @@ class MathModelServices:
             core_params,
             release_configuration.data,
         )
-        calculated_values = {
-            m["key"]: m["value"] for m in calculated_result["measures"]
-        }
+        calculated_values = {m["key"]: m["value"] for m in calculated_result["measures"]}
 
         instances: List[CalculatedMeasure] = []
         for measure in qs:
@@ -167,9 +155,7 @@ class MathModelServices:
         measure_values: Dict[str, float],
     ) -> Tuple[List[CalculatedSubCharacteristic], Dict[str, float]]:
         """Calcula subcaracterísticas a partir das medidas em memória."""
-        qs = SupportedSubCharacteristic.objects.filter(
-            key__in=subcharacteristic_keys
-        ).prefetch_related("measures")
+        qs = SupportedSubCharacteristic.objects.filter(key__in=subcharacteristic_keys).prefetch_related("measures")
 
         core_params = {"subcharacteristics": []}
         for subchar in qs:
@@ -186,9 +172,7 @@ class MathModelServices:
             )
 
         calculated_result = calculate_subcharacteristics(core_params)
-        calculated_values = {
-            s["key"]: s["value"] for s in calculated_result["subcharacteristics"]
-        }
+        calculated_values = {s["key"]: s["value"] for s in calculated_result["subcharacteristics"]}
 
         instances: List[CalculatedSubCharacteristic] = []
         for subchar in qs:
@@ -210,9 +194,7 @@ class MathModelServices:
     ) -> Tuple[List[CalculatedCharacteristic], Dict[str, float]]:
         """Calcula características a partir das subcaracterísticas
         em memória."""
-        qs = SupportedCharacteristic.objects.filter(
-            key__in=characteristic_keys
-        ).prefetch_related("subcharacteristics")
+        qs = SupportedCharacteristic.objects.filter(key__in=characteristic_keys).prefetch_related("subcharacteristics")
 
         core_params = {"characteristics": []}
         for char in qs:
@@ -229,9 +211,7 @@ class MathModelServices:
             )
 
         calculated_result = calculate_characteristics(core_params)
-        calculated_values = {
-            c["key"]: c["value"] for c in calculated_result["characteristics"]
-        }
+        calculated_values = {c["key"]: c["value"] for c in calculated_result["characteristics"]}
 
         instances: List[CalculatedCharacteristic] = []
         for char in qs:
@@ -345,11 +325,7 @@ class MathModelServices:
         """
         # arquivos com ncloc=0 são excluídos das métricas listed FIL,
         # espelhando metrics/models.py:125-141.
-        empty_paths = {
-            cm.path
-            for cm in metric_index.get("ncloc", [])
-            if cm.qualifier == "FIL" and cm.value == 0
-        }
+        empty_paths = {cm.path for cm in metric_index.get("ncloc", []) if cm.qualifier == "FIL" and cm.value == 0}
 
         params: Dict[str, object] = {}
         for supported_metric in measure.metrics.all():
@@ -360,11 +336,7 @@ class MathModelServices:
                 # Lista de valores (1 por arquivo). Vazia se ausente —
                 # msgram-core mantém como lista (não desempacota com len!=1)
                 # e medidas como passed_tests retornam 0.0 nesse caso.
-                params[key] = [
-                    cm.value
-                    for cm in cms
-                    if cm.qualifier == "FIL" and cm.path not in empty_paths
-                ]
+                params[key] = [cm.value for cm in cms if cm.qualifier == "FIL" and cm.path not in empty_paths]
             elif key in _UTS_METRICS:
                 params[key] = [cm.value for cm in cms if cm.qualifier == "UTS"]
             elif key in _GITHUB_METRICS:

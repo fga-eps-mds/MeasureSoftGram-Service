@@ -44,9 +44,7 @@ class GrafanaAPIClient:
         params = {"tag": tag, "type": "dash-db"}
 
         try:
-            response = requests.get(
-                url, auth=self.auth, params=params, timeout=self.timeout
-            )  # NOSONAR
+            response = requests.get(url, auth=self.auth, params=params, timeout=self.timeout)  # NOSONAR
             response.raise_for_status()
             dashboards = response.json()
             logger.info(f'Encontrados {len(dashboards)} dashboards com tag "{tag}"')
@@ -72,9 +70,7 @@ class GrafanaAPIClient:
             response = requests.get(url, auth=self.auth, timeout=self.timeout)
             response.raise_for_status()
             dashboard_data = response.json()
-            logger.info(
-                f'Dashboard {uid} encontrado: {dashboard_data.get("meta", {}).get("slug")}'
-            )
+            logger.info(f'Dashboard {uid} encontrado: {dashboard_data.get("meta", {}).get("slug")}')
             return dashboard_data
         except requests.HTTPError as e:
             if e.response.status_code == 404:

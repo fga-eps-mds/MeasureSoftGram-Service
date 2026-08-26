@@ -12,15 +12,13 @@ test_atomicity_smoke.py.
 
 from freezegun import freeze_time
 
-from characteristics.models import (CalculatedCharacteristic,
-                                    SupportedCharacteristic)
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from math_model import utils
 from math_model.services import MathModelServices
 from measures.models import CalculatedMeasure, SupportedMeasure
 from metrics.models import CollectedMetric, SupportedMetric
 from release_configuration.models import ReleaseConfiguration
-from subcharacteristics.models import (CalculatedSubCharacteristic,
-                                       SupportedSubCharacteristic)
+from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
 from tsqmi.models import TSQMI
 from utils import staticfiles
 from utils.tests import APITestCaseExpanded
@@ -98,8 +96,7 @@ class MathModelServicesTest(APITestCaseExpanded):
         return metrics
 
     def test_if_parse_release_config(self):
-        from release_configuration.serializers import \
-            ReleaseConfigurationSerializer
+        from release_configuration.serializers import ReleaseConfigurationSerializer
 
         config_serializer = ReleaseConfigurationSerializer(self.release_config)
         char_keys, subchar_keys, measure_keys = utils.parse_release_configuration(

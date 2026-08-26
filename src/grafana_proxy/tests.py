@@ -8,8 +8,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.request import Request as DRFRequest
 from rest_framework.test import APIClient, APIRequestFactory
 
-from grafana_proxy.permissions import (CanAccessDashboard, CanAccessProduct,
-                                       HasRepositoryAccess)
+from grafana_proxy.permissions import CanAccessDashboard, CanAccessProduct, HasRepositoryAccess
 from grafana_proxy.serializers import GrafanaDashboardSerializer
 from grafana_proxy.services import GrafanaAPIClient
 from utils.tests import APITestCaseExpanded
@@ -21,9 +20,7 @@ GRAFANA_DASHBOARD_DATA = {
     "dashboard": {"title": "Test Dashboard", "uid": DASHBOARD_UID},
     "meta": {"description": "Test description", "slug": "test-dashboard"},
 }
-GRAFANA_URL_PATH = (
-    f"/d/{DASHBOARD_UID}/test-dashboard?orgId=1&var-product=1&kiosk&theme=light"
-)
+GRAFANA_URL_PATH = f"/d/{DASHBOARD_UID}/test-dashboard?orgId=1&var-product=1&kiosk&theme=light"
 
 LIST_URL = "/api/v1/grafana/dashboards/"
 
@@ -56,9 +53,7 @@ class GrafanaListDashboardsTest(APITestCaseExpanded):
     def setUp(self):
         self.client = APIClient()
         self.user = self.get_or_create_test_user()
-        self.client.force_authenticate(
-            self.user, token=Token.objects.create(user=self.user)
-        )
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
 
     @patch("grafana_proxy.views.GrafanaAPIClient")
     def test_returns_200_with_dashboards(self, MockClient):
@@ -144,9 +139,7 @@ class GrafanaGetDashboardTest(APITestCaseExpanded):
     def setUp(self):
         self.client = APIClient()
         self.user = self.get_or_create_test_user()
-        self.client.force_authenticate(
-            self.user, token=Token.objects.create(user=self.user)
-        )
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
         self.org = self.get_organization()
         self.product = self.get_product(self.org)
         self.repository = self.get_repository(self.product)
@@ -174,9 +167,7 @@ class GrafanaGetDashboardTest(APITestCaseExpanded):
 
     @patch("grafana_proxy.views.GrafanaAPIClient")
     def test_user_without_product_access_returns_403(self, MockClient):
-        MockClient.return_value.get_dashboard_by_uid.return_value = (
-            GRAFANA_DASHBOARD_DATA
-        )
+        MockClient.return_value.get_dashboard_by_uid.return_value = GRAFANA_DASHBOARD_DATA
         other_user = User.objects.create(username="intruder", email="intruder@test.com")
         self.client.force_authenticate(other_user)
         response = self.client.get(dashboard_url(), {"product_id": self.product.id})
@@ -184,9 +175,7 @@ class GrafanaGetDashboardTest(APITestCaseExpanded):
 
     @patch("grafana_proxy.views.GrafanaAPIClient")
     def test_product_from_other_org_returns_403(self, MockClient):
-        MockClient.return_value.get_dashboard_by_uid.return_value = (
-            GRAFANA_DASHBOARD_DATA
-        )
+        MockClient.return_value.get_dashboard_by_uid.return_value = GRAFANA_DASHBOARD_DATA
         other_org = self.get_organization(name="Other Org", add_user=False)
         other_product = self.get_product(other_org, name="Other Product")
         response = self.client.get(dashboard_url(), {"product_id": other_product.id})
@@ -262,9 +251,7 @@ class GrafanaGetDashboardTest(APITestCaseExpanded):
 
     @patch("grafana_proxy.views.GrafanaAPIClient")
     def test_user_without_repository_access_returns_403(self, MockClient):
-        MockClient.return_value.get_dashboard_by_uid.return_value = (
-            GRAFANA_DASHBOARD_DATA
-        )
+        MockClient.return_value.get_dashboard_by_uid.return_value = GRAFANA_DASHBOARD_DATA
         # Usuário sem vínculo com a org não tem acesso ao repositório
         intruder = User.objects.create(username="intruder2", email="intruder2@test.com")
         intruder_client = APIClient()
@@ -299,9 +286,7 @@ class GrafanaGetDashboardTest(APITestCaseExpanded):
         )
 
     @patch("grafana_proxy.views.GrafanaAPIClient")
-    def test_build_dashboard_url_called_without_repository_when_not_provided(
-        self, MockClient
-    ):
+    def test_build_dashboard_url_called_without_repository_when_not_provided(self, MockClient):
         mock = MockClient.return_value
         mock.get_dashboard_by_uid.return_value = GRAFANA_DASHBOARD_DATA
         mock.build_dashboard_url.return_value = GRAFANA_URL_PATH
@@ -315,9 +300,7 @@ class GrafanaGetDashboardTest(APITestCaseExpanded):
     @patch("grafana_proxy.views.GrafanaAPIClient")
     def test_repo_from_different_org_returns_403_on_dashboard_access(self, MockClient):
         """Cobre views.py:80 — CanAccessDashboard falha quando repo é de outra org."""
-        MockClient.return_value.get_dashboard_by_uid.return_value = (
-            GRAFANA_DASHBOARD_DATA
-        )
+        MockClient.return_value.get_dashboard_by_uid.return_value = GRAFANA_DASHBOARD_DATA
         other_org = self.get_organization(name="Other Org", add_user=False)
         other_product = self.get_product(other_org, name="Other Product")
         other_repo = self.get_repository(other_product, name="Other Repo")
@@ -362,9 +345,7 @@ class HasRepositoryAccessPermissionTest(APITestCaseExpanded):
 
     def test_has_object_permission_returns_true_for_own_repository(self):
         request = self._make_request()
-        self.assertTrue(
-            self.permission.has_object_permission(request, None, self.repository)
-        )
+        self.assertTrue(self.permission.has_object_permission(request, None, self.repository))
 
     def test_has_object_permission_returns_false_for_non_repository_object(
         self,
@@ -377,24 +358,16 @@ class HasRepositoryAccessPermissionTest(APITestCaseExpanded):
         other_product = self.get_product(other_org, name="Other Product")
         other_repo = self.get_repository(other_product, name="Other Repo")
         request = self._make_request()
-        self.assertFalse(
-            self.permission.has_object_permission(request, None, other_repo)
-        )
+        self.assertFalse(self.permission.has_object_permission(request, None, other_repo))
 
     def test_can_access_repository_returns_true_for_superuser(self):
         self.user.is_superuser = True
         self.user.save()
-        self.assertTrue(
-            self.permission._user_can_access_repository(self.user, self.repository)
-        )
+        self.assertTrue(self.permission._user_can_access_repository(self.user, self.repository))
 
     def test_can_access_repository_returns_false_for_unrelated_user(self):
-        unrelated = get_user_model().objects.create(
-            username="unrelated", email="unrelated@test.com"
-        )
-        self.assertFalse(
-            self.permission._user_can_access_repository(unrelated, self.repository)
-        )
+        unrelated = get_user_model().objects.create(username="unrelated", email="unrelated@test.com")
+        self.assertFalse(self.permission._user_can_access_repository(unrelated, self.repository))
 
 
 class CanAccessProductPermissionTest(APITestCaseExpanded):
@@ -684,9 +657,7 @@ class GrafanaDashboardSerializerTest(APITestCaseExpanded):
         self.assertIsNone(s.data["repository"])
 
     def test_get_repository_returns_dict_when_repo_exists(self):
-        s = GrafanaDashboardSerializer(
-            self._make_data(repository_id=self.repository.id)
-        )
+        s = GrafanaDashboardSerializer(self._make_data(repository_id=self.repository.id))
         self.assertIsNotNone(s.data["repository"])
         self.assertEqual(s.data["repository"]["id"], self.repository.id)
         self.assertEqual(s.data["repository"]["name"], self.repository.name)

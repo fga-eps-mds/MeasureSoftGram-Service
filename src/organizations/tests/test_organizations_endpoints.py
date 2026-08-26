@@ -19,14 +19,10 @@ class PublicOrganizationsViewsTestCase(APITestCaseExpanded):
 
 class OrganizationsViewsTestCase(APITestCaseExpanded):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="test-user", password="test-pass"
-        )
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-pass")
 
         self.client = APIClient()
-        self.client.force_authenticate(
-            self.user, token=Token.objects.create(user=self.user)
-        )
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
 
     def test_create_a_new_organization(self):
         url = reverse("organization-list")
@@ -193,17 +189,11 @@ class OrganizationsViewsTestCase(APITestCaseExpanded):
 
 class OrganizationPermissionIsolationTestCase(APITestCaseExpanded):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="test-user-1", password="test-pass-1"
-        )
-        self.other_user = get_user_model().objects.create_user(
-            username="test-user-2", password="test-pass-2"
-        )
+        self.user = get_user_model().objects.create_user(username="test-user-1", password="test-pass-1")
+        self.other_user = get_user_model().objects.create_user(username="test-user-2", password="test-pass-2")
 
         self.client = APIClient()
-        self.client.force_authenticate(
-            self.user, token=Token.objects.create(user=self.user)
-        )
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
 
     def test_user_cannot_see_other_users_organization(self):
         org = self.get_organization(name="Other Org", add_user=False)
@@ -269,13 +259,9 @@ class OrganizationPermissionIsolationTestCase(APITestCaseExpanded):
 class ImportOrganizationViewsTestCase(APITestCaseExpanded):
 
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="test-user", password="test-pass"
-        )
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-pass")
         self.client = APIClient()
-        self.client.force_authenticate(
-            self.user, token=Token.objects.create(user=self.user)
-        )
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
 
     def test_import_org_no_name(self):
         url = reverse("organizations-import-list")
@@ -304,9 +290,7 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
 
         response = self.client.post(url, {"github_org_name": "some-org"}, format="json")
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(
-            response.json()["error"], "Failed to fetch metadata from GitHub"
-        )
+        self.assertEqual(response.json()["error"], "Failed to fetch metadata from GitHub")
 
     @patch("organizations.views.requests.get")
     def test_import_org_personal_success(self, mock_get):
@@ -325,9 +309,7 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
         }
         mock_get.return_value = mock_resp
 
-        response = self.client.post(
-            url, {"github_org_name": "test-user"}, format="json"
-        )
+        response = self.client.post(url, {"github_org_name": "test-user"}, format="json")
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["name"], "My Personal Org")
 
@@ -358,9 +340,7 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
 
         mock_get.side_effect = side_effect
 
-        response = self.client.post(
-            url, {"github_org_name": "company-org"}, format="json"
-        )
+        response = self.client.post(url, {"github_org_name": "company-org"}, format="json")
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()["name"], "My Company Org")
 
@@ -392,9 +372,7 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
 
         mock_get.side_effect = side_effect
 
-        response = self.client.post(
-            url, {"github_org_name": "company-org"}, format="json"
-        )
+        response = self.client.post(url, {"github_org_name": "company-org"}, format="json")
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
             response.json()["error"],
@@ -403,8 +381,7 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
 
     @patch("organizations.views.requests.get")
     def test_import_org_via_social_token(self, mock_get):
-        from allauth.socialaccount.models import (SocialAccount, SocialApp,
-                                                  SocialToken)
+        from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 
         url = reverse("organizations-import-list")
         self.user.github_access_token = None
@@ -416,12 +393,8 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
             client_id="12345",
             secret="54321",
         )
-        social_account = SocialAccount.objects.create(
-            user=self.user, provider="github", uid="12345"
-        )
-        SocialToken.objects.create(
-            account=social_account, app=social_app, token="social-token-xyz"
-        )
+        social_account = SocialAccount.objects.create(user=self.user, provider="github", uid="12345")
+        SocialToken.objects.create(account=social_account, app=social_app, token="social-token-xyz")
 
         mock_resp = MagicMock()
         mock_resp.status_code = 200
@@ -434,9 +407,7 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
         }
         mock_get.return_value = mock_resp
 
-        response = self.client.post(
-            url, {"github_org_name": "test-user"}, format="json"
-        )
+        response = self.client.post(url, {"github_org_name": "test-user"}, format="json")
         self.assertEqual(response.status_code, 201)
         self.user.refresh_from_db()
         self.assertEqual(self.user.github_access_token, "social-token-xyz")
@@ -444,13 +415,9 @@ class ImportOrganizationViewsTestCase(APITestCaseExpanded):
 
 class GitHubReposViewsTestCase(APITestCaseExpanded):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="test-user", password="test-pass"
-        )
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-pass")
         self.client = APIClient()
-        self.client.force_authenticate(
-            self.user, token=Token.objects.create(user=self.user)
-        )
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
 
     def test_list_repos_not_linked(self):
         org = self.get_organization(name="Org Not Linked")
@@ -460,9 +427,7 @@ class GitHubReposViewsTestCase(APITestCaseExpanded):
         url = reverse("github-repos-list", kwargs={"organization_pk": org.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.json()["error"], "Organization is not linked to GitHub."
-        )
+        self.assertEqual(response.json()["error"], "Organization is not linked to GitHub.")
 
     def test_list_repos_no_token(self):
         org = self.get_organization(name="Org Linked")
@@ -529,8 +494,7 @@ class GitHubReposViewsTestCase(APITestCaseExpanded):
 
     @patch("organizations.views.requests.get")
     def test_list_repos_via_social_token(self, mock_get):
-        from allauth.socialaccount.models import (SocialAccount, SocialApp,
-                                                  SocialToken)
+        from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 
         org = self.get_organization(name="Org Linked")
         org.github_org_name = "test-user"
@@ -545,12 +509,8 @@ class GitHubReposViewsTestCase(APITestCaseExpanded):
             client_id="12345",
             secret="54321",
         )
-        social_account = SocialAccount.objects.create(
-            user=self.user, provider="github", uid="12345"
-        )
-        SocialToken.objects.create(
-            account=social_account, app=social_app, token="social-token-xyz"
-        )
+        social_account = SocialAccount.objects.create(user=self.user, provider="github", uid="12345")
+        SocialToken.objects.create(account=social_account, app=social_app, token="social-token-xyz")
 
         mock_resp = MagicMock()
         mock_resp.status_code = 200

@@ -7,8 +7,7 @@ from rest_framework.test import APIClient
 
 from metrics.models import CollectedMetric
 from organizations.models import Repository
-from organizations.utils import (get_default_mock_payload,
-                                 onboard_repository_async)
+from organizations.utils import get_default_mock_payload, onboard_repository_async
 from utils.tests import APITestCaseExpanded
 
 
@@ -156,8 +155,7 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
 
     @patch("organizations.serializers.requests.head")
     def test_create_github_repository_authenticated_via_social_token(self, mock_head):
-        from allauth.socialaccount.models import (SocialAccount, SocialApp,
-                                                  SocialToken)
+        from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 
         mock_response = Mock()
         mock_response.status_code = 200
@@ -174,12 +172,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
             client_id="12345",
             secret="54321",
         )
-        social_account = SocialAccount.objects.create(
-            user=self.user, provider="github", uid="12345"
-        )
-        SocialToken.objects.create(
-            account=social_account, app=social_app, token="social-github-token"
-        )
+        social_account = SocialAccount.objects.create(user=self.user, provider="github", uid="12345")
+        SocialToken.objects.create(account=social_account, app=social_app, token="social-github-token")
 
         data = {
             "name": "Test GitHub Repository 2",
@@ -451,9 +445,7 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
             resp = MagicMock()
             resp.status_code = 200
             if "/actions/workflows" in url:
-                resp.json.return_value = {
-                    "workflows": [{"id": 123, "name": "CI/CD Measure Flow"}]
-                }
+                resp.json.return_value = {"workflows": [{"id": 123, "name": "CI/CD Measure Flow"}]}
             else:
                 resp.json.return_value = {"default_branch": "develop"}
             return resp
@@ -486,9 +478,7 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
 
         onboard_repository_async(self.repository, self.user)
 
-        self.assertTrue(
-            CollectedMetric.objects.filter(repository=self.repository).count() > 0
-        )
+        self.assertTrue(CollectedMetric.objects.filter(repository=self.repository).count() > 0)
         self.assertTrue(TSQMI.objects.filter(repository=self.repository).count() > 0)
 
     @patch("organizations.utils.requests.get")
@@ -514,23 +504,17 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
 
         from rest_framework.test import APIRequestFactory
 
-        from organizations.serializers import (
-            RepositoriesTSQMIHistorySerializer,
-            RepositoryTSQMILatestValueSerializer)
+        from organizations.serializers import RepositoriesTSQMIHistorySerializer, RepositoryTSQMILatestValueSerializer
 
         factory = APIRequestFactory()
         request = factory.get("/")
 
-        serializer_latest = RepositoryTSQMILatestValueSerializer(
-            self.repository, context={"request": request}
-        )
+        serializer_latest = RepositoryTSQMILatestValueSerializer(self.repository, context={"request": request})
         data_latest = serializer_latest.data
         self.assertEqual(data_latest["current_tsqmi"]["value"], 0.90)
         self.assertIn("/latest-values/tsqmi/", data_latest["url"])
 
-        serializer_history = RepositoriesTSQMIHistorySerializer(
-            self.repository, context={"request": request}
-        )
+        serializer_history = RepositoriesTSQMIHistorySerializer(self.repository, context={"request": request})
         data_history = serializer_history.data
         self.assertEqual(len(data_history["history"]), 2)
         self.assertEqual(data_history["history"][0]["value"], 0.85)

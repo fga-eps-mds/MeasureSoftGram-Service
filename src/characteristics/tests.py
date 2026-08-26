@@ -5,8 +5,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase
 
-from characteristics.models import (BalanceMatrix, CalculatedCharacteristic,
-                                    SupportedCharacteristic)
+from characteristics.models import BalanceMatrix, CalculatedCharacteristic, SupportedCharacteristic
 from utils.tests import APITestCaseExpanded
 
 

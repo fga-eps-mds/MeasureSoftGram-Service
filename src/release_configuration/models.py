@@ -127,9 +127,7 @@ class ReleaseConfiguration(models.Model):
 
     def get_subcharacteristics_qs(self):
         subcharacteristics_keys = [
-            subcharac["key"]
-            for charac in self.data["characteristics"]
-            for subcharac in charac["subcharacteristics"]
+            subcharac["key"] for charac in self.data["characteristics"] for subcharac in charac["subcharacteristics"]
         ]
         return SupportedSubCharacteristic.objects.filter(
             key__in=subcharacteristics_keys,
@@ -167,9 +165,7 @@ class ReleaseConfiguration(models.Model):
         )
 
         if unsuported:
-            raise InvalidReleaseConfigurationException(
-                f"The following measures are not supported: {unsuported}"
-            )
+            raise InvalidReleaseConfigurationException(f"The following measures are not supported: {unsuported}")
 
     @staticmethod
     def validate_measures_weights(data: dict):
@@ -180,9 +176,7 @@ class ReleaseConfiguration(models.Model):
         """
         for characteristic in data["characteristics"]:
             for subcharacteristic in characteristic["subcharacteristics"]:
-                sum_of_weights: int = sum(
-                    measure["weight"] for measure in subcharacteristic["measures"]
-                )
+                sum_of_weights: int = sum(measure["weight"] for measure in subcharacteristic["measures"])
 
                 if sum_of_weights != 100:
                     raise InvalidReleaseConfigurationException(
@@ -233,9 +227,7 @@ class ReleaseConfiguration(models.Model):
                     key=subcharacteristic["key"],
                 )
 
-                sub_measures = {
-                    measure["key"] for measure in subcharacteristic["measures"]
-                }
+                sub_measures = {measure["key"] for measure in subcharacteristic["measures"]}
 
                 if invalid_measures := subchar.has_unsupported_measures(sub_measures):
                     invalid_measures: list = [f"`{key}`" for key in invalid_measures]
@@ -258,8 +250,7 @@ class ReleaseConfiguration(models.Model):
         """
         for characteristic in data["characteristics"]:
             sum_of_weights: int = sum(
-                subcharacteristic["weight"]
-                for subcharacteristic in characteristic["subcharacteristics"]
+                subcharacteristic["weight"] for subcharacteristic in characteristic["subcharacteristics"]
             )
 
             if sum_of_weights != 100:
@@ -310,8 +301,7 @@ class ReleaseConfiguration(models.Model):
             )
 
             charact_subcharacteristics = {
-                subcharacteristic["key"]
-                for subcharacteristic in characteristic["subcharacteristics"]
+                subcharacteristic["key"] for subcharacteristic in characteristic["subcharacteristics"]
             }
 
             if invalid_subs := charact.has_unsupported_subcharacteristics(
@@ -335,14 +325,10 @@ class ReleaseConfiguration(models.Model):
 
         Raises a `InvalidReleaseConfigurationException` caso alguma weight não seja
         """
-        sum_of_weights: int = sum(
-            characteristic["weight"] for characteristic in data["characteristics"]
-        )
+        sum_of_weights: int = sum(characteristic["weight"] for characteristic in data["characteristics"])
 
         if sum_of_weights != 100:
-            raise InvalidReleaseConfigurationException(
-                "The sum of weights of characteristics is not 100"
-            )
+            raise InvalidReleaseConfigurationException("The sum of weights of characteristics is not 100")
 
     @staticmethod
     def validate_thresholds(data: dict):
@@ -373,6 +359,4 @@ class ReleaseConfiguration(models.Model):
                             checker_adapter.get(measure.get("key")),
                         )
                     except Exception as e:
-                        raise InvalidReleaseConfigurationException(
-                            f"Invalid Threshold! {str(measure)} {str(e)}"
-                        )
+                        raise InvalidReleaseConfigurationException(f"Invalid Threshold! {str(measure)} {str(e)}")

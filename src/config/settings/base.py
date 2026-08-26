@@ -23,11 +23,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", get_random_secret_key())
 # DEBUG controlado pelos modulos especificos (dev/test/production).
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
 
-ALLOWED_HOSTS = [
-    h.strip()
-    for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-    if h.strip()
-]
+ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
 
 
 # Allowed origins on CORS
@@ -206,9 +202,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 500,
     "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.TokenAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
 }
 
 # allauth related configs
@@ -254,9 +248,7 @@ MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(
     )
 )
 
-GITHUB_PIPELINE_METRICS_THRESHOLD = int(
-    os.getenv("GITHUB_PIPELINE_METRICS_THRESHOLD", "90")
-)
+GITHUB_PIPELINE_METRICS_THRESHOLD = int(os.getenv("GITHUB_PIPELINE_METRICS_THRESHOLD", "90"))
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
     os.getenv(
@@ -322,9 +314,7 @@ BADGE_STALENESS_DAYS = int(os.getenv("BADGE_STALENESS_DAYS", "30"))
 # Grafana Proxy Configuration
 GRAFANA_CONFIG = {
     # NOSONAR — rede interna Docker
-    "BASE_URL": os.getenv(
-        "GRAFANA_BASE_URL", "http://grafana:3000"
-    ),  # NOSONAR — rede interna Docker
+    "BASE_URL": os.getenv("GRAFANA_BASE_URL", "http://grafana:3000"),  # NOSONAR — rede interna Docker
     # NOSONAR — URL de dev
     "PUBLIC_URL": os.getenv("GRAFANA_PUBLIC_URL", "http://localhost:5000"),
     "USERNAME": os.getenv("GRAFANA_USERNAME", "admin"),

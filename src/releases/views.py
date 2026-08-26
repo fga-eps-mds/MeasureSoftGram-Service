@@ -9,13 +9,17 @@ from characteristics.models import CalculatedCharacteristic
 from organizations.mixins import UserScopedMixin
 from organizations.models import Repository
 from releases.models import Release
-from releases.serializers import (CheckReleaseSerializer, ReleaseAllSerializer,
-                                  ReleaseSerializer)
+from releases.serializers import CheckReleaseSerializer, ReleaseAllSerializer, ReleaseSerializer
 from releases.service import (
-    calculate_diff, get_accomplished_values, get_arrays_diff,
-    get_calculated_characteristic_by_ids_repositories, get_norm_diff,
-    get_planned_values, get_process_calculated_characteristics,
-    update_release_end_at)
+    calculate_diff,
+    get_accomplished_values,
+    get_arrays_diff,
+    get_calculated_characteristic_by_ids_repositories,
+    get_norm_diff,
+    get_planned_values,
+    get_process_calculated_characteristics,
+    update_release_end_at,
+)
 
 
 class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
@@ -94,39 +98,25 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
 
         accomplished = {}
         release = Release.objects.filter(id=id).first()
-        result_calculated = CalculatedCharacteristic.objects.filter(
-            release=release
-        ).all()
+        result_calculated = CalculatedCharacteristic.objects.filter(release=release).all()
 
         if len(result_calculated) > 0:
-            accomplished = get_process_calculated_characteristics(
-                list(result_calculated)
-            )
+            accomplished = get_process_calculated_characteristics(list(result_calculated))
         else:
             if release.repositories.exists():
-                ids_repositories = list(
-                    release.repositories.values_list("id", flat=True)
-                )
+                ids_repositories = list(release.repositories.values_list("id", flat=True))
             else:
                 product_key = int(self.kwargs["product_pk"])
                 ids_repositories = list(
-                    Repository.objects.filter(product_id=product_key)
-                    .values_list("id", flat=True)
-                    .all()
+                    Repository.objects.filter(product_id=product_key).values_list("id", flat=True).all()
                 )
 
-            result_calculated = get_calculated_characteristic_by_ids_repositories(
-                ids_repositories
-            )
-            accomplished = get_process_calculated_characteristics(
-                list(result_calculated)
-            )
+            result_calculated = get_calculated_characteristic_by_ids_repositories(ids_repositories)
+            accomplished = get_process_calculated_characteristics(list(result_calculated))
         print(accomplished)
         if len(accomplished.keys()) > 0:
             for key_repository in accomplished:
-                arrays_rp_rd = get_arrays_diff(
-                    release.goal.data, accomplished[key_repository]
-                )
+                arrays_rp_rd = get_arrays_diff(release.goal.data, accomplished[key_repository])
                 result = diff(arrays_rp_rd[0], arrays_rp_rd[1])
                 accomplished[key_repository] = result
         else:
@@ -157,19 +147,13 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
         if release is None:
             return Response({"detail": "Release não encontrada"}, status=404)
 
-        repositories_ids = list(
-            Repository.objects.filter(product_id=product_pk)
-            .values_list("id", flat=True)
-            .all()
-        )
+        repositories_ids = list(Repository.objects.filter(product_id=product_pk).values_list("id", flat=True).all())
 
         serialized_release = ReleaseAllSerializer(release).data
         planned_values = get_planned_values(release)
         accomplished_values = get_accomplished_values(release, repositories_ids)
         accomplished_with_norm_diff = get_norm_diff(planned_values, accomplished_values)
-        accomplished_values_with_diff_and_norm_diff = calculate_diff(
-            planned_values, accomplished_with_norm_diff
-        )
+        accomplished_values_with_diff_and_norm_diff = calculate_diff(planned_values, accomplished_with_norm_diff)
 
         return Response(
             {

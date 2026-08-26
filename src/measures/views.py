@@ -1,10 +1,12 @@
 from rest_framework import mixins, viewsets
 
 from measures.models import CalculatedMeasure, SupportedMeasure
-from measures.serializers import (CalculatedMeasureHistorySerializer,
-                                  LatestMeasuresCalculationsRequestSerializer,
-                                  MeasuresCalculationsRequestSerializer,
-                                  SupportedMeasureSerializer)
+from measures.serializers import (
+    CalculatedMeasureHistorySerializer,
+    LatestMeasuresCalculationsRequestSerializer,
+    MeasuresCalculationsRequestSerializer,
+    SupportedMeasureSerializer,
+)
 from organizations.mixins import UserScopedMixin
 
 

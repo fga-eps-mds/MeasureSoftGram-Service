@@ -7,32 +7,30 @@ import random
 
 # 3rd Party Imports
 from django.conf import settings
+
 # Django Imports
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.db.models import Count
 from django.db.utils import IntegrityError
 from django.utils import timezone
+from staticfiles import SUPPORTED_MEASURES
 
 import utils
-from characteristics.models import (CalculatedCharacteristic,
-                                    SupportedCharacteristic)
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from goals.serializers import GoalSerializer
 from measures.models import CalculatedMeasure, SupportedMeasure
 from metrics.models import CollectedMetric, SupportedMetric
 from organizations.models import Organization, Product, Repository
 from release_configuration.models import ReleaseConfiguration
 from releases.models import Release
-from staticfiles import SUPPORTED_MEASURES
-from subcharacteristics.models import (CalculatedSubCharacteristic,
-                                       SupportedSubCharacteristic)
+from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
 from tsqmi.models import TSQMI
-# Local Imports
-from utils import (exceptions, get_random_path, get_random_qualifier,
-                   get_random_value, staticfiles)
 
-from .utils import (create_balance_matrix, create_supported_characteristics,
-                    get_random_goal_data)
+# Local Imports
+from utils import exceptions, get_random_path, get_random_qualifier, get_random_value, staticfiles
+
+from .utils import create_balance_matrix, create_supported_characteristics, get_random_goal_data
 
 logger = logging.getLogger(__name__)
 
@@ -116,10 +114,7 @@ class Command(BaseCommand):
                     raise exceptions.MissingSupportedMetricException()
 
                 measure.metrics.set(metrics)
-                logger.info(
-                    f"Metrics {','.join(metrics_keys)} "
-                    f"were associated to {measure_key}"
-                )
+                logger.info(f"Metrics {','.join(metrics_keys)} " f"were associated to {measure_key}")
 
     def create_github_suported_measures(self):
         """
@@ -148,10 +143,7 @@ class Command(BaseCommand):
                     raise exceptions.MissingSupportedMetricException()
 
                 measure.metrics.set(metrics)
-                logger.info(
-                    f"Metrics {','.join(metrics_keys)} "
-                    f"were associated to {measure_key}"
-                )
+                logger.info(f"Metrics {','.join(metrics_keys)} " f"were associated to {measure_key}")
 
     def create_supported_metrics(self):
         self.create_sonarqube_supported_metrics()
@@ -224,9 +216,7 @@ class Command(BaseCommand):
             for i in range(needed):
                 jitter = random.randint(-(step // 4), step // 4)
                 offset = max(0, min(step * i + jitter, total_seconds))
-                created_at = timezone.make_aware(
-                    dt.datetime.fromtimestamp(int(start_date.timestamp()) + offset)
-                )
+                created_at = timezone.make_aware(dt.datetime.fromtimestamp(int(start_date.timestamp()) + offset))
                 fake_calculated_entities.append(
                     calculated_entity_factory(entity, created_at),
                 )
@@ -336,9 +326,7 @@ class Command(BaseCommand):
                     key=subcharacteristic["key"],
                 )
 
-                measures_keys = [
-                    measure["key"] for measure in subcharacteristic["measures"]
-                ]
+                measures_keys = [measure["key"] for measure in subcharacteristic["measures"]]
 
                 measures = SupportedMeasure.objects.filter(
                     key__in=measures_keys,
@@ -508,9 +496,7 @@ class Command(BaseCommand):
                 "release_name": f"{product.name} - Release 1",
                 "start_at": now - dt.timedelta(days=90),
                 "end_at": now - dt.timedelta(days=46),
-                "description": (
-                    "Release inicial (concluída) gerada para demonstração."
-                ),
+                "description": ("Release inicial (concluída) gerada para demonstração."),
             },
             {
                 "release_name": f"{product.name} - Release 2",
@@ -552,12 +538,8 @@ class Command(BaseCommand):
         for i in range(needed):
             jitter = random.randint(-(step // 4), step // 4)
             offset = max(0, min(step * i + jitter, total_seconds))
-            created_at = timezone.make_aware(
-                dt.datetime.fromtimestamp(int(start_date.timestamp()) + offset)
-            )
-            tsqmi_list.append(
-                TSQMI(value=val, repository=repository, created_at=created_at)
-            )
+            created_at = timezone.make_aware(dt.datetime.fromtimestamp(int(start_date.timestamp()) + offset))
+            tsqmi_list.append(TSQMI(value=val, repository=repository, created_at=created_at))
             val = max(0.05, min(0.95, val + random.uniform(-0.04, 0.04)))
         TSQMI.objects.bulk_create(tsqmi_list)
 
@@ -565,9 +547,7 @@ class Command(BaseCommand):
         organizations = [
             Organization(
                 name="fga-eps-mds",
-                description=(
-                    "Organização que agrupa os " "projetos de EPS e MDS da FGA."
-                ),
+                description=("Organização que agrupa os " "projetos de EPS e MDS da FGA."),
             ),
             Organization(
                 name="UnBArqDsw2021",
@@ -579,10 +559,7 @@ class Command(BaseCommand):
             ),
             Organization(
                 name="IHC-FGA-2020",
-                description=(
-                    "Organização que agrupa os projetos da disciplina de "
-                    "Interação Humano Computador"
-                ),
+                description=("Organização que agrupa os projetos da disciplina de " "Interação Humano Computador"),
             ),
         ]
 
@@ -601,9 +578,7 @@ class Command(BaseCommand):
     def create_fake_products(self):
         organizations = Organization.objects.all()
 
-        organizations = {
-            organization.name: organization for organization in organizations
-        }
+        organizations = {organization.name: organization for organization in organizations}
 
         products = [
             Product(
@@ -700,10 +675,7 @@ class Command(BaseCommand):
             ),
             Repository(
                 name="2022-1-MeasureSoftGram-Core",
-                description=(
-                    "Repositório da API do modelo matemático "
-                    "do projeto MeasureSoftGram"
-                ),
+                description=("Repositório da API do modelo matemático " "do projeto MeasureSoftGram"),
                 product=products["MeasureSoftGram"],
             ),
             Repository(
@@ -730,10 +702,7 @@ class Command(BaseCommand):
         organization, _ = Organization.objects.update_or_create(
             name="Badge Demo Organization",
             defaults={
-                "description": (
-                    "Organização mockada para validar visualmente as badges "
-                    "A, B, C, D, E e N/A."
-                ),
+                "description": ("Organização mockada para validar visualmente as badges " "A, B, C, D, E e N/A."),
             },
         )
 
@@ -747,8 +716,7 @@ class Command(BaseCommand):
             organization=organization,
             defaults={
                 "description": (
-                    "Produto mockado com um repositório para cada tipo de "
-                    "badge suportada pelo sistema."
+                    "Produto mockado com um repositório para cada tipo de " "badge suportada pelo sistema."
                 ),
             },
         )

@@ -22,9 +22,7 @@ class GoalModelTestCase(APITestCaseExpanded):
 
     def test_validate_goal_returns_true_for_valid_numeric_dict(self):
         self.assertTrue(Goal.validate_goal({"reliability": 53}))
-        self.assertTrue(
-            Goal.validate_goal({"reliability": 53, "maintainability": 12.5})
-        )
+        self.assertTrue(Goal.validate_goal({"reliability": 53, "maintainability": 12.5}))
 
     def test_validate_goal_returns_false_for_non_dict(self):
         self.assertFalse(Goal.validate_goal([]))

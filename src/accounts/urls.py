@@ -1,11 +1,17 @@
 from django.urls import include, re_path
 
-from accounts.views import (CreateAccountViewSet, GithubLoginViewSet,
-                            GitHubOrganizationsViewSet, GithubValidateView,
-                            LoginViewSet, LogoutViewSet,
-                            RetrieveAccountViewSet,
-                            RetrieveAPIAcessTokenViewSet, UserListViewSet,
-                            UserRepos)
+from accounts.views import (
+    CreateAccountViewSet,
+    GithubLoginViewSet,
+    GitHubOrganizationsViewSet,
+    GithubValidateView,
+    LoginViewSet,
+    LogoutViewSet,
+    RetrieveAccountViewSet,
+    RetrieveAPIAcessTokenViewSet,
+    UserListViewSet,
+    UserRepos,
+)
 
 urlpatterns = [
     re_path(

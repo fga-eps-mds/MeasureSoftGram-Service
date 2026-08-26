@@ -66,9 +66,7 @@ class AccountsViews(APITestCaseExpanded):
 
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, 400)
-        self.assertIn(
-            f"A user with that {error} already exists.", response.json()[field]
-        )
+        self.assertIn(f"A user with that {error} already exists.", response.json()[field])
 
     @parameterized.expand([("username",), ("email",)])
     def test_login_accounts(self, field):
@@ -99,21 +97,15 @@ class AccountsViews(APITestCaseExpanded):
 
     def test_fail_login_nor_username_nor_email(self):
         url = reverse("accounts-login")
-        response = self.client.post(
-            url, data={"password": self.password}, format="json"
-        )
+        response = self.client.post(url, data={"password": self.password}, format="json")
 
         self.assertEqual(response.status_code, 400, response.json())
-        self.assertIn(
-            "Username OR email required.", response.json()["non_field_errors"]
-        )
+        self.assertIn("Username OR email required.", response.json()["non_field_errors"])
 
     @parameterized.expand([("username", "invalid"), ("email", "invalid@email.com")])
     def test_fail_login_nonexistent_user(self, field, value):
         url = reverse("accounts-login")
-        response = self.client.post(
-            url, data={field: value, "password": self.password}, format="json"
-        )
+        response = self.client.post(url, data={field: value, "password": self.password}, format="json")
 
         self.assertEqual(response.status_code, 400, response.json())
         self.assertIn(
@@ -137,9 +129,7 @@ class AccountsViews(APITestCaseExpanded):
 
     def test_retrieve_account(self):
         url = reverse("accounts-retrieve")
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         response = self.client.get(url, format="json")
 
         self.assertEqual(response.status_code, 200, response.json())
@@ -157,22 +147,16 @@ class AccountsViews(APITestCaseExpanded):
             "repos_url": "https://api.github.com/users/test/repos",
         }
 
-        socialaccount = SocialAccount.objects.create(
-            user=self.user, extra_data=extra_data
-        )
+        socialaccount = SocialAccount.objects.create(user=self.user, extra_data=extra_data)
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         response = self.client.get(url, format="json")
 
         self.assertEqual(response.status_code, 200, response.json())
         fields = ("avatar_url", "repos_url", "organizations_url")
         for field in fields:
             with self.subTest(field=field):
-                self.assertEqual(
-                    socialaccount.extra_data[field], response.json()[field]
-                )
+                self.assertEqual(socialaccount.extra_data[field], response.json()[field])
 
     def test_fail_retrieve_account_anonymous(self):
         url = reverse("accounts-retrieve")
@@ -185,9 +169,7 @@ class AccountsViews(APITestCaseExpanded):
 
     def test_access_token(self):
         url = reverse("api-token-retrieve")
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         response = self.client.get(url, format="json")
 
         self.assertEqual(response.status_code, 200, response.json())
@@ -206,9 +188,7 @@ class AccountsViews(APITestCaseExpanded):
         mock_get_response.json.return_value = repos
         mock_get.return_value = mock_get_response
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         url = reverse("user-repos")
         response = self.client.get(url, {"code": "valid_code"}, format="json")
 
@@ -222,9 +202,7 @@ class AccountsViews(APITestCaseExpanded):
         mock_post_response.json.return_value = {"error": "bad_verification_code"}
         mock_post.return_value = mock_post_response
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         url = reverse("user-repos")
         response = self.client.get(url, {"code": "bad_code"}, format="json")
 
@@ -243,9 +221,7 @@ class AccountsViews(APITestCaseExpanded):
         mock_get_response.json.return_value = {"message": "Not Found"}
         mock_get.return_value = mock_get_response
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         url = reverse("user-repos")
         response = self.client.get(url, {"code": "valid_code"}, format="json")
 
@@ -286,9 +262,7 @@ class AccountsViews(APITestCaseExpanded):
 
         mock_get.side_effect = side_effect
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
 
@@ -300,9 +274,7 @@ class AccountsViews(APITestCaseExpanded):
     @patch("accounts.views.requests.post")
     def test_github_validate_success(self, mock_post):
         mock_response = MagicMock()
-        mock_response.status_code = (
-            404  # Credenciais válidas, token dummy não encontrado
-        )
+        mock_response.status_code = 404  # Credenciais válidas, token dummy não encontrado
         mock_post.return_value = mock_response
 
         url = reverse("github-validate")
@@ -310,9 +282,7 @@ class AccountsViews(APITestCaseExpanded):
             patch("django.conf.settings.GITHUB_CLIENT_ID", "test_client_id"),
             patch("django.conf.settings.GITHUB_SECRET", "test_secret"),
         ):
-            response = self.client.post(
-                url, {"client_id": "test_client_id"}, format="json"
-            )
+            response = self.client.post(url, {"client_id": "test_client_id"}, format="json")
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["valid"])
@@ -328,9 +298,7 @@ class AccountsViews(APITestCaseExpanded):
             patch("django.conf.settings.GITHUB_CLIENT_ID", "test_client_id"),
             patch("django.conf.settings.GITHUB_SECRET", "test_secret"),
         ):
-            response = self.client.post(
-                url, {"client_id": "test_client_id"}, format="json"
-            )
+            response = self.client.post(url, {"client_id": "test_client_id"}, format="json")
 
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.json()["valid"])
@@ -345,9 +313,7 @@ class AccountsViews(APITestCaseExpanded):
             patch("django.conf.settings.GITHUB_CLIENT_ID", "backend_client_id"),
             patch("django.conf.settings.GITHUB_SECRET", "test_secret"),
         ):
-            response = self.client.post(
-                url, {"client_id": "frontend_client_id"}, format="json"
-            )
+            response = self.client.post(url, {"client_id": "frontend_client_id"}, format="json")
 
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.json()["valid"])
@@ -391,8 +357,7 @@ class AccountsViews(APITestCaseExpanded):
 
     @patch("accounts.views.requests.get")
     def test_github_organizations_with_social_token(self, mock_get):
-        from allauth.socialaccount.models import (SocialAccount, SocialApp,
-                                                  SocialToken)
+        from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 
         self.user.github_access_token = None
         self.user.save()
@@ -403,12 +368,8 @@ class AccountsViews(APITestCaseExpanded):
             client_id="12345",
             secret="54321",
         )
-        social_account = SocialAccount.objects.create(
-            user=self.user, provider="github", uid="12345"
-        )
-        SocialToken.objects.create(
-            account=social_account, app=social_app, token="social-token-xyz"
-        )
+        social_account = SocialAccount.objects.create(user=self.user, provider="github", uid="12345")
+        SocialToken.objects.create(account=social_account, app=social_app, token="social-token-xyz")
 
         def side_effect(url, headers=None):
             resp = MagicMock()
@@ -426,9 +387,7 @@ class AccountsViews(APITestCaseExpanded):
 
         mock_get.side_effect = side_effect
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 200)
@@ -441,9 +400,7 @@ class AccountsViews(APITestCaseExpanded):
         self.user.github_access_token = None
         self.user.save()
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 400)
@@ -480,9 +437,7 @@ class AccountsViews(APITestCaseExpanded):
 
         mock_get.side_effect = side_effect
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 200)
@@ -501,9 +456,7 @@ class AccountsViews(APITestCaseExpanded):
 
         mock_get.side_effect = side_effect
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 401)
@@ -521,9 +474,7 @@ class AccountsViews(APITestCaseExpanded):
             patch("django.conf.settings.GITHUB_CLIENT_ID", "test_client_id"),
             patch("django.conf.settings.GITHUB_SECRET", "test_secret"),
         ):
-            response = self.client.post(
-                url, {"client_id": "test_client_id"}, format="json"
-            )
+            response = self.client.post(url, {"client_id": "test_client_id"}, format="json")
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["valid"])

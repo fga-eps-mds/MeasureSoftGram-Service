@@ -28,6 +28,4 @@ class Release(models.Model):
         on_delete=models.CASCADE,
     )
     description = models.TextField(max_length=512, null=True, blank=True)
-    repositories = models.ManyToManyField(
-        to="organizations.Repository", related_name="releases", blank=True
-    )
+    repositories = models.ManyToManyField(to="organizations.Repository", related_name="releases", blank=True)

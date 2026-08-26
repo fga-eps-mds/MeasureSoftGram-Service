@@ -31,15 +31,11 @@ class MeasureNotDefinedInReleaseConfigurationuration(
     pass
 
 
-class SubCharacteristicNotDefinedInReleaseConfigurationuration(
-    EntityNotDefinedInReleaseConfigurationuration
-):
+class SubCharacteristicNotDefinedInReleaseConfigurationuration(EntityNotDefinedInReleaseConfigurationuration):
     pass
 
 
-class CharacteristicNotDefinedInReleaseConfigurationuration(
-    EntityNotDefinedInReleaseConfigurationuration
-):
+class CharacteristicNotDefinedInReleaseConfigurationuration(EntityNotDefinedInReleaseConfigurationuration):
     pass
 
 

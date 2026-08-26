@@ -10,12 +10,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from accounts.models import CustomUser
-from accounts.serializers import (AccountsCreateSerializer,
-                                  AccountsLoginSerializer,
-                                  AccountsRetrieveSerializer,
-                                  APIAcessTokenRetrieveSerializer,
-                                  GitHubAccessTokenRetrieveSerializer,
-                                  UserListSerializer)
+from accounts.serializers import (
+    AccountsCreateSerializer,
+    AccountsLoginSerializer,
+    AccountsRetrieveSerializer,
+    APIAcessTokenRetrieveSerializer,
+    GitHubAccessTokenRetrieveSerializer,
+    UserListSerializer,
+)
 
 
 class GithubLoginViewSet(SocialLoginView):
@@ -154,9 +156,7 @@ class GitHubOrganizationsViewSet(viewsets.ViewSet):
         if not token:
             from allauth.socialaccount.models import SocialToken
 
-            st = SocialToken.objects.filter(
-                account__user=user, account__provider="github"
-            ).first()
+            st = SocialToken.objects.filter(account__user=user, account__provider="github").first()
             if st:
                 token = st.token
                 user.github_access_token = token

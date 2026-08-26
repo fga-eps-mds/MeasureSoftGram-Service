@@ -112,12 +112,8 @@ def _full_payload():
 @freeze_time("2024-09-08 20:00:00")
 class MathModelAtomicitySmokeTest(APITestCaseExpanded):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="test-user", password="test-pass"
-        )
-        self.client.force_authenticate(
-            self.user, token=Token.objects.create(user=self.user)
-        )
+        self.user = get_user_model().objects.create_user(username="test-user", password="test-pass")
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
 
         self.org = self.get_organization()
         self.product = self.get_product(self.org)
@@ -151,9 +147,7 @@ class MathModelAtomicitySmokeTest(APITestCaseExpanded):
 
     @patch(
         "math_model.services.calculate_subcharacteristics",
-        side_effect=CalculateModelException(
-            "simulated mid-calculation failure (passo 3)"
-        ),
+        side_effect=CalculateModelException("simulated mid-calculation failure (passo 3)"),
     )
     def test_falha_no_passo_3_deve_reverter_passos_anteriores(self, _mock):
         """
@@ -172,13 +166,11 @@ class MathModelAtomicitySmokeTest(APITestCaseExpanded):
         response = self.client.post(self.url, _full_payload(), format="json")
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST, (
-            f"esperava 400 (CalculateModelException), recebeu "
-            f"{response.status_code}: {response.content!r}"
+            f"esperava 400 (CalculateModelException), recebeu " f"{response.status_code}: {response.content!r}"
         )
 
         assert CollectedMetric.objects.count() == self.initial_collected, (
-            f"CollectedMetric vazou: inicial={self.initial_collected}, "
-            f"atual={CollectedMetric.objects.count()}"
+            f"CollectedMetric vazou: inicial={self.initial_collected}, " f"atual={CollectedMetric.objects.count()}"
         )
 
         leaked_measures = CalculatedMeasure.objects.count()
@@ -255,15 +247,9 @@ class MathModelAtomicitySmokeTest(APITestCaseExpanded):
             assert key in body, f'chave "{key}" ausente na resposta'
 
         # Métricas do payload devem estar persistidas (além das pré-existentes).
-        assert (
-            CollectedMetric.objects.count() > self.initial_collected
-        ), "métricas do payload não foram persistidas"
+        assert CollectedMetric.objects.count() > self.initial_collected, "métricas do payload não foram persistidas"
 
         assert CalculatedMeasure.objects.count() > 0, "medidas não persistiram"
-        assert (
-            CalculatedSubCharacteristic.objects.count() > 0
-        ), "subcharacteristics não persistiram"
-        assert (
-            CalculatedCharacteristic.objects.count() > 0
-        ), "characteristics não persistiram"
+        assert CalculatedSubCharacteristic.objects.count() > 0, "subcharacteristics não persistiram"
+        assert CalculatedCharacteristic.objects.count() > 0, "characteristics não persistiram"
         assert TSQMI.objects.count() == 1, "TSQMI não persistiu (esperava 1)"

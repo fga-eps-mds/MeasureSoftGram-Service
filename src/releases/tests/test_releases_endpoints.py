@@ -3,8 +3,7 @@ from datetime import date, timedelta
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
-from characteristics.models import (CalculatedCharacteristic,
-                                    SupportedCharacteristic)
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from goals.models import Goal
 from organizations.models import Repository
 from releases.models import Release
@@ -15,9 +14,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
     def setUp(self):
         self.client = APIClient()
         self.user = self.get_or_create_test_user()
-        self.client.force_authenticate(
-            self.user, token=Token.objects.create(user=self.user)
-        )
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
 
         self.org = self.get_organization()
         self.product = self.get_product(self.org)
@@ -28,9 +25,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             product=self.product,
             data={"reliability": 53, "maintainability": 53},
         )
-        self.url_default = (
-            f"/api/v1/organizations/{self.org.id}/products/{self.product.id}/release/"
-        )
+        self.url_default = f"/api/v1/organizations/{self.org.id}/products/{self.product.id}/release/"
 
     def test_create_new_release_without_description(self):
         data = {
@@ -47,9 +42,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         response_json = response.json()
         self.assertEqual(response_json["release_name"], "testezada")
         self.assertEqual(response_json["description"], None)
-        self.assertEqual(
-            response_json["start_at"], f"{data['start_at']}T00:00:00-03:00"
-        )
+        self.assertEqual(response_json["start_at"], f"{data['start_at']}T00:00:00-03:00")
         self.assertEqual(response_json["end_at"], f"{data['end_at']}T00:00:00-03:00")
         self.assertEqual(response_json["created_by"], self.user.id)
         self.assertEqual(response_json["product"], self.product.id)
@@ -91,13 +84,9 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             "description": "Essa tem que dar errado",
         }
 
-        response_release1 = self.client.post(
-            path=self.url_default, data=release1, format="json"
-        )
+        response_release1 = self.client.post(path=self.url_default, data=release1, format="json")
 
-        response_release2 = self.client.post(
-            path=self.url_default, data=release2, format="json"
-        )
+        response_release2 = self.client.post(path=self.url_default, data=release2, format="json")
 
         self.assertEqual(response_release1.status_code, 201)
         self.assertEqual(response_release2.status_code, 400)
@@ -126,13 +115,9 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             "description": "Essa tem que dar errado",
         }
 
-        response_release1 = self.client.post(
-            path=self.url_default, data=release1, format="json"
-        )
+        response_release1 = self.client.post(path=self.url_default, data=release1, format="json")
 
-        response_release2 = self.client.post(
-            path=self.url_default, data=release2, format="json"
-        )
+        response_release2 = self.client.post(path=self.url_default, data=release2, format="json")
 
         self.assertEqual(response_release1.status_code, 201)
         self.assertEqual(response_release2.status_code, 400)
@@ -316,9 +301,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.json()["detail"], "Já existe uma release neste período"
-        )
+        self.assertEqual(response.json()["detail"], "Já existe uma release neste período")
 
     def test_is_valid_release_with_the_existence_of_multiple_releases_and_invalid_dates(
         self,
@@ -390,9 +373,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         )
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(
-            response.json()["detail"], "Já existe uma release com este nome"
-        )
+        self.assertEqual(response.json()["detail"], "Já existe uma release com este nome")
 
     def test_planned_x_accomplished_no_release_finished(self):
         Release.objects.create(
@@ -406,9 +387,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             goal=self.goal,
         )
 
-        response = self.client.get(
-            path=f"{self.url_default}999/planeed-x-accomplished/"
-        )
+        response = self.client.get(path=f"{self.url_default}999/planeed-x-accomplished/")
 
         self.assertEqual(response.status_code, 200)
         assert "reliability" in response.json()["planned"].keys()
@@ -435,9 +414,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
 
         reliability = SupportedCharacteristic.objects.filter(key="reliability").first()
 
-        maintainability = SupportedCharacteristic.objects.filter(
-            key="maintainability"
-        ).first()
+        maintainability = SupportedCharacteristic.objects.filter(key="maintainability").first()
 
         CalculatedCharacteristic.objects.create(
             release_id=999,
@@ -453,9 +430,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
             value=1,
         )
 
-        response = self.client.get(
-            path=f"{self.url_default}999/planeed-x-accomplished/"
-        )
+        response = self.client.get(path=f"{self.url_default}999/planeed-x-accomplished/")
 
         assert response.status_code == 200
         assert response.json()["accomplished"] == {"Msg": [0, 0]}
@@ -496,9 +471,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
 
         reliability = SupportedCharacteristic.objects.filter(key="reliability").first()
 
-        maintainability = SupportedCharacteristic.objects.filter(
-            key="maintainability"
-        ).first()
+        maintainability = SupportedCharacteristic.objects.filter(key="maintainability").first()
 
         repository1 = Repository.objects.create(
             id=1,

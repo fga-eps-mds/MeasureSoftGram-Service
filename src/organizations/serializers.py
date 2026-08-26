@@ -126,9 +126,7 @@ class ProductSerializer(serializers.ModelSerializer):
         organization = self.context["view"].get_organization()
         product_id = self.instance.id if self.instance else None
 
-        qs = Product.objects.filter(name=name, organization=organization).exclude(
-            id=product_id
-        )
+        qs = Product.objects.filter(name=name, organization=organization).exclude(id=product_id)
 
         if qs.exists():
             raise serializers.ValidationError("Product with this name already exists.")
@@ -182,9 +180,7 @@ class ProductSerializer(serializers.ModelSerializer):
         """
         Retorna o valor atuais das entidades associadas a um produto
         """
-        create_a_new_repository_url = self.reverse_product_resource(
-            obj, "repository-list"
-        )
+        create_a_new_repository_url = self.reverse_product_resource(obj, "repository-list")
 
         current_goal_url = self.reverse_product_resource(obj, "current-goal-list")
 
@@ -192,13 +188,9 @@ class ProductSerializer(serializers.ModelSerializer):
 
         create_a_new_goal_url = self.reverse_product_resource(obj, "create-goal-list")
 
-        current_release_config_url = self.reverse_product_resource(
-            obj, "current-release-config-list"
-        )
+        current_release_config_url = self.reverse_product_resource(obj, "current-release-config-list")
 
-        create_a_pre_config_url = self.reverse_product_resource(
-            obj, "create-release-config-list"
-        )
+        create_a_pre_config_url = self.reverse_product_resource(obj, "create-release-config-list")
 
         pre_config_entity_relationship_tree_url = self.reverse_product_resource(
             obj, "release-config-entity-relationship-tree-list"
@@ -260,13 +252,9 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         product = self.context["view"].get_product()
         repository_id = self.instance.id if self.instance else None
 
-        qs = Repository.objects.filter(name=name, product=product).exclude(
-            id=repository_id
-        )
+        qs = Repository.objects.filter(name=name, product=product).exclude(id=repository_id)
         if qs.exists():
-            raise serializers.ValidationError(
-                "Repository with this name already exists."
-            )
+            raise serializers.ValidationError("Repository with this name already exists.")
 
         return attrs
 
@@ -277,9 +265,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         if not token:
             from allauth.socialaccount.models import SocialToken
 
-            st = SocialToken.objects.filter(
-                account__user=user, account__provider="github"
-            ).first()
+            st = SocialToken.objects.filter(account__user=user, account__provider="github").first()
             if st:
                 token = st.token
                 user.github_access_token = token
@@ -312,22 +298,16 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         if value:
             parsed_url = urlparse(value)
             if parsed_url.scheme not in ["http", "https"]:
-                raise serializers.ValidationError(
-                    "The URL must start with http or https."
-                )
+                raise serializers.ValidationError("The URL must start with http or https.")
 
             check_url, headers = self._get_github_url_and_headers(parsed_url)
 
             try:
                 response = requests.head(check_url, headers=headers, timeout=5)
                 if response.status_code >= 400:
-                    raise serializers.ValidationError(
-                        "The repository's URL is not accessible."
-                    )
+                    raise serializers.ValidationError("The repository's URL is not accessible.")
             except RequestException:
-                raise serializers.ValidationError(
-                    "Unable to verify the repository's URL."
-                )
+                raise serializers.ValidationError("Unable to verify the repository's URL.")
         return value
 
     def get_url(self, obj: Repository):
@@ -373,9 +353,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
     def get_actions(self, obj):
         # Lista todas as ações que podem ser feitas no repositório
 
-        calculate_math_model_url = self.reverse_repository_resource(
-            obj, "math-model-list"
-        )
+        calculate_math_model_url = self.reverse_repository_resource(obj, "math-model-list")
 
         return {
             "calculate-math-model": calculate_math_model_url,
@@ -423,9 +401,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         Gera a URL dos últimos valores coletados desse repositório
         """
 
-        metrics_historical_values_url = self.reverse_repository_resource(
-            obj, "latest-collected-metrics-list"
-        )
+        metrics_historical_values_url = self.reverse_repository_resource(obj, "latest-collected-metrics-list")
 
         measures_latest_values_url = self.reverse_repository_resource(
             obj,

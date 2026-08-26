@@ -22,8 +22,7 @@ def create_supported_characteristics(suported_characteristics):
             )
 
             subcharacteristics_keys = [
-                subcharacteristic["key"]
-                for subcharacteristic in characteristic["subcharacteristics"]
+                subcharacteristic["key"] for subcharacteristic in characteristic["subcharacteristics"]
             ]
 
             subcharacteristics = SupportedSubCharacteristic.objects.filter(
@@ -39,10 +38,7 @@ def create_supported_characteristics(suported_characteristics):
 def create_balance_matrix(
     suported_characteristics: list[SupportedCharacteristic],
 ):
-    filtered_balance_matrix = {
-        characteristic.key: characteristic
-        for characteristic in suported_characteristics
-    }
+    filtered_balance_matrix = {characteristic.key: characteristic for characteristic in suported_characteristics}
     to_create = []
     for (
         source_characteristic,
@@ -51,12 +47,8 @@ def create_balance_matrix(
         to_create.extend(
             [
                 BalanceMatrix(
-                    source_characteristic=filtered_balance_matrix.get(
-                        source_characteristic
-                    ),
-                    target_characteristic=filtered_balance_matrix.get(
-                        target_characteristic
-                    ),
+                    source_characteristic=filtered_balance_matrix.get(source_characteristic),
+                    target_characteristic=filtered_balance_matrix.get(target_characteristic),
                     relation_type=relation,
                 )
                 for relation in ["-", "+"]
