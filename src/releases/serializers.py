@@ -1,0 +1,114 @@
+from rest_framework import serializers
+
+from accounts.models import CustomUser
+from goals.models import Goal
+from organizations.models import Product, Repository
+from releases.models import Release
+
+
+class ReleaseSerializer(serializers.ModelSerializer):
+    repositories_ids = serializers.PrimaryKeyRelatedField(
+        source="repositories",
+        queryset=Repository.objects.all(),
+        many=True,
+        required=True,
+    )
+
+    class Meta:
+        model = Release
+        fields = (
+            "id",
+            "release_name",
+            "start_at",
+            "end_at",
+            "created_by",
+            "product",
+            "goal",
+            "description",
+            "repositories_ids",
+        )
+        read_only_fields = ("created_by", "product")
+
+    def verify_fields_releases(self, releases, date_start, date_end, release_name):
+        if date_start > date_end:
+            raise serializers.ValidationError(
+                {"message": "The start date must be less than the end date"}
+            )
+
+        for release in releases:
+            if date_start >= release.start_at and date_start <= release.end_at:
+                raise serializers.ValidationError(
+                    {
+                        "message": "The start date must be greater than the start date of the previous release"
+                    }
+                )
+
+            if release_name == release.release_name:
+                raise serializers.ValidationError(
+                    {"message": "The release name must be unique"}
+                )
+
+    def create(self, validated_data):
+        view = self.context["view"]
+        if hasattr(view, "get_product"):
+            product = view.get_product()
+        else:
+            product = Product.objects.get(id=view.kwargs["product_pk"])
+
+        release = Release.objects.all().filter(product=product)
+        self.verify_fields_releases(
+            release,
+            validated_data["start_at"],
+            validated_data["end_at"],
+            validated_data["release_name"],
+        )
+
+        validated_data["created_by"] = CustomUser.objects.get(id=view.request.user.id)
+        validated_data["product"] = product
+        repositories = validated_data.pop("repositories", [])
+        release_instance = Release.objects.create(**validated_data)
+        if repositories:
+            release_instance.repositories.set(repositories)
+        return release_instance
+
+    def update(self, validated_data):
+        view = self.context["view"]
+        if hasattr(view, "get_product"):
+            product = view.get_product()
+        else:
+            product = Product.objects.get(id=view.kwargs["product_pk"])
+
+        release = Release.objects.all().filter(product=product)
+        self.verify_fields_releases(
+            release,
+            validated_data["start_at"],
+            validated_data["end_at"],
+            validated_data["release_name"],
+        )
+        return Release.objects.update(**validated_data)
+
+
+class CheckReleaseSerializer(serializers.Serializer):
+    nome = serializers.CharField(max_length=255)
+    dt_inicial = serializers.DateField()
+    dt_final = serializers.DateField()
+
+    def validate(self, data):
+        if data["dt_inicial"] > data["dt_final"]:
+            raise serializers.ValidationError(
+                {"message": "The start date must be less than the end date"}
+            )
+
+        return data
+
+
+class ReleaseAllSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Release
+        fields = "__all__"
+
+
+class ReleaseAccomplishedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Goal
+        fields = "data"
