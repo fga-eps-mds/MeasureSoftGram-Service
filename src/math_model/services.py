@@ -24,6 +24,7 @@ _LISTED_FIL_METRICS = frozenset(
         "functions",
         "comment_lines_density",
         "duplicated_lines_density",
+        "sqale_debt_ratio",
     }
 )
 _UTS_METRICS = frozenset({"test_execution_time", "tests"})

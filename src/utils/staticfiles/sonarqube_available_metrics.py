@@ -55,4 +55,9 @@ SONARQUBE_AVAILABLE_METRICS = [
         "metric_type": "FLOAT",
         "name": "Duplicated lines density",
     },
+    {
+        "key": "sqale_debt_ratio",
+        "metric_type": "FLOAT",
+        "name": "Technical Debt Ratio",
+    },
 ]

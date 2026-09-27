@@ -57,6 +57,7 @@ class SupportedMetric(models.Model):
             "functions",
             "comment_lines_density",
             "duplicated_lines_density",
+            "sqale_debt_ratio",
         }
 
         github_values = [

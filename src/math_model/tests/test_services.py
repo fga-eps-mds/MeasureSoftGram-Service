@@ -39,8 +39,8 @@ class MathModelServicesTest(APITestCaseExpanded):
         self.services = MathModelServices(self.repository, self.product)
 
     def _build_collected_metrics_for_all_measures(self):
-        """Cria CollectedMetric (não persistidos) cobrindo as 14 métricas
-        que alimentam as 8 medidas do DEFAULT_PRE_CONFIG."""
+        """Cria CollectedMetric (não persistidos) cobrindo as 15 métricas
+        que alimentam as 9 medidas do DEFAULT_PRE_CONFIG."""
         metrics = []
         listed_fil = [
             "coverage",
@@ -48,6 +48,7 @@ class MathModelServicesTest(APITestCaseExpanded):
             "functions",
             "comment_lines_density",
             "duplicated_lines_density",
+            "sqale_debt_ratio",
         ]
         uts = ["test_execution_time", "tests"]
         trk = ["test_failures", "test_errors"]
@@ -121,6 +122,7 @@ class MathModelServicesTest(APITestCaseExpanded):
             "non_complex_file_density",
             "commented_file_density",
             "duplication_absense",
+            "technical_debt_ratio",
             "team_throughput",
         ]
 
@@ -138,8 +140,8 @@ class MathModelServicesTest(APITestCaseExpanded):
 
         # Não persistiu nada
         assert CalculatedMeasure.objects.count() == 0
-        # Todas as 8 medidas foram calculadas
-        assert len(instances) == 8
+        # Todas as 9 medidas foram calculadas
+        assert len(instances) == 9
         assert all(isinstance(i, CalculatedMeasure) for i in instances)
         assert all(i.pk is None for i in instances)
         # Dict tem as mesmas keys, valores são floats

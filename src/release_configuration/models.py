@@ -343,6 +343,7 @@ class ReleaseConfiguration(models.Model):
             "test_coverage": "test_coverage",
             "commented_file_density": "comment_files_density",
             "duplication_absense": "absence_of_duplications",
+            "technical_debt_ratio": "technical_debt_ratio",
             "ci_feedback_time": "ci_feedback_time",
             "team_throughput": "team_throughput",
         }

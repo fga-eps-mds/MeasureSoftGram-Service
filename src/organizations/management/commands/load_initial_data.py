@@ -290,6 +290,7 @@ class Command(BaseCommand):
                     {"key": "duplication_absense"},
                     {"key": "commented_file_density"},
                     {"key": "non_complex_file_density"},
+                    {"key": "technical_debt_ratio"},
                 ],
             },
             {
