@@ -92,7 +92,7 @@ class AccountsLoginSerializer(serializers.Serializer):
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ("id", "username", "first_name", "last_name", "email")
+        fields = ("id", "username", "first_name", "last_name")
 
 
 class APIAcessTokenRetrieveSerializer(serializers.ModelSerializer):

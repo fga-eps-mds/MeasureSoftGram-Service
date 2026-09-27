@@ -5,7 +5,7 @@ from dj_rest_auth.registration.views import SocialLoginView
 from django.conf import settings
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -26,6 +26,7 @@ class GithubLoginViewSet(SocialLoginView):
     """
 
     adapter_class = GitHubOAuth2Adapter
+    permission_classes = (AllowAny,)
     callback_url = settings.LOGIN_REDIRECT_URL
     client_class = OAuth2Client
 
@@ -37,6 +38,7 @@ class CreateAccountViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     queryset = CustomUser.objects.all()
     serializer_class = AccountsCreateSerializer
+    permission_classes = (AllowAny,)
 
 
 class RetrieveAccountViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -59,6 +61,7 @@ class LoginViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
     queryset = CustomUser.objects.all()
     serializer_class = AccountsLoginSerializer
+    permission_classes = (AllowAny,)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -101,6 +104,7 @@ class UserListViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = CustomUser.objects.all()
     serializer_class = UserListSerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class UserRepos(viewsets.ReadOnlyModelViewSet):
@@ -220,7 +224,7 @@ class GithubValidateView(APIView):
     Endpoint para validar as credenciais do GitHub (Client ID e Client Secret)
     """
 
-    permission_classes = ()  # Permitir acesso público para a verificação pré-login
+    permission_classes = (AllowAny,)  # Verificação pré-login.
 
     def post(self, request):
         frontend_client_id = request.data.get("client_id")

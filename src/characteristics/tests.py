@@ -1,5 +1,6 @@
 ﻿from datetime import timedelta
 
+from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.utils import timezone
 from rest_framework import status
@@ -11,6 +12,7 @@ from utils.tests import APITestCaseExpanded
 
 class BalanceMatrixViewSetTest(APITestCase):
     def setUp(self):
+        self.user = get_user_model().objects.create_user(username="matrix-reader", email="matrix@example.com")
         # Create test data
         characteristic1 = SupportedCharacteristic.objects.create(key="characteristic1")
         characteristic2 = SupportedCharacteristic.objects.create(key="characteristic2")
@@ -37,7 +39,11 @@ class BalanceMatrixViewSetTest(APITestCase):
             relation_type="-",
         )
 
+    def test_anonymous_balance_matrix_is_protected(self):
+        self.assertEqual(self.client.get("/api/v1/balance-matrix/").status_code, 401)
+
     def test_list_balance_matrix(self):
+        self.client.force_authenticate(self.user)
         url = "/api/v1/balance-matrix/"
 
         response = self.client.get(url)
