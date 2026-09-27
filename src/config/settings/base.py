@@ -213,6 +213,14 @@ LOGIN_REDIRECT_URL = os.getenv("LOGIN_REDIRECT_URL", "127.0.0.1:8080")
 GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID", "")
 GITHUB_SECRET = os.getenv("GITHUB_SECRET", "")
 
+# First key encrypts new values; remaining keys allow reading during rotation.
+GITHUB_TOKEN_ENCRYPTION_KEYS = [
+    key.strip() for key in os.getenv("GITHUB_TOKEN_ENCRYPTION_KEYS", "").split(",") if key.strip()
+]
+# The encrypted CustomUser field is the only persistent OAuth token store.
+SOCIALACCOUNT_STORE_TOKENS = False
+SOCIALACCOUNT_ADAPTER = "accounts.adapters.EncryptedTokenSocialAccountAdapter"
+
 SOCIALACCOUNT_PROVIDERS = {
     "github": {
         "APP": {

@@ -165,6 +165,7 @@ class GitHubOrganizationsViewSet(viewsets.ViewSet):
                 token = st.token
                 user.github_access_token = token
                 user.save()
+                st.delete()
             else:
                 return Response(
                     {"error": "GitHub account not linked or access token missing."},
