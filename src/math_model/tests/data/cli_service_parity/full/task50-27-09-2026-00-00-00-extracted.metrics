@@ -1,0 +1,110 @@
+{
+  "component-0:src/foo.py": [
+    {
+      "metric": "coverage",
+      "value": 80.0
+    },
+    {
+      "metric": "complexity",
+      "value": 5
+    },
+    {
+      "metric": "functions",
+      "value": 10
+    },
+    {
+      "metric": "comment_lines_density",
+      "value": 20.0
+    },
+    {
+      "metric": "duplicated_lines_density",
+      "value": 0.0
+    },
+    {
+      "metric": "ncloc",
+      "value": [
+        100
+      ]
+    }
+  ],
+  "component-1:src/bar.py": [
+    {
+      "metric": "coverage",
+      "value": 60.0
+    },
+    {
+      "metric": "complexity",
+      "value": 8
+    },
+    {
+      "metric": "functions",
+      "value": 15
+    },
+    {
+      "metric": "comment_lines_density",
+      "value": 15.0
+    },
+    {
+      "metric": "duplicated_lines_density",
+      "value": 5.0
+    },
+    {
+      "metric": "ncloc",
+      "value": [
+        200
+      ]
+    }
+  ],
+  "component-2:tests/foo_test.py": [
+    {
+      "metric": "tests",
+      "value": 5
+    },
+    {
+      "metric": "test_execution_time",
+      "value": 100
+    }
+  ],
+  "component-3:tests/bar_test.py": [
+    {
+      "metric": "tests",
+      "value": 3
+    },
+    {
+      "metric": "test_execution_time",
+      "value": 80
+    }
+  ],
+  "component-4:": [
+    {
+      "metric": "test_failures",
+      "value": [
+        0
+      ]
+    },
+    {
+      "metric": "test_errors",
+      "value": [
+        0
+      ]
+    }
+  ],
+  "github": [
+    {
+      "metric": "total_issues",
+      "value": 10
+    },
+    {
+      "metric": "resolved_issues",
+      "value": 8
+    },
+    {
+      "metric": "sum_ci_feedback_times",
+      "value": 300
+    },
+    {
+      "metric": "total_builds",
+      "value": 5
+    }
+  ]
+}

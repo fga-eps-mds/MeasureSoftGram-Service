@@ -23,7 +23,7 @@ dependencies = [
   "requests==2.31.0",
   "django-allauth[socialaccount]==65.19.2",
   "dj-rest-auth==7.2.0",
-  "msgram-core==1.4.9",
+  "msgram-core==1.5.4",
   "django-extensions==4.1",
   "setuptools>=75.0.0,<78",
 ]

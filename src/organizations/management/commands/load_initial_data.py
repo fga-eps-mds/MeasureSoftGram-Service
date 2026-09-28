@@ -26,6 +26,10 @@ from release_configuration.models import ReleaseConfiguration
 from releases.models import Release
 from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
 from tsqmi.models import TSQMI
+from utils.runtime_metrics import (
+    RUNTIME_AVAILABLE_METRICS,
+    RUNTIME_MEASURE_KEYS,
+)
 
 # Local Imports
 from utils import exceptions, get_random_path, get_random_qualifier, get_random_value, staticfiles
@@ -148,6 +152,17 @@ class Command(BaseCommand):
     def create_supported_metrics(self):
         self.create_sonarqube_supported_metrics()
         self.create_github_supported_metrics()
+        self.create_runtime_supported_metrics()
+
+    def create_runtime_supported_metrics(self):
+        for metric in RUNTIME_AVAILABLE_METRICS:
+            SupportedMetric.objects.get_or_create(
+                key=metric["key"],
+                defaults={
+                    "name": metric["name"],
+                    "metric_type": metric["metric_type"],
+                },
+            )
 
     def create_sonarqube_supported_metrics(self):
         data = staticfiles.SONARQUBE_AVAILABLE_METRICS
@@ -252,7 +267,9 @@ class Command(BaseCommand):
         )
 
     def create_fake_calculated_measures(self, repository):
-        qs = SupportedMeasure.objects.all()
+        qs = SupportedMeasure.objects.exclude(
+            key__in=RUNTIME_MEASURE_KEYS
+        )
         current_entity = [None]
         state = [random.uniform(0.5, 0.85)]
 

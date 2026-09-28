@@ -1,7 +1,7 @@
 ﻿from unittest.mock import Mock, patch
 
 from django.db.utils import IntegrityError
-from django.test import override_settings
+from django.test import TestCase, override_settings
 
 from characteristics.models import BalanceMatrix, CalculatedCharacteristic, SupportedCharacteristic
 from measures.models import CalculatedMeasure
@@ -10,6 +10,10 @@ from organizations.management.commands.utils import create_balance_matrix
 from organizations.models import Organization, Product
 from tsqmi.models import TSQMI
 from utils.tests import APITestCaseExpanded
+
+from staticfiles import SUPPORTED_MEASURES
+
+from metrics.models import SupportedMetric
 
 
 class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
@@ -145,10 +149,69 @@ class LoadInitialDataFakeDataTestCase(APITestCaseExpanded):
     def test_create_fake_calculated_measures_creates_entries(self):
         self.command.fake_data = True
         self.command.create_fake_calculated_measures(self.repository)
-        self.assertTrue(CalculatedMeasure.objects.filter(repository=self.repository).exists())
+
+        calculated_keys = set(
+            CalculatedMeasure.objects.filter(
+                repository=self.repository,
+            ).values_list("measure__key", flat=True)
+        )
+
+        expected_keys = {
+            "passed_tests",
+            "test_builds",
+            "test_coverage",
+            "non_complex_file_density",
+            "commented_file_density",
+            "duplication_absense",
+            "team_throughput",
+            "ci_feedback_time",
+            "technical_debt_ratio",
+        }
+
+        self.assertEqual(calculated_keys, expected_keys)
 
     @override_settings(CREATE_FAKE_DATA=False)
     def test_create_fake_calculated_measures_skips_when_disabled(self):
         self.command.fake_data = False
         self.command.create_fake_calculated_measures(self.repository)
         self.assertFalse(CalculatedMeasure.objects.filter(repository=self.repository).exists())
+
+
+class CoreMetricsRegistrationTestCase(TestCase):
+    def test_registers_all_metrics_required_by_core(self):
+        command = Command()
+        command.create_supported_metrics()
+
+        required_keys = {
+            metric_key
+            for measure in SUPPORTED_MEASURES
+            for definition in measure.values()
+            for metric_key in definition["metrics"]
+        }
+        registered_keys = set(
+            SupportedMetric.objects.values_list("key", flat=True)
+        )
+
+        missing_keys = required_keys - registered_keys
+        self.assertFalse(
+            missing_keys,
+            f"Métricas exigidas pelo Core sem cadastro: {sorted(missing_keys)}",
+        )
+
+    def test_runtime_metrics_registration_is_idempotent(self):
+        command = Command()
+        command.create_runtime_supported_metrics()
+        command.create_runtime_supported_metrics()
+
+        expected_keys = {
+            "endpoint_calls",
+            "mean_response_time",
+            "cpu_usage",
+            "memory_usage",
+        }
+        registered_keys = set(
+            SupportedMetric.objects.values_list("key", flat=True)
+        )
+
+        self.assertEqual(registered_keys, expected_keys)
+        self.assertEqual(SupportedMetric.objects.count(), 4)

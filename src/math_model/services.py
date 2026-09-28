@@ -14,9 +14,16 @@ from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubC
 from subcharacteristics.serializers import CalculatedSubCharacteristicSerializer
 from tsqmi.models import TSQMI
 from tsqmi.serializers import TSQMISerializer
+import logging
+
+from utils.exceptions import CalculateModelException
+from utils.runtime_metrics import RUNTIME_MEASURE_KEYS
 
 # Métricas multi-valor (lista de floats por arquivo) — espelha
 # SupportedMetric.get_latest_metric_value em metrics/models.py:46.
+
+logger = logging.getLogger(__name__)
+
 _LISTED_FIL_METRICS = frozenset(
     {
         "coverage",
@@ -107,7 +114,21 @@ class MathModelServices:
         """Calcula medidas a partir das métricas em memória."""
         metric_index = self._index_metrics_by_key(collected_metrics)
 
-        qs = SupportedMeasure.objects.filter(key__in=measure_keys).prefetch_related("metrics")
+        skipped_keys = sorted(
+            set(measure_keys).intersection(RUNTIME_MEASURE_KEYS)
+        )
+        if skipped_keys:
+            logger.warning(
+                "Medidas de runtime excluídas do cálculo: %s. "
+                "Este fluxo não fornece comparação entre releases.",
+                ", ".join(skipped_keys),
+            )
+
+        qs = (
+            SupportedMeasure.objects.filter(key__in=measure_keys)
+            .exclude(key__in=RUNTIME_MEASURE_KEYS)
+            .prefetch_related("metrics")
+        )
 
         core_params = {"measures": []}
         for measure in qs:
@@ -115,7 +136,11 @@ class MathModelServices:
                 measure,
                 metric_index,
             )
-            if metric_params:
+            if metric_params and all(
+                value is not None
+                and (not isinstance(value, list) or len(value) > 0)
+                for value in metric_params.values()
+            ):
                 core_params["measures"].append(
                     {
                         "key": measure.key,
@@ -165,6 +190,8 @@ class MathModelServices:
                 release_configuration,
                 measure_values,
             )
+            if not measure_params:
+                continue
             core_params["subcharacteristics"].append(
                 {
                     "key": subchar.key,
@@ -177,6 +204,8 @@ class MathModelServices:
 
         instances: List[CalculatedSubCharacteristic] = []
         for subchar in qs:
+            if subchar.key not in calculated_values:
+                continue
             instances.append(
                 CalculatedSubCharacteristic(
                     subcharacteristic=subchar,
@@ -204,6 +233,8 @@ class MathModelServices:
                 release_configuration,
                 subcharacteristic_values,
             )
+            if not subchars_params:
+                continue
             core_params["characteristics"].append(
                 {
                     "key": char.key,
@@ -216,6 +247,8 @@ class MathModelServices:
 
         instances: List[CalculatedCharacteristic] = []
         for char in qs:
+            if char.key not in calculated_values:
+                continue
             instances.append(
                 CalculatedCharacteristic(
                     characteristic=char,
@@ -239,7 +272,7 @@ class MathModelServices:
         for char_data in release_configuration.data["characteristics"]:
             key = char_data["key"]
             weight = release_configuration.get_characteristic_weight(key)
-            if weight:
+            if weight and key in characteristic_values:
                 chars_params.append(
                     {
                         "key": key,
@@ -247,6 +280,11 @@ class MathModelServices:
                         "weight": weight,
                     }
                 )
+
+        if not chars_params:
+            raise CalculateModelException(
+                "Nenhuma característica calculável com as métricas fornecidas."
+            )
 
         core_params = {
             "tsqmi": {"key": "tsqmi", "characteristics": chars_params},
@@ -345,13 +383,13 @@ class MathModelServices:
                     (cm.value for cm in cms if cm.qualifier == "TRK"),
                     None,
                 )
-                params[key] = value if value is not None else 0
+                params[key] = value
             else:
                 value = next(
                     (cm.value for cm in cms if cm.qualifier == "TRK"),
                     None,
                 )
-                params[key] = value if value is not None else 0
+                params[key] = value
 
         return params
 
@@ -366,7 +404,7 @@ class MathModelServices:
         params = []
         for measure in subchar.measures.all():
             weight = release_configuration.get_measure_weight(measure.key)
-            if weight:
+            if weight and measure.key in measure_values:
                 params.append(
                     {
                         "key": measure.key,
@@ -389,7 +427,7 @@ class MathModelServices:
             weight = release_configuration.get_subcharacteristic_weight(
                 subchar.key,
             )
-            if weight:
+            if weight and subchar.key in subchar_values:
                 params.append(
                     {
                         "key": subchar.key,
