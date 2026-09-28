@@ -62,6 +62,13 @@ Os defaults de `GITHUB_CLIENT_ID` / `GITHUB_SECRET` no `env-vars-example/.servic
 
 > **Produção:** Use um OAuth App separado com a *Authorization callback URL* apontando para o domínio real de produção e as credenciais no `env-vars/.service.env` do servidor. Os placeholders de PROD estão comentados no `env-vars-example/.service.env`.
 
+### 1.2. Configurar a chave de cifragem dos tokens
+
+Antes de migrar o banco ou iniciar a stack, gere uma chave Fernet exclusiva
+para o ambiente e preencha `GITHUB_TOKEN_ENCRYPTION_KEYS` em
+`env-vars/.service.env`. Veja os comandos e as instruções de backup em
+[Segurança](docs/seguranca.md). O template deixa essa chave vazia de propósito.
+
 ### 2. Setup Completo da Stack (Do zero ao ambiente pronto)
 
 Para criar os arquivos de ambiente (se não existirem), construir as imagens Docker, subir os containers e aguardar o healthcheck da API:

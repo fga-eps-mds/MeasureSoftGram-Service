@@ -608,6 +608,7 @@ version = "1.0.0"
 source = { virtual = "." }
 dependencies = [
     { name = "asgiref" },
+    { name = "cryptography" },
     { name = "dj-database-url" },
     { name = "dj-rest-auth" },
     { name = "django" },
@@ -646,6 +647,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "asgiref", specifier = "==3.8.1" },
+    { name = "cryptography", specifier = "==50.0.1" },
     { name = "dj-database-url", specifier = "==3.1.2" },
     { name = "dj-rest-auth", specifier = "==7.2.0" },
     { name = "django", specifier = "==5.2.17" },

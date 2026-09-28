@@ -1,0 +1,39 @@
+# Referencia para o responsavel pela borda OpenResty/Nginx.
+# NAO montar como default.conf do proxy INTERNO.
+# Exemplo: borda no mesmo host, certificado ja provisionado pelo operador.
+map $http_upgrade $msgram_connection_upgrade {
+    default upgrade;
+    '' close;
+}
+
+server {
+    listen 80;
+    server_name msgram.lappis.rocks;
+    # Adaptar o desafio ACME conforme o cliente de certificados utilizado.
+    location /.well-known/acme-challenge/ {
+        root /var/www/acme;
+    }
+    location / {
+        return 308 https://msgram.lappis.rocks$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name msgram.lappis.rocks;
+    ssl_certificate /etc/letsencrypt/live/msgram.lappis.rocks/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/msgram.lappis.rocks/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    client_max_body_size 50m;
+
+    location / {
+        proxy_pass http://127.0.0.1:8088;
+        proxy_set_header Host $host;
+        # Sobrescrever o header do cliente; nunca repassa-lo sem validacao.
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $msgram_connection_upgrade;
+    }
+}
