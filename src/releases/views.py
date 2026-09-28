@@ -32,7 +32,11 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         product = self.get_product()
 
-        return Release.objects.filter(product=product)
+        return (
+            Release.objects.filter(product=product)
+            .select_related('goal', 'created_by')
+            .prefetch_related('repositories')
+        )
 
     @action(detail=False, methods=["get"], url_path="is-valid")
     def check_release(self, request, *args, **kwargs):

@@ -1,6 +1,8 @@
 import requests
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.response import Response
+from django.core.cache import cache
+from django.conf import settings
 
 from organizations.mixins import UserScopedMixin
 from organizations.models import Organization, Product, Repository
@@ -74,7 +76,7 @@ class RepositoryViewSet(
 
     def get_queryset(self):
         product = self.get_product()
-        qs = Repository.objects.all().order_by("-id").select_related("product")
+        qs = Repository.objects.all().order_by("-id").select_related("product", "product__organization")
         return qs.filter(product=product)
 
 
@@ -94,11 +96,7 @@ class RepositoriesTSQMILatestValueViewSet(
         product = self.get_product()
         qs = product.repositories.all()
         qs = qs.order_by("-id")
-        qs = qs.prefetch_related(
-            "calculated_tsqmis",
-            "product",
-            "product__organization",
-        )
+        qs = qs.select_related("product", "product__organization").prefetch_related("calculated_tsqmis")
         return qs
 
 
@@ -113,11 +111,7 @@ class RepositoriesTSQMIHistoryViewSet(
     def get_queryset(self):
         product = self.get_product()
         qs = product.repositories.all()
-        qs = qs.prefetch_related(
-            "calculated_tsqmis",
-            "product",
-            "product__organization",
-        )
+        qs = qs.select_related("product", "product__organization").prefetch_related("calculated_tsqmis")
         return qs
 
 
@@ -251,7 +245,22 @@ class GitHubReposViewSet(UserScopedMixin, viewsets.ViewSet):
 
         repos = []
         while url_fetch:
-            r = requests.get(url_fetch, headers=headers)
+            try:
+                r = requests.get(url_fetch, headers=headers, timeout=settings.GITHUB_TIMEOUT)
+            except requests.exceptions.Timeout:
+                return Response(
+                    {"error": "Timeout contacting GitHub API."}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+                )
+            except requests.exceptions.RequestException:
+                return Response(
+                    {"error": "Error contacting GitHub API."}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+                )
+
+            if r.status_code == 401 or r.status_code == 403:
+                return Response(
+                    {"error": "github_token_invalid", "details": r.json()}, status=status.HTTP_409_CONFLICT
+                )
+
             if r.status_code != 200:
                 return Response(
                     {

@@ -283,6 +283,7 @@ class GrafanaGetDashboardTest(APITestCaseExpanded):
             uid=DASHBOARD_UID,
             product_id=self.product.id,
             repository_id=self.repository.id,
+            dashboard_data=GRAFANA_DASHBOARD_DATA,
         )
 
     @patch("grafana_proxy.views.GrafanaAPIClient")
@@ -295,6 +296,7 @@ class GrafanaGetDashboardTest(APITestCaseExpanded):
             uid=DASHBOARD_UID,
             product_id=self.product.id,
             repository_id=None,
+            dashboard_data=GRAFANA_DASHBOARD_DATA,
         )
 
     @patch("grafana_proxy.views.GrafanaAPIClient")
@@ -527,7 +529,7 @@ class GrafanaAPIClientGetDashboardByUidTest(TestCase):
     @patch("grafana_proxy.services.requests.get")
     def test_returns_none_on_request_exception(self, mock_get):
         mock_get.side_effect = requests_lib.RequestException("timeout")
-        result = self.client_api.get_dashboard_by_uid("xyz")
+        result = self.client_api.get_dashboard_by_uid("xyz_timeout")
         self.assertIsNone(result)
 
     @patch("grafana_proxy.services.requests.get")
@@ -536,7 +538,7 @@ class GrafanaAPIClientGetDashboardByUidTest(TestCase):
         http_error = requests_lib.HTTPError(response=MagicMock(status_code=500))
         mock_response.raise_for_status.side_effect = http_error
         mock_get.return_value = mock_response
-        result = self.client_api.get_dashboard_by_uid("xyz")
+        result = self.client_api.get_dashboard_by_uid("xyz_error")
         self.assertIsNone(result)
 
 

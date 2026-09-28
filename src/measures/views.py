@@ -40,7 +40,7 @@ class RepositoryMeasuresMixin(UserScopedMixin):
         repository = self.get_repository()
         qs = repository.calculated_measures.all()
         qs = qs.values_list("measure", flat=True).distinct()
-        return SupportedMeasure.objects.filter(id__in=qs)
+        return SupportedMeasure.objects.filter(id__in=qs).prefetch_related("calculated_measures")
 
 
 class LatestCalculatedMeasureModelViewSet(

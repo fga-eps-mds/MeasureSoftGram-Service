@@ -471,6 +471,42 @@ class GitHubReposViewsTestCase(APITestCaseExpanded):
         self.assertEqual(response.json()[0]["name"], "repo-1")
 
     @patch("organizations.views.requests.get")
+    def test_list_repos_timeout(self, mock_get):
+        from requests.exceptions import Timeout
+        org = self.get_organization(name="Org Linked")
+        org.github_org_name = "test-user"
+        org.save()
+
+        self.user.github_access_token = "my-token"
+        self.user.save()
+
+        mock_get.side_effect = Timeout("Timeout from github")
+
+        url = reverse("github-repos-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json()["error"], "Timeout contacting GitHub API.")
+
+    @patch("organizations.views.requests.get")
+    def test_list_repos_401(self, mock_get):
+        org = self.get_organization(name="Org Linked")
+        org.github_org_name = "test-user"
+        org.save()
+
+        self.user.github_access_token = "my-token"
+        self.user.save()
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 401
+        mock_resp.json.return_value = {"message": "Bad credentials"}
+        mock_get.return_value = mock_resp
+
+        url = reverse("github-repos-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["error"], "github_token_invalid")
+
+    @patch("organizations.views.requests.get")
     def test_list_repos_fetch_failure(self, mock_get):
         org = self.get_organization(name="Org Linked")
         org.github_org_name = "test-user"

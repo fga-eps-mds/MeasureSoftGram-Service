@@ -174,7 +174,8 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
                 goal=self.goal,
             )
 
-        response = self.client.get(path=self.url_default)
+        with self.assertNumQueries(4):
+            response = self.client.get(path=self.url_default)
         response_data = response.json()
 
         self.assertEqual(response.status_code, 200)

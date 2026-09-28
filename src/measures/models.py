@@ -93,6 +93,9 @@ class CalculatedMeasure(models.Model):
         # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
         # os registros mais recentes vem primeiro (qs.first() == mais recente)
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["repository", "measure", "-created_at"]),
+        ]
 
     measure = models.ForeignKey(
         SupportedMeasure,

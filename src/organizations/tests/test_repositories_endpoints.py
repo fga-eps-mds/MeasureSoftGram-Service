@@ -354,13 +354,15 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     def test_if_latest_characteristics_values_action_url_is_working(self):
         latest_values_urls = self.get_repository_urls("latest_values")
         characteristics_url = latest_values_urls["characteristics"]
-        response = self.client.get(characteristics_url, format="json")
+        with self.assertNumQueries(3):
+            response = self.client.get(characteristics_url, format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_if_latest_tsqmi_values_action_url_is_working(self):
         latest_values_urls = self.get_repository_urls("latest_values")
         tsqmi_url = latest_values_urls["tsqmi"]
-        response = self.client.get(tsqmi_url, format="json")
+        with self.assertNumQueries(2):
+            response = self.client.get(tsqmi_url, format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_if_historical_metrics_values_action_url_is_working(self):
@@ -372,7 +374,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     def test_if_historical_measures_values_action_url_is_working(self):
         latest_values_urls = self.get_repository_urls("historical_values")
         measures_url = latest_values_urls["measures"]
-        response = self.client.get(measures_url, format="json")
+        with self.assertNumQueries(3):
+            response = self.client.get(measures_url, format="json")
         self.assertEqual(response.status_code, 200)
 
     def test_if_historical_subcharacteristics_values_action_url_is_working(

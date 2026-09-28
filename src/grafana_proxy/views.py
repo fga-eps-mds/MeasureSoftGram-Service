@@ -95,6 +95,7 @@ class GrafanaProxyViewSet(viewsets.ViewSet):
             uid=dashboard_uid,
             product_id=int(product_id),
             repository_id=int(repository_id) if repository_id else None,
+            dashboard_data=dashboard_data,
         )
 
         public_url = settings.GRAFANA_CONFIG["PUBLIC_URL"].rstrip("/")

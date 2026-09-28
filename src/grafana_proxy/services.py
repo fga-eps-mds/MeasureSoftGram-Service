@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 import requests
 from django.conf import settings
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +64,11 @@ class GrafanaAPIClient:
         Returns:
             dict: Dados completos do dashboard ou None se não encontrado
         """
+        cache_key = f"grafana_dashboard_{uid}"
+        cached_data = cache.get(cache_key)
+        if cached_data:
+            return cached_data
+
         url = f"{self.base_url}/api/dashboards/uid/{uid}"
 
         try:
@@ -70,6 +76,7 @@ class GrafanaAPIClient:
             response = requests.get(url, auth=self.auth, timeout=self.timeout)
             response.raise_for_status()
             dashboard_data = response.json()
+            cache.set(cache_key, dashboard_data, timeout=600)  # 10 min cache
             logger.info(f'Dashboard {uid} encontrado: {dashboard_data.get("meta", {}).get("slug")}')
             return dashboard_data
         except requests.HTTPError as e:
@@ -90,6 +97,7 @@ class GrafanaAPIClient:
         product_id: Optional[int] = None,
         kiosk: bool = True,
         theme: str = "light",
+        dashboard_data: Optional[Dict[str, Any]] = None,
     ) -> str:
         """
         Constrói a URL de acesso ao dashboard do Grafana.
@@ -105,8 +113,10 @@ class GrafanaAPIClient:
         Returns:
             str: URL relativa do dashboard
         """
-        # Busca metadados para pegar o slug
-        dashboard_data = self.get_dashboard_by_uid(uid)
+        # Usa metadados recebidos ou busca para pegar o slug
+        if not dashboard_data:
+            dashboard_data = self.get_dashboard_by_uid(uid)
+
         if not dashboard_data:
             # Fallback: usa o UID como slug
             slug = uid

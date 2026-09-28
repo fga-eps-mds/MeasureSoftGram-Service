@@ -11,6 +11,9 @@ class TSQMI(models.Model):
         ordering = ["-created_at"]
         verbose_name = "TSQMI"
         verbose_name_plural = "TSQMI"
+        indexes = [
+            models.Index(fields=["repository", "-created_at"]),
+        ]
 
     value = models.FloatField()
     created_at = models.DateTimeField(default=timezone.now)

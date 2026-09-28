@@ -33,9 +33,12 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
             "id",
             "url",
             "name",
+            "key",
             "description",
             "products",
             "actions",
+            "github_org_name",
+            "avatar_url",
         )
         extra_kwargs = {
             "name": {

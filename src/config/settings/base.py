@@ -151,6 +151,8 @@ DATABASES = {
         "PASSWORD": POSTGRES_PASSWORD,
         "HOST": POSTGRES_HOST,
         "PORT": POSTGRES_PORT,
+        "CONN_MAX_AGE": int(os.getenv("CONN_MAX_AGE", 60)),
+        "CONN_HEALTH_CHECKS": True,
     }
 }
 
@@ -236,6 +238,7 @@ AMBIENT_TEST_OR_DEV = os.getenv("AMBIENT_TEST_OR_DEV", "True").lower() in (
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
+GITHUB_TIMEOUT = int(os.getenv("GITHUB_TIMEOUT", "10"))
 GITHUB_ISSUE_METRICS_THRESHOLD = int(os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7"))
 
 MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(
