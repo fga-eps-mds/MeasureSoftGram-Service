@@ -23,3 +23,7 @@ INTERNAL_IPS = [ip[: ip.rfind(".")] + ".1" for ip in ips] + [
     "127.0.0.1",
     "10.0.2.2",
 ]
+
+# Reinserir o debug_toolbar apenas no ambiente de desenvolvimento
+INSTALLED_APPS += ["debug_toolbar"]  # noqa: F405
+MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]  # noqa: F405

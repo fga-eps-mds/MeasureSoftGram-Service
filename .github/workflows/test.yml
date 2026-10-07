@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Em PRs vindos de fork o GitHub não repassa secrets; o scan só roda com token.
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     services:
       db:
@@ -42,6 +45,10 @@ jobs:
       - name: Instalar dependências
         run: uv sync --frozen --no-install-project --all-extras
 
+      - name: Rodar Linter (flake8)
+        run: |
+          uvx --no-build flake8==7.1.1 src/
+
       - name: Rodar testes
         run: |
           uv run --locked coverage erase
@@ -50,27 +57,23 @@ jobs:
           uv run --locked coverage report --show-missing
 
       - name: Rodar Migrations
+        env:
+          # Chave pública e determinística usada somente no banco efêmero da CI.
+          GITHUB_TOKEN_ENCRYPTION_KEYS: MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA=
         run: |
           uv run --locked python src/manage.py migrate
           uv run --locked python src/manage.py makemigrations --check --dry-run
-      
+
+      - name: SonarCloud indisponível (PR de fork)
+        if: env.SONAR_TOKEN == ''
+        run: echo "::notice::SONAR_TOKEN não disponível neste contexto (PR de fork). Testes concluídos; a análise do SonarCloud roda no push para a develop."
+
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        if: env.SONAR_TOKEN != ''
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8.2.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
             -Dsonar.projectKey=${{ github.repository_owner }}_${{ github.event.repository.name }}
-      
-      - name: Envia cobertura para o Codecov
-        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5.5.5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          directory: ./
-          env_vars: OS,PYTHON
-          fail_ci_if_error: true
-          files: ./coverage.xml
-          flags: unittests
-          name: MeasureSoftGram-Service
-          verbose: true

@@ -5,7 +5,8 @@ from subcharacteristics.models import SupportedSubCharacteristic
 from subcharacteristics.serializers import (
     CalculatedSubCharacteristicHistorySerializer,
     LatestCalculatedSubCharacteristicSerializer,
-    SupportedSubCharacteristicSerializer)
+    SupportedSubCharacteristicSerializer,
+)
 
 
 class SupportedSubCharacteristicModelViewSet(

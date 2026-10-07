@@ -168,6 +168,9 @@ class CalculatedCharacteristic(models.Model):
         # os registros mais recentes vem primeiro (qs.first() == mais recente)
         ordering = ["-created_at"]
         unique_together = ["repository", "release", "characteristic"]
+        indexes = [
+            models.Index(fields=["repository", "characteristic", "-created_at"]),
+        ]
 
     characteristic = models.ForeignKey(
         SupportedCharacteristic,

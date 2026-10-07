@@ -1,11 +1,10 @@
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
+from staticfiles import SUPPORTED_MEASURES
 
 from organizations.mixins import UserScopedMixin
 from release_configuration.models import ReleaseConfiguration
-from release_configuration.serializers import (DefaultPreConfigSerializer,
-                                               ReleaseConfigurationSerializer)
-from staticfiles import SUPPORTED_MEASURES
+from release_configuration.serializers import DefaultPreConfigSerializer, ReleaseConfigurationSerializer
 from utils import staticfiles
 
 
@@ -62,15 +61,7 @@ class CreateReleaseConfigModelViewSet(
                         for sup_measure in SUPPORTED_MEASURES
                         if measure["key"] in sup_measure
                     ]
-                    measure.update(
-                        {
-                            "metrics": [
-                                {"key": metric}
-                                for metrics in metrics_list
-                                for metric in metrics
-                            ]
-                        }
-                    )
+                    measure.update({"metrics": [{"key": metric} for metrics in metrics_list for metric in metrics]})
 
         serializer = self.get_serializer(data=data_to_add_metrics)
         serializer.is_valid(raise_exception=True)
@@ -80,6 +71,4 @@ class CreateReleaseConfigModelViewSet(
             return Response(data_to_add_metrics, status=status.HTTP_200_OK)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(
-            serializer.data, status=status.HTTP_201_CREATED, headers=headers
-        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

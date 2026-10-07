@@ -35,16 +35,14 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from characteristics.models import (CalculatedCharacteristic,
-                                    SupportedCharacteristic)
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from goals.models import Goal
 from measures.models import CalculatedMeasure, SupportedMeasure
 from metrics.models import CollectedMetric, SupportedMetric
 from organizations.models import Product, Repository
 from release_configuration.models import ReleaseConfiguration
 from releases.models import Release
-from subcharacteristics.models import (CalculatedSubCharacteristic,
-                                       SupportedSubCharacteristic)
+from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
 from tsqmi.models import TSQMI
 
 User = get_user_model()
@@ -148,9 +146,7 @@ class Command(BaseCommand):
 
         self.admin = User.objects.filter(is_superuser=True).first()
         if not self.admin:
-            self.stderr.write(
-                "Nenhum superuser encontrado. Rode load_initial_data primeiro."
-            )
+            self.stderr.write("Nenhum superuser encontrado. Rode load_initial_data primeiro.")
             return
 
         self.end_date = timezone.now()
@@ -162,37 +158,21 @@ class Command(BaseCommand):
 
         # Limpeza global se solicitado
         if self.clean_all:
-            self.stdout.write(
-                self.style.WARNING(
-                    "Limpando TODOS os dados de características calculadas..."
-                )
-            )
-            deleted = CalculatedCharacteristic.objects.filter(
-                repository__in=repos
-            ).delete()
+            self.stdout.write(self.style.WARNING("Limpando TODOS os dados de características calculadas..."))
+            deleted = CalculatedCharacteristic.objects.filter(repository__in=repos).delete()
             self.stdout.write(f"  → {deleted[0]} características calculadas removidas")
 
-            deleted_measures = CalculatedMeasure.objects.filter(
-                repository__in=repos
-            ).delete()
+            deleted_measures = CalculatedMeasure.objects.filter(repository__in=repos).delete()
             self.stdout.write(f"  → {deleted_measures[0]} medidas calculadas removidas")
 
-            deleted_subchars = CalculatedSubCharacteristic.objects.filter(
-                repository__in=repos
-            ).delete()
-            self.stdout.write(
-                f"  → {deleted_subchars[0]} subcaracterísticas calculadas removidas"
-            )
+            deleted_subchars = CalculatedSubCharacteristic.objects.filter(repository__in=repos).delete()
+            self.stdout.write(f"  → {deleted_subchars[0]} subcaracterísticas calculadas removidas")
 
-            deleted_metrics = CollectedMetric.objects.filter(
-                repository__in=repos
-            ).delete()
+            deleted_metrics = CollectedMetric.objects.filter(repository__in=repos).delete()
             self.stdout.write(f"  → {deleted_metrics[0]} métricas coletadas removidas")
             self.stdout.write("")
 
-        self.stdout.write(
-            f"Populando {repos.count()} repositórios com {self.days} dias de histórico..."
-        )
+        self.stdout.write(f"Populando {repos.count()} repositórios com {self.days} dias de histórico...")
 
         for repo in repos:
             profile = REPO_PROFILES.get(repo.name, "stable")
@@ -225,10 +205,7 @@ class Command(BaseCommand):
         # últimos 7 dias, então a última amostra precisa ficar perto de `self.end_date`.
         TSQMI_MEASUREMENTS = 10
         last_idx = len(all_timestamps) - 1
-        indices = [
-            round(i * last_idx / (TSQMI_MEASUREMENTS - 1))
-            for i in range(TSQMI_MEASUREMENTS)
-        ]
+        indices = [round(i * last_idx / (TSQMI_MEASUREMENTS - 1)) for i in range(TSQMI_MEASUREMENTS)]
         tsqmi_timestamps = [all_timestamps[i] for i in indices]
 
         if self.clean_tsqmi:
@@ -269,9 +246,7 @@ class Command(BaseCommand):
                         CollectedMetric(
                             metric=metric,
                             value=(
-                                random.uniform(0, 1)
-                                if metric.metric_type == "PERCENT"
-                                else random.uniform(0, 100)
+                                random.uniform(0, 1) if metric.metric_type == "PERCENT" else random.uniform(0, 100)
                             ),
                             path=path,
                             qualifier=qualifier,
@@ -281,14 +256,10 @@ class Command(BaseCommand):
                     )
 
         if to_create:
-            CollectedMetric.objects.bulk_create(
-                to_create, batch_size=500, ignore_conflicts=False
-            )
+            CollectedMetric.objects.bulk_create(to_create, batch_size=500, ignore_conflicts=False)
             self.stdout.write(f"    CollectedMetric: +{len(to_create)}")
 
-    def _seed_calculated_measures(
-        self, repo: Repository, profile: str, timestamps: list
-    ):
+    def _seed_calculated_measures(self, repo: Repository, profile: str, timestamps: list):
         measures = list(SupportedMeasure.objects.all())
         if not measures:
             return
@@ -309,9 +280,7 @@ class Command(BaseCommand):
         CalculatedMeasure.objects.bulk_create(to_create, batch_size=1000)
         self.stdout.write(f"    CalculatedMeasure: +{len(to_create)}")
 
-    def _seed_calculated_subchars(
-        self, repo: Repository, profile: str, timestamps: list
-    ):
+    def _seed_calculated_subchars(self, repo: Repository, profile: str, timestamps: list):
         subchars = list(SupportedSubCharacteristic.objects.all())
         if not subchars:
             return
@@ -633,9 +602,7 @@ ORDER BY r.char_name"""
             clean_path = path.lstrip("/")
             final_url = urllib.parse.urljoin(base_url, clean_path)
             if not final_url.startswith(base_url):
-                raise ValueError(
-                    "Caminho inválido: tentativa de manipulação de URL detectada."
-                )
+                raise ValueError("Caminho inválido: tentativa de manipulação de URL detectada.")
             return final_url
 
         def grafana_get(path):
@@ -645,9 +612,7 @@ ORDER BY r.char_name"""
                 with urllib.request.urlopen(req, timeout=5) as r:
                     return json.load(r)
             except urllib.error.URLError as exc:
-                self.stderr.write(
-                    f"  Grafana inacessível ({exc}). Pulando atualização do painel."
-                )
+                self.stderr.write(f"  Grafana inacessível ({exc}). Pulando atualização do painel.")
                 return None
 
         def grafana_post(path, payload):
@@ -667,9 +632,7 @@ ORDER BY r.char_name"""
         # Busca o dashboard pelo slug/tag measuresoftgram
         search = grafana_get("/api/search?tag=measuresoftgram&type=dash-db")
         if not search:
-            self.stderr.write(
-                '  Nenhum dashboard com tag "measuresoftgram" encontrado.'
-            )
+            self.stderr.write('  Nenhum dashboard com tag "measuresoftgram" encontrado.')
             return
 
         target = next((d for d in search if "Visão Geral" in d.get("title", "")), None)
@@ -709,9 +672,7 @@ ORDER BY r.char_name"""
             ],
         }
 
-        dashboard["panels"] = [
-            new_panel if p.get("id") == 8 else p for p in dashboard["panels"]
-        ]
+        dashboard["panels"] = [new_panel if p.get("id") == 8 else p for p in dashboard["panels"]]
 
         result = grafana_post(
             "/api/dashboards/db",
@@ -722,6 +683,4 @@ ORDER BY r.char_name"""
                 "message": "seed_grafana: painel Planejado vs Realizado atualizado",
             },
         )
-        self.stdout.write(
-            f'  Painel atualizado → versão {result.get("version")} ({result.get("status")})'
-        )
+        self.stdout.write(f'  Painel atualizado → versão {result.get("version")} ({result.get("status")})')

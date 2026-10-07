@@ -6,6 +6,8 @@ from accounts.models import CustomUser
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
+    exclude = ("github_access_token",)
+
     list_display = (
         "id",
         "username",

@@ -2,16 +2,17 @@
 
 ## Badges
 
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_MeasureSoftGram-Service&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_MeasureSoftGram-Service)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_MeasureSoftGram-Service&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_MeasureSoftGram-Service)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_MeasureSoftGram-Service&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_MeasureSoftGram-Service)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_MeasureSoftGram-Service&metric=bugs)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_MeasureSoftGram-Service)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_MeasureSoftGram-Service&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_MeasureSoftGram-Service)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_MeasureSoftGram-Service&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_MeasureSoftGram-Service)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_MeasureSoftGram-Service&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_MeasureSoftGram-Service)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_MeasureSoftGram-Service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_MeasureSoftGram-Service)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_MeasureSoftGram-Service&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_MeasureSoftGram-Service)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_MeasureSoftGram-Service&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_MeasureSoftGram-Service)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=coverage)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=bugs)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=fga-eps-mds_2026.2-MeasureSoftGram-Service&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=fga-eps-mds_2026.2-MeasureSoftGram-Service)
 
 
 ## O que é
@@ -61,6 +62,13 @@ Os defaults de `GITHUB_CLIENT_ID` / `GITHUB_SECRET` no `env-vars-example/.servic
 
 > **Produção:** Use um OAuth App separado com a *Authorization callback URL* apontando para o domínio real de produção e as credenciais no `env-vars/.service.env` do servidor. Os placeholders de PROD estão comentados no `env-vars-example/.service.env`.
 
+### 1.2. Configurar a chave de cifragem dos tokens
+
+Antes de migrar o banco ou iniciar a stack, gere uma chave Fernet exclusiva
+para o ambiente e preencha `GITHUB_TOKEN_ENCRYPTION_KEYS` em
+`env-vars/.service.env`. Veja os comandos e as instruções de backup em
+[Segurança](docs/seguranca.md). O template deixa essa chave vazia de propósito.
+
 ### 2. Setup Completo da Stack (Do zero ao ambiente pronto)
 
 Para criar os arquivos de ambiente (se não existirem), construir as imagens Docker, subir os containers e aguardar o healthcheck da API:
@@ -87,6 +95,16 @@ Para popular os dados iniciais de entidades suportadas e provisionar os dashboar
 make seed
 ```
 
+### 5. Configurar os Git Hooks (Pre-commit)
+
+Para garantir a padronização do código e das mensagens de commit no repositório local (validação de Conventional Commits, formatação com Black/isort e linter com Flake8), instale os hooks do git:
+
+```bash
+make hooks
+```
+
+> O comando detecta automaticamente o gerenciador disponível (`pre-commit`, `uv`, `uvx` ou `pip3`) e instala os hooks de `pre-commit` e `commit-msg`.
+
 ---
 
 ## Principais Comandos do Makefile
@@ -106,6 +124,7 @@ O `Makefile` centraliza todos os comandos essenciais para a operação do projet
 | `make rebuild` | Recria a stack (`down` + `build` + `up`) |
 | `make clear` | Remove containers, volumes e órfãos (`docker compose down -v --remove-orphans`) |
 | `make seed` | Popula o banco com dados iniciais e dashboards do Grafana |
+| `make hooks` | Instala os git hooks do pre-commit (Conventional Commits + Linters) |
 | `make migrate` | Executa as migrações do banco de dados no container |
 | `make migrations` | Cria novas migrações Django (`makemigrations`) |
 | `make shell` | Abre o shell interativo do Django (`manage.py shell`) |
@@ -131,6 +150,12 @@ A documentação interativa das rotas da API (Swagger / OpenAPI) está disponív
 ---
 
 ## Como Rodar os Testes
+
+> **Aviso Importante sobre o Banco de Dados:** 
+> A suíte de testes deste projeto exige **obrigatoriamente um banco PostgreSQL** rodando. O código utiliza funções nativas exclusivas do Postgres (como o comando DISTINCT ON) para lidar com histórico e métricas, o que torna **impossível** rodar os testes utilizando um banco em memória mais simples como o SQLite.
+
+Para facilitar e não exigir que você instale o Postgres na sua máquina física, a solução recomendada é sempre rodar os testes utilizando o container do Docker Compose, já passando a variável de ambiente de testes para garantir que o banco não entre em conflito com os dados de desenvolvimento.
+
 
 ### Via Makefile (Recomendado)
 
@@ -162,7 +187,7 @@ O gerenciamento de dependências utiliza [`uv`](https://github.com/astral-sh/uv)
    ```
 3. Execute os testes:
    ```bash
-   uv run pytest src -v
+   uv run pytest
    ```
 
 ---

@@ -117,14 +117,10 @@ def _trigger_github_workflow(repo_full_name, headers):
         )
 
         if r_dispatch.status_code == 204:
-            logger.info(
-                f"Successfully triggered workflow dispatch for {repo_full_name}"
-            )
+            logger.info(f"Successfully triggered workflow dispatch for {repo_full_name}")
             return True
     except Exception as exc:
-        logger.error(
-            f"Error checking/triggering GitHub Actions for {repo_full_name}: {exc}"
-        )
+        logger.error(f"Error checking/triggering GitHub Actions for {repo_full_name}: {exc}")
     return False
 
 
@@ -142,9 +138,7 @@ def onboard_repository_async(repository, user):
         has_triggered_workflow = _trigger_github_workflow(repo_full_name, headers)
 
     if not has_triggered_workflow:
-        logger.info(
-            f"No GitHub Actions triggered. Generating mock metrics for {repository.name}..."
-        )
+        logger.info(f"No GitHub Actions triggered. Generating mock metrics for {repository.name}...")
         try:
             product = repository.product
             release_configuration, _ = ReleaseConfiguration.objects.get_or_create(
@@ -187,10 +181,6 @@ def onboard_repository_async(repository, user):
                 chars,
                 tsqmi,
             )
-            logger.info(
-                f"Successfully populated mock math model calculations for {repository.name}"
-            )
+            logger.info(f"Successfully populated mock math model calculations for {repository.name}")
         except Exception as exc:
-            logger.error(
-                f"Failed to populate mock calculations for {repository.name}: {exc}"
-            )
+            logger.error(f"Failed to populate mock calculations for {repository.name}: {exc}")

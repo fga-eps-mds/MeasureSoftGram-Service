@@ -8,8 +8,7 @@ from django.utils import timezone
 from django_apscheduler.jobstores import DjangoJobStore, register_events
 from resources import calculate_characteristics
 
-from characteristics.models import (CalculatedCharacteristic,
-                                    SupportedCharacteristic)
+from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from organizations.models import Product, Repository
 from releases.models import Release
 
@@ -24,9 +23,7 @@ def get_releases_and_create_results():
     today_min = today.replace(hour=0, minute=0, second=0, microsecond=0)
     today_max = today.replace(hour=23, minute=59, second=59, microsecond=59)
 
-    releases = Release.objects.filter(
-        end_at__lte=today_max, end_at__gte=today_min
-    ).all()
+    releases = Release.objects.filter(end_at__lte=today_max, end_at__gte=today_min).all()
 
     if len(releases) == 0:
         return
@@ -35,14 +32,10 @@ def get_releases_and_create_results():
         if release.repositories.exists():
             repositories = release.repositories.all()
         else:
-            repositories = Repository.objects.filter(
-                product_id=release.product_id  # type: ignore
-            ).all()
+            repositories = Repository.objects.filter(product_id=release.product_id).all()  # type: ignore
 
         for repository in repositories:
-            product = Product.objects.filter(
-                id=repository.product_id
-            ).first()  # type: ignore
+            product = Product.objects.filter(id=repository.product_id).first()  # type: ignore
 
             data_characteristics = {
                 "characteristics": [
@@ -52,13 +45,10 @@ def get_releases_and_create_results():
             }
 
             characteristics_keys = [
-                characteristic["key"]
-                for characteristic in data_characteristics["characteristics"]
+                characteristic["key"] for characteristic in data_characteristics["characteristics"]
             ]
 
-            qs = SupportedCharacteristic.objects.filter(
-                key__in=characteristics_keys
-            ).prefetch_related(
+            qs = SupportedCharacteristic.objects.filter(key__in=characteristics_keys).prefetch_related(
                 "subcharacteristics",
                 "subcharacteristics__calculated_subcharacteristics",
             )

@@ -133,9 +133,7 @@ def get_random_value(metric_type):  # noqa: max-complexity: 13
         datetime = get_random_datetime(start_date, end_date)
         return datetime.timestamp()
 
-    raise exceptions.RandomMetricTypeException(
-        f"Metric type not supported: {metric_type}"
-    )
+    raise exceptions.RandomMetricTypeException(f"Metric type not supported: {metric_type}")
 
 
 def has_unsupported_entity(

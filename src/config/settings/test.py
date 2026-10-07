@@ -27,3 +27,6 @@ CREATE_FAKE_DATA = False
 LOGGING["loggers"]["django"]["level"] = "WARNING"
 
 TESTING = True
+
+# Public, deterministic key exclusively for isolated test databases.
+GITHUB_TOKEN_ENCRYPTION_KEYS = ["MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA="]
