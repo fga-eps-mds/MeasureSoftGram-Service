@@ -8,20 +8,13 @@ name: Deploy Prod (self-hosted)
 #
 # A box so PUXA imagens buildadas no docker-publish.yml, nunca builda.
 #
-# Dispara DEPOIS que a imagem do Service e publicada (workflow_run sobre o
+# Dispara DEPOIS que a imagem do Service e publicada (via workflow_call no
 # "Publish Docker Image"), pra nunca dar pull antes da imagem nova existir no
 # DockerHub. Independente do Front: mexer aqui so redeploya o Service (e
 # atualiza compose/nginx). O Front tem o seu proprio deploy + runner.
-#
-# OBS workflow_run: so dispara com este arquivo ja no branch DEFAULT (develop).
 
 on:
-  workflow_run:
-    workflows: ["Publish Docker Image"]
-    types:
-      - completed
-    branches:
-      - develop
+  workflow_call:
   workflow_dispatch:
 
 concurrency:
@@ -31,15 +24,18 @@ concurrency:
 jobs:
   deploy:
     name: Pull + up + smoke
+    # Deploy em produção só a partir do repositório central; nos forks semestrais o job é pulado.
+    if: github.repository == 'fga-eps-mds/MeasureSoftGram-Service'
     runs-on: [self-hosted, msgram-prod]
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     env:
       DEPLOY_DIR: /home/lappis/msgram-deploy
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
 
       # ~/msgram-deploy e o diretorio canonico de deploy na box (compartilhado
       # com o deploy do Front). Os env-vars vivem em ~/msgram-deploy/env-vars
@@ -61,7 +57,7 @@ jobs:
           GRAFANA_PERSIST_DIR: /home/lappis/msgram-grafana
 
       - name: Login no DockerHub
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f #v4.6.0
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
