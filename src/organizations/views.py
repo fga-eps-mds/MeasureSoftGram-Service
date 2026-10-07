@@ -1,14 +1,18 @@
 import requests
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.response import Response
+from django.core.cache import cache
+from django.conf import settings
 
 from organizations.mixins import UserScopedMixin
 from organizations.models import Organization, Product, Repository
-from organizations.serializers import (OrganizationSerializer,
-                                       ProductSerializer,
-                                       RepositoriesTSQMIHistorySerializer,
-                                       RepositorySerializer,
-                                       RepositoryTSQMILatestValueSerializer)
+from organizations.serializers import (
+    OrganizationSerializer,
+    ProductSerializer,
+    RepositoriesTSQMIHistorySerializer,
+    RepositorySerializer,
+    RepositoryTSQMILatestValueSerializer,
+)
 
 
 class OrganizationViewSet(UserScopedMixin, viewsets.ModelViewSet):
@@ -25,23 +29,13 @@ class OrganizationViewSet(UserScopedMixin, viewsets.ModelViewSet):
 
 
 class ProductViewSet(UserScopedMixin, viewsets.ModelViewSet):
-    queryset = (
-        Product.objects.all()
-        .order_by("-id")
-        .select_related("organization")
-        .prefetch_related("repositories")
-    )
+    queryset = Product.objects.all().order_by("-id").select_related("organization").prefetch_related("repositories")
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         org = self.get_organization()
-        qs = (
-            Product.objects.all()
-            .order_by("-id")
-            .select_related("organization")
-            .prefetch_related("repositories")
-        )
+        qs = Product.objects.all().order_by("-id").select_related("organization").prefetch_related("repositories")
         return qs.filter(organization=org)
 
     def perform_create(self, serializer):
@@ -82,7 +76,7 @@ class RepositoryViewSet(
 
     def get_queryset(self):
         product = self.get_product()
-        qs = Repository.objects.all().order_by("-id").select_related("product")
+        qs = Repository.objects.all().order_by("-id").select_related("product", "product__organization")
         return qs.filter(product=product)
 
 
@@ -102,11 +96,7 @@ class RepositoriesTSQMILatestValueViewSet(
         product = self.get_product()
         qs = product.repositories.all()
         qs = qs.order_by("-id")
-        qs = qs.prefetch_related(
-            "calculated_tsqmis",
-            "product",
-            "product__organization",
-        )
+        qs = qs.select_related("product", "product__organization").prefetch_related("calculated_tsqmis")
         return qs
 
 
@@ -121,11 +111,7 @@ class RepositoriesTSQMIHistoryViewSet(
     def get_queryset(self):
         product = self.get_product()
         qs = product.repositories.all()
-        qs = qs.prefetch_related(
-            "calculated_tsqmis",
-            "product",
-            "product__organization",
-        )
+        qs = qs.select_related("product", "product__organization").prefetch_related("calculated_tsqmis")
         return qs
 
 
@@ -145,9 +131,7 @@ class ImportOrganizationViewSet(viewsets.ViewSet):
         if not token:
             from allauth.socialaccount.models import SocialToken
 
-            st = SocialToken.objects.filter(
-                account__user=user, account__provider="github"
-            ).first()
+            st = SocialToken.objects.filter(account__user=user, account__provider="github").first()
             if st:
                 token = st.token
                 user.github_access_token = token
@@ -189,32 +173,24 @@ class ImportOrganizationViewSet(viewsets.ViewSet):
             )
             if r_member.status_code != 200:
                 return Response(
-                    {
-                        "error": f"User is not a member of organization '{github_org_name}' in GitHub."
-                    },
+                    {"error": f"User is not a member of organization '{github_org_name}' in GitHub."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
         org, created = Organization.objects.get_or_create(
             github_org_id=github_org_id,
             defaults={
-                "name": org_data.get("name")
-                or org_data.get("login")
-                or github_org_name,
+                "name": org_data.get("name") or org_data.get("login") or github_org_name,
                 "github_org_name": github_org_name,
                 "avatar_url": org_data.get("avatar_url"),
-                "description": (
-                    org_data.get("bio") if is_personal else org_data.get("description")
-                ),
+                "description": (org_data.get("bio") if is_personal else org_data.get("description")),
             },
         )
         if not created:
             org.name = org_data.get("name") or org_data.get("login") or github_org_name
             org.github_org_name = github_org_name
             org.avatar_url = org_data.get("avatar_url")
-            org.description = (
-                org_data.get("bio") if is_personal else org_data.get("description")
-            )
+            org.description = org_data.get("bio") if is_personal else org_data.get("description")
             org.save()
 
         org.members.add(user)
@@ -245,9 +221,7 @@ class GitHubReposViewSet(UserScopedMixin, viewsets.ViewSet):
         if not token:
             from allauth.socialaccount.models import SocialToken
 
-            st = SocialToken.objects.filter(
-                account__user=user, account__provider="github"
-            ).first()
+            st = SocialToken.objects.filter(account__user=user, account__provider="github").first()
             if st:
                 token = st.token
                 user.github_access_token = token
@@ -265,17 +239,28 @@ class GitHubReposViewSet(UserScopedMixin, viewsets.ViewSet):
         }
 
         if is_personal:
-            url_fetch = (
-                "https://api.github.com/user/repos?affiliation=owner&per_page=100"
-            )
+            url_fetch = "https://api.github.com/user/repos?affiliation=owner&per_page=100"
         else:
-            url_fetch = (
-                f"https://api.github.com/orgs/{github_org_name}/repos?per_page=100"
-            )
+            url_fetch = f"https://api.github.com/orgs/{github_org_name}/repos?per_page=100"
 
         repos = []
         while url_fetch:
-            r = requests.get(url_fetch, headers=headers)
+            try:
+                r = requests.get(url_fetch, headers=headers, timeout=settings.GITHUB_TIMEOUT)
+            except requests.exceptions.Timeout:
+                return Response(
+                    {"error": "Timeout contacting GitHub API."}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+                )
+            except requests.exceptions.RequestException:
+                return Response(
+                    {"error": "Error contacting GitHub API."}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+                )
+
+            if r.status_code == 401 or r.status_code == 403:
+                return Response(
+                    {"error": "github_token_invalid", "details": r.json()}, status=status.HTTP_409_CONFLICT
+                )
+
             if r.status_code != 200:
                 return Response(
                     {

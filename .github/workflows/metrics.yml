@@ -18,7 +18,8 @@ jobs:
         run: mkdir analytics-raw-data
 
       - name: Coletar métricas no SonarCloud
-        run: pip install --only-binary=:all: requests==2.32.3 --break-system-packages && python parser.py ${{ github.event.repository.name }} ${{ github.ref_name }}
+        run: |
+          pip install --only-binary=:all: requests==2.32.3 --break-system-packages && python parser.py ${{ github.event.repository.name }} ${{ github.ref_name }}
 
       - name: Envia métricas para repo de Doc
         env:
@@ -28,7 +29,7 @@ jobs:
         run: |
           git config --global user.email "$USER_EMAIL"
           git config --global user.name "$USER_NAME"
-          git clone --single-branch --branch main "https://x-access-token:$API_TOKEN_DOC@github.com/fga-eps-mds/2026.1-MeasureSoftGram-DOC" doc
+          git clone --single-branch --branch main "https://x-access-token:$API_TOKEN_DOC@github.com/fga-eps-mds/2026.2-MeasureSoftGram-DOC" doc
           mkdir -p doc/Analytics/data
           cp -R analytics-raw-data/*.json doc/Analytics/data
           cd doc/

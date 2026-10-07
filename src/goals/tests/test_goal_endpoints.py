@@ -5,8 +5,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
 
 from goals.models import Goal
-from organizations.management.commands.utils import (
-    create_a_releaseconfig, create_supported_characteristics)
+from organizations.management.commands.utils import create_a_releaseconfig, create_supported_characteristics
 from utils.tests import APITestCaseExpanded
 
 User = get_user_model()
@@ -62,9 +61,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         self.org.admin = self.user
         self.org.save()
 
-        self.client.credentials(
-            HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key
-        )
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
 
     def validate_goal_request(
         self,
@@ -277,9 +274,7 @@ class GoalEndpointsTestCase(APITestCaseExpanded):
         )
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(
-            response.json()["detail"], "This product does not have a goal."
-        )
+        self.assertEqual(response.json()["detail"], "This product does not have a goal.")
 
     def test_compare_goals_with_release_id_query_param(self):
         goal1 = Goal.objects.create(

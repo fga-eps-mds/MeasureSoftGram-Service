@@ -23,4 +23,4 @@ RUN uv sync --frozen
 WORKDIR /src
 
 # Em dev, rodamos como root mesmo.
-CMD ["./start_service.sh"]
+CMD ["python3", "manage.py", "runserver", "0.0.0.0:8080"]

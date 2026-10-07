@@ -73,9 +73,7 @@ class CanAccessProduct(permissions.BasePermission):
             return False
 
         try:
-            return Product.objects.filter(
-                id=product_id, organization__admin=request.user
-            ).exists()
+            return Product.objects.filter(id=product_id, organization__admin=request.user).exists()
         except ValueError:
             logger.warning(f"product_id inválido: {product_id}")
             return False
@@ -103,9 +101,7 @@ class CanAccessDashboard(permissions.BasePermission):
         # Se há repository_id, valida acesso
         try:
             repository = Repository.objects.get(id=repository_id)
-            return HasRepositoryAccess()._user_can_access_repository(
-                request.user, repository
-            )
+            return HasRepositoryAccess()._user_can_access_repository(request.user, repository)
         except Repository.DoesNotExist:
             logger.warning(f"Repository {repository_id} não encontrado")
             return False

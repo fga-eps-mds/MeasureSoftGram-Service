@@ -25,9 +25,7 @@ def calculate_diff(planned, accomplished):
         diff_array = diff(rp, rd)
         diffs[repo_name] = diff_array
 
-        for characteristic, i in zip(
-            repo["characteristics"], range(len(repo["characteristics"]))
-        ):
+        for characteristic, i in zip(repo["characteristics"], range(len(repo["characteristics"]))):
             characteristic["diff"] = diffs[repo_name][i]
 
     return accomplished
@@ -48,16 +46,10 @@ def get_planned_values(release: Release):
 
 
 def get_accomplished_values(release: Release, repositories_ids: list[int]):
-    result_calculated = (
-        CalculatedCharacteristic.objects.filter(release=release)
-        .all()
-        .order_by("-created_at")[:2]
-    )
+    result_calculated = CalculatedCharacteristic.objects.filter(release=release).all().order_by("-created_at")[:2]
 
     if len(result_calculated) == 0:
-        result_calculated = get_calculated_characteristic_by_ids_repositories(
-            repositories_ids
-        )
+        result_calculated = get_calculated_characteristic_by_ids_repositories(repositories_ids)
 
     return get_process_calculated_characteristics_to_list(list(result_calculated))
 
@@ -83,8 +75,7 @@ def get_process_calculated_characteristics_to_list(
             if repository["repository_name"] == repository_name:
                 isRepositoryInserted = True
                 if all(
-                    characteristic["name"] != characteristic_name
-                    for characteristic in repository["characteristics"]
+                    characteristic["name"] != characteristic_name for characteristic in repository["characteristics"]
                 ):
                     repository["characteristics"].append(characteristic)
 
@@ -101,18 +92,14 @@ def get_process_calculated_characteristics_to_list(
 
 def get_norm_diff(planned_values, accomplished_values):
     for repository in accomplished_values:
-        repository["norm_diff"] = calculate_norm_diff(
-            planned_values, repository["characteristics"]
-        )
+        repository["norm_diff"] = calculate_norm_diff(planned_values, repository["characteristics"])
 
     return accomplished_values
 
 
 def calculate_norm_diff(planned_values, accomplished_characteristics):
     if len(planned_values) != len(accomplished_characteristics):
-        print(
-            "The number of planned and accomplished characteristics should be the same."
-        )
+        print("The number of planned and accomplished characteristics should be the same.")
         return None
 
     else:
@@ -155,9 +142,7 @@ def get_process_calculated_characteristics(
 
         if repository not in accomplished:
             accomplished[repository] = {}
-        accomplished[repository].update(
-            {characteristic: calculated_characteristic.value}
-        )
+        accomplished[repository].update({characteristic: calculated_characteristic.value})
     return accomplished
 
 
@@ -167,9 +152,7 @@ def get_calculated_characteristic_by_ids_repositories(
     result_calculated = []
     for id_repository in ids_repositories:
         calculated_characteristic = (
-            CalculatedCharacteristic.objects.filter(
-                repository_id=id_repository, release=None
-            )
+            CalculatedCharacteristic.objects.filter(repository_id=id_repository, release=None)
             .all()
             .order_by("-created_at")[:2]
         )

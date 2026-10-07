@@ -3,8 +3,7 @@ from rest_framework import serializers
 from characteristics.serializers import CalculatedCharacteristicSerializer
 from measures.serializers import CalculatedMeasureSerializer
 from metrics.serializers import CollectedMetricSerializer
-from subcharacteristics.serializers import \
-    CalculatedSubCharacteristicSerializer
+from subcharacteristics.serializers import CalculatedSubCharacteristicSerializer
 from tsqmi.serializers import TSQMISerializer
 
 

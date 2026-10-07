@@ -1,17 +1,19 @@
 ﻿from unittest.mock import Mock, patch
 
 from django.db.utils import IntegrityError
-from django.test import override_settings
+from django.test import TestCase, override_settings
 
-from characteristics.models import (BalanceMatrix, CalculatedCharacteristic,
-                                    SupportedCharacteristic)
+from characteristics.models import BalanceMatrix, CalculatedCharacteristic, SupportedCharacteristic
 from measures.models import CalculatedMeasure
-from organizations.management.commands.load_initial_data import (
-    BADGE_DEMO_REPOSITORIES, Command)
+from organizations.management.commands.load_initial_data import BADGE_DEMO_REPOSITORIES, Command
 from organizations.management.commands.utils import create_balance_matrix
 from organizations.models import Organization, Product
 from tsqmi.models import TSQMI
 from utils.tests import APITestCaseExpanded
+
+from staticfiles import SUPPORTED_MEASURES
+
+from metrics.models import SupportedMetric
 
 
 class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
@@ -22,9 +24,7 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
         repositories = self.command.create_badge_demo_repositories()
 
         self.assertEqual(set(repositories.keys()), {"A", "B", "C", "D", "E", "N/A"})
-        self.assertTrue(
-            Organization.objects.filter(name="Badge Demo Organization").exists()
-        )
+        self.assertTrue(Organization.objects.filter(name="Badge Demo Organization").exists())
 
         organization = Organization.objects.get(name="Badge Demo Organization")
         product = Product.objects.get(
@@ -52,9 +52,7 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
         self.command.create_badge_demo_values(repositories)
 
         expected_characteristic_count = SupportedCharacteristic.objects.count()
-        expected_values = {
-            item["grade"]: item["value"] for item in BADGE_DEMO_REPOSITORIES
-        }
+        expected_values = {item["grade"]: item["value"] for item in BADGE_DEMO_REPOSITORIES}
 
         for grade, repository in repositories.items():
             if grade == "N/A":
@@ -72,11 +70,7 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
                 expected_values[grade],
             )
             self.assertEqual(
-                set(
-                    repository.calculated_characteristics.values_list(
-                        "value", flat=True
-                    )
-                ),
+                set(repository.calculated_characteristics.values_list("value", flat=True)),
                 {expected_values[grade]},
             )
 
@@ -93,28 +87,16 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
             patch.object(Command, "create_fake_organizations"),
             patch.object(Command, "create_fake_products"),
             patch.object(Command, "create_fake_repositories"),
-            patch.object(
-                Command, "create_fake_collected_metrics"
-            ) as mock_create_fake_collected_metrics,
+            patch.object(Command, "create_fake_collected_metrics") as mock_create_fake_collected_metrics,
             patch.object(Command, "create_fake_calculated_measures"),
             patch.object(Command, "create_fake_calculated_subcharacteristics"),
             patch.object(Command, "create_fake_calculated_characteristics"),
-            patch.object(
-                Command, "create_fake_tsqmi_data"
-            ) as mock_create_fake_tsqmi_data,
-            patch.object(
-                Command, "create_badge_demo_repositories"
-            ) as mock_create_badge_demo_repositories,
-            patch.object(
-                Command, "create_badge_demo_values"
-            ) as mock_create_badge_demo_values,
+            patch.object(Command, "create_fake_tsqmi_data") as mock_create_fake_tsqmi_data,
+            patch.object(Command, "create_badge_demo_repositories") as mock_create_badge_demo_repositories,
+            patch.object(Command, "create_badge_demo_values") as mock_create_badge_demo_values,
             patch.object(Command, "create_a_goal"),
-            patch(
-                "organizations.management.commands.load_initial_data.Repository.objects.all"
-            ) as mock_repository_all,
-            patch(
-                "organizations.management.commands.load_initial_data.get_user_model"
-            ) as mock_get_user_model,
+            patch("organizations.management.commands.load_initial_data.Repository.objects.all") as mock_repository_all,
+            patch("organizations.management.commands.load_initial_data.get_user_model") as mock_get_user_model,
         ):
             mock_create_badge_demo_repositories.return_value = {"A": Mock()}
             mock_repository_all.return_value = [Mock()]
@@ -167,14 +149,69 @@ class LoadInitialDataFakeDataTestCase(APITestCaseExpanded):
     def test_create_fake_calculated_measures_creates_entries(self):
         self.command.fake_data = True
         self.command.create_fake_calculated_measures(self.repository)
-        self.assertTrue(
-            CalculatedMeasure.objects.filter(repository=self.repository).exists()
+
+        calculated_keys = set(
+            CalculatedMeasure.objects.filter(
+                repository=self.repository,
+            ).values_list("measure__key", flat=True)
         )
+
+        expected_keys = {
+            "passed_tests",
+            "test_builds",
+            "test_coverage",
+            "non_complex_file_density",
+            "commented_file_density",
+            "duplication_absense",
+            "team_throughput",
+            "ci_feedback_time",
+            "technical_debt_ratio",
+        }
+
+        self.assertEqual(calculated_keys, expected_keys)
 
     @override_settings(CREATE_FAKE_DATA=False)
     def test_create_fake_calculated_measures_skips_when_disabled(self):
         self.command.fake_data = False
         self.command.create_fake_calculated_measures(self.repository)
-        self.assertFalse(
-            CalculatedMeasure.objects.filter(repository=self.repository).exists()
+        self.assertFalse(CalculatedMeasure.objects.filter(repository=self.repository).exists())
+
+
+class CoreMetricsRegistrationTestCase(TestCase):
+    def test_registers_all_metrics_required_by_core(self):
+        command = Command()
+        command.create_supported_metrics()
+
+        required_keys = {
+            metric_key
+            for measure in SUPPORTED_MEASURES
+            for definition in measure.values()
+            for metric_key in definition["metrics"]
+        }
+        registered_keys = set(
+            SupportedMetric.objects.values_list("key", flat=True)
         )
+
+        missing_keys = required_keys - registered_keys
+        self.assertFalse(
+            missing_keys,
+            f"Métricas exigidas pelo Core sem cadastro: {sorted(missing_keys)}",
+        )
+
+    def test_runtime_metrics_registration_is_idempotent(self):
+        command = Command()
+        command.create_runtime_supported_metrics()
+        command.create_runtime_supported_metrics()
+
+        expected_keys = {
+            "endpoint_calls",
+            "mean_response_time",
+            "cpu_usage",
+            "memory_usage",
+        }
+        registered_keys = set(
+            SupportedMetric.objects.values_list("key", flat=True)
+        )
+
+        self.assertEqual(registered_keys, expected_keys)
+        self.assertEqual(SupportedMetric.objects.count(), 4)

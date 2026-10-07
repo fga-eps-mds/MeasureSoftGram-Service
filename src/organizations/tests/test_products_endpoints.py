@@ -24,9 +24,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
     def setUp(self) -> None:
         self.client = APIClient()
         self.user = self.get_or_create_test_user()
-        self.client.force_authenticate(
-            self.user, token=Token.objects.create(user=self.user)
-        )
+        self.client.force_authenticate(self.user, token=Token.objects.create(user=self.user))
 
     def test_create_a_new_product(self):
         org = self.get_organization()
@@ -286,11 +284,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
         self.client.credentials(
             HTTP_AUTHORIZATION="Token "
-            + Token.objects.create(
-                user=User.objects.create(
-                    username="username", email="test_user@email.com"
-                )
-            ).key
+            + Token.objects.create(user=User.objects.create(username="username", email="test_user@email.com")).key
         )
 
         response = self.client.post(action_url, data, format="json")
@@ -300,9 +294,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         actions, product = self.get_product_actions()
         action_url = actions["create a new release-config"]
         measures = [{"key": "passed_tests", "weight": 100}]
-        subcharacteristics = [
-            {"key": "testing_status", "weight": 100, "measures": measures}
-        ]
+        subcharacteristics = [{"key": "testing_status", "weight": 100, "measures": measures}]
         characteristics = [
             {
                 "key": "reliability",
@@ -320,9 +312,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
     def test_if_get_current_goal_url_is_working(self):
         actions, product = self.get_product_actions()
         product.goals.create(
-            created_by=User.objects.create(
-                username="username", email="test_user@email.com"
-            ),
+            created_by=User.objects.create(username="username", email="test_user@email.com"),
             data={
                 "reliability": 53,
                 "maintainability": 53,
@@ -335,17 +325,13 @@ class ProductsViewsSetCase(APITestCaseExpanded):
 
     def test_if_get_pre_config_entity_relationship_tree_url_is_working(self):
         actions, product = self.get_product_actions()
-        pre_config_entity_relationship_tree_url = actions[
-            "get release-config entity relationship tree"
-        ]
+        pre_config_entity_relationship_tree_url = actions["get release-config entity relationship tree"]
         response = self.client.get(pre_config_entity_relationship_tree_url)
         self.assertEqual(response.status_code, 200)
 
     def test_if_get_all_repositories_latest_tsqmis_url_is_working(self):
         actions, product = self.get_product_actions()
-        get_all_repositories_latest_tsqmis_url = actions[
-            "get all repositories latest tsqmis"
-        ]
+        get_all_repositories_latest_tsqmis_url = actions["get all repositories latest tsqmis"]
         response = self.client.get(get_all_repositories_latest_tsqmis_url)
         self.assertEqual(response.status_code, 200)
 
@@ -353,9 +339,7 @@ class ProductsViewsSetCase(APITestCaseExpanded):
         self,
     ):
         actions, product = self.get_product_actions()
-        get_all_repositories_tsqmi_historical_values_url = actions[
-            "get all repositories tsqmi historical values"
-        ]
+        get_all_repositories_tsqmi_historical_values_url = actions["get all repositories tsqmi historical values"]
         response = self.client.get(get_all_repositories_tsqmi_historical_values_url)
         self.assertEqual(response.status_code, 200)
 

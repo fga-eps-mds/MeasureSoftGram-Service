@@ -1,0 +1,128 @@
+{
+  "github": {
+    "metrics": [
+      {
+        "name": "total_issues",
+        "value": 10
+      },
+      {
+        "name": "resolved_issues",
+        "value": 8
+      },
+      {
+        "name": "sum_ci_feedback_times",
+        "value": 300
+      },
+      {
+        "name": "total_builds",
+        "value": 5
+      }
+    ]
+  },
+  "sonarqube": {
+    "components": [
+      {
+        "qualifier": "FIL",
+        "path": "src/foo.py",
+        "measures": [
+          {
+            "metric": "coverage",
+            "value": 80.0
+          },
+          {
+            "metric": "complexity",
+            "value": 5
+          },
+          {
+            "metric": "functions",
+            "value": 10
+          },
+          {
+            "metric": "comment_lines_density",
+            "value": 20.0
+          },
+          {
+            "metric": "duplicated_lines_density",
+            "value": 0.0
+          },
+          {
+            "metric": "ncloc",
+            "value": 100
+          }
+        ]
+      },
+      {
+        "qualifier": "FIL",
+        "path": "src/bar.py",
+        "measures": [
+          {
+            "metric": "coverage",
+            "value": 60.0
+          },
+          {
+            "metric": "complexity",
+            "value": 8
+          },
+          {
+            "metric": "functions",
+            "value": 15
+          },
+          {
+            "metric": "comment_lines_density",
+            "value": 15.0
+          },
+          {
+            "metric": "duplicated_lines_density",
+            "value": 5.0
+          },
+          {
+            "metric": "ncloc",
+            "value": 200
+          }
+        ]
+      },
+      {
+        "qualifier": "UTS",
+        "path": "tests/foo_test.py",
+        "measures": [
+          {
+            "metric": "tests",
+            "value": 5
+          },
+          {
+            "metric": "test_execution_time",
+            "value": 100
+          }
+        ]
+      },
+      {
+        "qualifier": "UTS",
+        "path": "tests/bar_test.py",
+        "measures": [
+          {
+            "metric": "tests",
+            "value": 3
+          },
+          {
+            "metric": "test_execution_time",
+            "value": 80
+          }
+        ]
+      },
+      {
+        "qualifier": "TRK",
+        "path": "",
+        "measures": [
+          {
+            "metric": "test_failures",
+            "value": 0
+          },
+          {
+            "metric": "test_errors",
+            "value": 0
+          }
+        ]
+      }
+    ]
+  }
+}

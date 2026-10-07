@@ -23,11 +23,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", get_random_secret_key())
 # DEBUG controlado pelos modulos especificos (dev/test/production).
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "t", "1")
 
-ALLOWED_HOSTS = [
-    h.strip()
-    for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-    if h.strip()
-]
+ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h.strip()]
 
 
 # Allowed origins on CORS
@@ -36,19 +32,24 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5000",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    os.getenv(
-        "FRONTEND_DEV_URL",
-        "https://2024-1-measure-soft-gram.vercel.app",
-    ),
-    os.getenv(
-        "FRONTEND_PROD_URL",
-        "https://2024-1-measure-soft-gram.vercel.app",
-    ),
 ]
+
+# Read dynamic origins from env
+_env_cors = os.getenv("CORS_ALLOWED_ORIGINS", "")
+if _env_cors:
+    CORS_ALLOWED_ORIGINS.extend([o.strip() for o in _env_cors.split(",") if o.strip()])
+
 CORS_ALLOW_CREDENTIALS = True
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # Application definition
 
@@ -68,7 +69,6 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "simple_history",
     "corsheaders",
-    "debug_toolbar",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "allauth",
@@ -101,25 +101,18 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + APPLICATION_APPS
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    o.strip()
-    for o in os.getenv(
-        "CSRF_TRUSTED_ORIGINS",
-        "https://*.2023-2-measuresoftgram-service-production.up.railway.app",
-    ).split(",")
-    if o.strip()
-]
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 ROOT_URLCONF = "config.urls"
 
 TEMPLATES = [
@@ -142,7 +135,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 POSTGRES_DB = os.getenv("POSTGRES_DB", "postgres")
 POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
@@ -158,12 +151,14 @@ DATABASES = {
         "PASSWORD": POSTGRES_PASSWORD,
         "HOST": POSTGRES_HOST,
         "PORT": POSTGRES_PORT,
+        "CONN_MAX_AGE": int(os.getenv("CONN_MAX_AGE", 60)),
+        "CONN_HEALTH_CHECKS": True,
     }
 }
 
 
 # Password validation
-# https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -203,12 +198,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Django Rest Framework config
 REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 500,
     "DEFAULT_PARSER_CLASSES": ("rest_framework.parsers.JSONParser",),
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.TokenAuthentication",
-    ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
 }
 
 # allauth related configs
@@ -220,6 +214,14 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 LOGIN_REDIRECT_URL = os.getenv("LOGIN_REDIRECT_URL", "127.0.0.1:8080")
 GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID", "")
 GITHUB_SECRET = os.getenv("GITHUB_SECRET", "")
+
+# First key encrypts new values; remaining keys allow reading during rotation.
+GITHUB_TOKEN_ENCRYPTION_KEYS = [
+    key.strip() for key in os.getenv("GITHUB_TOKEN_ENCRYPTION_KEYS", "").split(",") if key.strip()
+]
+# The encrypted CustomUser field is the only persistent OAuth token store.
+SOCIALACCOUNT_STORE_TOKENS = False
+SOCIALACCOUNT_ADAPTER = "accounts.adapters.EncryptedTokenSocialAccountAdapter"
 
 SOCIALACCOUNT_PROVIDERS = {
     "github": {
@@ -245,6 +247,7 @@ AMBIENT_TEST_OR_DEV = os.getenv("AMBIENT_TEST_OR_DEV", "True").lower() in (
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
+GITHUB_TIMEOUT = int(os.getenv("GITHUB_TIMEOUT", "10"))
 GITHUB_ISSUE_METRICS_THRESHOLD = int(os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7"))
 
 MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(
@@ -254,9 +257,7 @@ MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(
     )
 )
 
-GITHUB_PIPELINE_METRICS_THRESHOLD = int(
-    os.getenv("GITHUB_PIPELINE_METRICS_THRESHOLD", "90")
-)
+GITHUB_PIPELINE_METRICS_THRESHOLD = int(os.getenv("GITHUB_PIPELINE_METRICS_THRESHOLD", "90"))
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
     os.getenv(
@@ -322,9 +323,7 @@ BADGE_STALENESS_DAYS = int(os.getenv("BADGE_STALENESS_DAYS", "30"))
 # Grafana Proxy Configuration
 GRAFANA_CONFIG = {
     # NOSONAR — rede interna Docker
-    "BASE_URL": os.getenv(
-        "GRAFANA_BASE_URL", "http://grafana:3000"
-    ),  # NOSONAR — rede interna Docker
+    "BASE_URL": os.getenv("GRAFANA_BASE_URL", "http://grafana:3000"),  # NOSONAR — rede interna Docker
     # NOSONAR — URL de dev
     "PUBLIC_URL": os.getenv("GRAFANA_PUBLIC_URL", "http://localhost:5000"),
     "USERNAME": os.getenv("GRAFANA_USERNAME", "admin"),

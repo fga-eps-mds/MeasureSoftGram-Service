@@ -144,3 +144,10 @@ env-vars/
 src/staticfiles/
 
 ref
+
+# temporary and output files
+.DS_Store
+output_sonar.json
+test.json
+.envs/
+

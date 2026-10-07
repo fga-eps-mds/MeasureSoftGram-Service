@@ -3,9 +3,17 @@ import string
 
 from django.test import TestCase
 
-from utils import (DateRange, chunkify, get_random_datetime, get_random_path,
-                   get_random_qualifier, get_random_string, get_random_value,
-                   keyfy, namefy)
+from utils import (
+    DateRange,
+    chunkify,
+    get_random_datetime,
+    get_random_path,
+    get_random_qualifier,
+    get_random_string,
+    get_random_value,
+    keyfy,
+    namefy,
+)
 
 
 class UtilsMethodAndFunctionsTestCase(TestCase):
@@ -28,9 +36,7 @@ class UtilsMethodAndFunctionsTestCase(TestCase):
         )
 
     def test_get_random_datetime(self):
-        start_date = get_random_datetime(
-            dt.datetime(2019, 1, 1), dt.datetime(2019, 1, 2)
-        )
+        start_date = get_random_datetime(dt.datetime(2019, 1, 1), dt.datetime(2019, 1, 2))
         end_date = get_random_datetime(dt.datetime(2019, 1, 2), dt.datetime(2019, 1, 3))
         self.assertTrue(start_date < end_date)
         self.assertTrue(start_date.date() == dt.date(2019, 1, 1))

@@ -13,8 +13,7 @@ from rest_framework.response import Response
 from organizations.models import Repository
 
 from .permissions import CanAccessDashboard, CanAccessProduct
-from .serializers import (GrafanaDashboardListSerializer,
-                          GrafanaDashboardSerializer)
+from .serializers import GrafanaDashboardListSerializer, GrafanaDashboardSerializer
 from .services import GrafanaAPIClient
 
 logger = logging.getLogger(__name__)
@@ -86,9 +85,7 @@ class GrafanaProxyViewSet(viewsets.ViewSet):
                     {"detail": "You do not have permission to access this repository."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
-            if not Repository.objects.filter(
-                id=repository_id, product_id=product_id
-            ).exists():
+            if not Repository.objects.filter(id=repository_id, product_id=product_id).exists():
                 return Response(
                     {"detail": "Repository does not belong to the specified product."},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -98,6 +95,7 @@ class GrafanaProxyViewSet(viewsets.ViewSet):
             uid=dashboard_uid,
             product_id=int(product_id),
             repository_id=int(repository_id) if repository_id else None,
+            dashboard_data=dashboard_data,
         )
 
         public_url = settings.GRAFANA_CONFIG["PUBLIC_URL"].rstrip("/")

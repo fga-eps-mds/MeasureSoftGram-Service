@@ -1,7 +1,7 @@
 # ============================================================
 # docker-compose.prod.yml: orquestracao de producao do MeasureSoftGram.
 #
-# Topologia: proxy nginx interno publica :80 no host e roteia /api,
+# Topologia: proxy nginx interno publica 127.0.0.1:8088 no host e roteia /api,
 # /swagger, /admin, /static -> service:8080 e / -> front:3000. db e
 # service NAO publicam porta (so rede interna do compose).
 #
@@ -70,8 +70,8 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      # /swagger e AllowAny -> 200 quando o app esta de pe.
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/swagger/ || exit 1"]
+      # Healthcheck interno sem redirecionamento HTTPS.
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/ || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 10
@@ -121,10 +121,10 @@ services:
   proxy:
     container_name: msgram_proxy
     image: nginx:1.27-alpine
-    # Proxy INTERNO da stack: publica :80 do host. O proxy externo da box
-    # (openresty) fica na frente e encaminha o dominio pra esta :80.
+    # Somente a borda deve acessar esta porta. Para borda remota, usar IP
+    # privado e firewall restrito ao proxy externo; ver docs/seguranca.md.
     ports:
-      - "80:80"
+      - "${PROXY_BIND_ADDRESS:-127.0.0.1}:${PROXY_HTTP_PORT:-8088}:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:

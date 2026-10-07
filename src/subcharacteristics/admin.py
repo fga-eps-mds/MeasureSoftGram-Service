@@ -1,7 +1,6 @@
 from django.contrib import admin, messages
 
-from subcharacteristics.models import (CalculatedSubCharacteristic,
-                                       SupportedSubCharacteristic)
+from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
 
 
 @admin.register(SupportedSubCharacteristic)
@@ -21,10 +20,7 @@ class SupportedSubCharacteristicAdmin(admin.ModelAdmin):
 @admin.register(SupportedSubCharacteristic.measures.through)
 class MeasureSubCharacteristicAssociation(admin.ModelAdmin):
     def changelist_view(self, request, extra_context=None):
-        msg = (
-            "Tabela que armazena a relação entre "
-            "as SUBCARACTERÍSTICAS e suas MEDIDAS."
-        )
+        msg = "Tabela que armazena a relação entre " "as SUBCARACTERÍSTICAS e suas MEDIDAS."
         messages.add_message(request, messages.INFO, msg)
         return super().changelist_view(request, extra_context)
 

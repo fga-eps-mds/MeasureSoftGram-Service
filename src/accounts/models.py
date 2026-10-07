@@ -6,6 +6,8 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from accounts.fields import EncryptedTokenField
+
 
 class CustomUserManager(UserManager):
     def get_by_natural_key(self, username):
@@ -20,12 +22,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         _("username"),
         max_length=150,
         unique=True,
-        help_text=_(
-            (
-                "Required. 150 characters or fewer. "
-                "Letters, digits and @/./+/-/_ only."
-            )
-        ),
+        help_text=_(("Required. 150 characters or fewer. " "Letters, digits and @/./+/-/_ only.")),
         validators=[username_validator],
         error_messages={
             "unique": _("A user with that username already exists."),
@@ -78,7 +75,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     objects = CustomUserManager()
 
-    github_access_token = models.CharField(max_length=255, blank=True, null=True)
+    github_access_token = EncryptedTokenField(blank=True, null=True, editable=False)
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "username"

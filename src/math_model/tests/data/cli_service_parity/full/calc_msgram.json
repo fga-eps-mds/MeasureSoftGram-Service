@@ -1,0 +1,88 @@
+[
+    {
+        "repository": [
+            {
+                "key": "repository",
+                "value": "task50"
+            }
+        ],
+        "version": [
+            {
+                "key": "version",
+                "value": "27-09-2026-00-00"
+            }
+        ],
+        "measures": [
+            {
+                "key": "passed_tests",
+                "value": 1.0
+            },
+            {
+                "key": "test_builds",
+                "value": 0.9999222222222222
+            },
+            {
+                "key": "test_coverage",
+                "value": 0.25
+            },
+            {
+                "key": "non_complex_file_density",
+                "value": 0.9483333333333333
+            },
+            {
+                "key": "commented_file_density",
+                "value": 0.625
+            },
+            {
+                "key": "duplication_absense",
+                "value": 0.5
+            },
+            {
+                "key": "team_throughput",
+                "value": 0.6363636363636364
+            },
+            {
+                "key": "ci_feedback_time",
+                "value": 0.9343715239154616
+            }
+        ],
+        "subcharacteristics": [
+            {
+                "key": "testing_status",
+                "value": 0.821516405274725
+            },
+            {
+                "key": "maturity",
+                "value": 0.9343715239154616
+            },
+            {
+                "key": "modifiability",
+                "value": 0.7164637955754432
+            },
+            {
+                "key": "functional_completeness",
+                "value": 0.6363636363636364
+            }
+        ],
+        "characteristics": [
+            {
+                "key": "reliability",
+                "value": 0.8797554628530614
+            },
+            {
+                "key": "maintainability",
+                "value": 0.7164637955754433
+            },
+            {
+                "key": "functional_suitability",
+                "value": 0.6363636363636364
+            }
+        ],
+        "tsqmi": [
+            {
+                "key": "tsqmi",
+                "value": 0.7538572729178926
+            }
+        ]
+    }
+]

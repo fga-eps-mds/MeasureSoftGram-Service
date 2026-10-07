@@ -36,9 +36,7 @@ class ReleaseConfigurationSerializer(serializers.ModelSerializer):
             ReleaseConfiguration.validate_subcharacteristics_measures_relation(data)
             ReleaseConfiguration.validate_subcharacteristics_weights(data)
             ReleaseConfiguration.validate_characteristics(data)
-            ReleaseConfiguration.validate_characteristics_subcharacteristics_relation(
-                data
-            )
+            ReleaseConfiguration.validate_characteristics_subcharacteristics_relation(data)
             ReleaseConfiguration.validate_characteristics_weights(data)
 
         except InvalidReleaseConfigurationException as exc:
