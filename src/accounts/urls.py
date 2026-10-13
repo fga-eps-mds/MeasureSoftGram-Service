@@ -5,6 +5,8 @@ from accounts.views import (
     GithubLoginViewSet,
     GitHubOrganizationsViewSet,
     GithubValidateView,
+    GitlabLoginViewSet,
+    GitlabValidateView,
     LoginViewSet,
     LogoutViewSet,
     RetrieveAccountViewSet,
@@ -47,6 +49,16 @@ urlpatterns = [
                     r"^github/validate/$",
                     GithubValidateView.as_view(),
                     name="github-validate",
+                ),
+                re_path(
+                    r"^gitlab/login/$",
+                    GitlabLoginViewSet.as_view(),
+                    name="gitlab-login",
+                ),
+                re_path(
+                    r"^gitlab/validate/$",
+                    GitlabValidateView.as_view(),
+                    name="gitlab-validate",
                 ),
                 re_path(
                     r"^access-token/$",

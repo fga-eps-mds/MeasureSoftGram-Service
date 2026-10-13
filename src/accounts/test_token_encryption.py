@@ -169,13 +169,15 @@ def test_migration_encrypts_legacy_tokens_and_removes_plaintext_copies(tmp_path,
         assert User.objects.using(alias).get(username="plain").github_access_token == "legacy-token"
         executor = MigrationExecutor(db)
         executor.migrate(after)
+        # Model no estado da 0003: nao conhece campos criados por migrations posteriores (ex.: gitlab_access_token)
+        UserAfter = executor.loader.project_state(after).apps.get_model("accounts", "CustomUser")
         for name, expected in [
             ("plain", "legacy-token"),
             ("fallback", "legacy-social-token"),
             ("empty", ""),
             ("null", None),
         ]:
-            assert CustomUser.objects.using(alias).get(username=name).github_access_token == expected
+            assert UserAfter.objects.using(alias).get(username=name).github_access_token == expected
             with db.cursor() as cursor:
                 cursor.execute("SELECT github_access_token FROM accounts_customuser WHERE username = %s", [name])
                 raw = cursor.fetchone()[0]
@@ -185,7 +187,7 @@ def test_migration_encrypts_legacy_tokens_and_removes_plaintext_copies(tmp_path,
         assert not Token.objects.using(alias).exists()
         # Applying the same migration plan again must not double-encrypt values.
         MigrationExecutor(db).migrate(after)
-        assert CustomUser.objects.using(alias).get(username="plain").github_access_token == "legacy-token"
+        assert UserAfter.objects.using(alias).get(username="plain").github_access_token == "legacy-token"
     finally:
         db.close()
         del connections[alias]

@@ -47,16 +47,16 @@ class AccountsRetrieveSerializer(serializers.ModelSerializer):
             return self.instance.socialaccount_set.first()
 
     def get_avatar_url(self, obj):
-        if self.socialaccount:
-            return self.socialaccount.extra_data["avatar_url"]
+        if self.socialaccount and isinstance(self.socialaccount.extra_data, dict):
+            return self.socialaccount.extra_data.get("avatar_url")
 
     def get_repos_url(self, obj):
-        if self.socialaccount:
-            return self.socialaccount.extra_data["repos_url"]
+        if self.socialaccount and isinstance(self.socialaccount.extra_data, dict):
+            return self.socialaccount.extra_data.get("repos_url") or self.socialaccount.extra_data.get("web_url")
 
     def get_organizations_url(self, obj):
-        if self.socialaccount:
-            return self.socialaccount.extra_data["organizations_url"]
+        if self.socialaccount and isinstance(self.socialaccount.extra_data, dict):
+            return self.socialaccount.extra_data.get("organizations_url")
 
 
 class AccountsLoginSerializer(serializers.Serializer):

@@ -479,6 +479,123 @@ class AccountsViews(APITestCaseExpanded):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.json()["valid"])
 
+    def test_retrieve_accounts_via_gitlab(self):
+        url = reverse("accounts-retrieve")
+        extra_data = {
+            "avatar_url": "https://gitlab.com/uploads/-/system/user/avatar/1/avatar.png",
+            "web_url": "https://gitlab.com/test-user",
+        }
+        SocialAccount.objects.create(user=self.user, provider="gitlab", extra_data=extra_data)
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        response = self.client.get(url, format="json")
+
+        self.assertEqual(response.status_code, 200, response.json())
+        self.assertEqual(
+            response.json()["avatar_url"],
+            "https://gitlab.com/uploads/-/system/user/avatar/1/avatar.png",
+        )
+        self.assertEqual(response.json()["repos_url"], "https://gitlab.com/test-user")
+        self.assertIsNone(response.json()["organizations_url"])
+
+    def test_save_gitlab_token_signal(self):
+        from accounts.signals import save_social_token
+
+        sociallogin = MagicMock()
+        sociallogin.account.provider = "gitlab"
+        sociallogin.token.token = "new_gitlab_token"
+        sociallogin.user = self.user
+
+        save_social_token(None, sociallogin)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.gitlab_access_token, "new_gitlab_token")
+
+    @patch("accounts.views.requests.post")
+    def test_gitlab_validate_success(self, mock_post):
+        mock_response = MagicMock()
+        mock_response.status_code = 400  # Credenciais válidas, dummy code rejeitado
+        mock_post.return_value = mock_response
+
+        url = reverse("gitlab-validate")
+        with (
+            patch("django.conf.settings.GITLAB_CLIENT_ID", "test_client_id"),
+            patch("django.conf.settings.GITLAB_SECRET", "test_secret"),
+        ):
+            response = self.client.post(url, {"client_id": "test_client_id"}, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["valid"])
+
+    @patch("accounts.views.requests.post")
+    def test_gitlab_validate_bad_credentials(self, mock_post):
+        mock_response = MagicMock()
+        mock_response.status_code = 401  # Bad credentials
+        mock_post.return_value = mock_response
+
+        url = reverse("gitlab-validate")
+        with (
+            patch("django.conf.settings.GITLAB_CLIENT_ID", "test_client_id"),
+            patch("django.conf.settings.GITLAB_SECRET", "test_secret"),
+        ):
+            response = self.client.post(url, {"client_id": "test_client_id"}, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["valid"])
+        self.assertEqual(
+            response.json()["reason"],
+            "Invalid GitLab Client ID or Client Secret",
+        )
+
+    @patch("accounts.views.requests.post")
+    def test_gitlab_validate_mismatch(self, mock_post):
+        url = reverse("gitlab-validate")
+        with (
+            patch("django.conf.settings.GITLAB_CLIENT_ID", "backend_client_id"),
+            patch("django.conf.settings.GITLAB_SECRET", "test_secret"),
+        ):
+            response = self.client.post(url, {"client_id": "frontend_client_id"}, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["valid"])
+        self.assertEqual(
+            response.json()["reason"],
+            "Client ID mismatch between frontend and backend",
+        )
+
+    def test_gitlab_validate_not_configured(self):
+        url = reverse("gitlab-validate")
+        with (
+            patch("django.conf.settings.GITLAB_CLIENT_ID", ""),
+            patch("django.conf.settings.GITLAB_SECRET", ""),
+        ):
+            response = self.client.post(url, {"client_id": "any_id"}, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["valid"])
+        self.assertEqual(
+            response.json()["reason"],
+            "Backend GitLab credentials are not configured",
+        )
+
+    @patch("accounts.views.requests.post")
+    def test_gitlab_validate_exception(self, mock_post):
+        mock_post.side_effect = Exception("Connection error")
+
+        url = reverse("gitlab-validate")
+        with (
+            patch("django.conf.settings.GITLAB_CLIENT_ID", "test_client_id"),
+            patch("django.conf.settings.GITLAB_SECRET", "test_secret"),
+        ):
+            response = self.client.post(url, {"client_id": "test_client_id"}, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["valid"])
+
+    def test_gitlab_login_reverse(self):
+        url = reverse("gitlab-login")
+        self.assertEqual(url, "/api/v1/accounts/gitlab/login/")
+
 
 class AccountsAppConfigTest(SimpleTestCase):
     def test_ready_imports_signals(self):
