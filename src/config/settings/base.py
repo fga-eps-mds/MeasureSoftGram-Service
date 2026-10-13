@@ -75,6 +75,7 @@ THIRD_PARTY_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.github",
+    "allauth.socialaccount.providers.gitlab",
     "django_apscheduler",
     "drf_yasg",
 ]
@@ -214,6 +215,8 @@ ACCOUNT_EMAIL_VERIFICATION = "none"
 LOGIN_REDIRECT_URL = os.getenv("LOGIN_REDIRECT_URL", "127.0.0.1:8080")
 GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID", "")
 GITHUB_SECRET = os.getenv("GITHUB_SECRET", "")
+GITLAB_CLIENT_ID = os.getenv("GITLAB_CLIENT_ID", "")
+GITLAB_SECRET = os.getenv("GITLAB_SECRET", "")
 
 # First key encrypts new values; remaining keys allow reading during rotation.
 GITHUB_TOKEN_ENCRYPTION_KEYS = [
@@ -236,7 +239,19 @@ SOCIALACCOUNT_PROVIDERS = {
             "read:org",
             "repo",
         ],
-    }
+    },
+    "gitlab": {
+        "APP": {
+            "client_id": os.getenv("GITLAB_CLIENT_ID", ""),
+            "secret": os.getenv("GITLAB_SECRET", ""),
+        },
+        "SCOPE": [
+            "read_user",
+            "openid",
+            "profile",
+            "email",
+        ],
+    },
 }
 
 AMBIENT_TEST_OR_DEV = os.getenv("AMBIENT_TEST_OR_DEV", "True").lower() in (

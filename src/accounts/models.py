@@ -76,6 +76,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     objects = CustomUserManager()
 
     github_access_token = EncryptedTokenField(blank=True, null=True, editable=False)
+    gitlab_access_token = EncryptedTokenField(blank=True, null=True, editable=False)
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "username"
