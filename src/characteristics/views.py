@@ -7,21 +7,11 @@ from characteristics.models import BalanceMatrix, SupportedCharacteristic
 from characteristics.serializers import (
     BalanceMatrixSerializer,
     CalculatedCharacteristicHistorySerializer,
-    CharacteristicsCalculationsRequestSerializer,
     LatestCalculatedCharacteristicSerializer,
     SupportedCharacteristicSerializer,
 )
 from organizations.mixins import UserScopedMixin
 from organizations.models import Repository
-
-
-class CalculateCharacteristicViewSet(
-    UserScopedMixin,
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet,
-):
-    serializer_class = CharacteristicsCalculationsRequestSerializer
-    queryset = SupportedCharacteristic.objects.all()
 
 
 class SupportedCharacteristicModelViewSet(

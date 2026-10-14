@@ -75,7 +75,6 @@ class TestConfigEnpoints(APITestCaseExpanded):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         configs_resp = self.request.get(pre_config_uri["get current release-config"])
-        print(configs_resp.json())
 
         self.assertIn(
             dict(

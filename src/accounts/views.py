@@ -244,12 +244,6 @@ class GithubValidateView(APIView):
     def post(self, request):
         frontend_client_id = request.data.get("client_id")
         backend_client_id = getattr(settings, "GITHUB_CLIENT_ID", "")
-        print(
-            "FRONTEND CLIENT ID RECEIVED:",
-            frontend_client_id,
-            "BACKEND:",
-            backend_client_id,
-        )
         backend_secret = getattr(settings, "GITHUB_SECRET", "")
 
         if not backend_client_id or not backend_secret:

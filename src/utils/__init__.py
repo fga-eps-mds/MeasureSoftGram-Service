@@ -94,9 +94,6 @@ def get_random_value(metric_type):  # noqa: max-complexity: 13
         return random.randint(0, 100)
 
     if metric_type == "FLOAT":
-        # Para valores aleatórios entre 0 e 100
-        # return random.random() * random.randint(0, 100)
-
         # Para valores variando perto de 50
         return random.uniform(0, 100)
 

@@ -1,26 +1,12 @@
 from rest_framework import mixins, viewsets
 
-from measures.models import CalculatedMeasure, SupportedMeasure
+from measures.models import SupportedMeasure
 from measures.serializers import (
     CalculatedMeasureHistorySerializer,
     LatestMeasuresCalculationsRequestSerializer,
-    MeasuresCalculationsRequestSerializer,
     SupportedMeasureSerializer,
 )
 from organizations.mixins import UserScopedMixin
-
-
-class CalculateMeasuresViewSet(
-    UserScopedMixin,
-    mixins.CreateModelMixin,
-    viewsets.GenericViewSet,
-):
-    """
-    Endpoint que ativa o mecanismo de cálculo das medidas
-    """
-
-    serializer_class = MeasuresCalculationsRequestSerializer
-    queryset = CalculatedMeasure.objects.all()
 
 
 class SupportedMeasureModelViewSet(
