@@ -41,7 +41,20 @@ class AccountsViews(APITestCaseExpanded):
         url = reverse("accounts-logout")
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
-        self.assertEqual(Token.objects.count(), 1)
+        self.assertFalse(Token.objects.filter(user=self.user).exists())
+
+        self.client.force_authenticate(user=None)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        retrieve_url = reverse("accounts-retrieve")
+        response = self.client.get(retrieve_url)
+        self.assertEqual(response.status_code, 401)
+
+    def test_logout_account_without_token(self):
+        self.client.force_authenticate(user=self.user)
+
+        url = reverse("accounts-logout")
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
 
     def test_fail_logout_without_authentication(self):
         url = reverse("accounts-logout")
