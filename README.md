@@ -36,7 +36,7 @@ make env
 Os arquivos esperados em `env-vars/` são:
 
 - `.postgres.env` — credenciais do Postgres (`POSTGRES_HOST`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PORT`, `POSTGRES_PASSWORD`).
-- `.service.env` — `DEBUG`, `SECRET_KEY`, `GITHUB_CLIENT_ID`, `GITHUB_SECRET`, `LOGIN_REDIRECT_URL`, etc.
+- `.service.env` — `DEBUG`, `SECRET_KEY`, `GITHUB_CLIENT_ID`, `GITHUB_SECRET`, `GITLAB_CLIENT_ID`, `GITLAB_SECRET`, `GITHUB_TOKEN_ENCRYPTION_KEYS`, `LOGIN_REDIRECT_URL`, etc.
 
 Edite os valores que precisar (em desenvolvimento, os defaults do `env-vars-example` já funcionam para subir o backend).
 
@@ -62,7 +62,32 @@ Os defaults de `GITHUB_CLIENT_ID` / `GITHUB_SECRET` no `env-vars-example/.servic
 
 > **Produção:** Use um OAuth App separado com a *Authorization callback URL* apontando para o domínio real de produção e as credenciais no `env-vars/.service.env` do servidor. Os placeholders de PROD estão comentados no `env-vars-example/.service.env`.
 
-### 1.2. Configurar a chave de cifragem dos tokens
+#### 1.2. Configurar a aplicação OAuth do GitLab (login com GitLab em dev)
+
+O login com GitLab é opcional: sem `GITLAB_CLIENT_ID` / `GITLAB_SECRET` a API sobe normalmente e o endpoint `POST /api/v1/accounts/gitlab/validate/` responde `valid: false` ("Backend GitLab credentials are not configured"). Para o **login real com GitLab**, crie uma aplicação OAuth própria:
+
+1. Acesse **GitLab → Edit profile → Applications → Add new application** (<https://gitlab.com/-/user_settings/applications>).
+2. Preencha:
+   - **Name**: livre (ex: `MeasureSoftGram (dev)`).
+   - **Redirect URI**: `http://127.0.0.1:3000` — precisa coincidir com o `LOGIN_REDIRECT_URL`, assim como no GitHub. O backend usa esse valor como `callback_url` na troca do `code` (`GitlabLoginViewSet` em `src/accounts/views.py`).
+   - **Confidential**: marcado.
+   - **Scopes**: `read_user`, `openid`, `profile` e `email` (os mesmos pedidos pelo Front e configurados em `SOCIALACCOUNT_PROVIDERS["gitlab"]`). Sem eles o GitLab responde `invalid_scope`.
+3. Clique em **Save application** e copie o **Application ID** e o **Secret** (o secret só é exibido uma vez).
+4. Configure os valores em `env-vars/.service.env`:
+
+   ```env
+   GITLAB_CLIENT_ID=<application id>
+   GITLAB_SECRET=<secret>
+   LOGIN_REDIRECT_URL=http://127.0.0.1:3000
+   ```
+
+5. No Front, configure o mesmo `GITLAB_CLIENT_ID` (variável de build do Next.js) e reinicie o serviço (`make restart`).
+
+Endpoints envolvidos: `POST /api/v1/accounts/gitlab/validate/` (verificação das credenciais antes do redirecionamento) e `POST /api/v1/accounts/gitlab/login/` (troca do `code` pelo Token da API). O token de acesso do GitLab é salvo no campo `gitlab_access_token`, cifrado com a mesma chave da seção 1.3.
+
+> **Produção:** Use uma aplicação OAuth separada com a *Redirect URI* apontando para o domínio real de produção e as credenciais no `env-vars/.service.env` do servidor.
+
+### 1.3. Configurar a chave de cifragem dos tokens
 
 Antes de migrar o banco ou iniciar a stack, gere uma chave Fernet exclusiva
 para o ambiente e preencha `GITHUB_TOKEN_ENCRYPTION_KEYS` em

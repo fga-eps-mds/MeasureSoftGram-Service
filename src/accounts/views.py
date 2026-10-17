@@ -1,5 +1,6 @@
 import requests
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
+from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
 from django.conf import settings
@@ -27,6 +28,17 @@ class GithubLoginViewSet(SocialLoginView):
     """
 
     adapter_class = GitHubOAuth2Adapter
+    permission_classes = (AllowAny,)
+    callback_url = settings.LOGIN_REDIRECT_URL
+    client_class = OAuth2Client
+
+
+class GitlabLoginViewSet(SocialLoginView):
+    """
+    ViewSet para login via OAuth2 do GitLab
+    """
+
+    adapter_class = GitLabOAuth2Adapter
     permission_classes = (AllowAny,)
     callback_url = settings.LOGIN_REDIRECT_URL
     client_class = OAuth2Client
@@ -280,4 +292,64 @@ class GithubValidateView(APIView):
             return Response({"valid": True}, status=status.HTTP_200_OK)
         except Exception:
             # Em caso de erro de rede ou timeout, assume como válido para não bloquear login
+            return Response({"valid": True}, status=status.HTTP_200_OK)
+
+
+class GitlabValidateView(APIView):
+    """
+    Endpoint para validar as credenciais do GitLab (Client ID e Client Secret)
+    """
+
+    permission_classes = (AllowAny,)  # Verificação pré-login.
+
+    def post(self, request):
+        frontend_client_id = request.data.get("client_id")
+        backend_client_id = getattr(settings, "GITLAB_CLIENT_ID", "")
+        backend_secret = getattr(settings, "GITLAB_SECRET", "")
+
+        if not backend_client_id or not backend_secret:
+            return Response(
+                {
+                    "valid": False,
+                    "reason": "Backend GitLab credentials are not configured",
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        if frontend_client_id and frontend_client_id != backend_client_id:
+            return Response(
+                {
+                    "valid": False,
+                    "reason": "Client ID mismatch between frontend and backend",
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        try:
+            url = "https://gitlab.com/oauth/token"
+            response = requests.post(
+                url,
+                data={
+                    "client_id": backend_client_id,
+                    "client_secret": backend_secret,
+                    "code": "dummy_verification_token",
+                    "grant_type": "authorization_code",
+                    "redirect_uri": getattr(settings, "LOGIN_REDIRECT_URL", ""),
+                },
+                timeout=5,
+            )
+
+            # 401 Unauthorized se o client_id ou client_secret estiverem errados.
+            # 400 Bad Request se as credenciais forem válidas mas o código dummy for inválido.
+            if response.status_code == 401:
+                return Response(
+                    {
+                        "valid": False,
+                        "reason": "Invalid GitLab Client ID or Client Secret",
+                    },
+                    status=status.HTTP_200_OK,
+                )
+
+            return Response({"valid": True}, status=status.HTTP_200_OK)
+        except Exception:
             return Response({"valid": True}, status=status.HTTP_200_OK)
