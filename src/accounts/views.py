@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.core.cache import cache
 
-from accounts.models import CustomUser
+from accounts.models import ApiAccessToken, CustomUser
 from accounts.serializers import (
     AccountsCreateSerializer,
     AccountsLoginSerializer,
@@ -91,6 +91,7 @@ class LogoutViewSet(mixins.DestroyModelMixin, viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated,)
 
     def destroy(self, request, *args, **kwargs):
+        Token.objects.filter(user=request.user).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -104,9 +105,7 @@ class RetrieveAPIAcessTokenViewSet(mixins.RetrieveModelMixin, viewsets.GenericVi
     serializer_class = APIAcessTokenRetrieveSerializer
 
     def get_object(self):
-        user = CustomUser.objects.get(username=self.request.user)
-        token = Token.objects.get(user=user)
-
+        token, _ = ApiAccessToken.objects.get_or_create(user=self.request.user)
         return token
 
 
@@ -243,12 +242,6 @@ class GithubValidateView(APIView):
     def post(self, request):
         frontend_client_id = request.data.get("client_id")
         backend_client_id = getattr(settings, "GITHUB_CLIENT_ID", "")
-        print(
-            "FRONTEND CLIENT ID RECEIVED:",
-            frontend_client_id,
-            "BACKEND:",
-            backend_client_id,
-        )
         backend_secret = getattr(settings, "GITHUB_SECRET", "")
 
         if not backend_client_id or not backend_secret:

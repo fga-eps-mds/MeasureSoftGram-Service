@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-from accounts.models import CustomUser
+from accounts.models import ApiAccessToken, CustomUser
 
 
 class AccountsCreateSerializer(serializers.ModelSerializer):
@@ -97,7 +97,7 @@ class UserListSerializer(serializers.ModelSerializer):
 
 class APIAcessTokenRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Token
+        model = ApiAccessToken
         fields = ("key",)
 
 
