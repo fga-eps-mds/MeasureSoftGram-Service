@@ -10,27 +10,25 @@ logger = logging.getLogger(__name__)
 
 
 def calculate_diff(planned, accomplished):
-    diffs = {}
+    """
+    Calcula Rc = max(0, Rp - Rd) (função `diff` do Core) para cada característica realizada.
+
+    Rp e Rd são associados pelo nome da característica. Uma característica realizada que não
+    foi planejada não tem Rp; ela fica com `diff = None` em vez de desalinhar os vetores.
+    """
     planned_values = {item["name"]: item["value"] for item in planned}
 
     for repo in accomplished:
-        rp = []
-        rd = []
-        repo_name = repo["repository_name"]
+        comparable = [
+            characteristic for characteristic in repo["characteristics"] if characteristic["name"] in planned_values
+        ]
+
+        rp = [planned_values[characteristic["name"]] for characteristic in comparable]
+        rd = [characteristic["value"] for characteristic in comparable]
+        diff_by_name = dict(zip((c["name"] for c in comparable), diff(rp, rd)))
 
         for characteristic in repo["characteristics"]:
-            name = characteristic["name"]
-            value = characteristic["value"]
-            rd.append(value)
-
-            if name in planned_values:
-                rp.append(planned_values[name])
-
-        diff_array = diff(rp, rd)
-        diffs[repo_name] = diff_array
-
-        for characteristic, i in zip(repo["characteristics"], range(len(repo["characteristics"]))):
-            characteristic["diff"] = diffs[repo_name][i]
+            characteristic["diff"] = diff_by_name.get(characteristic["name"])
 
     return accomplished
 
@@ -50,7 +48,15 @@ def get_planned_values(release: Release):
 
 
 def get_accomplished_values(release: Release, repositories_ids: list[int]):
-    result_calculated = CalculatedCharacteristic.objects.filter(release=release).all().order_by("-created_at")[:2]
+    # Todos os cálculos da release, do mais recente para o mais antigo. A deduplicação em
+    # get_process_calculated_characteristics_to_list mantém o valor mais recente de cada
+    # característica por repositório. (Antes havia um [:2], que limitava a resposta às duas
+    # últimas características calculadas e escondia as demais.)
+    result_calculated = (
+        CalculatedCharacteristic.objects.filter(release=release)
+        .select_related("repository", "characteristic")
+        .order_by("-created_at")
+    )
 
     if len(result_calculated) == 0:
         result_calculated = get_calculated_characteristic_by_ids_repositories(repositories_ids)
@@ -95,8 +101,16 @@ def get_process_calculated_characteristics_to_list(
 
 
 def get_norm_diff(planned_values, accomplished_values):
+    planned_names = {characteristic["name"] for characteristic in planned_values}
+
     for repository in accomplished_values:
-        repository["norm_diff"] = calculate_norm_diff(planned_values, repository["characteristics"])
+        # só as características planejadas entram na diferença normalizada
+        planned_characteristics = [
+            characteristic
+            for characteristic in repository["characteristics"]
+            if characteristic["name"] in planned_names
+        ]
+        repository["norm_diff"] = calculate_norm_diff(planned_values, planned_characteristics)
 
     return accomplished_values
 
@@ -146,7 +160,8 @@ def get_process_calculated_characteristics(
 
         if repository not in accomplished:
             accomplished[repository] = {}
-        accomplished[repository].update({characteristic: calculated_characteristic.value})
+        # os cálculos chegam do mais recente para o mais antigo: mantém o mais recente
+        accomplished[repository].setdefault(characteristic, calculated_characteristic.value)
     return accomplished
 
 
@@ -155,10 +170,11 @@ def get_calculated_characteristic_by_ids_repositories(
 ):
     result_calculated = []
     for id_repository in ids_repositories:
+        # todos os cálculos do repositório (sem o antigo [:2]); a deduplicação mantém o mais recente
         calculated_characteristic = (
             CalculatedCharacteristic.objects.filter(repository_id=id_repository, release=None)
-            .all()
-            .order_by("-created_at")[:2]
+            .select_related("repository", "characteristic")
+            .order_by("-created_at")
         )
         result_calculated = result_calculated + list(calculated_characteristic)
     return result_calculated
