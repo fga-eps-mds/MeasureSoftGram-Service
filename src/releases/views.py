@@ -117,7 +117,6 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
 
             result_calculated = get_calculated_characteristic_by_ids_repositories(ids_repositories)
             accomplished = get_process_calculated_characteristics(list(result_calculated))
-        print(accomplished)
         if len(accomplished.keys()) > 0:
             for key_repository in accomplished:
                 arrays_rp_rd = get_arrays_diff(release.goal.data, accomplished[key_repository])
@@ -183,11 +182,3 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
             return Response(serializer.data, status=200)
         else:
             return Response({"detail": "Release não encontrada"}, status=404)
-
-
-class ReleaseListAllModelViewSet(viewsets.ModelViewSet):
-    serializer_class = ReleaseAllSerializer
-    queryset = Release.objects.all()
-
-    def get_releases(self, product):
-        return Release.objects.filter(product=product)

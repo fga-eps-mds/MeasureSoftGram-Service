@@ -1,8 +1,6 @@
 from django.conf import settings
-from django.utils import timezone
 from rest_framework import serializers
 
-import utils
 from measures.models import CalculatedMeasure, SupportedMeasure
 
 
@@ -19,52 +17,6 @@ class SupportedMeasureSerializer(serializers.ModelSerializer):
             "name",
             "description",
         )
-
-
-class MeasureCalculationRequestSerializer(serializers.Serializer):
-    """
-    Serializadora usada para solicitar o cálculo de uma medida
-    """
-
-    key = serializers.CharField(max_length=255)
-
-
-class MeasuresCalculationsRequestSerializer(serializers.Serializer):
-    """
-    Serializadora usada para solicitar o cálculo de várias medidas
-
-    Aqui estou definindo uma lista de objetos pois é provável que no futuro
-    outros parâmetros além de nome sejam necessários, e deste modo a evolução
-    da API será somente a adição de novas chaves em
-    MeasureCalculationRequestSerializer
-    """
-
-    measures = serializers.ListField(
-        child=MeasureCalculationRequestSerializer(),
-        required=True,
-    )
-    created_at = serializers.DateTimeField(default=timezone.now)
-
-    def validate_measures(self, value):
-        if not value:
-            raise serializers.ValidationError("No measures were provided")
-        return value
-
-    def validate(self, attrs):
-        """
-        Valida se todas as medidas solicitadas são suportadas
-        """
-        measure_keys = [measure["key"] for measure in attrs["measures"]]
-
-        unsuported_measures: str = utils.validate_entity(
-            measure_keys,
-            SupportedMeasure.has_unsupported_measures,
-        )
-
-        if unsuported_measures:
-            raise serializers.ValidationError(("The following measures are " f"not supported: {unsuported_measures}"))
-
-        return attrs
 
 
 class CalculatedMeasureSerializer(serializers.ModelSerializer):
