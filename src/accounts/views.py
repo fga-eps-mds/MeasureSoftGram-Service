@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.core.cache import cache
 
-from accounts.models import CustomUser
+from accounts.models import ApiAccessToken, CustomUser
 from accounts.serializers import (
     AccountsCreateSerializer,
     AccountsLoginSerializer,
@@ -105,9 +105,7 @@ class RetrieveAPIAcessTokenViewSet(mixins.RetrieveModelMixin, viewsets.GenericVi
     serializer_class = APIAcessTokenRetrieveSerializer
 
     def get_object(self):
-        user = CustomUser.objects.get(username=self.request.user)
-        token = Token.objects.get(user=user)
-
+        token, _ = ApiAccessToken.objects.get_or_create(user=self.request.user)
         return token
 
 

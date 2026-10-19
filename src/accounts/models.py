@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.validators import ASCIIUsernameValidator
@@ -5,6 +6,7 @@ from django.core.mail import send_mail
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from rest_framework.authtoken.models import Token
 
 from accounts.fields import EncryptedTokenField
 
@@ -109,3 +111,23 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         if not self.email:
             self.email = f"{self.username}@github.com"
         super(CustomUser, self).save(*args, **kwargs)
+
+
+class ApiAccessToken(models.Model):
+    """
+    Token usado pelas integrações (GitHub Action, CLI). Fica separado do token
+    de sessão do DRF para que o logout no site não derrube as integrações.
+    """
+
+    key = models.CharField(_("key"), max_length=40, primary_key=True)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        related_name="api_access_token",
+        on_delete=models.CASCADE,
+    )
+    created = models.DateTimeField(_("created"), auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = Token.generate_key()
+        super().save(*args, **kwargs)

@@ -7,6 +7,7 @@ from parameterized import parameterized
 from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
 
+from accounts.models import ApiAccessToken
 from utils.tests import APITestCaseExpanded
 
 User = get_user_model()
@@ -186,7 +187,7 @@ class AccountsViews(APITestCaseExpanded):
         response = self.client.get(url, format="json")
 
         self.assertEqual(response.status_code, 200, response.json())
-        self.assertEqual(Token.objects.get(user=self.user).key, response.json()["key"])
+        self.assertEqual(ApiAccessToken.objects.get(user=self.user).key, response.json()["key"])
 
     @patch("accounts.views.requests.get")
     @patch("accounts.views.requests.post")
