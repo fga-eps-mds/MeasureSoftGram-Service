@@ -1,4 +1,4 @@
-import logging
+import sys
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -11,8 +11,6 @@ from resources import calculate_characteristics
 from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from organizations.models import Product, Repository
 from releases.models import Release
-
-logger = logging.getLogger(__name__)
 
 # Chave fixa do advisory lock de sessao do Postgres usado para eleger um
 # unico worker como dono do scheduler. Qualquer int de 64 bits estavel
@@ -96,17 +94,9 @@ def get_releases_and_create_results():
 
             try:
                 CalculatedCharacteristic.objects.bulk_create(calculated_characteristics)
-                logger.info(
-                    "Características calculadas criadas (release %s, repositório %s)",
-                    release.id,
-                    repository.id,
-                )
+                print("Criou as características calculadas")
             except Exception:
-                logger.exception(
-                    "Erro ao criar as características calculadas (release %s, repositório %s)",
-                    release.id,
-                    repository.id,
-                )
+                print("Erro ao criar as características calculadas")
                 continue
 
 
@@ -167,7 +157,10 @@ def build_release_scheduler():
 
 def check_the_need_to_calculate_releases():
     if not acquire_scheduler_lock():
-        logger.info("Scheduler ja iniciado por outro worker, ignorando...")
+        print(
+            "Scheduler ja iniciado por outro worker, ignorando...",
+            file=sys.stdout,
+        )
         return
 
     scheduler = build_release_scheduler()
@@ -186,4 +179,4 @@ def check_the_need_to_calculate_releases():
     )
     register_events(scheduler)
     scheduler.start()
-    logger.info("Scheduler started...")
+    print("Scheduler started...", file=sys.stdout)

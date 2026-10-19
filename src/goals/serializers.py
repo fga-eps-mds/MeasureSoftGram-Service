@@ -40,6 +40,8 @@ class AllGoalsSerializer(serializers.ModelSerializer):
         return obj.data
 
     def get_accomplished(self, obj):
+        # FIXME: Estamos pegando apenas as 2 primeiras, pois o mesmo
+        # produto pode ter várias características calculadas
         chars = (
             CalculatedCharacteristic.objects.filter(
                 repository__product=obj.product,
