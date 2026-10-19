@@ -78,6 +78,20 @@ jobs:
       # NAO rodar migrate aqui. O boot do container ja migra (start_service.sh
       # roda manage.py migrate --noinput). Migrate fica num lugar so.
 
+      # O boot roda migrate, load_initial_data e collectstatic antes do gunicorn;
+      # num deploy com migracoes isso passa de 3 min. Espera o healthcheck do
+      # compose (/health/ dentro do container) antes do smoke externo.
+      - name: Aguardar Service healthy
+        run: |
+          for i in $(seq 1 120); do
+            status=$(docker inspect -f '{{.State.Health.Status}}' msgram_service 2>/dev/null) || status=ausente
+            if [ "$status" = "healthy" ]; then echo "OK: msgram_service healthy"; exit 0; fi
+            echo "msgram_service $status (tentativa $i), aguardando..."
+            sleep 5
+          done
+          echo "FALHA: msgram_service nao ficou healthy em 10 min"
+          exit 1
+
       - name: Smoke test (so Service)
         run: |
           set -e
@@ -104,4 +118,7 @@ jobs:
       - name: Logs em caso de falha
         if: failure()
         working-directory: /home/lappis/msgram-deploy
-        run: docker compose -f docker-compose.prod.yml logs --tail=120
+        run: |
+          docker compose -f docker-compose.prod.yml logs --tail=120
+          # O log da stack fica tomado pelo proxy; o do Service mostra o boot.
+          docker logs msgram_service --tail 80 || true
