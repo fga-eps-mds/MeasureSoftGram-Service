@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueValidator
 
+import utils
 from organizations.models import Organization, Product, Repository
 from tsqmi.models import TSQMI
 from tsqmi.serializers import TSQMISerializer
@@ -500,7 +501,7 @@ class RepositoriesTSQMIHistorySerializer(serializers.ModelSerializer):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
 
         try:
-            qs = obj.calculated_tsqmis.all().reverse()[:MAX]
+            qs = utils.get_latest_history(obj.calculated_tsqmis.all(), MAX)
             return TSQMISerializer(qs, many=True).data
         except TSQMI.DoesNotExist:
             return None

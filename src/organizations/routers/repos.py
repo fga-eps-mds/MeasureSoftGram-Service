@@ -6,6 +6,7 @@ from math_model.views import CalculateMathModelViewSet
 from measures.views import CalculatedMeasureHistoryModelViewSet, LatestCalculatedMeasureModelViewSet
 from metrics.views import CollectedMetricHistoryModelViewSet, LatestCollectedMetricModelViewSet
 from organizations.routers.routers import Router
+from releases.views import RepositoryReleaseHistoryViewSet
 from subcharacteristics.views import (
     CalculatedSubCharacteristicHistoryModelViewSet,
     LatestCalculatedSubCharacteristicModelViewSet,
@@ -100,5 +101,10 @@ class RepoRouter(Router):
                 "name": "historical-values/tsqmi",
                 "view": CalculatedTSQMIHistoryModelViewSet,
                 "basename": "tsqmi-historical-values",
+            },
+            {
+                "name": "release-history",
+                "view": RepositoryReleaseHistoryViewSet,
+                "basename": "release-history",
             },
         ]

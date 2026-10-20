@@ -10,7 +10,7 @@ from release_configuration.views import (
     CurrentReleaseConfigModelViewSet,
     DefaultPreConfigModelViewSet,
 )
-from releases.views import EntityAnalysisViewSet, ReleaseModelViewSet
+from releases.views import EntityAnalysisViewSet, ReleaseDashboardViewSet, ReleaseModelViewSet
 
 
 class ProductRouter(Router):
@@ -44,6 +44,11 @@ class ProductRouter(Router):
                     "name": "entity-analysis",
                     "view": EntityAnalysisViewSet,
                     "basename": "entity-analysis",
+                },
+                {
+                    "name": "release-dashboard",
+                    "view": ReleaseDashboardViewSet,
+                    "basename": "release-dashboard",
                 },
                 {
                     "name": "repositories",

@@ -61,6 +61,10 @@ GET /api/v1/orgs/1/repositories/1/metrics/1/ OK
 #### Endpoint que retorna uma lista com o histórico de valores de uma métrica de um projeto
 GET /api/v1/orgs/1/repositories/1/history/metrics/1/ OK
 
+O histórico de métricas aceita `?qualifier=TRK` para trazer só o valor do repositório, sem os valores por arquivo (`FIL`, `UTS`), e `?start_at=`/`?end_at=` para filtrar por data.
+
+Em todos os históricos (métricas, medidas, subcaracterísticas, características e TSQMI) vêm os `MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS` registros **mais recentes** (padrão 100), ordenados do mais antigo para o mais novo.
+
 #### Endpoint que retorna o valor atual das metrics e de seus componentes
 GET /api/v1/orgs/1/repositories/1/tree/metrics/
 
@@ -190,3 +194,73 @@ Regra do valor: o último calculado (ou coletado, para métricas) entre o dia de
 GET /api/v1/organizations/1/products/1/entity-analysis/entities/?release_id=1
 
 Responde `{"characteristic": [{"key", "name"}], "subcharacteristic": [...], "measure": [...], "metric": [...]}`. No nível `metric` entram só as métricas gravadas com `qualifier = TRK` em algum repositório da release (hoje, as do GitHub).
+
+## Dashboards por release (US07.01)
+
+Dados da Visão Geral de Qualidade, da Evolução Temporal e do gráfico da tela do repositório, para o Front desenhar sem o Grafana. Qualquer membro da organização tem acesso (não só o admin); quem não é membro recebe 404.
+
+Regra do valor: a mesma da análise por entidade, o último calculado (ou coletado, para métricas) entre o dia de `start_at` e o dia de `end_at` da release, ambos inclusive. Por isso os valores podem ser diferentes dos do Grafana, que usava a média dos últimos 7 dias (planejado × realizado) e dos últimos 30 dias (radar). Os repositórios são os da release, restritos ao produto; se ela não tiver nenhum do produto, todos os do produto. A configuração da release segue a regra da árvore do modelo (TASK21.01.01).
+
+#### Totais da Visão Geral na release
+GET /api/v1/organizations/1/products/1/release-dashboard/summary/?release_id=1
+
+Cada total conta entidades distintas, e não linhas do histórico:
+- `characteristics`, `subcharacteristics`, `measures`, `metrics`: entidades da configuração da release (métricas são as das medidas configuradas).
+- `repositories`: repositórios da release com TSQMI calculado na janela.
+- `files`: arquivos distintos (`qualifier = FIL`) coletados na janela. O mesmo caminho em dois repositórios conta como dois arquivos.
+
+```json
+{
+  "release": {"id": 1, "release_name": "v1.0", "start_at": "...", "end_at": "..."},
+  "totals": {"characteristics": 3, "subcharacteristics": 5, "measures": 9, "metrics": 18, "repositories": 2, "files": 140}
+}
+```
+
+#### Radar, planejado × realizado e TSQMI por repositório na release
+GET /api/v1/organizations/1/products/1/release-dashboard/characteristics/?release_id=1
+
+- `characteristics`: as características da configuração, na ordem dela. `planned` é a meta da release (de 0 a 1, `null` sem meta), `accomplished` é a média entre os repositórios com valor e `dispersion` o desvio padrão (populacional) entre eles. Sem nenhum valor, os dois vêm `null`.
+- `repositories`: o TSQMI e o valor de cada característica no repositório (radar). Sem valor na janela, vem `value: null`.
+
+```json
+{
+  "release": {"id": 1, "release_name": "v1.0", "start_at": "...", "end_at": "..."},
+  "characteristics": [
+    {"key": "reliability", "name": "Reliability", "planned": 0.7, "accomplished": 0.72, "dispersion": 0.04}
+  ],
+  "repositories": [
+    {
+      "id": 3, "name": "api",
+      "tsqmi": {"value": 0.81, "created_at": "..."},
+      "characteristics": [{"key": "reliability", "value": 0.76, "created_at": "..."}]
+    }
+  ]
+}
+```
+
+Respostas: `400` sem `release_id` (ou com valor não numérico), `404` se a release não for do produto ou o usuário não for membro da organização.
+
+#### Evolução de um nível do modelo no repositório, com um ponto por release
+GET /api/v1/organizations/1/products/1/repositories/1/release-history/?level=characteristic&keys=reliability,maintainability
+
+Parâmetros:
+- `level`: `characteristic`, `subcharacteristic`, `measure` ou `metric` (obrigatório).
+- `keys` *(opcional)*: chaves separadas por vírgula. Sem `keys`, vêm as entidades do nível na configuração atual do produto. Chaves que não existem são ignoradas.
+
+Entram as releases do produto que incluem o repositório pela mesma regra (inclusive as que não escolheram repositórios do produto), da mais antiga para a mais nova. Cada entidade tem um ponto por release em `history`, na mesma ordem de `releases`, com `value: null` quando não há valor na janela. Métricas usam o valor no nível do projeto (`qualifier = TRK`).
+
+```json
+{
+  "repository": {"id": 1, "name": "api"},
+  "level": "characteristic",
+  "releases": [{"id": 1, "release_name": "v1.0", "start_at": "...", "end_at": "..."}, {"id": 2, "release_name": "v2.0", "...": "..."}],
+  "entities": [
+    {"key": "reliability", "name": "Reliability", "history": [
+      {"release_id": 1, "value": 0.5, "created_at": "..."},
+      {"release_id": 2, "value": null, "created_at": null}
+    ]}
+  ]
+}
+```
+
+Respostas: `400` com `level` inválido, `404` se o repositório não for do produto ou o usuário não for membro da organização.

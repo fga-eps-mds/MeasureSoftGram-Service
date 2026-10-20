@@ -73,4 +73,5 @@ class CollectedMetricHistoryModelViewSet(
         context = super().get_serializer_context()
         context["start_at"] = self.request.query_params.get("start_at")
         context["end_at"] = self.request.query_params.get("end_at")
+        context["qualifier"] = self.request.query_params.get("qualifier")
         return context

@@ -186,3 +186,14 @@ class DateRange:
 
     def __repr__(self):
         return f"{self.start} - {self.end}"
+
+
+def get_latest_history(queryset: models.QuerySet, limit: int) -> list:
+    """
+    Os `limit` registros mais recentes do queryset, do mais antigo para o mais novo.
+
+    Cortar depois de inverter a ordem (`qs.reverse()[:limit]`) devolvia os mais antigos e
+    escondia as análises recentes de repositórios com mais de `limit` registros.
+    """
+    latest = queryset.order_by("-created_at", "-id")[:limit]
+    return list(latest)[::-1]

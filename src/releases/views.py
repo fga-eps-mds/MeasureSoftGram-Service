@@ -10,6 +10,12 @@ from characteristics.models import CalculatedCharacteristic
 from entity_trees.services import resolve_release_configuration
 from organizations.mixins import UserScopedMixin
 from organizations.models import Repository
+from releases.dashboard import (
+    get_configured_keys,
+    get_release_characteristics,
+    get_release_summary,
+    get_repository_release_history,
+)
 from releases.entity_analysis import (
     LEVELS,
     MetricWithoutRepositoryValue,
@@ -192,16 +198,9 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
             return Response({"detail": "Release não encontrada"}, status=404)
 
 
-class EntityAnalysisViewSet(UserScopedMixin, viewsets.ViewSet):
-    """
-    Análise por entidade (US21.02): valor de uma entidade do modelo em cada
-    repositório do produto, numa release, com os filhos da entidade.
-    """
-
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
-
+class ReleaseScopedMixin(UserScopedMixin):
     def get_release(self):
+        """Release do parâmetro `release_id`, dentro do produto da URL. `None` se o parâmetro faltar."""
         release_id = self.request.query_params.get("release_id")
         if not release_id or not release_id.isdigit():
             return None
@@ -210,6 +209,16 @@ class EntityAnalysisViewSet(UserScopedMixin, viewsets.ViewSet):
             id=int(release_id),
             product=self.get_product(),
         )
+
+
+class EntityAnalysisViewSet(ReleaseScopedMixin, viewsets.ViewSet):
+    """
+    Análise por entidade (US21.02): valor de uma entidade do modelo em cada
+    repositório do produto, numa release, com os filhos da entidade.
+    """
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
         level = request.query_params.get("level")
@@ -245,3 +254,53 @@ class EntityAnalysisViewSet(UserScopedMixin, viewsets.ViewSet):
             return Response({level: [] for level in LEVELS})
 
         return Response(get_entity_catalog(release, configuration))
+
+
+class ReleaseDashboardViewSet(ReleaseScopedMixin, viewsets.ViewSet):
+    """
+    Visão Geral de Qualidade por release (US07.01): totais, radar, planejado ×
+    realizado e TSQMI por repositório. Qualquer membro da organização tem acesso.
+    """
+
+    permission_classes = (IsAuthenticated,)
+
+    @action(detail=False, methods=["get"])
+    def summary(self, request, *args, **kwargs):
+        release = self.get_release()
+        if release is None:
+            return Response({"detail": "O parâmetro release_id é obrigatório."}, status=400)
+
+        configuration = resolve_release_configuration(release.product, release)
+        return Response(get_release_summary(release, configuration))
+
+    @action(detail=False, methods=["get"])
+    def characteristics(self, request, *args, **kwargs):
+        release = self.get_release()
+        if release is None:
+            return Response({"detail": "O parâmetro release_id é obrigatório."}, status=400)
+
+        configuration = resolve_release_configuration(release.product, release)
+        return Response(get_release_characteristics(release, configuration))
+
+
+class RepositoryReleaseHistoryViewSet(UserScopedMixin, viewsets.ViewSet):
+    """
+    Evolução de um nível do modelo no repositório, com um ponto por release
+    (US07.01): Evolução Temporal e gráfico da tela do repositório.
+    """
+
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, *args, **kwargs):
+        repository = self.get_repository()
+        level = request.query_params.get("level")
+
+        if level not in LEVELS:
+            return Response({"detail": f"O parâmetro level deve ser um de: {', '.join(LEVELS)}."}, status=400)
+
+        keys = [key.strip() for key in request.query_params.get("keys", "").split(",") if key.strip()]
+        if not keys:
+            # sem keys, vale a configuração atual do produto
+            keys = get_configured_keys(resolve_release_configuration(repository.product), level)
+
+        return Response(get_repository_release_history(repository, level, keys))

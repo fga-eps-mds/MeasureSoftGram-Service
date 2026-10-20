@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework import serializers
 
+import utils
 from measures.models import CalculatedMeasure, SupportedMeasure
 
 
@@ -79,13 +80,11 @@ class CalculatedMeasureHistorySerializer(serializers.ModelSerializer):
     def get_history(self, obj: SupportedMeasure):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
         try:
-            # Os últimos 10 registros criados em ordem decrescente
             qs = obj.calculated_measures.all()
 
             repository = self.context["view"].get_repository()
             qs = qs.filter(repository=repository)
-            qs = qs.reverse()
 
-            return CalculatedMeasureSerializer(qs[:MAX], many=True).data
+            return CalculatedMeasureSerializer(utils.get_latest_history(qs, MAX), many=True).data
         except CalculatedMeasure.DoesNotExist:
             return None

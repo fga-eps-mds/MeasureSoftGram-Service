@@ -61,7 +61,7 @@ def get_configured_entities(configuration) -> dict:
     )
     metrics_by_measure = {measure.key: [metric.key for metric in measure.metrics.all()] for measure in measures}
 
-    for measure in _unique_by_key(entities[MEASURE]):
+    for measure in unique_by_key(entities[MEASURE]):
         for metric_key in metrics_by_measure.get(measure["key"], []):
             entities[METRIC].append({"key": metric_key, "parent": measure["key"]})
 
@@ -83,10 +83,10 @@ def get_entity_catalog(release: Release, configuration) -> dict:
     catalog = {}
 
     for level in LEVELS:
-        items = _unique_by_key(entities[level])
+        items = unique_by_key(entities[level])
         if level == METRIC:
             items = [item for item in items if item["key"] in repository_level_metrics]
-        names = _get_names(level, [item["key"] for item in items])
+        names = get_entity_names(level, [item["key"] for item in items])
         catalog[level] = [{"key": item["key"], "name": names.get(item["key"], item["key"])} for item in items]
 
     return catalog
@@ -108,10 +108,10 @@ def get_entity_analysis(release: Release, configuration, level: str, key: str):
         raise MetricWithoutRepositoryValue(key)
 
     supported_entity = SUPPORTED_MODELS[level].objects.get(key=key)
-    repositories = _get_release_repositories(release)
+    repositories = get_release_repositories(release)
     repositories_ids = [repository.id for repository in repositories]
 
-    values = _get_values(level, release, repositories_ids, [key])
+    values = get_entity_values(level, release, repositories_ids, [key])
     children = _get_children(level, key, entities, release, repositories_ids)
 
     entity = {"key": supported_entity.key, "name": supported_entity.name}
@@ -132,13 +132,13 @@ def get_entity_analysis(release: Release, configuration, level: str, key: str):
             {
                 "id": repository.id,
                 "name": repository.name,
-                **_serialize_value(values.get((repository.id, key))),
+                **serialize_value(values.get((repository.id, key))),
                 "children": [
                     {
                         "key": child["key"],
                         "name": child["name"],
                         "weight": child["weight"],
-                        **_serialize_value(child["values"].get(repository.id)),
+                        **serialize_value(child["values"].get(repository.id)),
                     }
                     for child in children
                 ],
@@ -154,7 +154,7 @@ def get_repository_level_metric_keys(release: Release, keys: list) -> set:
     repositório da release. As do SonarQube são gravadas por arquivo e ficam de fora: o
     Service não guarda o valor do `baseComponent`, então elas viriam "sem dado" em todos.
     """
-    repositories_ids = [repository.id for repository in _get_release_repositories(release)]
+    repositories_ids = [repository.id for repository in get_release_repositories(release)]
     return set(
         CollectedMetric.objects.filter(
             metric__key__in=keys,
@@ -166,7 +166,7 @@ def get_repository_level_metric_keys(release: Release, keys: list) -> set:
     )
 
 
-def _get_release_repositories(release: Release):
+def get_release_repositories(release: Release):
     """
     Repositórios da release, sempre restritos ao produto dela; sem nenhum, todos os do produto.
 
@@ -180,7 +180,7 @@ def _get_release_repositories(release: Release):
     return list(repositories.order_by("name", "id"))
 
 
-def _get_values(level: str, release: Release, repositories_ids: list, keys: list) -> dict:
+def get_entity_values(level: str, release: Release, repositories_ids: list, keys: list) -> dict:
     if level == CHARACTERISTIC:
         queryset = CalculatedCharacteristic.objects.filter(characteristic__key__in=keys)
     elif level == SUBCHARACTERISTIC:
@@ -199,10 +199,10 @@ def _get_children(level: str, key: str, entities: dict, release: Release, reposi
     if child_level is None:
         return []
 
-    children = _unique_by_key([item for item in entities[child_level] if item["parent"] == key])
+    children = unique_by_key([item for item in entities[child_level] if item["parent"] == key])
     children_keys = [child["key"] for child in children]
-    names = _get_names(child_level, children_keys)
-    values = _get_values(child_level, release, repositories_ids, children_keys)
+    names = get_entity_names(child_level, children_keys)
+    values = get_entity_values(child_level, release, repositories_ids, children_keys)
 
     return [
         {
@@ -233,11 +233,11 @@ def _get_reference(level: str, key: str, release: Release, configured: dict):
     return None
 
 
-def _get_names(level: str, keys: list) -> dict:
+def get_entity_names(level: str, keys: list) -> dict:
     return dict(SUPPORTED_MODELS[level].objects.filter(key__in=keys).values_list("key", "name"))
 
 
-def _serialize_value(item) -> dict:
+def serialize_value(item) -> dict:
     if item is None:
         return {"value": None, "created_at": None}
     return {"value": item.value, "created_at": item.created_at}
@@ -247,7 +247,7 @@ def _config_fields(item: dict) -> dict:
     return {field: item[field] for field in ("weight", "min_threshold", "max_threshold") if field in item}
 
 
-def _unique_by_key(items: list) -> list:
+def unique_by_key(items: list) -> list:
     seen = set()
     unique = []
     for item in items:

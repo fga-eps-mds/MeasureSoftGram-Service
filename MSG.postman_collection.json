@@ -699,6 +699,68 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Release dashboard - summary",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/release-dashboard/summary/?release_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"release-dashboard",
+												"summary",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Release dashboard - characteristics",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/release-dashboard/characteristics/?release_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"release-dashboard",
+												"characteristics",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						}
@@ -1138,6 +1200,42 @@
 												"historical-values",
 												"tsqmi",
 												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Valores por release (release-history)",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/release-history/?level=characteristic&keys=reliability,maintainability",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories",
+												"10",
+												"release-history",
+												""
+											],
+											"query": [
+												{
+													"key": "level",
+													"value": "characteristic"
+												},
+												{
+													"key": "keys",
+													"value": "reliability,maintainability"
+												}
 											]
 										}
 									},
