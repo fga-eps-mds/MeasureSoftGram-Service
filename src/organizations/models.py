@@ -121,24 +121,44 @@ class Repository(models.Model):
     imported = models.BooleanField(default=False)
     github_repo_id = models.BigIntegerField(null=True, blank=True)
     github_full_name = models.CharField(max_length=255, null=True, blank=True)
+    gitlab_project_id = models.BigIntegerField(null=True, blank=True)
+    gitlab_path_with_namespace = models.CharField(max_length=255, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.key = slugify(self.name)
         self.key = f"{self.product.key}-{self.key}"
 
         if self.platform == "github" and self.url and not self.github_full_name:
-            from urllib.parse import urlparse
+            self._fill_github_full_name()
 
-            try:
-                parsed = urlparse(self.url)
-                if "github.com" in parsed.netloc:
-                    parts = [p for p in parsed.path.split("/") if p]
-                    if len(parts) >= 2:
-                        self.github_full_name = f"{parts[0]}/{parts[1]}"
-            except Exception:
-                pass
+        if self.platform == "gitlab" and self.url and not self.gitlab_path_with_namespace:
+            self._fill_gitlab_path_with_namespace()
 
         return super().save(*args, **kwargs)
+
+    def _fill_github_full_name(self):
+        from urllib.parse import urlparse
+
+        try:
+            parsed = urlparse(self.url)
+            if "github.com" in parsed.netloc:
+                parts = [p for p in parsed.path.split("/") if p]
+                if len(parts) >= 2:
+                    self.github_full_name = f"{parts[0]}/{parts[1]}"
+        except Exception:
+            pass
+
+    def _fill_gitlab_path_with_namespace(self):
+        from urllib.parse import urlparse
+
+        try:
+            parsed = urlparse(self.url)
+            if "gitlab.com" in parsed.netloc:
+                parts = [p for p in parsed.path.strip("/").split("/") if p]
+                if parts:
+                    self.gitlab_path_with_namespace = "/".join(parts)
+        except Exception:
+            pass
 
     def __str__(self):
         return self.name

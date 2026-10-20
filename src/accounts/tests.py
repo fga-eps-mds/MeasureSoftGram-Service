@@ -4,6 +4,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth import get_user_model
 from django.test import SimpleTestCase
 from parameterized import parameterized
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
 
@@ -609,6 +610,150 @@ class AccountsViews(APITestCaseExpanded):
     def test_gitlab_login_reverse(self):
         url = reverse("gitlab-login")
         self.assertEqual(url, "/api/v1/accounts/gitlab/login/")
+
+    def test_gitlab_namespaces_unauthenticated(self):
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_gitlab_namespaces_missing_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["error"], "GitLab account not linked.")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_success(self, mock_get):
+        self.user.gitlab_access_token = "gl_token_123"
+        self.user.save()
+
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = 200
+            if "api/v4/user" in url:
+                resp.json.return_value = {
+                    "id": 101,
+                    "username": "gl_user",
+                    "name": "GitLab User",
+                    "avatar_url": "https://gitlab.com/avatar/user.png",
+                    "bio": "Personal bio",
+                }
+            else:
+                resp.json.return_value = [
+                    {
+                        "id": 201,
+                        "name": "Org Group",
+                        "full_path": "org-group",
+                        "avatar_url": "https://gitlab.com/avatar/group.png",
+                        "description": "Group description",
+                    }
+                ]
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(len(data), 2)
+
+        user_item = data[0]
+        self.assertEqual(user_item["id"], 101)
+        self.assertEqual(user_item["name"], "GitLab User")
+        self.assertEqual(user_item["full_path"], "gl_user")
+        self.assertEqual(user_item["avatar_url"], "https://gitlab.com/avatar/user.png")
+        self.assertEqual(user_item["description"], "Personal bio")
+        self.assertEqual(user_item["kind"], "user")
+
+        group_item = data[1]
+        self.assertEqual(group_item["id"], 201)
+        self.assertEqual(group_item["name"], "Org Group")
+        self.assertEqual(group_item["full_path"], "org-group")
+        self.assertEqual(group_item["avatar_url"], "https://gitlab.com/avatar/group.png")
+        self.assertEqual(group_item["description"], "Group description")
+        self.assertEqual(group_item["kind"], "group")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_via_social_token(self, mock_get):
+        from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
+        from django.contrib.sites.models import Site
+
+        self.user.gitlab_access_token = None
+        self.user.save()
+
+        app = SocialApp.objects.create(provider="gitlab", name="GitLab", client_id="gl_cid", secret="gl_sec")
+        app.sites.add(Site.objects.get_current())
+        account = SocialAccount.objects.create(user=self.user, provider="gitlab", uid="gl_uid_123")
+        SocialToken.objects.create(app=app, account=account, token="recovered_gl_token")
+
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = 200
+            if "api/v4/user" in url:
+                resp.json.return_value = {"id": 1, "username": "recovered_user"}
+            else:
+                resp.json.return_value = []
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.gitlab_access_token, "recovered_gl_token")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_401(self, mock_get):
+        self.user.gitlab_access_token = "gl_token_123"
+        self.user.save()
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 401
+        mock_resp.json.return_value = {"message": "401 Unauthorized"}
+        mock_get.return_value = mock_resp
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.json()["error"], "gitlab_token_invalid")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_timeout(self, mock_get):
+        from requests.exceptions import Timeout
+
+        self.user.gitlab_access_token = "gl_token_123"
+        self.user.save()
+
+        mock_get.side_effect = Timeout("Timeout from gitlab")
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_504_GATEWAY_TIMEOUT)
+        self.assertEqual(response.json()["error"], "gitlab_timeout")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_connection_error(self, mock_get):
+        from requests.exceptions import ConnectionError
+
+        self.user.gitlab_access_token = "gl_token_123"
+        self.user.save()
+
+        mock_get.side_effect = ConnectionError("ConnectionError from gitlab")
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_502_BAD_GATEWAY)
+        self.assertEqual(response.json()["error"], "gitlab_unavailable")
 
 
 class AccountsAppConfigTest(SimpleTestCase):

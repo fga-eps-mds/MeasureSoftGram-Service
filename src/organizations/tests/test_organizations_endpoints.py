@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
@@ -558,3 +559,185 @@ class GitHubReposViewsTestCase(APITestCaseExpanded):
         self.assertEqual(response.status_code, 200)
         self.user.refresh_from_db()
         self.assertEqual(self.user.github_access_token, "social-token-xyz")
+
+    def test_gitlab_projects_unauthenticated(self):
+        org = self.get_organization()
+        url = reverse("gitlab-projects-list", kwargs={"organization_pk": org.id})
+        self.client.force_authenticate(user=None)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_gitlab_projects_not_member(self):
+        org = Organization.objects.create(name="Other Org")
+        self.user.gitlab_access_token = "my-token"
+        self.user.save()
+        url = reverse("gitlab-projects-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url, {"namespace_id": 123})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_gitlab_projects_missing_token(self):
+        org = self.get_organization()
+        self.user.gitlab_access_token = None
+        self.user.save()
+        url = reverse("gitlab-projects-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url, {"namespace_id": 123})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["error"], "GitLab account not linked.")
+
+    def test_gitlab_projects_missing_namespace_id(self):
+        org = self.get_organization()
+        self.user.gitlab_access_token = "my-token"
+        self.user.save()
+        url = reverse("gitlab-projects-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["error"], "namespace_id is required.")
+
+    @patch("organizations.views.requests.get")
+    def test_gitlab_projects_success_group(self, mock_get):
+        org = self.get_organization()
+        self.user.gitlab_access_token = "my-token"
+        self.user.save()
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.headers = {
+            "X-Total-Pages": "4",
+            "X-Next-Page": "2",
+            "X-Page": "1",
+            "X-Total": "180",
+        }
+        mock_resp.json.return_value = [
+            {
+                "id": 1001,
+                "path_with_namespace": "my-group/proj-1",
+                "name": "Project 1",
+                "description": "First project",
+                "web_url": "https://gitlab.com/my-group/proj-1",
+            }
+        ]
+        mock_get.return_value = mock_resp
+
+        url = reverse("gitlab-projects-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url, {"namespace_id": 42, "kind": "group", "page": 1})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.headers.get("X-Total-Pages"), "4")
+        self.assertEqual(response.headers.get("X-Next-Page"), "2")
+
+        data = response.json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(
+            data[0],
+            {
+                "gitlab_project_id": 1001,
+                "gitlab_path_with_namespace": "my-group/proj-1",
+                "name": "Project 1",
+                "description": "First project",
+                "url": "https://gitlab.com/my-group/proj-1",
+            },
+        )
+        called_url = mock_get.call_args[0][0]
+        self.assertIn("api/v4/groups/42/projects", called_url)
+
+    @patch("organizations.views.requests.get")
+    def test_gitlab_projects_success_user(self, mock_get):
+        org = self.get_organization()
+        self.user.gitlab_access_token = "my-token"
+        self.user.save()
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.headers = {
+            "X-Total-Pages": "1",
+            "X-Next-Page": "",
+        }
+        mock_resp.json.return_value = [
+            {
+                "id": 2002,
+                "path_with_namespace": "my-user/user-proj",
+                "name": "User Project",
+                "description": None,
+                "web_url": "https://gitlab.com/my-user/user-proj",
+            }
+        ]
+        mock_get.return_value = mock_resp
+
+        url = reverse("gitlab-projects-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url, {"namespace_id": 99, "kind": "user", "page": 1})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(response.headers.get("X-Total-Pages"), "1")
+        data = response.json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]["gitlab_project_id"], 2002)
+        self.assertEqual(data[0]["description"], "")
+        self.assertEqual(data[0]["url"], "https://gitlab.com/my-user/user-proj")
+
+        called_url = mock_get.call_args[0][0]
+        self.assertIn("api/v4/users/99/projects", called_url)
+
+    @patch("organizations.views.requests.get")
+    def test_gitlab_projects_with_search(self, mock_get):
+        org = self.get_organization()
+        self.user.gitlab_access_token = "my-token"
+        self.user.save()
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_resp.headers = {}
+        mock_resp.json.return_value = []
+        mock_get.return_value = mock_resp
+
+        url = reverse("gitlab-projects-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url, {"namespace_id": 42, "kind": "group", "search": "backend"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        called_kwargs = mock_get.call_args[1]
+        self.assertEqual(called_kwargs["params"]["search"], "backend")
+
+    @patch("organizations.views.requests.get")
+    def test_gitlab_projects_401(self, mock_get):
+        org = self.get_organization()
+        self.user.gitlab_access_token = "my-token"
+        self.user.save()
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 401
+        mock_resp.json.return_value = {"message": "401 Unauthorized"}
+        mock_get.return_value = mock_resp
+
+        url = reverse("gitlab-projects-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url, {"namespace_id": 42})
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.json()["error"], "gitlab_token_invalid")
+
+    @patch("organizations.views.requests.get")
+    def test_gitlab_projects_timeout(self, mock_get):
+        from requests.exceptions import Timeout
+
+        org = self.get_organization()
+        self.user.gitlab_access_token = "my-token"
+        self.user.save()
+
+        mock_get.side_effect = Timeout("Timeout from gitlab")
+
+        url = reverse("gitlab-projects-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url, {"namespace_id": 42})
+        self.assertEqual(response.status_code, status.HTTP_504_GATEWAY_TIMEOUT)
+        self.assertEqual(response.json()["error"], "gitlab_timeout")
+
+    @patch("organizations.views.requests.get")
+    def test_gitlab_projects_connection_error(self, mock_get):
+        from requests.exceptions import ConnectionError
+
+        org = self.get_organization()
+        self.user.gitlab_access_token = "my-token"
+        self.user.save()
+
+        mock_get.side_effect = ConnectionError("ConnectionError from gitlab")
+
+        url = reverse("gitlab-projects-list", kwargs={"organization_pk": org.id})
+        response = self.client.get(url, {"namespace_id": 42})
+        self.assertEqual(response.status_code, status.HTTP_502_BAD_GATEWAY)
+        self.assertEqual(response.json()["error"], "gitlab_unavailable")

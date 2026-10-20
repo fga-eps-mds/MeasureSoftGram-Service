@@ -232,6 +232,125 @@ class GitHubOrganizationsViewSet(viewsets.ViewSet):
         return Response(results, status=status.HTTP_200_OK)
 
 
+class GitLabNamespacesViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        user = request.user
+        token = user.gitlab_access_token
+        if not token:
+            from allauth.socialaccount.models import SocialToken
+
+            st = SocialToken.objects.filter(account__user=user, account__provider="gitlab").first()
+            if st:
+                token = st.token
+                user.gitlab_access_token = token
+                user.save()
+                st.delete()
+            else:
+                return Response(
+                    {"error": "GitLab account not linked."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+        }
+        timeout = getattr(settings, "GITLAB_TIMEOUT", 10)
+
+        from concurrent.futures import ThreadPoolExecutor
+
+        try:
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                future_user = executor.submit(
+                    requests.get,
+                    "https://gitlab.com/api/v4/user",
+                    headers=headers,
+                    timeout=timeout,
+                )
+                future_groups = executor.submit(
+                    requests.get,
+                    "https://gitlab.com/api/v4/groups?min_access_level=10",
+                    headers=headers,
+                    timeout=timeout,
+                )
+                r_user = future_user.result()
+                r_groups = future_groups.result()
+        except requests.exceptions.Timeout:
+            return Response(
+                {"error": "gitlab_timeout", "details": "Timeout contacting GitLab API."},
+                status=status.HTTP_504_GATEWAY_TIMEOUT,
+            )
+        except requests.exceptions.RequestException:
+            return Response(
+                {"error": "gitlab_unavailable", "details": "Error contacting GitLab API."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        return self._build_response(r_user, r_groups)
+
+    @staticmethod
+    def _build_response(r_user, r_groups):
+        if r_user.status_code in (401, 403) or r_groups.status_code in (401, 403):
+            bad_resp = r_user if r_user.status_code in (401, 403) else r_groups
+            details = {}
+            try:
+                details = bad_resp.json()
+            except Exception:
+                pass
+            return Response(
+                {"error": "gitlab_token_invalid", "details": details},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        if r_user.status_code != 200:
+            return Response(
+                {
+                    "error": "Failed to fetch user from GitLab",
+                    "details": r_user.json() if r_user.content else {},
+                },
+                status=r_user.status_code,
+            )
+
+        if r_groups.status_code != 200:
+            return Response(
+                {
+                    "error": "Failed to fetch groups from GitLab",
+                    "details": r_groups.json() if r_groups.content else {},
+                },
+                status=r_groups.status_code,
+            )
+
+        user_data = r_user.json()
+        results = [
+            {
+                "id": user_data.get("id"),
+                "name": user_data.get("name") or user_data.get("username"),
+                "full_path": user_data.get("username"),
+                "avatar_url": user_data.get("avatar_url"),
+                "description": user_data.get("bio") or "",
+                "kind": "user",
+            }
+        ]
+
+        groups_data = r_groups.json()
+        if isinstance(groups_data, list):
+            for group in groups_data:
+                results.append(
+                    {
+                        "id": group.get("id"),
+                        "name": group.get("name"),
+                        "full_path": group.get("full_path") or group.get("path"),
+                        "avatar_url": group.get("avatar_url"),
+                        "description": group.get("description") or "",
+                        "kind": "group",
+                    }
+                )
+
+        return Response(results, status=status.HTTP_200_OK)
+
+
 class GithubValidateView(APIView):
     """
     Endpoint para validar as credenciais do GitHub (Client ID e Client Secret)

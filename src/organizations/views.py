@@ -293,3 +293,113 @@ class GitHubReposViewSet(UserScopedMixin, viewsets.ViewSet):
                 }
             )
         return Response(results, status=status.HTTP_200_OK)
+
+
+class GitLabProjectsViewSet(UserScopedMixin, viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request, organization_pk=None):
+        self.get_organization()
+
+        user = request.user
+        token = user.gitlab_access_token
+        if not token:
+            from allauth.socialaccount.models import SocialToken
+
+            st = SocialToken.objects.filter(account__user=user, account__provider="gitlab").first()
+            if st:
+                token = st.token
+                user.gitlab_access_token = token
+                user.save()
+                st.delete()
+            else:
+                return Response(
+                    {"error": "GitLab account not linked."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        namespace_id = request.query_params.get("namespace_id")
+        if not namespace_id:
+            return Response(
+                {"error": "namespace_id is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        kind = request.query_params.get("kind", "group")
+        page = request.query_params.get("page", 1)
+        search = request.query_params.get("search")
+
+        if kind == "user":
+            url = f"https://gitlab.com/api/v4/users/{namespace_id}/projects"
+        else:
+            url = f"https://gitlab.com/api/v4/groups/{namespace_id}/projects"
+
+        params = {
+            "per_page": 50,
+            "page": page,
+        }
+        if search:
+            params["search"] = search
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/json",
+        }
+        timeout = getattr(settings, "GITLAB_TIMEOUT", 10)
+
+        try:
+            r = requests.get(url, headers=headers, params=params, timeout=timeout)
+        except requests.exceptions.Timeout:
+            return Response(
+                {"error": "gitlab_timeout", "details": "Timeout contacting GitLab API."},
+                status=status.HTTP_504_GATEWAY_TIMEOUT,
+            )
+        except requests.exceptions.RequestException:
+            return Response(
+                {"error": "gitlab_unavailable", "details": "Error contacting GitLab API."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        return self._build_response(r)
+
+    @staticmethod
+    def _build_response(r):
+        if r.status_code in (401, 403):
+            return Response(
+                {"error": "gitlab_token_invalid", "details": r.json() if r.content else {}},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        if r.status_code != 200:
+            return Response(
+                {
+                    "error": "Failed to fetch projects from GitLab",
+                    "details": r.json() if r.content else {},
+                },
+                status=r.status_code,
+            )
+
+        projects = r.json()
+        results = []
+        if isinstance(projects, list):
+            for item in projects:
+                results.append(
+                    {
+                        "gitlab_project_id": item.get("id"),
+                        "gitlab_path_with_namespace": item.get("path_with_namespace"),
+                        "name": item.get("name"),
+                        "description": item.get("description") or "",
+                        "url": item.get("web_url"),
+                    }
+                )
+
+        response = Response(results, status=status.HTTP_200_OK)
+        if "X-Total-Pages" in r.headers:
+            response["X-Total-Pages"] = str(r.headers["X-Total-Pages"])
+        if "X-Next-Page" in r.headers:
+            response["X-Next-Page"] = str(r.headers["X-Next-Page"])
+        if "X-Page" in r.headers:
+            response["X-Page"] = str(r.headers["X-Page"])
+        if "X-Total" in r.headers:
+            response["X-Total"] = str(r.headers["X-Total"])
+        return response

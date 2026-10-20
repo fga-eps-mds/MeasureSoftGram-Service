@@ -522,3 +522,50 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
         self.assertEqual(len(data_history["history"]), 2)
         self.assertEqual(data_history["history"][0]["value"], 0.85)
         self.assertEqual(data_history["history"][1]["value"], 0.90)
+
+    @patch("organizations.serializers.requests.head")
+    def test_create_a_new_gitlab_repository(self, mock_head):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_head.return_value = mock_resp
+
+        self.client.force_authenticate(user=self.user)
+
+        data = {
+            "name": "GitLab Test Repo",
+            "description": "GitLab Test Repo Description",
+            "url": "https://gitlab.com/test-org/test-project",
+            "platform": "gitlab",
+            "imported": True,
+            "gitlab_project_id": 98765,
+            "gitlab_path_with_namespace": "test-org/test-project",
+        }
+        org = self.get_organization()
+        product = self.get_product(org)
+        url = reverse("repository-list", args=[org.id, product.id])
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        res_data = response.json()
+        self.assertEqual(res_data["name"], "GitLab Test Repo")
+        self.assertEqual(res_data["platform"], "gitlab")
+        self.assertEqual(res_data["imported"], True)
+        self.assertEqual(res_data["gitlab_project_id"], 98765)
+        self.assertEqual(res_data["gitlab_path_with_namespace"], "test-org/test-project")
+
+        repo = Repository.objects.get(name="GitLab Test Repo")
+        self.assertEqual(repo.platform, "gitlab")
+        self.assertEqual(repo.imported, True)
+        self.assertEqual(repo.gitlab_project_id, 98765)
+        self.assertEqual(repo.gitlab_path_with_namespace, "test-org/test-project")
+
+    def test_gitlab_repository_save_infers_path_from_url(self):
+        org = self.get_organization()
+        product = self.get_product(org)
+        repo = Repository.objects.create(
+            name="Inferred GitLab Repo",
+            product=product,
+            platform="gitlab",
+            url="https://gitlab.com/my-group/my-subgroup/my-repo",
+        )
+        self.assertEqual(repo.gitlab_path_with_namespace, "my-group/my-subgroup/my-repo")

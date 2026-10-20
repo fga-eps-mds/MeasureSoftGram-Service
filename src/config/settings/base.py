@@ -40,6 +40,7 @@ if _env_cors:
     CORS_ALLOWED_ORIGINS.extend([o.strip() for o in _env_cors.split(",") if o.strip()])
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_EXPOSE_HEADERS = ["X-Total-Pages", "X-Next-Page", "X-Page", "X-Total"]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STORAGES = {
@@ -206,6 +207,18 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("accounts.authentication.SessionOrApiTokenAuthentication",),
 }
 
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Token": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Formato: Token <seu_token_aqui>",
+        }
+    },
+    "USE_SESSION_AUTH": False,
+}
+
 # allauth related configs
 SITE_ID = int(os.getenv("SITE_ID", "1"))
 
@@ -250,6 +263,7 @@ SOCIALACCOUNT_PROVIDERS = {
             "openid",
             "profile",
             "email",
+            "read_api",
         ],
     },
 }
@@ -263,6 +277,7 @@ AMBIENT_TEST_OR_DEV = os.getenv("AMBIENT_TEST_OR_DEV", "True").lower() in (
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
 GITHUB_TIMEOUT = int(os.getenv("GITHUB_TIMEOUT", "10"))
+GITLAB_TIMEOUT = int(os.getenv("GITLAB_TIMEOUT", "10"))
 GITHUB_ISSUE_METRICS_THRESHOLD = int(os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7"))
 
 MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(

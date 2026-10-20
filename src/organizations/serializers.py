@@ -247,6 +247,8 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "actions",
             "platform",
             "imported",
+            "gitlab_project_id",
+            "gitlab_path_with_namespace",
         )
         extra_kwargs = {
             "key": {"read_only": True},
@@ -256,13 +258,14 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         """
         Valida se o nome do repositório é único para o produto
         """
-        name = attrs["name"]
-        product = self.context["view"].get_product()
-        repository_id = self.instance.id if self.instance else None
+        name = attrs.get("name")
+        if name:
+            product = self.context["view"].get_product()
+            repository_id = self.instance.id if self.instance else None
 
-        qs = Repository.objects.filter(name=name, product=product).exclude(id=repository_id)
-        if qs.exists():
-            raise serializers.ValidationError("Repository with this name already exists.")
+            qs = Repository.objects.filter(name=name, product=product).exclude(id=repository_id)
+            if qs.exists():
+                raise serializers.ValidationError("Repository with this name already exists.")
 
         return attrs
 
