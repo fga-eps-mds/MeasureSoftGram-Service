@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 
+from django.db import connection
 from django.test import override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
@@ -67,6 +69,23 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
             )
 
         self.assertEqual(self.history("measures", "test_coverage"), [0.2, 0.3, 0.4])
+
+    def test_measures_endpoints_only_read_the_repository_measures(self):
+        measure = SupportedMeasure.objects.get(key="test_coverage")
+        other_repository = self.get_repository(self.product, name="Outro Repositório")
+        for repository in (self.repository, other_repository):
+            CalculatedMeasure.objects.create(measure=measure, repository=repository, value=0.5, created_at=day(0))
+
+        for endpoint in (self.url, self.url.replace("historical-values", "latest-values")):
+            with CaptureQueriesContext(connection) as queries:
+                response = self.client.get(f"{endpoint}/measures/")
+            self.assertEqual(response.status_code, 200)
+
+            # toda leitura de medidas calculadas é do repositório pedido
+            measure_queries = [q["sql"] for q in queries if '"measures_calculatedmeasure"."value"' in q["sql"]]
+            self.assertTrue(measure_queries)
+            for sql in measure_queries:
+                self.assertIn('"measures_calculatedmeasure"."repository_id" =', sql)
 
     def test_metrics_history_keeps_the_latest_records(self):
         metric = SupportedMetric.objects.get(key="total_builds")
