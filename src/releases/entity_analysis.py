@@ -68,13 +68,24 @@ def get_configured_entities(configuration) -> dict:
     return entities
 
 
-def get_entity_catalog(configuration) -> dict:
-    """Lista, por nível, as entidades da configuração com nome (sem repetição)."""
+class MetricWithoutRepositoryValue(Exception):
+    """A métrica faz parte da configuração, mas não tem valor no nível do repositório."""
+
+
+def get_entity_catalog(release: Release, configuration) -> dict:
+    """
+    Lista, por nível, as entidades da configuração com nome (sem repetição).
+
+    No nível métrica entram só as que têm valor no nível do repositório (TASK21.02.03).
+    """
     entities = get_configured_entities(configuration)
+    repository_level_metrics = get_repository_level_metric_keys(release, [item["key"] for item in entities[METRIC]])
     catalog = {}
 
     for level in LEVELS:
         items = _unique_by_key(entities[level])
+        if level == METRIC:
+            items = [item for item in items if item["key"] in repository_level_metrics]
         names = _get_names(level, [item["key"] for item in items])
         catalog[level] = [{"key": item["key"], "name": names.get(item["key"], item["key"])} for item in items]
 
@@ -85,13 +96,16 @@ def get_entity_analysis(release: Release, configuration, level: str, key: str):
     """
     Valor da entidade em cada repositório da release e a decomposição dela nos filhos.
 
-    Retorna `None` quando a entidade não faz parte da configuração da release.
+    Retorna `None` quando a entidade não faz parte da configuração da release e levanta
+    `MetricWithoutRepositoryValue` para uma métrica sem valor no nível do repositório.
     """
     entities = get_configured_entities(configuration)
     configured = [item for item in entities[level] if item["key"] == key]
 
     if not configured:
         return None
+    if level == METRIC and key not in get_repository_level_metric_keys(release, [key]):
+        raise MetricWithoutRepositoryValue(key)
 
     supported_entity = SUPPORTED_MODELS[level].objects.get(key=key)
     repositories = _get_release_repositories(release)
@@ -134,10 +148,35 @@ def get_entity_analysis(release: Release, configuration, level: str, key: str):
     }
 
 
+def get_repository_level_metric_keys(release: Release, keys: list) -> set:
+    """
+    Métricas, entre `keys`, gravadas no nível do projeto (`qualifier = "TRK"`) em algum
+    repositório da release. As do SonarQube são gravadas por arquivo e ficam de fora: o
+    Service não guarda o valor do `baseComponent`, então elas viriam "sem dado" em todos.
+    """
+    repositories_ids = [repository.id for repository in _get_release_repositories(release)]
+    return set(
+        CollectedMetric.objects.filter(
+            metric__key__in=keys,
+            qualifier="TRK",
+            repository_id__in=repositories_ids,
+        )
+        .values_list("metric__key", flat=True)
+        .distinct()
+    )
+
+
 def _get_release_repositories(release: Release):
-    repositories = release.repositories.all()
+    """
+    Repositórios da release, sempre restritos ao produto dela; sem nenhum, todos os do produto.
+
+    A release pode ter sido criada apontando para repositórios de outro produto, então
+    `release.repositories` sozinho vazaria nome e valores de repositórios de fora.
+    """
+    product_repositories = release.product.repositories.all()
+    repositories = product_repositories.filter(releases=release)
     if not repositories.exists():
-        repositories = release.product.repositories.all()
+        repositories = product_repositories
     return list(repositories.order_by("name", "id"))
 
 

@@ -10,7 +10,12 @@ from characteristics.models import CalculatedCharacteristic
 from entity_trees.services import resolve_release_configuration
 from organizations.mixins import UserScopedMixin
 from organizations.models import Repository
-from releases.entity_analysis import LEVELS, get_entity_analysis, get_entity_catalog
+from releases.entity_analysis import (
+    LEVELS,
+    MetricWithoutRepositoryValue,
+    get_entity_analysis,
+    get_entity_catalog,
+)
 from releases.models import Release
 from releases.serializers import CheckReleaseSerializer, ReleaseAllSerializer, ReleaseSerializer
 from releases.service import (
@@ -220,7 +225,10 @@ class EntityAnalysisViewSet(UserScopedMixin, viewsets.ViewSet):
             return Response({"detail": "O parâmetro release_id é obrigatório."}, status=400)
 
         configuration = resolve_release_configuration(release.product, release)
-        analysis = get_entity_analysis(release, configuration, level, key) if configuration else None
+        try:
+            analysis = get_entity_analysis(release, configuration, level, key) if configuration else None
+        except MetricWithoutRepositoryValue:
+            return Response({"detail": "Esta métrica não tem valor por repositório."}, status=400)
         if analysis is None:
             return Response({"detail": "Entidade não faz parte da configuração da release."}, status=404)
 
@@ -236,4 +244,4 @@ class EntityAnalysisViewSet(UserScopedMixin, viewsets.ViewSet):
         if configuration is None:
             return Response({level: [] for level in LEVELS})
 
-        return Response(get_entity_catalog(configuration))
+        return Response(get_entity_catalog(release, configuration))

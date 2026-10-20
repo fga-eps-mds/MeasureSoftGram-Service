@@ -164,7 +164,7 @@ Parâmetros:
 - `level`: `characteristic`, `subcharacteristic`, `measure` ou `metric`.
 - `key`: chave da entidade. Precisa fazer parte da pré-configuração vigente na release, senão responde 404. Vale a mesma regra da árvore do modelo (TASK21.01.01): a mais recente criada até o `end_at` ou, se nenhuma foi criada até lá, a mais antiga do produto.
 
-Regra do valor: o último calculado (ou coletado, para métricas) entre o dia de `start_at` e o dia de `end_at` da release, ambos inclusive, a mesma do gráfico de pulso do TSQMI. Repositório sem valor na janela vem com `value: null`. Métricas usam o valor bruto no nível do projeto (`qualifier = TRK`). Os repositórios são os da release; se ela não tiver nenhum, todos os do produto.
+Regra do valor: o último calculado (ou coletado, para métricas) entre o dia de `start_at` e o dia de `end_at` da release, ambos inclusive, a mesma do gráfico de pulso do TSQMI. Repositório sem valor na janela vem com `value: null`. Métricas usam o valor bruto no nível do projeto (`qualifier = TRK`); uma métrica da configuração que não tem valor nesse nível (as do SonarQube, gravadas por arquivo) responde 400. Os repositórios são os da release, sempre restritos ao produto dela; se ela não tiver nenhum, todos os do produto.
 
 `reference`: `{"goal": 0.7}` (meta da release, de 0 a 1) para características, `{"min_threshold": 60, "max_threshold": 100}` para medidas e `null` nos outros níveis.
 
@@ -189,4 +189,4 @@ Regra do valor: o último calculado (ou coletado, para métricas) entre o dia de
 #### Entidades da pré-configuração da release, por nível
 GET /api/v1/organizations/1/products/1/entity-analysis/entities/?release_id=1
 
-Responde `{"characteristic": [{"key", "name"}], "subcharacteristic": [...], "measure": [...], "metric": [...]}`.
+Responde `{"characteristic": [{"key", "name"}], "subcharacteristic": [...], "measure": [...], "metric": [...]}`. No nível `metric` entram só as métricas gravadas com `qualifier = TRK` em algum repositório da release (hoje, as do GitHub).
