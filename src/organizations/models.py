@@ -120,9 +120,9 @@ class Repository(models.Model):
 
     imported = models.BooleanField(default=False)
     github_repo_id = models.BigIntegerField(null=True, blank=True)
-    github_full_name = models.CharField(max_length=255, null=True, blank=True)
+    github_full_name = models.CharField(max_length=255, blank=True, default="")
     gitlab_project_id = models.BigIntegerField(null=True, blank=True)
-    gitlab_path_with_namespace = models.CharField(max_length=255, null=True, blank=True)
+    gitlab_path_with_namespace = models.CharField(max_length=255, blank=True, default="")
 
     def save(self, *args, **kwargs):
         self.key = slugify(self.name)

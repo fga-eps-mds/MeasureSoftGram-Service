@@ -55,36 +55,14 @@ def build_quality_model_tree(
     if not config or not config.data or "characteristics" not in config.data:
         return []
 
-    char_keys = [
-        c["key"] for c in config.data.get("characteristics", []) if "key" in c
-    ]
-    subchar_keys = [
-        s["key"]
-        for c in config.data.get("characteristics", [])
-        for s in c.get("subcharacteristics", [])
-        if "key" in s
-    ]
-    measure_keys = [
-        m["key"]
-        for c in config.data.get("characteristics", [])
-        for s in c.get("subcharacteristics", [])
-        for m in s.get("measures", [])
-        if "key" in m
-    ]
+    characteristics = config.data.get("characteristics", [])
+    subcharacteristics = [s for c in characteristics for s in c.get("subcharacteristics", [])]
+    measures = [m for s in subcharacteristics for m in s.get("measures", [])]
 
-    chars_by_key = {
-        c.key: c
-        for c in SupportedCharacteristic.objects.filter(key__in=char_keys)
-    }
-    subchars_by_key = {
-        s.key: s
-        for s in SupportedSubCharacteristic.objects.filter(key__in=subchar_keys)
-    }
-    measures_by_key = {
-        m.key: m
-        for m in SupportedMeasure.objects.filter(
-            key__in=measure_keys,
-        ).prefetch_related("metrics")
+    supported = {
+        "characteristic": _by_key(SupportedCharacteristic.objects, characteristics),
+        "subcharacteristic": _by_key(SupportedSubCharacteristic.objects, subcharacteristics),
+        "measure": _by_key(SupportedMeasure.objects.prefetch_related("metrics"), measures),
     }
 
     root: Dict[str, Any] = {
@@ -94,70 +72,60 @@ def build_quality_model_tree(
         "name": "TSQMI",
         "description": TSQMI_ROOT_DESCRIPTION,
         "weight": 100,
-        "children": [],
+        "children": [_characteristic_node(char_dict, supported) for char_dict in characteristics],
     }
 
-    for char_dict in config.data.get("characteristics", []):
-        char_key = char_dict.get("key")
-        char_obj = chars_by_key.get(char_key)
-
-        char_node: Dict[str, Any] = {
-            "id": char_obj.id if char_obj else None,
-            "type": "characteristic",
-            "key": char_key,
-            "name": char_obj.name if char_obj else char_key,
-            "description": char_obj.description if char_obj else None,
-            "weight": char_dict.get("weight"),
-            "children": [],
-        }
-
-        for subchar_dict in char_dict.get("subcharacteristics", []):
-            subchar_key = subchar_dict.get("key")
-            subchar_obj = subchars_by_key.get(subchar_key)
-
-            subchar_node: Dict[str, Any] = {
-                "id": subchar_obj.id if subchar_obj else None,
-                "type": "subcharacteristic",
-                "key": subchar_key,
-                "name": subchar_obj.name if subchar_obj else subchar_key,
-                "description": subchar_obj.description if subchar_obj else None,
-                "weight": subchar_dict.get("weight"),
-                "children": [],
-            }
-
-            for measure_dict in subchar_dict.get("measures", []):
-                measure_key = measure_dict.get("key")
-                measure_obj = measures_by_key.get(measure_key)
-
-                measure_node: Dict[str, Any] = {
-                    "id": measure_obj.id if measure_obj else None,
-                    "type": "measure",
-                    "key": measure_key,
-                    "name": measure_obj.name if measure_obj else measure_key,
-                    "description": measure_obj.description if measure_obj else None,
-                    "weight": measure_dict.get("weight"),
-                    "min_threshold": measure_dict.get("min_threshold", None),
-                    "max_threshold": measure_dict.get("max_threshold", None),
-                    "children": [],
-                }
-
-                if measure_obj:
-                    for metric in measure_obj.metrics.all():
-                        metric_node = {
-                            "id": metric.id,
-                            "type": "metric",
-                            "key": metric.key,
-                            "name": metric.name,
-                            "description": metric.description,
-                            "weight": None,
-                            "children": [],
-                        }
-                        measure_node["children"].append(metric_node)
-
-                subchar_node["children"].append(measure_node)
-
-            char_node["children"].append(subchar_node)
-
-        root["children"].append(char_node)
-
     return [root]
+
+
+def _by_key(queryset, items: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Entidades suportadas das chaves da configuração, indexadas pela chave."""
+    keys = [item["key"] for item in items if "key" in item]
+    return {entity.key: entity for entity in queryset.filter(key__in=keys)}
+
+
+def _entity_node(node_type: str, key, entity, weight, children: List[Dict[str, Any]], **extra) -> Dict[str, Any]:
+    """Nó da árvore; sem a entidade suportada no banco, usa a chave como nome."""
+    return {
+        "id": entity.id if entity else None,
+        "type": node_type,
+        "key": key,
+        "name": entity.name if entity else key,
+        "description": entity.description if entity else None,
+        "weight": weight,
+        **extra,
+        "children": children,
+    }
+
+
+def _characteristic_node(char_dict: Dict[str, Any], supported: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+    key = char_dict.get("key")
+    children = [_subcharacteristic_node(sub, supported) for sub in char_dict.get("subcharacteristics", [])]
+    return _entity_node("characteristic", key, supported["characteristic"].get(key), char_dict.get("weight"), children)
+
+
+def _subcharacteristic_node(subchar_dict: Dict[str, Any], supported: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+    key = subchar_dict.get("key")
+    children = [_measure_node(measure, supported) for measure in subchar_dict.get("measures", [])]
+    return _entity_node(
+        "subcharacteristic", key, supported["subcharacteristic"].get(key), subchar_dict.get("weight"), children
+    )
+
+
+def _measure_node(measure_dict: Dict[str, Any], supported: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
+    key = measure_dict.get("key")
+    measure = supported["measure"].get(key)
+    children = [_metric_node(metric) for metric in measure.metrics.all()] if measure else []
+    return _entity_node(
+        "measure",
+        key,
+        measure,
+        measure_dict.get("weight"),
+        children,
+        min_threshold=measure_dict.get("min_threshold", None),
+        max_threshold=measure_dict.get("max_threshold", None),
+    )
+
+
+def _metric_node(metric) -> Dict[str, Any]:
+    return _entity_node("metric", metric.key, metric, None, [])

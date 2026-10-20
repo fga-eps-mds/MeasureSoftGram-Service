@@ -559,6 +559,23 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
         self.assertEqual(repo.gitlab_project_id, 98765)
         self.assertEqual(repo.gitlab_path_with_namespace, "test-org/test-project")
 
+    @patch("organizations.serializers.requests.head")
+    def test_create_repository_accepts_null_gitlab_path(self, mock_head):
+        mock_head.return_value = MagicMock(status_code=200)
+        self.client.force_authenticate(user=self.user)
+        org = self.get_organization()
+        product = self.get_product(org)
+
+        response = self.client.post(
+            reverse("repository-list", args=[org.id, product.id]),
+            {"name": "Repo GitHub", "url": "https://github.com/org/repo", "gitlab_path_with_namespace": None},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.json()["gitlab_path_with_namespace"], "")
+        self.assertEqual(Repository.objects.get(name="Repo GitHub").gitlab_path_with_namespace, "")
+
     def test_gitlab_repository_save_infers_path_from_url(self):
         org = self.get_organization()
         product = self.get_product(org)

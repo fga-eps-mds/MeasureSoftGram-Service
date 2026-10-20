@@ -725,6 +725,36 @@ class AccountsViews(APITestCaseExpanded):
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
         self.assertEqual(response.json()["error"], "gitlab_token_invalid")
 
+    def _gitlab_namespaces_with_status(self, mock_get, user_status, groups_status):
+        self.user.gitlab_access_token = "gl_token_123"
+        self.user.save()
+
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = user_status if "api/v4/user" in url else groups_status
+            resp.content = b"{}"
+            resp.json.return_value = {"message": "falhou"} if resp.status_code != 200 else {"id": 1}
+            return resp
+
+        mock_get.side_effect = side_effect
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        return self.client.get(reverse("gitlab-namespaces"), format="json")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_user_request_fails(self, mock_get):
+        response = self._gitlab_namespaces_with_status(mock_get, user_status=500, groups_status=200)
+
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.json()["error"], "Failed to fetch user from GitLab")
+        self.assertEqual(response.json()["details"], {"message": "falhou"})
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_groups_request_fails(self, mock_get):
+        response = self._gitlab_namespaces_with_status(mock_get, user_status=200, groups_status=502)
+
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(response.json()["error"], "Failed to fetch groups from GitLab")
+
     @patch("accounts.views.requests.get")
     def test_gitlab_namespaces_timeout(self, mock_get):
         from requests.exceptions import Timeout

@@ -234,6 +234,10 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
     latest_values = serializers.SerializerMethodField()
     historical_values = serializers.SerializerMethodField()
     actions = serializers.SerializerMethodField()
+    # o campo deixou de aceitar NULL no banco; quem ainda manda null recebe string vazia
+    gitlab_path_with_namespace = serializers.CharField(
+        max_length=255, required=False, allow_blank=True, allow_null=True
+    )
 
     class Meta:
         model = Repository
@@ -254,6 +258,9 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
         extra_kwargs = {
             "key": {"read_only": True},
         }
+
+    def validate_gitlab_path_with_namespace(self, value):
+        return value or ""
 
     def validate(self, attrs):
         """

@@ -21,6 +21,8 @@ from accounts.serializers import (
     UserListSerializer,
 )
 
+JSON_CONTENT_TYPE = "application/json"
+
 
 class GithubLoginViewSet(SocialLoginView):
     """
@@ -131,7 +133,7 @@ class UserRepos(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request):
         code = request.query_params.get("code")
 
-        headers = {"Accept": "application/json"}
+        headers = {"Accept": JSON_CONTENT_TYPE}
 
         urlToken = "https://github.com/login/oauth/access_token"
         data = {
@@ -186,7 +188,7 @@ class GitHubOrganizationsViewSet(viewsets.ViewSet):
 
         headers = {
             "Authorization": f"token {token}",
-            "Accept": "application/json",
+            "Accept": JSON_CONTENT_TYPE,
         }
         results = []
 
@@ -255,7 +257,7 @@ class GitLabNamespacesViewSet(viewsets.ViewSet):
 
         headers = {
             "Authorization": f"Bearer {token}",
-            "Accept": "application/json",
+            "Accept": JSON_CONTENT_TYPE,
         }
         timeout = getattr(settings, "GITLAB_TIMEOUT", 10)
 
@@ -290,8 +292,22 @@ class GitLabNamespacesViewSet(viewsets.ViewSet):
 
         return self._build_response(r_user, r_groups)
 
+    @classmethod
+    def _build_response(cls, r_user, r_groups):
+        error_response = cls._gitlab_error_response(r_user, r_groups)
+        if error_response is not None:
+            return error_response
+
+        results = [cls._serialize_gitlab_user(r_user.json())]
+        groups_data = r_groups.json()
+        if isinstance(groups_data, list):
+            results.extend(cls._serialize_gitlab_group(group) for group in groups_data)
+
+        return Response(results, status=status.HTTP_200_OK)
+
     @staticmethod
-    def _build_response(r_user, r_groups):
+    def _gitlab_error_response(r_user, r_groups):
+        """Resposta de erro quando o GitLab recusa o token ou falha; None quando os dois pedidos deram certo."""
         if r_user.status_code in (401, 403) or r_groups.status_code in (401, 403):
             bad_resp = r_user if r_user.status_code in (401, 403) else r_groups
             details = {}
@@ -304,51 +320,39 @@ class GitLabNamespacesViewSet(viewsets.ViewSet):
                 status=status.HTTP_409_CONFLICT,
             )
 
-        if r_user.status_code != 200:
-            return Response(
-                {
-                    "error": "Failed to fetch user from GitLab",
-                    "details": r_user.json() if r_user.content else {},
-                },
-                status=r_user.status_code,
-            )
-
-        if r_groups.status_code != 200:
-            return Response(
-                {
-                    "error": "Failed to fetch groups from GitLab",
-                    "details": r_groups.json() if r_groups.content else {},
-                },
-                status=r_groups.status_code,
-            )
-
-        user_data = r_user.json()
-        results = [
-            {
-                "id": user_data.get("id"),
-                "name": user_data.get("name") or user_data.get("username"),
-                "full_path": user_data.get("username"),
-                "avatar_url": user_data.get("avatar_url"),
-                "description": user_data.get("bio") or "",
-                "kind": "user",
-            }
-        ]
-
-        groups_data = r_groups.json()
-        if isinstance(groups_data, list):
-            for group in groups_data:
-                results.append(
-                    {
-                        "id": group.get("id"),
-                        "name": group.get("name"),
-                        "full_path": group.get("full_path") or group.get("path"),
-                        "avatar_url": group.get("avatar_url"),
-                        "description": group.get("description") or "",
-                        "kind": "group",
-                    }
+        for response, error in (
+            (r_user, "Failed to fetch user from GitLab"),
+            (r_groups, "Failed to fetch groups from GitLab"),
+        ):
+            if response.status_code != 200:
+                return Response(
+                    {"error": error, "details": response.json() if response.content else {}},
+                    status=response.status_code,
                 )
 
-        return Response(results, status=status.HTTP_200_OK)
+        return None
+
+    @staticmethod
+    def _serialize_gitlab_user(user_data):
+        return {
+            "id": user_data.get("id"),
+            "name": user_data.get("name") or user_data.get("username"),
+            "full_path": user_data.get("username"),
+            "avatar_url": user_data.get("avatar_url"),
+            "description": user_data.get("bio") or "",
+            "kind": "user",
+        }
+
+    @staticmethod
+    def _serialize_gitlab_group(group):
+        return {
+            "id": group.get("id"),
+            "name": group.get("name"),
+            "full_path": group.get("full_path") or group.get("path"),
+            "avatar_url": group.get("avatar_url"),
+            "description": group.get("description") or "",
+            "kind": "group",
+        }
 
 
 class GithubValidateView(APIView):

@@ -35,6 +35,9 @@ from releases.service import (
     update_release_end_at,
 )
 
+RELEASE_ID_REQUIRED = "O parâmetro release_id é obrigatório."
+RELEASE_NOT_FOUND = "Release não encontrada"
+
 
 class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
     authentication_classes = (TokenAuthentication,)
@@ -152,7 +155,7 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
                 }
             )
         else:
-            return Response({"detail": "Release não encontrada"}, status=404)
+            return Response({"detail": RELEASE_NOT_FOUND}, status=404)
 
     @action(detail=True, methods=["get"])
     def analysis_data(self, request, pk=None, *args, **kwargs):
@@ -162,7 +165,7 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
         release = Release.objects.filter(id=release_id).first()
 
         if release is None:
-            return Response({"detail": "Release não encontrada"}, status=404)
+            return Response({"detail": RELEASE_NOT_FOUND}, status=404)
 
         repositories_ids = list(Repository.objects.filter(product_id=product_pk).values_list("id", flat=True).all())
 
@@ -195,7 +198,7 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
             serializer = self.get_serializer(release)
             return Response(serializer.data, status=200)
         else:
-            return Response({"detail": "Release não encontrada"}, status=404)
+            return Response({"detail": RELEASE_NOT_FOUND}, status=404)
 
 
 class ReleaseScopedMixin(UserScopedMixin):
@@ -231,7 +234,7 @@ class EntityAnalysisViewSet(ReleaseScopedMixin, viewsets.ViewSet):
 
         release = self.get_release()
         if release is None:
-            return Response({"detail": "O parâmetro release_id é obrigatório."}, status=400)
+            return Response({"detail": RELEASE_ID_REQUIRED}, status=400)
 
         configuration = resolve_release_configuration(release.product, release)
         try:
@@ -247,7 +250,7 @@ class EntityAnalysisViewSet(ReleaseScopedMixin, viewsets.ViewSet):
     def entities(self, request, *args, **kwargs):
         release = self.get_release()
         if release is None:
-            return Response({"detail": "O parâmetro release_id é obrigatório."}, status=400)
+            return Response({"detail": RELEASE_ID_REQUIRED}, status=400)
 
         configuration = resolve_release_configuration(release.product, release)
         if configuration is None:
@@ -268,7 +271,7 @@ class ReleaseDashboardViewSet(ReleaseScopedMixin, viewsets.ViewSet):
     def summary(self, request, *args, **kwargs):
         release = self.get_release()
         if release is None:
-            return Response({"detail": "O parâmetro release_id é obrigatório."}, status=400)
+            return Response({"detail": RELEASE_ID_REQUIRED}, status=400)
 
         configuration = resolve_release_configuration(release.product, release)
         return Response(get_release_summary(release, configuration))
@@ -277,7 +280,7 @@ class ReleaseDashboardViewSet(ReleaseScopedMixin, viewsets.ViewSet):
     def characteristics(self, request, *args, **kwargs):
         release = self.get_release()
         if release is None:
-            return Response({"detail": "O parâmetro release_id é obrigatório."}, status=400)
+            return Response({"detail": RELEASE_ID_REQUIRED}, status=400)
 
         configuration = resolve_release_configuration(release.product, release)
         return Response(get_release_characteristics(release, configuration))
