@@ -2,12 +2,15 @@ from core.transformations import diff
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from characteristics.models import CalculatedCharacteristic
+from entity_trees.services import resolve_release_configuration
 from organizations.mixins import UserScopedMixin
 from organizations.models import Repository
+from releases.entity_analysis import LEVELS, get_entity_analysis, get_entity_catalog
 from releases.models import Release
 from releases.serializers import CheckReleaseSerializer, ReleaseAllSerializer, ReleaseSerializer
 from releases.service import (
@@ -182,3 +185,55 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
             return Response(serializer.data, status=200)
         else:
             return Response({"detail": "Release não encontrada"}, status=404)
+
+
+class EntityAnalysisViewSet(UserScopedMixin, viewsets.ViewSet):
+    """
+    Análise por entidade (US21.02): valor de uma entidade do modelo em cada
+    repositório do produto, numa release, com os filhos da entidade.
+    """
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_release(self):
+        release_id = self.request.query_params.get("release_id")
+        if not release_id or not release_id.isdigit():
+            return None
+        return get_object_or_404(
+            Release.objects.select_related("goal", "product"),
+            id=int(release_id),
+            product=self.get_product(),
+        )
+
+    def list(self, request, *args, **kwargs):
+        level = request.query_params.get("level")
+        key = request.query_params.get("key")
+
+        if level not in LEVELS:
+            return Response({"detail": f"O parâmetro level deve ser um de: {', '.join(LEVELS)}."}, status=400)
+        if not key:
+            return Response({"detail": "O parâmetro key é obrigatório."}, status=400)
+
+        release = self.get_release()
+        if release is None:
+            return Response({"detail": "O parâmetro release_id é obrigatório."}, status=400)
+
+        configuration = resolve_release_configuration(release.product, release)
+        analysis = get_entity_analysis(release, configuration, level, key) if configuration else None
+        if analysis is None:
+            return Response({"detail": "Entidade não faz parte da configuração da release."}, status=404)
+
+        return Response(analysis)
+
+    @action(detail=False, methods=["get"])
+    def entities(self, request, *args, **kwargs):
+        release = self.get_release()
+        if release is None:
+            return Response({"detail": "O parâmetro release_id é obrigatório."}, status=400)
+
+        configuration = resolve_release_configuration(release.product, release)
+        if configuration is None:
+            return Response({level: [] for level in LEVELS})
+
+        return Response(get_entity_catalog(configuration))

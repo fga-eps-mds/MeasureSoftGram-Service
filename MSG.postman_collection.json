@@ -576,6 +576,129 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Quality model tree",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/quality-model-tree/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"quality-model-tree",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Quality model tree por release",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/quality-model-tree/?release_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"quality-model-tree",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Entity analysis",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/entity-analysis/?release_id=1&level=characteristic&key=maintainability",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"entity-analysis",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												},
+												{
+													"key": "level",
+													"value": "characteristic"
+												},
+												{
+													"key": "key",
+													"value": "maintainability"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Entity analysis - entities",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/entity-analysis/entities/?release_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"entity-analysis",
+												"entities",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						}

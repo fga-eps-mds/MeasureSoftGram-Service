@@ -199,6 +199,10 @@ class ProductSerializer(serializers.ModelSerializer):
             obj, "release-config-entity-relationship-tree-list"
         )
 
+        quality_model_tree_url = self.reverse_product_resource(
+            obj, "product-quality-model-tree-list"
+        )
+
         repositories_latest_tsqmis_url = self.reverse_product_resource(
             obj,
             "repositories-tsqmi-latest-values-list",
@@ -215,6 +219,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "get compare all goals": compare_goals_url,
             "get current release-config": current_release_config_url,
             "get release-config entity relationship tree": pre_config_entity_relationship_tree_url,
+            "get quality model tree": quality_model_tree_url,
             "get all repositories latest tsqmis": repositories_latest_tsqmis_url,
             "get all repositories tsqmi historical values": repositories_tsqmi_historical_values_url,
             "create a new goal": create_a_new_goal_url,

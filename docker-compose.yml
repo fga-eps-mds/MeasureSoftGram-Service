@@ -8,7 +8,7 @@ services:
     image: postgres:18-alpine
     # Bind so localhost (host) — evita conflito com Postgres do host na 0.0.0.0:5432.
     ports:
-      - "127.0.0.1:5432:5432"
+      - "${POSTGRES_HOST_PORT:-127.0.0.1:5435}:5432"
     volumes:
       - service_postgres_data:/var/lib/postgresql
     env_file:
