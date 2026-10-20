@@ -296,6 +296,15 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
     )
 )
 
+# O calculate/math-model/ recebe todos os componentes do SonarQube (~870 bytes
+# cada). 50 MiB, o mesmo limite do nginx (client_max_body_size 50m).
+DATA_UPLOAD_MAX_MEMORY_SIZE = int(
+    os.getenv(
+        "DATA_UPLOAD_MAX_MEMORY_SIZE",
+        "52428800",
+    )
+)
+
 AUTH_USER_MODEL = "accounts.CustomUser"
 
 GITHUB_SUPPORTED_MEASURES = [
