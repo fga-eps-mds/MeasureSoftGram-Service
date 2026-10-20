@@ -10,7 +10,7 @@ help:
 	@echo "  env          - copia env-vars-example -> env-vars (nao sobrescreve)"
 	@echo "  setup        - do zero a stack de pe: env-vars + build + up + espera health"
 	@echo "  dev          - sobe a stack com hot-reload (docker compose up --watch)"
-	@echo "  seed         - popula dados (load_initial_data + seed_grafana)"
+	@echo "  seed         - popula dados (load_initial_data + seed_demo_data)"
 	@echo "  up           - sobe a stack em background"
 	@echo "  down         - derruba a stack"
 	@echo "  restart      - reinicia todos os services"
@@ -52,17 +52,17 @@ setup:
 	@until [ "$$(docker inspect -f '{{.State.Health.Status}}' service 2>/dev/null)" = "healthy" ]; do \
 	    sleep 2; \
 	done
-	@echo ">>> stack de pe. API em http://localhost:8080/  Grafana em http://localhost:5000/"
+	@echo ">>> stack de pe. API em http://localhost:8080/"
 
 # Sobe com hot-reload: sincroniza src/ e refaz deps quando pyproject muda
 # (usa o bloco develop.watch do docker-compose.yml).
 dev:
 	$(COMPOSE) up --watch
 
-# Popula as entidades suportadas e provisiona os dashboards do Grafana.
+# Popula as entidades suportadas e os dados de demonstracao dos dashboards.
 seed:
 	$(COMPOSE) exec service python manage.py load_initial_data
-	$(COMPOSE) exec service python manage.py seed_grafana
+	$(COMPOSE) exec service python manage.py seed_demo_data
 
 # --- Lifecycle --------------------------------------------------------------
 

@@ -95,7 +95,6 @@ APPLICATION_APPS = [
     "math_model",
     "utils",
     "releases",
-    "grafana_proxy",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + APPLICATION_APPS
@@ -358,15 +357,3 @@ CREATE_FAKE_DATA = os.getenv("CREATE_FAKE_DATA", "False").lower() in (
 
 # Maximum number of days without a new TSQMI calculation before the badge shows "N/A".
 BADGE_STALENESS_DAYS = int(os.getenv("BADGE_STALENESS_DAYS", "30"))
-
-# Grafana Proxy Configuration
-GRAFANA_CONFIG = {
-    # NOSONAR — rede interna Docker
-    "BASE_URL": os.getenv("GRAFANA_BASE_URL", "http://grafana:3000"),  # NOSONAR — rede interna Docker
-    # NOSONAR — URL de dev
-    "PUBLIC_URL": os.getenv("GRAFANA_PUBLIC_URL", "http://localhost:5000"),
-    "USERNAME": os.getenv("GRAFANA_USERNAME", "admin"),
-    # sem default — obrigatório via env
-    "PASSWORD": os.getenv("GRAFANA_PASSWORD", ""),
-    "TIMEOUT": int(os.getenv("GRAFANA_TIMEOUT", "10")),
-}

@@ -102,7 +102,7 @@ Para criar os arquivos de ambiente (se não existirem), construir as imagens Doc
 make setup
 ```
 
-A API estará disponível em [http://localhost:8080/](http://localhost:8080/) e o Grafana em [http://localhost:5000/](http://localhost:5000/).
+A API estará disponível em [http://localhost:8080/](http://localhost:8080/).
 
 ### 3. Desenvolvimento com Hot-Reload
 
@@ -114,7 +114,7 @@ make dev
 
 ### 4. Carga Inicial de Dados (Seed)
 
-Para popular os dados iniciais de entidades suportadas e provisionar os dashboards do Grafana:
+Para popular os dados iniciais de entidades suportadas e os dados de demonstração dos dashboards:
 
 ```bash
 make seed
@@ -148,7 +148,7 @@ O `Makefile` centraliza todos os comandos essenciais para a operação do projet
 | `make build` | Realiza o build das imagens Docker sem cache |
 | `make rebuild` | Recria a stack (`down` + `build` + `up`) |
 | `make clear` | Remove containers, volumes e órfãos (`docker compose down -v --remove-orphans`) |
-| `make seed` | Popula o banco com dados iniciais e dashboards do Grafana |
+| `make seed` | Popula o banco com dados iniciais e de demonstração |
 | `make hooks` | Instala os git hooks do pre-commit (Conventional Commits + Linters) |
 | `make migrate` | Executa as migrações do banco de dados no container |
 | `make migrations` | Cria novas migrações Django (`makemigrations`) |
