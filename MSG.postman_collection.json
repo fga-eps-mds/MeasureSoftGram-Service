@@ -761,6 +761,45 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Metrics distribution",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/metrics-distribution/?release_id=1&metric=coverage&repository_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"metrics-distribution",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												},
+												{
+													"key": "metric",
+													"value": "coverage"
+												},
+												{
+													"key": "repository_id",
+													"value": "1",
+													"description": "Opcional. Sem ele, um resumo por repositório."
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						}

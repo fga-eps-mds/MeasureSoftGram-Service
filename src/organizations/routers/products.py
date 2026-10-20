@@ -3,6 +3,7 @@ from entity_trees.views import (
     ReleaseConfigurationEntitiesRelationshipTreeViewSet,
 )
 from goals.views import CompareGoalsModelViewSet, CreateGoalModelViewSet, CurrentGoalModelViewSet
+from metrics.views import MetricDistributionViewSet
 from organizations.routers.routers import Router
 from organizations.views import RepositoriesTSQMIHistoryViewSet, RepositoriesTSQMILatestValueViewSet, RepositoryViewSet
 from release_configuration.views import (
@@ -49,6 +50,11 @@ class ProductRouter(Router):
                     "name": "release-dashboard",
                     "view": ReleaseDashboardViewSet,
                     "basename": "release-dashboard",
+                },
+                {
+                    "name": "metrics-distribution",
+                    "view": MetricDistributionViewSet,
+                    "basename": "metrics-distribution",
                 },
                 {
                     "name": "repositories",

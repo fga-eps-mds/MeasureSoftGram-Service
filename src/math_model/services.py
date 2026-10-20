@@ -17,6 +17,7 @@ from tsqmi.serializers import TSQMISerializer
 import logging
 
 from utils.exceptions import CalculateModelException
+from utils.file_metrics import FILE_LEVEL_METRICS
 from utils.runtime_metrics import RUNTIME_MEASURE_KEYS
 
 # Métricas multi-valor (lista de floats por arquivo) — espelha
@@ -24,16 +25,7 @@ from utils.runtime_metrics import RUNTIME_MEASURE_KEYS
 
 logger = logging.getLogger(__name__)
 
-_LISTED_FIL_METRICS = frozenset(
-    {
-        "coverage",
-        "complexity",
-        "functions",
-        "comment_lines_density",
-        "duplicated_lines_density",
-        "sqale_debt_ratio",
-    }
-)
+_LISTED_FIL_METRICS = FILE_LEVEL_METRICS
 _UTS_METRICS = frozenset({"test_execution_time", "tests"})
 _GITHUB_METRICS = frozenset(
     {

@@ -264,3 +264,35 @@ Entram as releases do produto que incluem o repositório pela mesma regra (inclu
 ```
 
 Respostas: `400` com `level` inválido, `404` se o repositório não for do produto ou o usuário não for membro da organização.
+
+### Distribuição das métricas por arquivo (US21.03)
+
+#### Endpoint que retorna os valores por arquivo e o resumo estatístico de uma métrica na release
+GET /api/v1/organizations/1/products/1/metrics-distribution/?release_id=1&metric=coverage&repository_id=1
+
+Parâmetros:
+- `release_id` (obrigatório): release do produto. Usa a última coleta de cada repositório entre o dia de `start_at` e o dia de `end_at`, inclusive.
+- `metric` (obrigatório): `coverage`, `complexity`, `functions`, `comment_lines_density`, `duplicated_lines_density` ou `sqale_debt_ratio`. Outra métrica recebe 400.
+- `repository_id` (opcional): com ele, a resposta traz os arquivos (`files`) daquele repositório. Sem ele, traz só o resumo de cada repositório da release (ou do produto, se a release não tiver repositórios), em ordem de nome.
+
+Erros: parâmetro obrigatório ausente ou métrica inválida recebe 400; release ou repositório fora do produto, ou usuário que não é membro da organização, recebe 404.
+
+Arquivos com `ncloc = 0` ficam fora; `excluded_files` diz quantos. `reference` traz o mínimo e o máximo da medida que usa a métrica, ou `null`. Repositório sem dados por arquivo na release vem com `files: []`, `summary: null` e `collected_at: null`. Se a última coleta da release não tiver a métrica pedida, vem com `files: []` e `summary: null`, mas com `collected_at` preenchido.
+
+```json
+{
+  "release": {"id": 1, "release_name": "R1", "start_at": "2026-09-01T00:00:00-03:00", "end_at": "2026-10-15T00:00:00-03:00"},
+  "metric": "coverage",
+  "reference": {"measure": "test_coverage", "min_threshold": 60, "max_threshold": 100},
+  "repositories": [
+    {
+      "repository_id": 1,
+      "repository_name": "api",
+      "collected_at": "2026-10-14T21:03:11.120000-03:00",
+      "excluded_files": 1,
+      "summary": {"count": 2, "min": 60.0, "q1": 65.0, "median": 70.0, "q3": 75.0, "max": 80.0, "mean": 70.0, "std_dev": 10.0},
+      "files": [{"path": "src/a.py", "value": 80.0}, {"path": "src/b.py", "value": 60.0}]
+    }
+  ]
+}
+```
