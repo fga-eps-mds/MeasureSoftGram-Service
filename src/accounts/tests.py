@@ -254,7 +254,7 @@ class AccountsViews(APITestCaseExpanded):
         self.user.github_access_token = "gh_token_123"
         self.user.save()
 
-        def side_effect(url, headers=None):
+        def side_effect(url, headers=None, **kwargs):
             resp = MagicMock()
             resp.status_code = 200
             if "api.github.com/user/orgs" in url:
@@ -386,7 +386,7 @@ class AccountsViews(APITestCaseExpanded):
         social_account = SocialAccount.objects.create(user=self.user, provider="github", uid="12345")
         SocialToken.objects.create(account=social_account, app=social_app, token="social-token-xyz")
 
-        def side_effect(url, headers=None):
+        def side_effect(url, headers=None, **kwargs):
             resp = MagicMock()
             resp.status_code = 200
             if "api.github.com/user/orgs" in url:
@@ -429,7 +429,7 @@ class AccountsViews(APITestCaseExpanded):
         self.user.github_access_token = "gh_token_123"
         self.user.save()
 
-        def side_effect(url, headers=None):
+        def side_effect(url, headers=None, **kwargs):
             resp = MagicMock()
             resp.status_code = 200
             if "api.github.com/user/orgs" in url:
@@ -459,14 +459,34 @@ class AccountsViews(APITestCaseExpanded):
         self.assertEqual(len(response.json()), 1)
 
     @patch("accounts.views.requests.get")
-    def test_github_organizations_fetch_failure(self, mock_get):
+    def test_github_organizations_token_invalid_401(self, mock_get):
         self.user.github_access_token = "gh_token_123"
         self.user.save()
 
-        def side_effect(url, headers=None):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 401
+        mock_resp.json.return_value = {"message": "Bad credentials"}
+        mock_get.return_value = mock_resp
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("github-organizations")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["error"], "github_token_invalid")
+
+    @patch("accounts.views.requests.get")
+    def test_github_organizations_token_invalid_on_orgs_403(self, mock_get):
+        self.user.github_access_token = "gh_token_123"
+        self.user.save()
+
+        def side_effect(url, headers=None, timeout=None):
             resp = MagicMock()
-            resp.status_code = 401
-            resp.json.return_value = {"message": "Bad credentials"}
+            if "api.github.com/user/orgs" in url:
+                resp.status_code = 403
+                resp.json.return_value = {"message": "Resource not accessible by integration"}
+            else:
+                resp.status_code = 200
+                resp.json.return_value = {"id": 123, "login": "test-user", "avatar_url": "http://avatar1"}
             return resp
 
         mock_get.side_effect = side_effect
@@ -474,11 +494,40 @@ class AccountsViews(APITestCaseExpanded):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
-        self.assertEqual(response.status_code, 401)
-        self.assertEqual(
-            response.json()["error"],
-            "Failed to fetch organizations from GitHub",
-        )
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["error"], "github_token_invalid")
+
+    @patch("accounts.views.requests.get")
+    def test_github_organizations_timeout(self, mock_get):
+        import requests as req
+        self.user.github_access_token = "gh_token_123"
+        self.user.save()
+
+        mock_get.side_effect = req.exceptions.Timeout("Connection timed out")
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("github-organizations")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json()["error"], "Timeout contacting GitHub API.")
+
+    @patch("accounts.views.requests.get")
+    def test_github_organizations_fetch_failure(self, mock_get):
+        self.user.github_access_token = "gh_token_123"
+        self.user.save()
+
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = 500
+            resp.json.return_value = {"message": "Internal GitHub Error"}
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("github-organizations")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 500)
 
     @patch("accounts.views.requests.post")
     def test_github_validate_exception(self, mock_post):

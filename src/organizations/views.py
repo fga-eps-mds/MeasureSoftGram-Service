@@ -120,6 +120,37 @@ class RepositoriesTSQMIHistoryViewSet(
 class ImportOrganizationViewSet(viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
+    def _get_user_token(self, user):
+        token = user.github_access_token
+        if token:
+            return token, None
+        from allauth.socialaccount.models import SocialToken
+
+        st = SocialToken.objects.filter(account__user=user, account__provider="github").first()
+        if not st:
+            return None, Response(
+                {"error": "GitHub account not linked."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        token = st.token
+        user.github_access_token = token
+        user.save()
+        return token, None
+
+    def _fetch_github_metadata(self, url_fetch, headers):
+        r = requests.get(url_fetch, headers=headers)
+        if r.status_code in (401, 403):
+            return None, Response(
+                {"error": "github_token_invalid", "details": r.json() if r.content else {}},
+                status=status.HTTP_409_CONFLICT,
+            )
+        if r.status_code != 200:
+            return None, Response(
+                {"error": "Failed to fetch metadata from GitHub", "details": r.json()},
+                status=r.status_code,
+            )
+        return r.json(), None
+
     def create(self, request):
         github_org_name = request.data.get("github_org_name")
         if not github_org_name:
@@ -129,20 +160,9 @@ class ImportOrganizationViewSet(viewsets.ViewSet):
             )
 
         user = request.user
-        token = user.github_access_token
-        if not token:
-            from allauth.socialaccount.models import SocialToken
-
-            st = SocialToken.objects.filter(account__user=user, account__provider="github").first()
-            if st:
-                token = st.token
-                user.github_access_token = token
-                user.save()
-            else:
-                return Response(
-                    {"error": "GitHub account not linked."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        token, token_err = self._get_user_token(user)
+        if token_err:
+            return token_err
 
         is_personal = github_org_name.lower() == user.username.lower()
         headers = {
@@ -150,22 +170,11 @@ class ImportOrganizationViewSet(viewsets.ViewSet):
             "Accept": JSON_CONTENT_TYPE,
         }
 
-        if is_personal:
-            url_fetch = "https://api.github.com/user"
-        else:
-            url_fetch = f"https://api.github.com/orgs/{github_org_name}"
+        url_fetch = "https://api.github.com/user" if is_personal else f"https://api.github.com/orgs/{github_org_name}"
+        org_data, fetch_err = self._fetch_github_metadata(url_fetch, headers)
+        if fetch_err:
+            return fetch_err
 
-        r = requests.get(url_fetch, headers=headers)
-        if r.status_code != 200:
-            return Response(
-                {
-                    "error": "Failed to fetch metadata from GitHub",
-                    "details": r.json(),
-                },
-                status=r.status_code,
-            )
-
-        org_data = r.json()
         github_org_id = org_data.get("id")
 
         if not is_personal:

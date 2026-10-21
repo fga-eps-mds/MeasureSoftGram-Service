@@ -1,3 +1,5 @@
+import contextlib
+
 import requests
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
@@ -168,68 +170,100 @@ class UserRepos(viewsets.ReadOnlyModelViewSet):
 class GitHubOrganizationsViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
-    def list(self, request):
-        user = request.user
+    def _get_token(self, user):
         token = user.github_access_token
-        if not token:
-            from allauth.socialaccount.models import SocialToken
+        if token:
+            return token, None
+        from allauth.socialaccount.models import SocialToken
 
-            st = SocialToken.objects.filter(account__user=user, account__provider="github").first()
-            if st:
-                token = st.token
-                user.github_access_token = token
-                user.save()
-                st.delete()
-            else:
-                return Response(
-                    {"error": "GitHub account not linked or access token missing."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        st = SocialToken.objects.filter(account__user=user, account__provider="github").first()
+        if not st:
+            return None, Response(
+                {"error": "GitHub account not linked or access token missing."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        token = st.token
+        user.github_access_token = token
+        user.save()
+        st.delete()
+        return token, None
+
+    def _fetch_github(self, url, headers, timeout):
+        try:
+            r = requests.get(url, headers=headers, timeout=timeout)
+        except requests.exceptions.Timeout:
+            return None, Response(
+                {"error": "Timeout contacting GitHub API."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        except requests.exceptions.RequestException:
+            return None, Response(
+                {"error": "Error contacting GitHub API."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        if r.status_code in (401, 403):
+            details = {}
+            with contextlib.suppress(Exception):
+                details = r.json()
+            return None, Response(
+                {"error": "github_token_invalid", "details": details},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        if r.status_code != 200:
+            details = {}
+            with contextlib.suppress(Exception):
+                details = r.json()
+            return None, Response(
+                {"error": "Failed to fetch organizations from GitHub", "details": details},
+                status=r.status_code,
+            )
+
+        return r.json(), None
+
+    def list(self, request):
+        token, err = self._get_token(request.user)
+        if err:
+            return err
 
         headers = {
             "Authorization": f"token {token}",
             "Accept": JSON_CONTENT_TYPE,
         }
+        timeout = getattr(settings, "GITHUB_TIMEOUT", 10)
         results = []
 
-        # 1. Fetch user's own profile (personal space)
-        r_user = requests.get("https://api.github.com/user", headers=headers)
-        if r_user.status_code == 200:
-            user_data = r_user.json()
-            results.append(
-                {
-                    "github_org_id": user_data.get("id"),
-                    "github_org_name": user_data.get("login"),
-                    "avatar_url": user_data.get("avatar_url"),
-                    "description": "Personal account",
-                }
-            )
+        user_data, user_err = self._fetch_github("https://api.github.com/user", headers, timeout)
+        if user_err:
+            return user_err
 
-        # 2. Fetch user's organizations
-        r_orgs = requests.get("https://api.github.com/user/orgs", headers=headers)
-        if r_orgs.status_code == 200:
-            orgs = r_orgs.json()
-            for org in orgs:
-                if any(x["github_org_id"] == org.get("id") for x in results):
-                    continue
-                results.append(
-                    {
-                        "github_org_id": org.get("id"),
-                        "github_org_name": org.get("login"),
-                        "avatar_url": org.get("avatar_url"),
-                        "description": org.get("description"),
-                    }
-                )
-        else:
-            # If fetching orgs failed but user fetched successfully, return at least user
-            if not results:
-                return Response(
-                    {
-                        "error": "Failed to fetch organizations from GitHub",
-                        "details": r_orgs.json(),
-                    },
-                    status=r_orgs.status_code,
-                )
+        results.append(
+            {
+                "github_org_id": user_data.get("id"),
+                "github_org_name": user_data.get("login"),
+                "avatar_url": user_data.get("avatar_url"),
+                "description": "Personal account",
+            }
+        )
+
+        orgs_data, orgs_err = self._fetch_github("https://api.github.com/user/orgs", headers, timeout)
+        if orgs_err and (orgs_err.status_code == status.HTTP_409_CONFLICT or not results):
+            return orgs_err
+
+        if orgs_data:
+            existing_ids = {x["github_org_id"] for x in results}
+            for org in orgs_data:
+                if org.get("id") not in existing_ids:
+                    results.append(
+                        {
+                            "github_org_id": org.get("id"),
+                            "github_org_name": org.get("login"),
+                            "avatar_url": org.get("avatar_url"),
+                            "description": org.get("description"),
+                        }
+                    )
+                    existing_ids.add(org.get("id"))
 
         return Response(results, status=status.HTTP_200_OK)
 
