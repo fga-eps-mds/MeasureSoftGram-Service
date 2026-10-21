@@ -126,6 +126,21 @@ class MathModelServicesTest(APITestCaseExpanded):
             "team_throughput",
         ]
 
+    def test_build_collected_metrics_shares_one_created_at(self):
+        payload = {
+            "sonarqube": {
+                "components": [
+                    {"qualifier": "FIL", "path": "src/a.py", "measures": [{"metric": "coverage", "value": "80"}]},
+                    {"qualifier": "FIL", "path": "src/b.py", "measures": [{"metric": "ncloc", "value": "10"}]},
+                ]
+            },
+        }
+
+        collected = self.services.build_collected_metrics(payload)
+
+        assert len(collected) == 2
+        assert len({m.created_at for m in collected}) == 1
+
     def test_build_calculated_measures_returns_instances_and_values(self):
         """build_calculated_measures retorna instâncias não persistidas
         + dict {key: value} para alimentar a próxima camada."""

@@ -73,7 +73,25 @@ class RepositoryDistributionTestCase(APITestCaseExpanded):
         self.assertEqual(result["excluded_files"], 1)
         self.assertEqual(result["summary"]["count"], 2)
 
-    def test_keeps_latest_value_when_collections_are_close(self):
+    def test_does_not_mix_close_collections(self):
+        previous = self.now - timedelta(days=1, minutes=5)
+        latest = self.now - timedelta(days=1)
+        self.collect("coverage", "src/old.py", 50.0, previous)
+        self.collect("coverage", "src/b.py", 30.0, previous)
+        self.collect("ncloc", "src/b.py", 0, previous)
+        self.collect("coverage", "src/a.py", 20.0, latest)
+        self.collect("coverage", "src/b.py", 40.0, latest)
+        self.collect("ncloc", "src/a.py", 120, latest)
+
+        result = get_repository_distribution(self.repository, "coverage", self.release)
+
+        self.assertEqual(
+            result["files"],
+            [{"path": "src/a.py", "value": 20.0}, {"path": "src/b.py", "value": 40.0}],
+        )
+        self.assertEqual(result["excluded_files"], 0)
+
+    def test_legacy_rows_keep_latest_value_when_collections_are_close(self):
         self.collect("coverage", "src/a.py", 10.0, self.now - timedelta(days=1, minutes=10))
         self.collect("coverage", "src/a.py", 20.0, self.now - timedelta(days=1))
 

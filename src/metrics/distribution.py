@@ -5,8 +5,9 @@ from entity_trees.services import resolve_release_configuration
 from metrics.models import CollectedMetric, SupportedMetric
 from releases.service import filter_release_window
 
-# As linhas de uma coleta têm created_at um pouco diferentes (cada CollectedMetric
-# recebe o próprio timezone.now()). Mesma tolerância de
+# Coletas gravadas por MathModelServices.build_collected_metrics compartilham um
+# único created_at e são lidas por igualdade. Dados antigos têm um timezone.now()
+# por linha; para eles vale a tolerância de
 # SupportedMetric.get_latest_metric_values (metrics/models.py:113).
 COLLECTION_TOLERANCE = timedelta(minutes=20)
 
@@ -68,10 +69,13 @@ def get_repository_distribution(repository, metric_key, release):
     if anchor is None:
         return {"collected_at": None, "excluded_files": 0, "summary": None, "files": []}
 
-    collection = filter_release_window(file_rows, release).filter(
-        created_at__gte=anchor.created_at - COLLECTION_TOLERANCE,
-        created_at__lte=anchor.created_at,
-    )
+    collection = filter_release_window(file_rows, release).filter(created_at=anchor.created_at)
+    # a âncora sozinha no instante indica dado antigo, de created_at por linha
+    if not collection.exclude(pk=anchor.pk).exists():
+        collection = filter_release_window(file_rows, release).filter(
+            created_at__gte=anchor.created_at - COLLECTION_TOLERANCE,
+            created_at__lte=anchor.created_at,
+        )
     ncloc_by_path = _latest_value_by_path(collection.filter(metric__key="ncloc"))
     empty_paths = {path for path, ncloc in ncloc_by_path.items() if ncloc == 0}
     value_by_path = _latest_value_by_path(collection.filter(metric__key=metric_key))

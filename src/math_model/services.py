@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import Dict, List, Tuple
 
 from django.db import transaction
+from django.utils import timezone
 from resources import calculate_characteristics, calculate_measures, calculate_subcharacteristics, calculate_tsqmi
 
 from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
@@ -62,6 +63,9 @@ class MathModelServices:
         """Constrói instâncias não-persistidas de CollectedMetric a
         partir do payload bruto da Action (SonarQube + GitHub)."""
         supported_metrics = {sm.key: sm for sm in SupportedMetric.objects.all()}
+        # um único created_at por coleta, para que a coleta seja identificável
+        # por igualdade (metrics/distribution.py)
+        collected_at = timezone.now()
 
         collected: List[CollectedMetric] = []
 
@@ -76,6 +80,7 @@ class MathModelServices:
                         value=float(metric["value"]),
                         repository=self.repository,
                         qualifier="TRK",
+                        created_at=collected_at,
                     )
                 )
 
@@ -92,6 +97,7 @@ class MathModelServices:
                             metric=supported_metrics[key],
                             value=float(obj["value"]),
                             repository=self.repository,
+                            created_at=collected_at,
                         )
                     )
 
