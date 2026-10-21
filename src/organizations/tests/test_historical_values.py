@@ -128,6 +128,59 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
         repository = next(item for item in response.json()["results"] if item["id"] == self.repository.id)
         self.assertEqual([item["value"] for item in repository["history"]], [0.2, 0.3, 0.4])
 
+    def count_queries(self, url):
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        return len(queries)
+
+    def test_values_endpoints_do_not_query_once_per_entity(self):
+        # antes: uma consulta de valores e uma do repositório para cada entidade da lista
+        metrics = list(SupportedMetric.objects.order_by("id")[:6])
+        measures = list(SupportedMeasure.objects.order_by("id")[:6])
+        latest_url = self.url.replace("historical-values", "latest-values")
+        urls = [f"{base}/{entity}/" for base in (self.url, latest_url) for entity in ("metrics", "measures")]
+
+        CollectedMetric.objects.create(metric=metrics[0], repository=self.repository, value=1, created_at=day(0))
+        CalculatedMeasure.objects.create(measure=measures[0], repository=self.repository, value=0.1, created_at=day(0))
+        with_one_entity = [self.count_queries(url) for url in urls]
+
+        for n, (metric, measure) in enumerate(zip(metrics[1:], measures[1:])):
+            CollectedMetric.objects.create(metric=metric, repository=self.repository, value=n, created_at=day(n))
+            CalculatedMeasure.objects.create(measure=measure, repository=self.repository, value=0.1, created_at=day(n))
+
+        self.assertEqual([self.count_queries(url) for url in urls], with_one_entity)
+
+    def test_latest_value_keeps_the_first_record_of_a_collection(self):
+        # uma coleta grava vários registros no mesmo instante; fica o primeiro gravado, como antes
+        metric = SupportedMetric.objects.get(key="coverage")
+        first = CollectedMetric.objects.create(metric=metric, repository=self.repository, value=70, created_at=day(1))
+        CollectedMetric.objects.create(metric=metric, repository=self.repository, value=10, created_at=day(1))
+        CollectedMetric.objects.create(metric=metric, repository=self.repository, value=5, created_at=day(0))
+
+        response = self.client.get(f"{self.url.replace('historical-values', 'latest-values')}/metrics/")
+
+        latest = next(item["latest"] for item in response.json()["results"] if item["key"] == "coverage")
+        self.assertEqual(latest["id"], first.id)
+
+    def test_latest_metric_value_filters_by_qualifier(self):
+        metric = SupportedMetric.objects.get(key="coverage")
+        CollectedMetric.objects.create(
+            metric=metric, repository=self.repository, value=10, qualifier="FIL", path="a.py", created_at=day(1)
+        )
+        CollectedMetric.objects.create(
+            metric=metric, repository=self.repository, value=70, qualifier="TRK", created_at=day(1)
+        )
+        latest_url = f"{self.url.replace('historical-values', 'latest-values')}/metrics/"
+
+        def latest(params):
+            response = self.client.get(latest_url, params)
+            return next(item["latest"] for item in response.json()["results"] if item["key"] == "coverage")
+
+        # sem o parâmetro, como antes: o primeiro registro gravado na coleta, que aqui é o de um arquivo
+        self.assertEqual(latest({})["value"], 10)
+        self.assertEqual(latest({"qualifier": "TRK"})["value"], 70)
+
     def test_user_who_is_not_member_cannot_read_history(self):
         outsider = CustomUser.objects.create(username="outsider", email="outsider@example.com")
         client = APIClient()

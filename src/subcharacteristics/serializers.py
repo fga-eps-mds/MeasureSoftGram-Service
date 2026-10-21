@@ -36,11 +36,13 @@ class CalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
         )
 
 
-class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
+class LatestCalculatedSubCharacteristicSerializer(utils.RepositoryRecordsMixin, serializers.ModelSerializer):
     """
     Serializadora usada para serializar as subcaracterísticas suportadas e seu último cálculo
     """
 
+    records_model = CalculatedSubCharacteristic
+    entity_field = "subcharacteristic_id"
     latest = serializers.SerializerMethodField()
 
     class Meta:
@@ -54,17 +56,12 @@ class LatestCalculatedSubCharacteristicSerializer(serializers.ModelSerializer):
         )
 
     def get_latest(self, obj: SupportedSubCharacteristic):
-        try:
-            repository = self.context["view"].get_repository()
-
-            latest = obj.calculated_subcharacteristics.filter(repository=repository).first()
-
-            return CalculatedSubCharacteristicSerializer(latest).data
-        except SupportedSubCharacteristic.DoesNotExist:
-            return None
+        return CalculatedSubCharacteristicSerializer(self.get_entity_latest(obj)).data
 
 
-class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
+class CalculatedSubCharacteristicHistorySerializer(utils.RepositoryRecordsMixin, serializers.ModelSerializer):
+    records_model = CalculatedSubCharacteristic
+    entity_field = "subcharacteristic_id"
     history = serializers.SerializerMethodField()
 
     class Meta:
@@ -79,18 +76,7 @@ class CalculatedSubCharacteristicHistorySerializer(serializers.ModelSerializer):
 
     def get_history(self, obj: SupportedSubCharacteristic):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
-        try:
-            qs = obj.calculated_subcharacteristics.all()
-
-            repository = self.context["view"].get_repository()
-            qs = qs.filter(repository=repository)
-
-            return CalculatedSubCharacteristicSerializer(
-                utils.get_latest_history(qs, MAX),
-                many=True,
-            ).data
-        except CalculatedSubCharacteristic.DoesNotExist:
-            return None
+        return CalculatedSubCharacteristicSerializer(self.get_entity_records(obj, MAX), many=True).data
 
 
 class SubCharacteristicsCalculationRequestSerializer(serializers.Serializer):

@@ -1,10 +1,13 @@
 import datetime as dt
 import random
 import string
+from collections import defaultdict
 from itertools import zip_longest
 from typing import Callable, Iterable, Set
 
 from django.db import models
+from django.db.models import F, Window
+from django.db.models.functions import RowNumber
 from django.utils import timezone
 
 from utils import exceptions
@@ -197,3 +200,76 @@ def get_latest_history(queryset: models.QuerySet, limit: int) -> list:
     """
     latest = queryset.order_by("-created_at", "-id")[:limit]
     return list(latest)[::-1]
+
+
+def get_latest_history_by(queryset: models.QuerySet, field: str, limit: int) -> dict:
+    """
+    Os `limit` registros mais recentes para cada valor de `field` (ex.: "metric_id"), do mais
+    antigo para o mais novo, numa consulta só. É o mesmo corte de get_latest_history, sem uma
+    consulta por entidade.
+    """
+    ranked = queryset.annotate(
+        history_rank=Window(
+            RowNumber(),
+            partition_by=[F(field)],
+            order_by=[F("created_at").desc(), F("id").desc()],
+        )
+    ).filter(history_rank__lte=limit)
+
+    history = defaultdict(list)
+    for record in ranked.order_by(field, "created_at", "id"):
+        history[getattr(record, field)].append(record)
+    return history
+
+
+def get_latest_by(queryset: models.QuerySet, field: str) -> dict:
+    """
+    O registro mais recente para cada valor de `field`, numa consulta só (DISTINCT ON do
+    Postgres). Uma coleta grava vários registros no mesmo created_at; no empate fica o de menor
+    id, como o .first() por entidade fazia na prática.
+    """
+    latest = queryset.order_by(field, "-created_at", "id").distinct(field)
+    return {getattr(record, field): record for record in latest}
+
+
+def get_cached_in_context(context: dict, key: str, compute: Callable):
+    """
+    Calcula uma vez por requisição. Numa lista, o serializer usa o mesmo context em todos os
+    itens: o que é guardado nele no primeiro item vale para os seguintes.
+    """
+    if key not in context:
+        context[key] = compute()
+    return context[key]
+
+
+class RepositoryRecordsMixin:
+    """
+    Para serializers de entidades suportadas com os valores delas no repositório da view: busca
+    os valores de todas as entidades numa consulta por requisição, em vez de uma (mais a busca do
+    repositório) para cada entidade da lista.
+    """
+
+    records_model = None  # ex.: CalculatedMeasure
+    entity_field = None  # ex.: "measure_id"
+
+    def get_records_queryset(self):
+        repository = get_cached_in_context(self.context, "repository", self.context["view"].get_repository)
+        # a entidade de cada registro vem junto: os serializers dos valores leem o id dela
+        entity = self.entity_field.removesuffix("_id")
+        return self.records_model.objects.filter(repository=repository).select_related(entity)
+
+    def get_entity_records(self, obj, limit: int) -> list:
+        records = get_cached_in_context(
+            self.context,
+            f"records_{self.entity_field}_{limit}",
+            lambda: get_latest_history_by(self.get_records_queryset(), self.entity_field, limit),
+        )
+        return records.get(obj.id, [])
+
+    def get_entity_latest(self, obj):
+        latest = get_cached_in_context(
+            self.context,
+            f"latest_{self.entity_field}",
+            lambda: get_latest_by(self.get_records_queryset(), self.entity_field),
+        )
+        return latest.get(obj.id)

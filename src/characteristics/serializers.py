@@ -57,11 +57,13 @@ class CalculatedCharacteristicSerializer(serializers.ModelSerializer):
         )
 
 
-class LatestCalculatedCharacteristicSerializer(serializers.ModelSerializer):
+class LatestCalculatedCharacteristicSerializer(utils.RepositoryRecordsMixin, serializers.ModelSerializer):
     """
     Serializadora usada para serializar as características suportadas e seu último cálculo
     """
 
+    records_model = CalculatedCharacteristic
+    entity_field = "characteristic_id"
     latest = serializers.SerializerMethodField()
 
     class Meta:
@@ -75,17 +77,12 @@ class LatestCalculatedCharacteristicSerializer(serializers.ModelSerializer):
         )
 
     def get_latest(self, obj: SupportedCharacteristic):
-        try:
-            repository = self.context["view"].get_repository()
-
-            latest = obj.calculated_characteristics.filter(repository=repository).first()
-
-            return CalculatedCharacteristicSerializer(latest).data
-        except SupportedCharacteristic.DoesNotExist:
-            return None
+        return CalculatedCharacteristicSerializer(self.get_entity_latest(obj)).data
 
 
-class CalculatedCharacteristicHistorySerializer(serializers.ModelSerializer):
+class CalculatedCharacteristicHistorySerializer(utils.RepositoryRecordsMixin, serializers.ModelSerializer):
+    records_model = CalculatedCharacteristic
+    entity_field = "characteristic_id"
     history = serializers.SerializerMethodField()
 
     class Meta:
@@ -100,17 +97,4 @@ class CalculatedCharacteristicHistorySerializer(serializers.ModelSerializer):
 
     def get_history(self, obj: SupportedCharacteristic):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
-
-        try:
-            qs = obj.calculated_characteristics.all()
-
-            repository = self.context["view"].get_repository()
-            qs = qs.filter(repository=repository)
-
-            return CalculatedCharacteristicSerializer(
-                utils.get_latest_history(qs, MAX),
-                many=True,
-            ).data
-
-        except CalculatedCharacteristic.DoesNotExist:
-            return None
+        return CalculatedCharacteristicSerializer(self.get_entity_records(obj, MAX), many=True).data

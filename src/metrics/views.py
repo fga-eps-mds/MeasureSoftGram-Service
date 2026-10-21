@@ -55,6 +55,11 @@ class LatestCollectedMetricModelViewSet(
 
     serializer_class = LatestCollectedMetricSerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["qualifier"] = self.request.query_params.get("qualifier")
+        return context
+
 
 class CollectedMetricHistoryModelViewSet(
     RepositoryMetricsMixin,

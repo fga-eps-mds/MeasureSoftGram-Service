@@ -53,11 +53,13 @@ class CollectedMetricSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class LatestCollectedMetricSerializer(serializers.ModelSerializer):
+class LatestCollectedMetricSerializer(utils.RepositoryRecordsMixin, serializers.ModelSerializer):
     """
     Serializadora que retorna o dado mais recente de uma determinada métrica.
     """
 
+    records_model = CollectedMetric
+    entity_field = "metric_id"
     latest = serializers.SerializerMethodField()
 
     class Meta:
@@ -70,18 +72,19 @@ class LatestCollectedMetricSerializer(serializers.ModelSerializer):
             "latest",
         )
 
+    def get_records_queryset(self):
+        qs = super().get_records_queryset()
+        # sem qualifier, o último registro da coleta pode ser o de um arquivo; qualifier=TRK traz o do repositório
+        qualifier = self.context.get("qualifier")
+        return qs.filter(qualifier=qualifier) if qualifier else qs
+
     def get_latest(self, obj: SupportedMetric):
-        try:
-            repository = self.context["view"].get_repository()
-
-            latest = obj.collected_metrics.filter(repository=repository).first()
-
-            return CollectedMetricSerializer(latest).data
-        except CollectedMetric.DoesNotExist:
-            return None
+        return CollectedMetricSerializer(self.get_entity_latest(obj)).data
 
 
-class CollectedMetricHistorySerializer(serializers.ModelSerializer):
+class CollectedMetricHistorySerializer(utils.RepositoryRecordsMixin, serializers.ModelSerializer):
+    records_model = CollectedMetric
+    entity_field = "metric_id"
     history = serializers.SerializerMethodField()
 
     class Meta:
@@ -94,8 +97,7 @@ class CollectedMetricHistorySerializer(serializers.ModelSerializer):
             "history",
         )
 
-    def get_history(self, obj: SupportedMetric):
-        MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
+    def get_records_queryset(self):
         start_at = self.context.get("start_at")
         end_at = self.context.get("end_at")
         qualifier = self.context.get("qualifier")
@@ -103,24 +105,20 @@ class CollectedMetricHistorySerializer(serializers.ModelSerializer):
         # Parse dates
         start_date = parse_date(start_at) if start_at else None
         end_date = parse_date(end_at) if end_at else None
-        try:
-            qs = obj.collected_metrics.all()
 
-            # qualifier=TRK deixa só o valor do repositório, sem os valores por arquivo
-            if qualifier:
-                qs = qs.filter(qualifier=qualifier)
-            if start_date:
-                qs = qs.filter(created_at__gte=start_date)
-            if end_date:
-                qs = qs.filter(created_at__lte=end_date)
+        qs = super().get_records_queryset()
+        # qualifier=TRK deixa só o valor do repositório, sem os valores por arquivo
+        if qualifier:
+            qs = qs.filter(qualifier=qualifier)
+        if start_date:
+            qs = qs.filter(created_at__gte=start_date)
+        if end_date:
+            qs = qs.filter(created_at__lte=end_date)
+        return qs
 
-            repository = self.context["view"].get_repository()
-            qs = qs.filter(repository=repository)
-
-            return CollectedMetricSerializer(utils.get_latest_history(qs, MAX), many=True).data
-
-        except SupportedMetric.DoesNotExist:
-            return None
+    def get_history(self, obj: SupportedMetric):
+        MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
+        return CollectedMetricSerializer(self.get_entity_records(obj, MAX), many=True).data
 
 
 class MetricDistributionQuerySerializer(serializers.Serializer):
