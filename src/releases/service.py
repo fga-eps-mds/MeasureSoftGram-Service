@@ -149,6 +149,12 @@ def calculate_norm_diff(planned_values, accomplished_characteristics):
 
             rd.append(accomplished_value)
 
+        # norm_diff divide pela norma do planejado: com a meta toda em 0, o resultado seria inf (ou nan), que não
+        # cabe no JSON e derrubava o analysis_data da release
+        if not np.any(rp):
+            logger.warning("The planned values are all zero: the normalized difference is undefined.")
+            return None
+
         return norm_diff(np.array(rp), np.array(rd))
 
 

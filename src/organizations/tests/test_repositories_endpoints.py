@@ -354,7 +354,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     def test_if_latest_characteristics_values_action_url_is_working(self):
         latest_values_urls = self.get_repository_urls("latest_values")
         characteristics_url = latest_values_urls["characteristics"]
-        with self.assertNumQueries(3):
+        # o repositório e a contagem; o antigo CacheManager gastava uma terceira só para comparar o filtro
+        with self.assertNumQueries(2):
             response = self.client.get(characteristics_url, format="json")
         self.assertEqual(response.status_code, 200)
 
@@ -374,7 +375,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     def test_if_historical_measures_values_action_url_is_working(self):
         latest_values_urls = self.get_repository_urls("historical_values")
         measures_url = latest_values_urls["measures"]
-        with self.assertNumQueries(3):
+        # o repositório e a contagem; o antigo CacheManager gastava uma terceira só para comparar o filtro
+        with self.assertNumQueries(2):
             response = self.client.get(measures_url, format="json")
         self.assertEqual(response.status_code, 200)
 

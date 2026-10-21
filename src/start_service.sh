@@ -45,11 +45,16 @@ python3 manage.py collectstatic --noinput
 # (releases/jobs.py:acquire_scheduler_lock) garante que so 1 worker starta
 # o cron mesmo com GUNICORN_WORKERS>1. Se o banco nao suportar advisory
 # lock, force GUNICORN_WORKERS=1.
+# Threads (gthread): uma pagina do front dispara de 7 a 21 chamadas de uma vez;
+# com workers sincronos, so GUNICORN_WORKERS delas eram atendidas por vez e uma
+# consulta lenta prendia o worker inteiro. GUNICORN_THREADS=1 volta ao sincrono.
 echo '======= RUNNING GUNICORN'
 exec gunicorn config.wsgi:application \
   --chdir /src \
   --bind 0.0.0.0:8080 \
   --workers "${GUNICORN_WORKERS:-3}" \
+  --worker-class gthread \
+  --threads "${GUNICORN_THREADS:-4}" \
   --timeout "${GUNICORN_TIMEOUT:-120}" \
   --access-logfile - \
   --error-logfile -

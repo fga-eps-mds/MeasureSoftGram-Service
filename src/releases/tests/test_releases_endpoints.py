@@ -511,6 +511,38 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         assert response.status_code == 200
         assert response.json()["accomplished"] == accomplished
 
+    def test_get_analysis_data_with_zero_goal_returns_without_norm_diff(self):
+        zero_goal = Goal.objects.create(
+            created_at=date.today(),
+            created_by_id=self.user.id,
+            product=self.product,
+            data={"reliability": 0, "maintainability": 0},
+        )
+        Release.objects.create(
+            id=998,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name="Release com meta zerada",
+            created_by=self.user,
+            product=self.product,
+            goal=zero_goal,
+        )
+        repository = Repository.objects.create(name="Repositorio", key="repo-meta-zero", product=self.product)
+        for key in ("reliability", "maintainability"):
+            CalculatedCharacteristic.objects.create(
+                release_id=998,
+                characteristic=SupportedCharacteristic.objects.get(key=key),
+                repository=repository,
+                value=0.5,
+            )
+
+        response = self.client.get(path=f"{self.url_default}998/analysis_data/")
+
+        # antes: 500, porque a diferença normalizada dava inf e não cabia no JSON
+        assert response.status_code == 200
+        assert response.json()["accomplished"][0]["norm_diff"] is None
+
     def test_get_analysis_data_returns_all_latest_characteristics(self):
         """Antes havia um [:2] e só as duas últimas características calculadas eram retornadas."""
         Release.objects.create(

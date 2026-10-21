@@ -99,8 +99,7 @@ def get_metric_reference(product, release, metric_key):
     if config is None:
         return None
 
-    # relação reversa em vez de SupportedMeasure.objects.filter: o CacheManager
-    # compara kwargs string como conjunto de letras
+    # medidas que usam a métrica, pela relação reversa
     measure_keys = set(SupportedMetric.objects.get(key=metric_key).related_measures.values_list("key", flat=True))
 
     for characteristic in config.data["characteristics"]:
