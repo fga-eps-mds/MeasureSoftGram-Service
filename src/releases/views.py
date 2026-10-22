@@ -12,6 +12,8 @@ from organizations.mixins import UserScopedMixin
 from organizations.models import Repository
 from releases.analysis_distribution import LEVELS as DISTRIBUTION_LEVELS
 from releases.analysis_distribution import TSQMI_LEVEL, EntityNotConfigured, get_analysis_distribution
+from releases.correlation import LEVELS as CORRELATION_LEVELS
+from releases.correlation import get_correlation
 from releases.dashboard import (
     get_configured_keys,
     get_release_characteristics,
@@ -298,6 +300,31 @@ class AnalysisDistributionViewSet(ReleaseScopedMixin, viewsets.ViewSet):
             return Response({"detail": "Esta métrica não tem valor por análise."}, status=400)
 
         return Response(distribution)
+
+
+class CorrelationViewSet(UserScopedMixin, viewsets.ViewSet):
+    """
+    Relações e correlações (US21.04): correlação entre as características (ou
+    subcaracterísticas) de um repositório ao longo das releases.
+    """
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, *args, **kwargs):
+        level = request.query_params.get("level", CORRELATION_LEVELS[0])
+        repository_id = request.query_params.get("repository_id")
+
+        if level not in CORRELATION_LEVELS:
+            return Response(
+                {"detail": f"O parâmetro level deve ser um de: {', '.join(CORRELATION_LEVELS)}."}, status=400
+            )
+        if not repository_id or not repository_id.isdigit():
+            return Response({"detail": "O parâmetro repository_id é obrigatório."}, status=400)
+
+        repository = get_object_or_404(self.get_product().repositories.all(), id=int(repository_id))
+
+        return Response(get_correlation(repository, level))
 
 
 class ReleaseDashboardViewSet(ReleaseScopedMixin, viewsets.ViewSet):

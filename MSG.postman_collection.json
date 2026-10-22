@@ -807,6 +807,42 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Correlation",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/correlation/?repository_id=1&level=characteristic",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"correlation",
+												""
+											],
+											"query": [
+												{
+													"key": "repository_id",
+													"value": "1",
+													"description": "Obrigatório."
+												},
+												{
+													"key": "level",
+													"value": "characteristic",
+													"description": "characteristic (padrão) ou subcharacteristic."
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						}

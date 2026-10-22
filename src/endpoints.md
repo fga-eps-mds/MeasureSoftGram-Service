@@ -312,3 +312,47 @@ Erros: parâmetro ausente, nível inválido, entidade fora da configuração da 
   ]
 }
 ```
+
+### Relações e correlações (US21.04)
+
+Correlação entre as características (ou subcaracterísticas) de um repositório ao longo das releases: a função f<sub>σ</sub> do modelo matemático (equação 9), calculada pelo Core (`core.transformations.correlation_function`). A matriz RD tem uma release por linha e uma entidade por coluna; RD_Corr usa **Pearson** se todas as colunas forem normais (Shapiro-Wilk, nível de 5%) e **Spearman** se não.
+
+#### Endpoint que retorna a matriz de correlação de um repositório
+GET /api/v1/organizations/1/products/1/correlation/?repository_id=3&level=characteristic
+
+Parâmetros:
+- `repository_id` (obrigatório): repositório do produto.
+- `level` *(opcional)*: `characteristic` (padrão) ou `subcharacteristic`.
+
+Erros: `repository_id` ausente ou `level` inválido recebem 400; repositório fora do produto, ou usuário que não é membro da organização, recebe 404.
+
+Regras:
+- `entities`: as entidades do nível na configuração da release mais recente do repositório, na ordem dela.
+- `releases`: as linhas de RD, da mais antiga para a mais nova. Entram as releases do produto que incluem o repositório (mesma regra do `release-history`) em que ele tem valor para todas as entidades. O valor é o da última análise na janela da release; as linhas de característica gravadas pelo fechamento da release (`release` preenchida) não são análises e ficam fora. `excluded_releases` conta as releases deixadas de fora por falta de valor.
+- `method`: `pearson` ou `spearman`. `non_normal`: quantidade de colunas sem distribuição normal (uma coluna constante conta como não normal).
+- `critical_value`: \|r\| a partir do qual o coeficiente é significativo com o número de releases usadas (teste t bicaudal, nível de 5%). Com 20 releases, 0,44.
+- `pairs`: o triângulo de baixo da matriz, cada entidade (`row`) com as que vêm antes dela (`column`), com `coefficient`, `p_value` e `significant` (p < 0,05). Um par com uma entidade sem variação vem com `coefficient` e `p_value` `null` e `significant: false`. Os valores vêm sem arredondamento.
+- Com menos de 2 entidades ou menos de 3 releases com valor, `pairs` vem vazia, `method`, `non_normal` e `critical_value` vêm `null`, e `reason` diz o motivo: `insufficient_entities` ou `insufficient_releases`. Fora isso, `reason` é `null`.
+
+```json
+{
+  "repository": {"id": 3, "name": "2026.2-MeasureSoftGram-Service"},
+  "level": "characteristic",
+  "entities": [
+    {"key": "reliability", "name": "Reliability"},
+    {"key": "maintainability", "name": "Maintainability"},
+    {"key": "functional_suitability", "name": "Functional Suitability"}
+  ],
+  "releases": [{"id": 1, "release_name": "R1", "start_at": "...", "end_at": "..."}, "... (20 releases)"],
+  "excluded_releases": 1,
+  "method": "spearman",
+  "non_normal": 3,
+  "critical_value": 0.4438,
+  "pairs": [
+    {"row": "maintainability", "column": "reliability", "coefficient": 0.559, "p_value": 0.0104, "significant": true},
+    {"row": "functional_suitability", "column": "reliability", "coefficient": 0.4862, "p_value": 0.0297, "significant": true},
+    {"row": "functional_suitability", "column": "maintainability", "coefficient": 0.9282, "p_value": 3.7e-09, "significant": true}
+  ],
+  "reason": null
+}
+```

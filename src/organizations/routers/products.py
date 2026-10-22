@@ -12,6 +12,7 @@ from release_configuration.views import (
 )
 from releases.views import (
     AnalysisDistributionViewSet,
+    CorrelationViewSet,
     EntityAnalysisViewSet,
     ReleaseDashboardViewSet,
     ReleaseModelViewSet,
@@ -59,6 +60,11 @@ class ProductRouter(Router):
                     "name": "analysis-distribution",
                     "view": AnalysisDistributionViewSet,
                     "basename": "analysis-distribution",
+                },
+                {
+                    "name": "correlation",
+                    "view": CorrelationViewSet,
+                    "basename": "correlation",
                 },
                 {
                     "name": "repositories",

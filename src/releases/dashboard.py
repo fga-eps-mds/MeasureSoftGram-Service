@@ -124,13 +124,7 @@ def get_repository_release_history(repository, level: str, keys: list) -> dict:
     Temporal e tela do repositório). Entram as releases do produto em que o
     repositório está em `get_release_repositories`, da mais antiga para a mais nova.
     """
-    releases = [
-        release
-        for release in Release.objects.filter(product_id=repository.product_id)
-        .select_related("product")
-        .order_by("start_at", "id")
-        if repository.id in {item.id for item in get_release_repositories(release)}
-    ]
+    releases = get_repository_releases(repository)
     names = get_entity_names(level, keys)
     # chaves que não existem no sistema ficam de fora
     keys = [key for key in keys if key in names]
@@ -156,6 +150,17 @@ def get_repository_release_history(repository, level: str, keys: list) -> dict:
             for key in keys
         ],
     }
+
+
+def get_repository_releases(repository) -> list:
+    """Releases do produto em que o repositório está em `get_release_repositories`, da mais antiga para a mais nova."""
+    return [
+        release
+        for release in Release.objects.filter(product_id=repository.product_id)
+        .select_related("product")
+        .order_by("start_at", "id")
+        if repository.id in {item.id for item in get_release_repositories(release)}
+    ]
 
 
 def get_configured_keys(configuration, level: str) -> list:
