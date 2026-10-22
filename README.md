@@ -120,6 +120,34 @@ Para popular os dados iniciais de entidades suportadas e os dados de demonstraç
 make seed
 ```
 
+O `seed_demo_data` gera, para cada repositório, uma análise a cada 3 dias nos últimos 180 dias. Cada análise traz TSQMI, características e as 4 métricas do GitHub (`total_issues`, `resolved_issues`, `sum_ci_feedback_times` e `total_builds`), gravadas com `qualifier = TRK` nas mesmas datas, como numa coleta real. O seed também cria 4 releases trimestrais por produto (`v2025.1.0` a `v2025.4.0`), com cerca de 15 análises cada. As métricas do GitHub usam semente fixa e saem iguais a cada execução.
+
+Opções do comando (`docker compose exec service python manage.py seed_demo_data ...`):
+
+- `--days N`: dias de histórico (padrão 180).
+- `--repos "repo-a,repo-b"`: só os repositórios informados.
+- `--clean-all`: apaga características, subcaracterísticas, medidas e métricas coletadas (inclusive as `TRK`) dos repositórios antes de recriar.
+- `--clean-tsqmi`: apaga o TSQMI dos repositórios antes de recriar.
+
+Numa base que já tinha análises, as antigas continuam lá e se somam às do seed. Para começar do zero: `make clear`, `make setup` e `make seed`.
+
+#### Conferir o nível Métrica da Distribuição Estatística
+
+No front, abra um produto, escolha a release `v2025.4.0` e um repositório, vá em **Distribuição Estatística** e selecione o nível **Métrica** com `total_issues` (ou outra métrica do GitHub). Devem aparecer o histograma, a densidade e a dispersão na escala da métrica.
+
+Pela API, com o token de um membro da organização (o `msgramteste`, criado pelo `load_initial_data`):
+
+```bash
+# ids de organização, produto, release e repositórios das releases trimestrais mais recentes
+docker compose exec service python manage.py shell -c "from releases.models import Release; [print(r.product.organization_id, r.product_id, r.id, r.release_name, list(r.product.repositories.values_list('id', 'name'))) for r in Release.objects.filter(release_name='v2025.4.0')]"
+
+TOKEN=$(docker compose exec -T service python manage.py drf_create_token msgramteste | awk '{print $3}')
+curl -H "Authorization: Token $TOKEN" \
+  "http://localhost:8080/api/v1/organizations/<org>/products/<produto>/analysis-distribution/?release_id=<release>&repository_id=<repositorio>&level=metric&key=total_issues"
+```
+
+A resposta traz em `entity.analyses` uma análise por coleta da release, com valores diferentes. Os parâmetros do endpoint estão em [src/endpoints.md](src/endpoints.md#distribuição-entre-as-análises-us2103).
+
 ### 5. Configurar os Git Hooks (Pre-commit)
 
 Para garantir a padronização do código e das mensagens de commit no repositório local (validação de Conventional Commits, formatação com Black/isort e linter com Flake8), instale os hooks do git:
@@ -176,7 +204,7 @@ A documentação interativa das rotas da API (Swagger / OpenAPI) está disponív
 
 ## Como Rodar os Testes
 
-> **Aviso Importante sobre o Banco de Dados:** 
+> **Aviso Importante sobre o Banco de Dados:**
 > A suíte de testes deste projeto exige **obrigatoriamente um banco PostgreSQL** rodando. O código utiliza funções nativas exclusivas do Postgres (como o comando DISTINCT ON) para lidar com histórico e métricas, o que torna **impossível** rodar os testes utilizando um banco em memória mais simples como o SQLite.
 
 Para facilitar e não exigir que você instale o Postgres na sua máquina física, a solução recomendada é sempre rodar os testes utilizando o container do Docker Compose, já passando a variável de ambiente de testes para garantir que o banco não entre em conflito com os dados de desenvolvimento.

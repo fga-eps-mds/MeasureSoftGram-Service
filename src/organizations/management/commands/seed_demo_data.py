@@ -8,6 +8,8 @@ Popula o banco com dados ricos para os dashboards do produto:
   - Goals por produto linkados ao admin
   - TSQMI com timestamps corretos e evolução coerente
   - Métricas por arquivo para análise de distribuição estatística
+  - Métricas do GitHub (qualifier TRK), com um valor por análise, para o nível
+    Métrica da Distribuição Estatística
   - Garante que TODAS as características sejam criadas para CADA data (evita NULL)
 
 IMPORTANTE: Este seed popula dados para os seguintes dashboards:
@@ -64,6 +66,15 @@ REPO_PROFILES = {
     "2019.2-Acacia-Frontend": "declining",
     "2020.1-BCE": "volatile",
 }
+
+# Uma análise (TSQMI + características + métricas do GitHub) a cada N dias do período
+ANALYSIS_EVERY_DAYS = 3
+
+# Métricas do GitHub: gravadas no nível do projeto (qualifier TRK), um valor por análise
+GITHUB_METRICS = ("total_issues", "resolved_issues", "sum_ci_feedback_times", "total_builds")
+
+# Semente fixa: as métricas do GitHub saem iguais a cada execução do seed
+GITHUB_METRICS_SEED = 2103
 
 
 def _clamp(v, lo=0.0, hi=1.0):
@@ -171,12 +182,12 @@ class Command(BaseCommand):
         all_timestamps = _make_timestamps(self.days, self.end_date)
 
         # IMPORTANTE: Para o pulso ECG funcionar, características e TSQMI devem estar nas MESMAS datas
-        # Seleciona 10 timestamps espaçados uniformemente (incluindo o mais recente) para
-        # TSQMI e características — o painel "Planejado vs Realizado" só considera os
-        # últimos 7 dias, então a última amostra precisa ficar perto de `self.end_date`.
-        TSQMI_MEASUREMENTS = 10
+        # Uma análise a cada ANALYSIS_EVERY_DAYS dias, contada a partir do timestamp mais recente:
+        # o painel "Planejado vs Realizado" só considera os últimos 7 dias, então a última
+        # amostra precisa ficar perto de `self.end_date`. O primeiro dia sempre entra, para
+        # que até um período curto tenha pelo menos 2 análises.
         last_idx = len(all_timestamps) - 1
-        indices = [round(i * last_idx / (TSQMI_MEASUREMENTS - 1)) for i in range(TSQMI_MEASUREMENTS)]
+        indices = sorted(set(range(last_idx, -1, -ANALYSIS_EVERY_DAYS)) | {0})
         tsqmi_timestamps = [all_timestamps[i] for i in indices]
 
         if self.clean_tsqmi:
@@ -185,9 +196,10 @@ class Command(BaseCommand):
         self._seed_collected_metrics(repo, all_timestamps)
         self._seed_calculated_measures(repo, profile, all_timestamps)
         self._seed_calculated_subchars(repo, profile, all_timestamps)
-        # Criar características APENAS nas datas dos TSQMIs (10 datas)
+        # Características, TSQMI e métricas do GitHub APENAS nas datas das análises
         self._seed_calculated_chars(repo, profile, tsqmi_timestamps)
         self._seed_tsqmi(repo, profile, tsqmi_timestamps)
+        self._seed_github_metrics(repo, tsqmi_timestamps)
 
     def _seed_collected_metrics(self, repo: Repository, timestamps: list):
         """
@@ -364,6 +376,53 @@ class Command(BaseCommand):
         TSQMI.objects.bulk_create(to_create, batch_size=500)
         self.stdout.write(
             f"    TSQMI: +{len(to_create)} ({TSQMI_MEASUREMENTS} medições nas MESMAS datas das características)"
+        )
+
+    def _seed_github_metrics(self, repo: Repository, timestamps: list):
+        """
+        Cria as métricas do GitHub nas datas das análises: uma linha por métrica em cada
+        análise, com qualifier TRK e sem path, como o MathModelServices grava a coleta.
+
+        Issues e builds crescem de leve ao longo do período. Duas análises trazem valores
+        discrepantes (uma leva de issues e uma pipeline lenta) para os gráficos ganharem forma.
+        """
+        metrics = {metric.key: metric for metric in SupportedMetric.objects.filter(key__in=GITHUB_METRICS)}
+        if not metrics:
+            return
+
+        rng = random.Random(f"{GITHUB_METRICS_SEED}-{repo.name}")
+        issues_spike = round(len(timestamps) * 0.4)
+        slow_ci_spike = round(len(timestamps) * 0.85)
+
+        to_create = []
+        for i, ts in enumerate(timestamps):
+            total_issues = max(1, round(40 + 0.4 * i + rng.gauss(0, 3)))
+            if i == issues_spike:
+                total_issues += 30
+            total_builds = max(1, round(25 + 0.2 * i + rng.gauss(0, 4)))
+            # tempo médio de feedback de cada build, em segundos
+            feedback_time = rng.uniform(2400, 3000) if i == slow_ci_spike else rng.uniform(300, 900)
+            values = {
+                "total_issues": total_issues,
+                "resolved_issues": round(total_issues * rng.uniform(0.5, 0.9)),
+                "sum_ci_feedback_times": round(total_builds * feedback_time),
+                "total_builds": total_builds,
+            }
+            to_create.extend(
+                CollectedMetric(
+                    metric=metric,
+                    value=values[key],
+                    path=None,
+                    qualifier="TRK",
+                    created_at=ts,
+                    repository=repo,
+                )
+                for key, metric in metrics.items()
+            )
+
+        CollectedMetric.objects.bulk_create(to_create, batch_size=500)
+        self.stdout.write(
+            f"    CollectedMetric TRK: +{len(to_create)} ({len(timestamps)} análises × {len(metrics)} métricas)"
         )
 
     # ------------------------------------------------------------------
