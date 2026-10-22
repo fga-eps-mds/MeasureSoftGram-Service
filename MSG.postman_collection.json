@@ -763,12 +763,12 @@
 									"response": []
 								},
 								{
-									"name": "Metrics distribution",
+									"name": "Analysis distribution",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/metrics-distribution/?release_id=1&metric=coverage&repository_id=1",
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/analysis-distribution/?release_id=1&repository_id=1&level=characteristic&key=reliability",
 											"host": [
 												"{{MSG_SERVICE_HOST}}"
 											],
@@ -779,22 +779,29 @@
 												"4",
 												"products",
 												"5",
-												"metrics-distribution",
+												"analysis-distribution",
 												""
 											],
 											"query": [
 												{
 													"key": "release_id",
-													"value": "1"
-												},
-												{
-													"key": "metric",
-													"value": "coverage"
+													"value": "1",
+													"description": "Obrigatório."
 												},
 												{
 													"key": "repository_id",
 													"value": "1",
-													"description": "Opcional. Sem ele, um resumo por repositório."
+													"description": "Obrigatório."
+												},
+												{
+													"key": "level",
+													"value": "characteristic",
+													"description": "tsqmi, characteristic, subcharacteristic, measure ou metric."
+												},
+												{
+													"key": "key",
+													"value": "reliability",
+													"description": "Obrigatório abaixo do TSQMI. No nível metric, só as métricas TRK (GitHub)."
 												}
 											]
 										}

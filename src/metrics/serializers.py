@@ -5,7 +5,6 @@ from rest_framework import serializers
 
 import utils
 from metrics.models import CollectedMetric, SupportedMetric
-from utils.file_metrics import FILE_LEVEL_METRICS
 
 
 class SupportedMetricSerializer(serializers.ModelSerializer):
@@ -119,12 +118,3 @@ class CollectedMetricHistorySerializer(utils.RepositoryRecordsMixin, serializers
     def get_history(self, obj: SupportedMetric):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
         return CollectedMetricSerializer(self.get_entity_records(obj, MAX), many=True).data
-
-
-class MetricDistributionQuerySerializer(serializers.Serializer):
-    release_id = serializers.IntegerField()
-    metric = serializers.ChoiceField(
-        choices=sorted(FILE_LEVEL_METRICS),
-        error_messages={"invalid_choice": 'A métrica "{input}" não é coletada por arquivo.'},
-    )
-    repository_id = serializers.IntegerField(required=False)

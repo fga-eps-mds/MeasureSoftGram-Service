@@ -10,6 +10,8 @@ from characteristics.models import CalculatedCharacteristic
 from entity_trees.services import resolve_release_configuration
 from organizations.mixins import UserScopedMixin
 from organizations.models import Repository
+from releases.analysis_distribution import LEVELS as DISTRIBUTION_LEVELS
+from releases.analysis_distribution import TSQMI_LEVEL, EntityNotConfigured, get_analysis_distribution
 from releases.dashboard import (
     get_configured_keys,
     get_release_characteristics,
@@ -257,6 +259,45 @@ class EntityAnalysisViewSet(ReleaseScopedMixin, viewsets.ViewSet):
             return Response({level: [] for level in LEVELS})
 
         return Response(get_entity_catalog(release, configuration))
+
+
+class AnalysisDistributionViewSet(ReleaseScopedMixin, viewsets.ViewSet):
+    """
+    Distribuição estatística (US21.03): valores de uma entidade do modelo e dos
+    filhos dela entre as análises de um repositório, dentro da release.
+    """
+
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, *args, **kwargs):
+        level = request.query_params.get("level")
+        key = request.query_params.get("key")
+        repository_id = request.query_params.get("repository_id")
+
+        if level not in DISTRIBUTION_LEVELS:
+            return Response(
+                {"detail": f"O parâmetro level deve ser um de: {', '.join(DISTRIBUTION_LEVELS)}."}, status=400
+            )
+        if level != TSQMI_LEVEL and not key:
+            return Response({"detail": "O parâmetro key é obrigatório abaixo do TSQMI."}, status=400)
+        if not repository_id or not repository_id.isdigit():
+            return Response({"detail": "O parâmetro repository_id é obrigatório."}, status=400)
+
+        release = self.get_release()
+        if release is None:
+            return Response({"detail": RELEASE_ID_REQUIRED}, status=400)
+        repository = get_object_or_404(release.product.repositories.all(), id=int(repository_id))
+
+        configuration = resolve_release_configuration(release.product, release)
+        try:
+            distribution = get_analysis_distribution(release, repository, configuration, level, key)
+        except EntityNotConfigured:
+            return Response({"detail": "Entidade não faz parte da configuração da release."}, status=400)
+        except MetricWithoutRepositoryValue:
+            return Response({"detail": "Esta métrica não tem valor por análise."}, status=400)
+
+        return Response(distribution)
 
 
 class ReleaseDashboardViewSet(ReleaseScopedMixin, viewsets.ViewSet):

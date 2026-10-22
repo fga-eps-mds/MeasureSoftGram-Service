@@ -265,34 +265,50 @@ Entram as releases do produto que incluem o repositório pela mesma regra (inclu
 
 Respostas: `400` com `level` inválido, `404` se o repositório não for do produto ou o usuário não for membro da organização.
 
-### Distribuição das métricas por arquivo (US21.03)
+### Distribuição entre as análises (US21.03)
 
-#### Endpoint que retorna os valores por arquivo e o resumo estatístico de uma métrica na release
-GET /api/v1/organizations/1/products/1/metrics-distribution/?release_id=1&metric=coverage&repository_id=1
+Cada análise é uma execução da coleta (Action ou CLI) no repositório: cada chamada de `calculate/math-model/` grava uma linha de TSQMI, característica, subcaracterística e medida, todas com o mesmo `created_at` das métricas da coleta.
+
+#### Endpoint que retorna as análises e o resumo estatístico de uma entidade do modelo num repositório, na release
+GET /api/v1/organizations/1/products/1/analysis-distribution/?release_id=1&repository_id=3&level=characteristic&key=reliability
 
 Parâmetros:
-- `release_id` (obrigatório): release do produto. Usa a última coleta de cada repositório entre o dia de `start_at` e o dia de `end_at`, inclusive.
-- `metric` (obrigatório): `coverage`, `complexity`, `functions`, `comment_lines_density`, `duplicated_lines_density` ou `sqale_debt_ratio`. Outra métrica recebe 400.
-- `repository_id` (opcional): com ele, a resposta traz os arquivos (`files`) daquele repositório. Sem ele, traz só o resumo de cada repositório da release (ou do produto, se a release não tiver repositórios), em ordem de nome.
+- `release_id` (obrigatório): release do produto. Entram as análises entre o dia de `start_at` e o dia de `end_at`, inclusive.
+- `repository_id` (obrigatório): repositório do produto.
+- `level` (obrigatório): `tsqmi`, `characteristic`, `subcharacteristic`, `measure` ou `metric`.
+- `key`: chave da entidade, obrigatória abaixo do TSQMI. Precisa fazer parte da pré-configuração vigente na release (mesma regra da Análise por Entidade). No nível `metric`, só as gravadas com `qualifier = TRK` (as do GitHub), que são as que têm um valor por análise.
 
-Erros: parâmetro obrigatório ausente ou métrica inválida recebe 400; release ou repositório fora do produto, ou usuário que não é membro da organização, recebe 404.
+Erros: parâmetro ausente, nível inválido, entidade fora da configuração da release ou métrica sem valor por análise (as do SonarQube, gravadas por arquivo) recebem 400; release ou repositório fora do produto, ou usuário que não é membro da organização, recebe 404.
 
-Arquivos com `ncloc = 0` ficam fora; `excluded_files` diz quantos. `reference` traz o mínimo e o máximo da medida que usa a métrica, ou `null`. Repositório sem dados por arquivo na release vem com `files: []`, `summary: null` e `collected_at: null`. Se a última coleta da release não tiver a métrica pedida, vem com `files: []` e `summary: null`, mas com `collected_at` preenchido.
+`period`: quantidade de análises da entidade e as datas da primeira e da última (`null` sem análise).
+
+`entity` e cada item de `children` trazem `analyses` (data, valor e `is_outlier`, em ordem de data) e `summary`. `metric_type` vem preenchido só no nível `metric`. As linhas de característica gravadas pelo fechamento da release (`release` preenchida) não são análises e ficam fora.
+
+`children`: os filhos da entidade, na ordem da configuração da release. TSQMI → características, característica → subcaracterísticas, subcaracterística → medidas, medida → métricas `TRK`, métrica → lista vazia. Filhos sem análise na janela ficam fora (por exemplo, a `coverage` da `test_coverage`, que só tem valor por arquivo). A série de cada entidade é lida sozinha, sem casar as camadas pela data.
+
+`summary`:
+- `p10`, `q1`, `median`, `q3` e `p90` pelo método `inclusive`, o mesmo do `QUARTIL.INC` e do `PERCENTIL.INC` das planilhas.
+- `iqr` = Q3 − Q1; `lower_limit` = Q1 − 1,5 × IQR; `upper_limit` = Q3 + 1,5 × IQR; `outliers` é a quantidade de análises fora dos limites.
+- `skewness`: assimetria amostral ajustada, a mesma do `DISTORÇÃO`: n / ((n − 1)(n − 2)) · Σ((x − média) / s)³, com s amostral. `null` com menos de 3 análises ou com desvio zero.
+- Sem análise, `count` e `outliers` vêm 0 e os demais campos `null`. Com uma análise, todos os quantis são o próprio valor e o IQR é 0.
+- Os valores vêm sem arredondamento.
 
 ```json
 {
-  "release": {"id": 1, "release_name": "R1", "start_at": "2026-09-01T00:00:00-03:00", "end_at": "2026-10-15T00:00:00-03:00"},
-  "metric": "coverage",
-  "reference": {"measure": "test_coverage", "min_threshold": 60, "max_threshold": 100},
-  "repositories": [
-    {
-      "repository_id": 1,
-      "repository_name": "api",
-      "collected_at": "2026-10-14T21:03:11.120000-03:00",
-      "excluded_files": 1,
-      "summary": {"count": 2, "min": 60.0, "q1": 65.0, "median": 70.0, "q3": 75.0, "max": 80.0, "mean": 70.0, "std_dev": 10.0},
-      "files": [{"path": "src/a.py", "value": 80.0}, {"path": "src/b.py", "value": 60.0}]
-    }
+  "release": {"id": 1, "release_name": "R2", "start_at": "2026-08-17T00:00:00-03:00", "end_at": "2026-10-16T00:00:00-03:00"},
+  "repository": {"id": 3, "name": "2026.2-MeasureSoftGram-Service"},
+  "level": "characteristic",
+  "key": "reliability",
+  "period": {"count": 60, "first": "2026-08-17T10:02:00-03:00", "last": "2026-10-16T18:40:00-03:00"},
+  "entity": {
+    "key": "reliability", "name": "Reliability", "level": "characteristic", "metric_type": null,
+    "analyses": [{"date": "2026-08-17T10:02:00-03:00", "value": 0.55, "is_outlier": false}],
+    "summary": {"count": 60, "min": 0.2, "p10": 0.43, "q1": 0.49, "median": 0.55, "q3": 0.62, "p90": 0.66,
+                "max": 0.9, "iqr": 0.13, "lower_limit": 0.295, "upper_limit": 0.815, "outliers": 3,
+                "mean": 0.55, "skewness": -0.16}
+  },
+  "children": [
+    {"key": "testing_status", "name": "Testing Status", "level": "subcharacteristic", "metric_type": null, "analyses": [...], "summary": {...}}
   ]
 }
 ```

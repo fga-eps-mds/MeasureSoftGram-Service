@@ -66,6 +66,9 @@ class MathModelServices:
     def __init__(self, repository, product):
         self.repository = repository
         self.product = product
+        # instante da coleta, definido em build_collected_metrics e repassado às
+        # camadas calculadas em persist_all
+        self.collected_at = None
 
     # ---------- FASE 1: build em memória ----------
 
@@ -73,9 +76,10 @@ class MathModelServices:
         """Constrói instâncias não-persistidas de CollectedMetric a
         partir do payload bruto da Action (SonarQube + GitHub)."""
         supported_metrics = {sm.key: sm for sm in SupportedMetric.objects.all()}
-        # um único created_at por coleta, para que a coleta seja identificável
-        # por igualdade (metrics/distribution.py)
+        # um único created_at por coleta, para que a análise seja identificável
+        # por igualdade; persist_all repassa o mesmo instante às camadas calculadas
         collected_at = timezone.now()
+        self.collected_at = collected_at
 
         collected: List[CollectedMetric] = []
 
@@ -318,7 +322,14 @@ class MathModelServices:
 
         Falha em qualquer bulk_create dispara rollback completo via
         propagação de exceção pra fora do @transaction.atomic.
+
+        As camadas calculadas recebem o created_at das métricas da coleta, para
+        que todas as linhas de uma análise tenham o mesmo instante.
         """
+        if self.collected_at is not None:
+            for instance in (*calculated_measures, *calculated_subchars, *calculated_chars, tsqmi):
+                instance.created_at = self.collected_at
+
         saved_metrics = CollectedMetric.objects.bulk_create(collected_metrics)
         saved_measures = CalculatedMeasure.objects.bulk_create(calculated_measures)
         saved_subchars = CalculatedSubCharacteristic.objects.bulk_create(

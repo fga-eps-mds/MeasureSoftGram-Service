@@ -1,18 +1,12 @@
-from rest_framework import mixins, permissions, serializers, viewsets
-from rest_framework.generics import get_object_or_404
-from rest_framework.response import Response
+from rest_framework import mixins, permissions, viewsets
 
-from metrics.distribution import get_metric_reference, get_repository_distribution
 from metrics.models import SupportedMetric
 from metrics.serializers import (
     CollectedMetricHistorySerializer,
     LatestCollectedMetricSerializer,
-    MetricDistributionQuerySerializer,
     SupportedMetricSerializer,
 )
 from organizations.mixins import UserScopedMixin
-from releases.entity_analysis import get_release_repositories
-from releases.models import Release
 
 
 class SupportedMetricModelViewSet(
@@ -86,55 +80,3 @@ class CollectedMetricHistoryModelViewSet(
         context["end_at"] = self.request.query_params.get("end_at")
         context["qualifier"] = self.request.query_params.get("qualifier")
         return context
-
-
-def _local_datetime(value):
-    return serializers.DateTimeField().to_representation(value) if value else None
-
-
-class MetricDistributionViewSet(UserScopedMixin, viewsets.ViewSet):
-    """
-    Distribuição de uma métrica entre os arquivos dos repositórios do produto,
-    na última coleta dentro da janela da release (US21.03).
-    """
-
-    permission_classes = [permissions.IsAuthenticated]
-
-    def list(self, request, *args, **kwargs):
-        product = self.get_product()
-        params = MetricDistributionQuerySerializer(data=request.query_params)
-        params.is_valid(raise_exception=True)
-        metric_key = params.validated_data["metric"]
-        repository_id = params.validated_data.get("repository_id")
-        release = get_object_or_404(Release, id=params.validated_data["release_id"], product=product)
-
-        if repository_id is not None:
-            repositories = [get_object_or_404(product.repositories.all(), id=repository_id)]
-        else:
-            # mesma seleção e ordem (nome) da Análise por Entidade
-            repositories = get_release_repositories(release)
-
-        distributions = []
-        for repository in repositories:
-            distribution = get_repository_distribution(repository, metric_key, release)
-            distribution["collected_at"] = _local_datetime(distribution["collected_at"])
-            if repository_id is None:
-                # comparação entre repositórios: só o resumo (CA6)
-                distribution.pop("files")
-            distributions.append(
-                {"repository_id": repository.id, "repository_name": repository.name, **distribution}
-            )
-
-        return Response(
-            {
-                "release": {
-                    "id": release.id,
-                    "release_name": release.release_name,
-                    "start_at": _local_datetime(release.start_at),
-                    "end_at": _local_datetime(release.end_at),
-                },
-                "metric": metric_key,
-                "reference": get_metric_reference(product, release, metric_key),
-                "repositories": distributions,
-            }
-        )

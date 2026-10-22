@@ -141,6 +141,44 @@ class MathModelServicesTest(APITestCaseExpanded):
         assert len(collected) == 2
         assert len({m.created_at for m in collected}) == 1
 
+    def test_persist_all_gives_calculated_layers_the_collection_created_at(self):
+        payload = {
+            "github": {
+                "metrics": [
+                    {"name": "total_builds", "value": "10"},
+                    {"name": "sum_ci_feedback_times", "value": "3000"},
+                ]
+            },
+        }
+        collected = self.services.build_collected_metrics(payload)
+        collected_at = collected[0].created_at
+
+        # as camadas são montadas depois, num instante diferente do da coleta
+        with freeze_time("2024-09-08 20:00:07"):
+            measures, measure_values = self.services.build_calculated_measures(
+                ["ci_feedback_time"], self.release_config, collected
+            )
+            subchars, subchar_values = self.services.build_calculated_subcharacteristics(
+                ["maturity"], self.release_config, measure_values
+            )
+            chars, char_values = self.services.build_calculated_characteristics(
+                ["reliability"], self.release_config, subchar_values
+            )
+            tsqmi = self.services.build_tsqmi(self.release_config, char_values)
+            self.services.persist_all(collected, measures, subchars, chars, tsqmi)
+
+        created_ats = {
+            *CollectedMetric.objects.values_list("created_at", flat=True),
+            *CalculatedMeasure.objects.values_list("created_at", flat=True),
+            *CalculatedSubCharacteristic.objects.values_list("created_at", flat=True),
+            *CalculatedCharacteristic.objects.values_list("created_at", flat=True),
+            *TSQMI.objects.values_list("created_at", flat=True),
+        }
+        assert CalculatedMeasure.objects.count() == 1
+        assert CalculatedCharacteristic.objects.count() == 1
+        assert TSQMI.objects.count() == 1
+        assert created_ats == {collected_at}
+
     def test_build_calculated_measures_returns_instances_and_values(self):
         """build_calculated_measures retorna instâncias não persistidas
         + dict {key: value} para alimentar a próxima camada."""
