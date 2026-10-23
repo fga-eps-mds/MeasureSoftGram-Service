@@ -767,7 +767,7 @@
 									"response": []
 								},
 								{
-									"name": "Release dashboard - characteristics",
+									"name": "Release dashboard - TSQMI por repositório (characteristics)",
 									"request": {
 										"method": "GET",
 										"header": [],
@@ -1317,42 +1317,6 @@
 												"historical-values",
 												"tsqmi",
 												""
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Valores por release (release-history)",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories/10/release-history/?level=characteristic&keys=reliability,maintainability",
-											"host": [
-												"{{MSG_SERVICE_HOST}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"organizations",
-												"4",
-												"products",
-												"5",
-												"repositories",
-												"10",
-												"release-history",
-												""
-											],
-											"query": [
-												{
-													"key": "level",
-													"value": "characteristic"
-												},
-												{
-													"key": "keys",
-													"value": "reliability,maintainability"
-												}
 											]
 										}
 									},

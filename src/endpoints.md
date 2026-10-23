@@ -236,9 +236,11 @@ Parâmetros:
 
 ## Dashboards por release (US07.01)
 
-Dados da Visão Geral de Qualidade, da Evolução Temporal e do gráfico da tela do repositório, para o Front desenhar sem o Grafana. Qualquer membro da organização tem acesso (não só o admin); quem não é membro recebe 404.
+Dados da Visão Geral de Qualidade para o Front desenhar sem o Grafana: os totais e o Indicador Total da Qualidade (TSQMI) de cada repositório. Qualquer membro da organização tem acesso (não só o admin); quem não é membro recebe 404.
 
-Regra do valor: a mesma da análise por entidade, o último calculado (ou coletado, para métricas) entre o dia de `start_at` e o dia de `end_at` da release, ambos inclusive. Por isso os valores podem ser diferentes dos do Grafana, que usava a média dos últimos 7 dias (planejado × realizado) e dos últimos 30 dias (radar). Os repositórios são os da release, restritos ao produto; se ela não tiver nenhum do produto, todos os do produto. A configuração da release segue a regra da árvore do modelo (TASK21.01.01).
+Com as correções do PO (21/10), o planejado × realizado e o radar da Visão Geral usam o `analysis_data` da release (o mesmo da tela da release, com `diff` e `norm_diff`), e a Evolução Temporal e a tela do repositório usam `historical-values/*`. Por isso saíram o `release-history` e os campos de características do `release-dashboard/characteristics`.
+
+Regra do valor: a mesma da análise por entidade, o último calculado entre o dia de `start_at` e o dia de `end_at` da release, ambos inclusive. Os repositórios são os da release, restritos ao produto; se ela não tiver nenhum do produto, todos os do produto. A configuração da release segue a regra da árvore do modelo (TASK21.01.01).
 
 #### Totais da Visão Geral na release
 GET /api/v1/organizations/1/products/1/release-dashboard/summary/?release_id=1
@@ -255,54 +257,22 @@ Cada total conta entidades distintas, e não linhas do histórico:
 }
 ```
 
-#### Radar, planejado × realizado e TSQMI por repositório na release
+#### Indicador Total da Qualidade (TSQMI) de cada repositório na release
 GET /api/v1/organizations/1/products/1/release-dashboard/characteristics/?release_id=1
 
-- `characteristics`: as características da configuração, na ordem dela. `planned` é a meta da release (de 0 a 1, `null` sem meta), `accomplished` é a média entre os repositórios com valor e `dispersion` o desvio padrão (populacional) entre eles. Sem nenhum valor, os dois vêm `null`.
-- `repositories`: o TSQMI e o valor de cada característica no repositório (radar). Sem valor na janela, vem `value: null`.
+Usado pelo Indicador Total da Qualidade da Visão Geral e pela Distribuição Estatística (US21.03). `repositories` traz o TSQMI de cada repositório da release; sem valor na janela, vem `value: null`.
 
 ```json
 {
   "release": {"id": 1, "release_name": "v1.0", "start_at": "...", "end_at": "..."},
-  "characteristics": [
-    {"key": "reliability", "name": "Reliability", "planned": 0.7, "accomplished": 0.72, "dispersion": 0.04}
-  ],
   "repositories": [
-    {
-      "id": 3, "name": "api",
-      "tsqmi": {"value": 0.81, "created_at": "..."},
-      "characteristics": [{"key": "reliability", "value": 0.76, "created_at": "..."}]
-    }
+    {"id": 3, "name": "api", "tsqmi": {"value": 0.81, "created_at": "..."}},
+    {"id": 4, "name": "web", "tsqmi": {"value": null, "created_at": null}}
   ]
 }
 ```
 
 Respostas: `400` sem `release_id` (ou com valor não numérico), `404` se a release não for do produto ou o usuário não for membro da organização.
-
-#### Evolução de um nível do modelo no repositório, com um ponto por release
-GET /api/v1/organizations/1/products/1/repositories/1/release-history/?level=characteristic&keys=reliability,maintainability
-
-Parâmetros:
-- `level`: `characteristic`, `subcharacteristic`, `measure` ou `metric` (obrigatório).
-- `keys` *(opcional)*: chaves separadas por vírgula. Sem `keys`, vêm as entidades do nível na configuração atual do produto. Chaves que não existem são ignoradas.
-
-Entram as releases do produto que incluem o repositório pela mesma regra (inclusive as que não escolheram repositórios do produto), da mais antiga para a mais nova. Cada entidade tem um ponto por release em `history`, na mesma ordem de `releases`, com `value: null` quando não há valor na janela. Métricas usam o valor no nível do projeto (`qualifier = TRK`).
-
-```json
-{
-  "repository": {"id": 1, "name": "api"},
-  "level": "characteristic",
-  "releases": [{"id": 1, "release_name": "v1.0", "start_at": "...", "end_at": "..."}, {"id": 2, "release_name": "v2.0", "...": "..."}],
-  "entities": [
-    {"key": "reliability", "name": "Reliability", "history": [
-      {"release_id": 1, "value": 0.5, "created_at": "..."},
-      {"release_id": 2, "value": null, "created_at": null}
-    ]}
-  ]
-}
-```
-
-Respostas: `400` com `level` inválido, `404` se o repositório não for do produto ou o usuário não for membro da organização.
 
 ### Distribuição entre as análises (US21.03)
 
@@ -367,7 +337,7 @@ Erros: `repository_id` ausente ou `level` inválido recebem 400; repositório fo
 
 Regras:
 - `entities`: as entidades do nível na configuração da release mais recente do repositório, na ordem dela.
-- `releases`: as linhas de RD, da mais antiga para a mais nova. Entram as releases do produto que incluem o repositório (mesma regra do `release-history`) em que ele tem valor para todas as entidades. O valor é o da última análise na janela da release; as linhas de característica gravadas pelo fechamento da release (`release` preenchida) não são análises e ficam fora. `excluded_releases` conta as releases deixadas de fora por falta de valor.
+- `releases`: as linhas de RD, da mais antiga para a mais nova. Entram as releases do produto que incluem o repositório (as que o escolheram ou que não escolheram nenhum repositório do produto) em que ele tem valor para todas as entidades. O valor é o da última análise na janela da release; as linhas de característica gravadas pelo fechamento da release (`release` preenchida) não são análises e ficam fora. `excluded_releases` conta as releases deixadas de fora por falta de valor.
 - `method`: `pearson` ou `spearman`. `non_normal`: quantidade de colunas sem distribuição normal (uma coluna constante conta como não normal).
 - `critical_value`: \|r\| a partir do qual o coeficiente é significativo com o número de releases usadas (teste t bicaudal, nível de 5%). Com 20 releases, 0,44.
 - `pairs`: o triângulo de baixo da matriz, cada entidade (`row`) com as que vêm antes dela (`column`), com `coefficient`, `p_value` e `significant` (p < 0,05). Um par com uma entidade sem variação vem com `coefficient` e `p_value` `null` e `significant: false`. Os valores vêm sem arredondamento.
