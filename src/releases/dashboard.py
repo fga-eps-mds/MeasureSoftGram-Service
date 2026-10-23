@@ -88,7 +88,7 @@ def get_release_characteristics(release: Release, configuration) -> dict:
     repositories_ids = [repository.id for repository in repositories]
 
     values = get_entity_values(CHARACTERISTIC, release, repositories_ids, keys)
-    tsqmis = _get_latest_tsqmis(release, repositories_ids)
+    tsqmis = get_latest_tsqmis(release, repositories_ids)
 
     characteristics = []
     for key in keys:
@@ -184,7 +184,7 @@ def _get_planned(release: Release, key: str):
     return goal / 100 if goal is not None else None
 
 
-def _get_latest_tsqmis(release: Release, repositories_ids: list) -> dict:
+def get_latest_tsqmis(release: Release, repositories_ids: list) -> dict:
     latest = (
         filter_release_window(TSQMI.objects.filter(repository_id__in=repositories_ids), release)
         .order_by("repository_id", "-created_at", "-id")

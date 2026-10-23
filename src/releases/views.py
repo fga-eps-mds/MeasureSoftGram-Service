@@ -26,6 +26,7 @@ from releases.entity_analysis import (
     get_entity_analysis,
     get_entity_catalog,
 )
+from releases.entity_matrix import MATRIX_LEVELS, get_entity_matrix
 from releases.models import Release
 from releases.serializers import CheckReleaseSerializer, ReleaseAllSerializer, ReleaseSerializer
 from releases.service import (
@@ -221,7 +222,8 @@ class ReleaseScopedMixin(UserScopedMixin):
 class EntityAnalysisViewSet(ReleaseScopedMixin, viewsets.ViewSet):
     """
     Análise por entidade (US21.02): valor de uma entidade do modelo em cada
-    repositório do produto, numa release, com os filhos da entidade.
+    repositório do produto, numa release, com os filhos da entidade, e o mapa de
+    calor repositório × entidades de um nível (`matrix/`).
     """
 
     authentication_classes = (TokenAuthentication,)
@@ -261,6 +263,21 @@ class EntityAnalysisViewSet(ReleaseScopedMixin, viewsets.ViewSet):
             return Response({level: [] for level in LEVELS})
 
         return Response(get_entity_catalog(release, configuration))
+
+    @action(detail=False, methods=["get"])
+    def matrix(self, request, *args, **kwargs):
+        level = request.query_params.get("level")
+        if level not in MATRIX_LEVELS:
+            return Response(
+                {"detail": f"O parâmetro level deve ser um de: {', '.join(MATRIX_LEVELS)}."}, status=400
+            )
+
+        release = self.get_release()
+        if release is None:
+            return Response({"detail": RELEASE_ID_REQUIRED}, status=400)
+
+        configuration = resolve_release_configuration(release.product, release)
+        return Response(get_entity_matrix(release, configuration, level))
 
 
 class AnalysisDistributionViewSet(ReleaseScopedMixin, viewsets.ViewSet):

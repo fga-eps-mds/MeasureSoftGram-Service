@@ -701,6 +701,41 @@
 									"response": []
 								},
 								{
+									"name": "Entity analysis - matrix",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/entity-analysis/matrix/?release_id=1&level=measure",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"entity-analysis",
+												"matrix",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												},
+												{
+													"key": "level",
+													"value": "measure"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Release dashboard - summary",
 									"request": {
 										"method": "GET",

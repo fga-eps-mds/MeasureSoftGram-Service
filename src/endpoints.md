@@ -195,6 +195,45 @@ GET /api/v1/organizations/1/products/1/entity-analysis/entities/?release_id=1
 
 Responde `{"characteristic": [{"key", "name"}], "subcharacteristic": [...], "measure": [...], "metric": [...]}`. No nível `metric` entram só as métricas gravadas com `qualifier = TRK` em algum repositório da release (hoje, as do GitHub).
 
+#### Mapa de calor repositório × entidades de um nível
+GET /api/v1/organizations/1/products/1/entity-analysis/matrix/?release_id=2&level=measure
+
+Parâmetros:
+- `release_id`: release do produto (obrigatório).
+- `level`: `characteristic`, `subcharacteristic` ou `measure`. Métricas ficam de fora porque não têm valor de 0 a 1 nem grau.
+
+`columns`: as entidades do nível na ordem da configuração vigente na release (mesma regra acima), com o peso e o `path`, as entidades de cima (da característica até o pai) com nome e peso. Uma entidade que aparece sob mais de um pai vira uma coluna só, no primeiro lugar em que aparece.
+
+`repositories`: os repositórios da release (mesma regra acima), em ordem de nome. `tsqmi` e cada célula trazem o valor na release e o `previous_value` na release anterior, pela mesma regra do último valor na janela; sem valor, `null`.
+
+`previous_release`: a release do produto imediatamente anterior pelo `start_at`, ou `null` na primeira release.
+
+`contribution`: quanto a entidade fez o TSQMI do repositório subir (positivo) ou descer (negativo) desde a release anterior. O Core agrega cada nível com a norma ponderada (`calculate_aggregated_weighted_value`: ‖valores × pesos‖ / ‖pesos‖), então "peso × variação" não daria a variação real do TSQMI. A conta é o TSQMI recalculado com o valor atual da entidade menos o recalculado com o valor dela na release anterior: os pais da entidade são reagregados com o Core até as características, as outras entidades ficam com o valor da release e os pesos são os da configuração da release escolhida. Vem `null` sem release anterior ou sem um dos dois valores.
+
+```json
+{
+  "release": {"id": 2, "release_name": "R2", "start_at": "...", "end_at": "..."},
+  "previous_release": {"id": 1, "release_name": "R1", "start_at": "...", "end_at": "..."},
+  "level": "measure",
+  "columns": [
+    {
+      "key": "test_coverage", "name": "Test Coverage", "weight": 34,
+      "path": [
+        {"level": "characteristic", "key": "reliability", "name": "Reliability", "weight": 34},
+        {"level": "subcharacteristic", "key": "testing_status", "name": "Testing Status", "weight": 50}
+      ]
+    }
+  ],
+  "repositories": [
+    {
+      "id": 3, "name": "api",
+      "tsqmi": {"value": 0.61, "previous_value": 0.66},
+      "cells": [{"key": "test_coverage", "value": 0.5, "previous_value": 0.8, "contribution": -0.0187}]
+    }
+  ]
+}
+```
+
 ## Dashboards por release (US07.01)
 
 Dados da Visão Geral de Qualidade, da Evolução Temporal e do gráfico da tela do repositório, para o Front desenhar sem o Grafana. Qualquer membro da organização tem acesso (não só o admin); quem não é membro recebe 404.
