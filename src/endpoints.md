@@ -265,6 +265,33 @@ Entram as releases do produto que incluem o repositório pela mesma regra (inclu
 
 Respostas: `400` com `level` inválido, `404` se o repositório não for do produto ou o usuário não for membro da organização.
 
+#### Histórico do TSQMI dos repositórios, com um ponto por release (US06.01)
+GET /api/v1/organizations/1/products/1/repositories-tsqmi-release-history/?repository_id=1
+
+Parâmetros:
+- `repository_id` *(opcional)*: um repositório do produto. Sem ele, vêm todos os repositórios do produto (opção "Todos").
+
+`releases` traz todas as releases do produto, da mais antiga para a mais nova. Cada repositório tem em `history` um ponto por release que o inclui (mesma regra acima), na mesma ordem, com o último TSQMI calculado na janela (`value: null` quando não há análise nela). A variação é em relação à release anterior do mesmo repositório:
+- `previous_value`, `variation` (`value - previous_value`) e `variation_percent` (`variation / previous_value * 100`) vêm `null` na primeira release ou quando uma das duas não tem valor.
+- Com `previous_value` igual a `0`, só `variation_percent` vem `null`.
+- `version_tag` é a tag de versão do repositório na release; por enquanto vem sempre `null`.
+
+Sem release cadastrada no produto, a resposta é `200` com `releases: []` e `history: []` em cada repositório (empty state do Front).
+
+```json
+{
+  "releases": [{"id": 1, "release_name": "Release 1", "start_at": "...", "end_at": "..."}, {"id": 2, "release_name": "Release 2", "...": "..."}],
+  "repositories": [
+    {"id": 1, "name": "api", "history": [
+      {"release_id": 1, "version_tag": null, "value": 0.5, "created_at": "...", "previous_value": null, "variation": null, "variation_percent": null},
+      {"release_id": 2, "version_tag": null, "value": 0.6, "created_at": "...", "previous_value": 0.5, "variation": 0.1, "variation_percent": 20.0}
+    ]}
+  ]
+}
+```
+
+Respostas: `400` com `repository_id` não numérico, `404` se o repositório não for do produto ou o usuário não for membro da organização.
+
 ### Distribuição entre as análises (US21.03)
 
 Cada análise é uma execução da coleta (Action ou CLI) no repositório: cada chamada de `calculate/math-model/` grava uma linha de TSQMI, característica, subcaracterística e medida, todas com o mesmo `created_at` das métricas da coleta.
