@@ -16,6 +16,7 @@ from releases.correlation import LEVELS as CORRELATION_LEVELS
 from releases.correlation import get_correlation
 from releases.dashboard import (
     get_configured_keys,
+    get_product_tsqmi_release_history,
     get_release_characteristics,
     get_release_summary,
     get_repository_release_history,
@@ -352,6 +353,27 @@ class ReleaseDashboardViewSet(ReleaseScopedMixin, viewsets.ViewSet):
 
         configuration = resolve_release_configuration(release.product, release)
         return Response(get_release_characteristics(release, configuration))
+
+
+class ProductTsqmiReleaseHistoryViewSet(UserScopedMixin, viewsets.ViewSet):
+    """
+    Histórico do TSQMI dos repositórios do produto, com um ponto por release
+    (US06.01). Sem `repository_id`, vêm todos os repositórios do produto.
+    """
+
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, *args, **kwargs):
+        product = self.get_product()
+        repository_id = request.query_params.get("repository_id")
+        repositories = product.repositories.order_by("name", "id")
+
+        if repository_id:
+            if not repository_id.isdigit():
+                return Response({"detail": "O parâmetro repository_id deve ser um número."}, status=400)
+            repositories = [get_object_or_404(repositories, id=int(repository_id))]
+
+        return Response(get_product_tsqmi_release_history(product, list(repositories)))
 
 
 class RepositoryReleaseHistoryViewSet(UserScopedMixin, viewsets.ViewSet):
