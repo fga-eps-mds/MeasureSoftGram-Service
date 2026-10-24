@@ -195,11 +195,52 @@ GET /api/v1/organizations/1/products/1/entity-analysis/entities/?release_id=1
 
 Responde `{"characteristic": [{"key", "name"}], "subcharacteristic": [...], "measure": [...], "metric": [...]}`. No nível `metric` entram só as métricas gravadas com `qualifier = TRK` em algum repositório da release (hoje, as do GitHub).
 
+#### Mapa de calor repositório × entidades de um nível
+GET /api/v1/organizations/1/products/1/entity-analysis/matrix/?release_id=2&level=measure
+
+Parâmetros:
+- `release_id`: release do produto (obrigatório).
+- `level`: `characteristic`, `subcharacteristic` ou `measure`. Métricas ficam de fora porque não têm valor de 0 a 1 nem grau.
+
+`columns`: as entidades do nível na ordem da configuração vigente na release (mesma regra acima), com o peso e o `path`, as entidades de cima (da característica até o pai) com nome e peso. Uma entidade que aparece sob mais de um pai vira uma coluna só, no primeiro lugar em que aparece.
+
+`repositories`: os repositórios da release (mesma regra acima), em ordem de nome. `tsqmi` e cada célula trazem o valor na release e o `previous_value` na release anterior, pela mesma regra do último valor na janela; sem valor, `null`.
+
+`previous_release`: a release do produto imediatamente anterior pelo `start_at`, ou `null` na primeira release.
+
+`contribution`: quanto a entidade fez o TSQMI do repositório subir (positivo) ou descer (negativo) desde a release anterior. O Core agrega cada nível com a norma ponderada (`calculate_aggregated_weighted_value`: ‖valores × pesos‖ / ‖pesos‖), então "peso × variação" não daria a variação real do TSQMI. A conta é o TSQMI recalculado com o valor atual da entidade menos o recalculado com o valor dela na release anterior: os pais da entidade são reagregados com o Core até as características, as outras entidades ficam com o valor da release e os pesos são os da configuração da release escolhida. Vem `null` sem release anterior ou sem um dos dois valores.
+
+```json
+{
+  "release": {"id": 2, "release_name": "R2", "start_at": "...", "end_at": "..."},
+  "previous_release": {"id": 1, "release_name": "R1", "start_at": "...", "end_at": "..."},
+  "level": "measure",
+  "columns": [
+    {
+      "key": "test_coverage", "name": "Test Coverage", "weight": 34,
+      "path": [
+        {"level": "characteristic", "key": "reliability", "name": "Reliability", "weight": 34},
+        {"level": "subcharacteristic", "key": "testing_status", "name": "Testing Status", "weight": 50}
+      ]
+    }
+  ],
+  "repositories": [
+    {
+      "id": 3, "name": "api",
+      "tsqmi": {"value": 0.61, "previous_value": 0.66},
+      "cells": [{"key": "test_coverage", "value": 0.5, "previous_value": 0.8, "contribution": -0.0187}]
+    }
+  ]
+}
+```
+
 ## Dashboards por release (US07.01)
 
-Dados da Visão Geral de Qualidade, da Evolução Temporal e do gráfico da tela do repositório, para o Front desenhar sem o Grafana. Qualquer membro da organização tem acesso (não só o admin); quem não é membro recebe 404.
+Dados da Visão Geral de Qualidade para o Front desenhar sem o Grafana: os totais e o Indicador Total da Qualidade (TSQMI) de cada repositório. Qualquer membro da organização tem acesso (não só o admin); quem não é membro recebe 404.
 
-Regra do valor: a mesma da análise por entidade, o último calculado (ou coletado, para métricas) entre o dia de `start_at` e o dia de `end_at` da release, ambos inclusive. Por isso os valores podem ser diferentes dos do Grafana, que usava a média dos últimos 7 dias (planejado × realizado) e dos últimos 30 dias (radar). Os repositórios são os da release, restritos ao produto; se ela não tiver nenhum do produto, todos os do produto. A configuração da release segue a regra da árvore do modelo (TASK21.01.01).
+Com as correções do PO (21/10), o planejado × realizado e o radar da Visão Geral usam o `analysis_data` da release (o mesmo da tela da release, com `diff` e `norm_diff`), e a Evolução Temporal e a tela do repositório usam `historical-values/*`. Por isso saíram o `release-history` e os campos de características do `release-dashboard/characteristics`.
+
+Regra do valor: a mesma da análise por entidade, o último calculado entre o dia de `start_at` e o dia de `end_at` da release, ambos inclusive. Os repositórios são os da release, restritos ao produto; se ela não tiver nenhum do produto, todos os do produto. A configuração da release segue a regra da árvore do modelo (TASK21.01.01).
 
 #### Totais da Visão Geral na release
 GET /api/v1/organizations/1/products/1/release-dashboard/summary/?release_id=1
@@ -216,24 +257,17 @@ Cada total conta entidades distintas, e não linhas do histórico:
 }
 ```
 
-#### Radar, planejado × realizado e TSQMI por repositório na release
+#### Indicador Total da Qualidade (TSQMI) de cada repositório na release
 GET /api/v1/organizations/1/products/1/release-dashboard/characteristics/?release_id=1
 
-- `characteristics`: as características da configuração, na ordem dela. `planned` é a meta da release (de 0 a 1, `null` sem meta), `accomplished` é a média entre os repositórios com valor e `dispersion` o desvio padrão (populacional) entre eles. Sem nenhum valor, os dois vêm `null`.
-- `repositories`: o TSQMI e o valor de cada característica no repositório (radar). Sem valor na janela, vem `value: null`.
+Usado pelo Indicador Total da Qualidade da Visão Geral e pela Distribuição Estatística (US21.03). `repositories` traz o TSQMI de cada repositório da release; sem valor na janela, vem `value: null`.
 
 ```json
 {
   "release": {"id": 1, "release_name": "v1.0", "start_at": "...", "end_at": "..."},
-  "characteristics": [
-    {"key": "reliability", "name": "Reliability", "planned": 0.7, "accomplished": 0.72, "dispersion": 0.04}
-  ],
   "repositories": [
-    {
-      "id": 3, "name": "api",
-      "tsqmi": {"value": 0.81, "created_at": "..."},
-      "characteristics": [{"key": "reliability", "value": 0.76, "created_at": "..."}]
-    }
+    {"id": 3, "name": "api", "tsqmi": {"value": 0.81, "created_at": "..."}},
+    {"id": 4, "name": "web", "tsqmi": {"value": null, "created_at": null}}
   ]
 }
 ```
@@ -355,7 +389,7 @@ Erros: `repository_id` ausente ou `level` inválido recebem 400; repositório fo
 
 Regras:
 - `entities`: as entidades do nível na configuração da release mais recente do repositório, na ordem dela.
-- `releases`: as linhas de RD, da mais antiga para a mais nova. Entram as releases do produto que incluem o repositório (mesma regra do `release-history`) em que ele tem valor para todas as entidades. O valor é o da última análise na janela da release; as linhas de característica gravadas pelo fechamento da release (`release` preenchida) não são análises e ficam fora. `excluded_releases` conta as releases deixadas de fora por falta de valor.
+- `releases`: as linhas de RD, da mais antiga para a mais nova. Entram as releases do produto que incluem o repositório (as que o escolheram ou que não escolheram nenhum repositório do produto) em que ele tem valor para todas as entidades. O valor é o da última análise na janela da release; as linhas de característica gravadas pelo fechamento da release (`release` preenchida) não são análises e ficam fora. `excluded_releases` conta as releases deixadas de fora por falta de valor.
 - `method`: `pearson` ou `spearman`. `non_normal`: quantidade de colunas sem distribuição normal (uma coluna constante conta como não normal).
 - `critical_value`: \|r\| a partir do qual o coeficiente é significativo com o número de releases usadas (teste t bicaudal, nível de 5%). Com 20 releases, 0,44.
 - `pairs`: o triângulo de baixo da matriz, cada entidade (`row`) com as que vêm antes dela (`column`), com `coefficient`, `p_value` e `significant` (p < 0,05). Um par com uma entidade sem variação vem com `coefficient` e `p_value` `null` e `significant: false`. Os valores vêm sem arredondamento.

@@ -52,9 +52,6 @@ class ReleaseDashboardTestCase(APITestCaseExpanded):
             goal=self.goal,
         )
 
-    def release_history_url(self, repository):
-        return f"{self.product_url}repositories/{repository.id}/release-history/"
-
     def calculated_characteristic(self, repository, key, value, created_at):
         return CalculatedCharacteristic.objects.create(
             characteristic=SupportedCharacteristic.objects.get(key=key),
@@ -181,62 +178,13 @@ class ReleaseSummaryTestCase(ReleaseDashboardTestCase):
         self.assertEqual(response.json()["release"]["release_name"], "v1.0")
 
 
-class ReleaseCharacteristicsTestCase(ReleaseDashboardTestCase):
+class ReleaseRepositoriesTsqmiTestCase(ReleaseDashboardTestCase):
+    """release-dashboard/characteristics: só o Indicador Total da Qualidade de cada repositório (correções do PO)."""
+
     def get_data(self):
         response = self.client.get(self.characteristics_url, {"release_id": self.release.id})
         self.assertEqual(response.status_code, 200)
         return response.json()
-
-    def repository_values(self, data, name):
-        repository = next(item for item in data["repositories"] if item["name"] == name)
-        return {item["key"]: item["value"] for item in repository["characteristics"]}
-
-    def characteristic(self, data, key):
-        return next(item for item in data["characteristics"] if item["key"] == key)
-
-    def test_radar_uses_latest_value_inside_release_window_and_not_the_average(self):
-        self.calculated_characteristic(self.api, "reliability", 0.2, local_datetime(2026, 3, 5))
-        self.calculated_characteristic(self.api, "reliability", 0.8, local_datetime(2026, 3, 25))
-        self.calculated_characteristic(self.api, "reliability", 0.1, local_datetime(2026, 4, 5))
-
-        self.assertEqual(self.repository_values(self.get_data(), "api")["reliability"], 0.8)
-
-    def test_radar_lists_every_configured_characteristic_for_every_repository(self):
-        self.calculated_characteristic(self.api, "reliability", 0.8, local_datetime(2026, 3, 5))
-
-        data = self.get_data()
-
-        self.assertEqual(
-            [item["key"] for item in data["characteristics"]],
-            ["reliability", "maintainability", "functional_suitability"],
-        )
-        self.assertEqual(
-            self.repository_values(data, "api"),
-            {"reliability": 0.8, "maintainability": None, "functional_suitability": None},
-        )
-        self.assertEqual(set(self.repository_values(data, "web").values()), {None})
-
-    def test_planned_comes_from_release_goal(self):
-        data = self.get_data()
-
-        self.assertEqual(self.characteristic(data, "reliability")["planned"], 0.7)
-        self.assertEqual(self.characteristic(data, "maintainability")["planned"], 0.6)
-        self.assertIsNone(self.characteristic(data, "functional_suitability")["planned"])
-
-    def test_accomplished_is_mean_and_dispersion_between_repositories(self):
-        self.calculated_characteristic(self.api, "reliability", 0.6, local_datetime(2026, 3, 5))
-        self.calculated_characteristic(self.web, "reliability", 0.8, local_datetime(2026, 3, 5))
-
-        reliability = self.characteristic(self.get_data(), "reliability")
-
-        self.assertAlmostEqual(reliability["accomplished"], 0.7)
-        self.assertAlmostEqual(reliability["dispersion"], 0.1)
-
-    def test_characteristic_without_value_has_no_accomplished(self):
-        maintainability = self.characteristic(self.get_data(), "maintainability")
-
-        self.assertIsNone(maintainability["accomplished"])
-        self.assertIsNone(maintainability["dispersion"])
 
     def test_tsqmi_is_latest_value_inside_release_window(self):
         self.tsqmi(self.api, 0.5, local_datetime(2026, 3, 5))
@@ -533,3 +481,11 @@ class ReleaseDashboardAccessTestCase(ReleaseDashboardTestCase):
         for url in (self.summary_url, self.characteristics_url):
             with self.subTest(url=url):
                 self.assertEqual(self.client.get(url, {"release_id": other_release.id}).status_code, 404)
+
+    def test_release_history_was_removed(self):
+        # a Evolução Temporal e a tela do repositório usam historical-values/* (correções do PO)
+        response = self.client.get(
+            f"{self.product_url}repositories/{self.api.id}/release-history/", {"level": "characteristic"}
+        )
+
+        self.assertEqual(response.status_code, 404)
