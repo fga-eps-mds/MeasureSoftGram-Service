@@ -14,6 +14,7 @@ from releases.views import (
     AnalysisDistributionViewSet,
     CorrelationViewSet,
     EntityAnalysisViewSet,
+    ProductTsqmiReleaseHistoryViewSet,
     ReleaseDashboardViewSet,
     ReleaseModelViewSet,
 )
@@ -45,6 +46,11 @@ class ProductRouter(Router):
                     "name": "repositories-tsqmi-historical-values",
                     "view": RepositoriesTSQMIHistoryViewSet,
                     "basename": "repositories-tsqmi-historical-values",
+                },
+                {
+                    "name": "repositories-tsqmi-release-history",
+                    "view": ProductTsqmiReleaseHistoryViewSet,
+                    "basename": "repositories-tsqmi-release-history",
                 },
                 {
                     "name": "entity-analysis",

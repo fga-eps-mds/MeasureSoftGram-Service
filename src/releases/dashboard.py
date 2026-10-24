@@ -90,6 +90,74 @@ def get_release_repositories_tsqmi(release: Release) -> dict:
     }
 
 
+def get_product_tsqmi_release_history(product, repositories: list) -> dict:
+    """
+    Histórico do TSQMI por release (US06.01): um ponto por release para cada
+    repositório, com a variação em relação à release anterior do mesmo repositório.
+
+    Entram as releases do produto em que o repositório está em `get_release_repositories`,
+    da mais antiga para a mais nova. Sem release cadastrada, `releases` vem vazia e cada
+    repositório vem com `history` vazio (empty state do Front).
+    """
+    releases = list(Release.objects.filter(product_id=product.id).select_related("product").order_by("start_at", "id"))
+    repositories_ids = {repository.id for repository in repositories}
+
+    releases_by_repository = {repository.id: [] for repository in repositories}
+    tsqmis_by_release = {}
+    for release in releases:
+        release_repositories_ids = [
+            repository.id for repository in get_release_repositories(release) if repository.id in repositories_ids
+        ]
+        for repository_id in release_repositories_ids:
+            releases_by_repository[repository_id].append(release)
+        tsqmis_by_release[release.id] = get_latest_tsqmis(release, release_repositories_ids)
+
+    return {
+        "releases": [serialize_release(release) for release in releases],
+        "repositories": [
+            {
+                "id": repository.id,
+                "name": repository.name,
+                "history": _get_tsqmi_history(repository, releases_by_repository[repository.id], tsqmis_by_release),
+            }
+            for repository in repositories
+        ],
+    }
+
+
+def _get_tsqmi_history(repository, releases: list, tsqmis_by_release: dict) -> list:
+    history = []
+    previous_value = None
+    for release in releases:
+        tsqmi = tsqmis_by_release[release.id].get(repository.id)
+        value = serialize_value(tsqmi)
+        history.append(
+            {
+                "release_id": release.id,
+                **value,
+                **_get_variation(previous_value, value["value"]),
+            }
+        )
+        previous_value = value["value"]
+    return history
+
+
+def _get_variation(previous_value, value) -> dict:
+    """
+    Variação em relação à release imediatamente anterior. Sem valor numa das duas
+    (primeira release ou release sem análise), a variação vem `None`; com a anterior
+    igual a zero, só a variação percentual vem `None`.
+    """
+    if previous_value is None or value is None:
+        return {"previous_value": previous_value, "variation": None, "variation_percent": None}
+    variation = value - previous_value
+    return {
+        "previous_value": previous_value,
+        "variation": variation,
+        "variation_percent": variation / previous_value * 100 if previous_value else None,
+    }
+
+
 def get_repository_releases(repository) -> list:
     """Releases do produto em que o repositório está em `get_release_repositories`, da mais antiga para a mais nova."""
     return [

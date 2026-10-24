@@ -274,6 +274,58 @@ Usado pelo Indicador Total da Qualidade da Visão Geral e pela Distribuição Es
 
 Respostas: `400` sem `release_id` (ou com valor não numérico), `404` se a release não for do produto ou o usuário não for membro da organização.
 
+#### Evolução de um nível do modelo no repositório, com um ponto por release
+GET /api/v1/organizations/1/products/1/repositories/1/release-history/?level=characteristic&keys=reliability,maintainability
+
+Parâmetros:
+- `level`: `characteristic`, `subcharacteristic`, `measure` ou `metric` (obrigatório).
+- `keys` *(opcional)*: chaves separadas por vírgula. Sem `keys`, vêm as entidades do nível na configuração atual do produto. Chaves que não existem são ignoradas.
+
+Entram as releases do produto que incluem o repositório pela mesma regra (inclusive as que não escolheram repositórios do produto), da mais antiga para a mais nova. Cada entidade tem um ponto por release em `history`, na mesma ordem de `releases`, com `value: null` quando não há valor na janela. Métricas usam o valor no nível do projeto (`qualifier = TRK`).
+
+```json
+{
+  "repository": {"id": 1, "name": "api"},
+  "level": "characteristic",
+  "releases": [{"id": 1, "release_name": "v1.0", "start_at": "...", "end_at": "..."}, {"id": 2, "release_name": "v2.0", "...": "..."}],
+  "entities": [
+    {"key": "reliability", "name": "Reliability", "history": [
+      {"release_id": 1, "value": 0.5, "created_at": "..."},
+      {"release_id": 2, "value": null, "created_at": null}
+    ]}
+  ]
+}
+```
+
+Respostas: `400` com `level` inválido, `404` se o repositório não for do produto ou o usuário não for membro da organização.
+
+#### Histórico do TSQMI dos repositórios, com um ponto por release (US06.01)
+GET /api/v1/organizations/1/products/1/repositories-tsqmi-release-history/?repository_id=1
+
+Parâmetros:
+- `repository_id` *(opcional)*: um repositório do produto. Sem ele, vêm todos os repositórios do produto (opção "Todos").
+
+`releases` traz todas as releases do produto, da mais antiga para a mais nova. Cada repositório tem em `history` um ponto por release que o inclui (mesma regra acima), na mesma ordem, com o último TSQMI calculado na janela (`value: null` quando não há análise nela). A variação é em relação à release anterior do mesmo repositório:
+- `previous_value`, `variation` (`value - previous_value`) e `variation_percent` (`variation / previous_value * 100`) vêm `null` na primeira release ou quando uma das duas não tem valor.
+- Com `previous_value` igual a `0`, só `variation_percent` vem `null`.
+- A etiqueta da release no gráfico é o `release_name` cadastrado no MSGram.
+
+Sem release cadastrada no produto, a resposta é `200` com `releases: []` e `history: []` em cada repositório (empty state do Front).
+
+```json
+{
+  "releases": [{"id": 1, "release_name": "Release 1", "start_at": "...", "end_at": "..."}, {"id": 2, "release_name": "Release 2", "...": "..."}],
+  "repositories": [
+    {"id": 1, "name": "api", "history": [
+      {"release_id": 1, "value": 0.5, "created_at": "...", "previous_value": null, "variation": null, "variation_percent": null},
+      {"release_id": 2, "value": 0.6, "created_at": "...", "previous_value": 0.5, "variation": 0.1, "variation_percent": 20.0}
+    ]}
+  ]
+}
+```
+
+Respostas: `400` com `repository_id` não numérico, `404` se o repositório não for do produto ou o usuário não for membro da organização.
+
 ### Distribuição entre as análises (US21.03)
 
 Cada análise é uma execução da coleta (Action ou CLI) no repositório: cada chamada de `calculate/math-model/` grava uma linha de TSQMI, característica, subcaracterística e medida, todas com o mesmo `created_at` das métricas da coleta.

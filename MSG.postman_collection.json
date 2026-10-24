@@ -798,6 +798,37 @@
 									"response": []
 								},
 								{
+									"name": "TSQMI release history",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories-tsqmi-release-history/?repository_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories-tsqmi-release-history",
+												""
+											],
+											"query": [
+												{
+													"key": "repository_id",
+													"value": "1",
+													"description": "Opcional: sem ele, vêm todos os repositórios do produto."
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Analysis distribution",
 									"request": {
 										"method": "GET",
