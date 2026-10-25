@@ -256,6 +256,7 @@ class AccountsViews(APITestCaseExpanded):
 
         def side_effect(url, headers=None, **kwargs):
             resp = MagicMock()
+            resp.links = {}
             resp.status_code = 200
             if "api.github.com/user/orgs" in url:
                 resp.json.return_value = [
@@ -388,6 +389,7 @@ class AccountsViews(APITestCaseExpanded):
 
         def side_effect(url, headers=None, **kwargs):
             resp = MagicMock()
+            resp.links = {}
             resp.status_code = 200
             if "api.github.com/user/orgs" in url:
                 resp.json.return_value = []
@@ -425,12 +427,39 @@ class AccountsViews(APITestCaseExpanded):
         )
 
     @patch("accounts.views.requests.get")
+    def test_github_organizations_follows_next_page(self, mock_get):
+        self.user.github_access_token = "gh_token_123"
+        self.user.save()
+
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = 200
+            resp.links = {}
+            if url == "https://api.github.com/user/orgs?per_page=100":
+                resp.json.return_value = [{"id": 1, "login": "first-page-org"}]
+                resp.links = {"next": {"url": "https://api.github.com/user/orgs?per_page=100&page=2"}}
+            elif url == "https://api.github.com/user/orgs?per_page=100&page=2":
+                resp.json.return_value = [{"id": 2, "login": "fga-eps-mds"}]
+            else:
+                resp.json.return_value = {"id": 123, "login": "test-user"}
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        response = self.client.get(reverse("github-organizations"), format="json")
+        self.assertEqual(response.status_code, 200)
+        names = [o["github_org_name"] for o in response.json()]
+        self.assertEqual(names, ["test-user", "first-page-org", "fga-eps-mds"])
+
+    @patch("accounts.views.requests.get")
     def test_github_organizations_duplicate_org_id(self, mock_get):
         self.user.github_access_token = "gh_token_123"
         self.user.save()
 
         def side_effect(url, headers=None, **kwargs):
             resp = MagicMock()
+            resp.links = {}
             resp.status_code = 200
             if "api.github.com/user/orgs" in url:
                 resp.json.return_value = [

@@ -72,14 +72,16 @@ class MetricWithoutRepositoryValue(Exception):
     """A métrica faz parte da configuração, mas não tem valor no nível do repositório."""
 
 
-def get_entity_catalog(release: Release, configuration) -> dict:
+def get_entity_catalog(release: Release, configuration, visible=None) -> dict:
     """
     Lista, por nível, as entidades da configuração com nome (sem repetição).
 
     No nível métrica entram só as que têm valor no nível do repositório (TASK21.02.03).
     """
     entities = get_configured_entities(configuration)
-    repository_level_metrics = get_repository_level_metric_keys(release, [item["key"] for item in entities[METRIC]])
+    repository_level_metrics = get_repository_level_metric_keys(
+        release, [item["key"] for item in entities[METRIC]], visible
+    )
     catalog = {}
 
     for level in LEVELS:
@@ -92,7 +94,7 @@ def get_entity_catalog(release: Release, configuration) -> dict:
     return catalog
 
 
-def get_entity_analysis(release: Release, configuration, level: str, key: str):
+def get_entity_analysis(release: Release, configuration, level: str, key: str, visible=None):
     """
     Valor da entidade em cada repositório da release e a decomposição dela nos filhos.
 
@@ -104,11 +106,11 @@ def get_entity_analysis(release: Release, configuration, level: str, key: str):
 
     if not configured:
         return None
-    if level == METRIC and key not in get_repository_level_metric_keys(release, [key]):
+    if level == METRIC and key not in get_repository_level_metric_keys(release, [key], visible):
         raise MetricWithoutRepositoryValue(key)
 
     supported_entity = SUPPORTED_MODELS[level].objects.get(key=key)
-    repositories = get_release_repositories(release)
+    repositories = get_release_repositories(release, visible)
     repositories_ids = [repository.id for repository in repositories]
 
     values = get_entity_values(level, release, repositories_ids, [key])
@@ -148,13 +150,13 @@ def get_entity_analysis(release: Release, configuration, level: str, key: str):
     }
 
 
-def get_repository_level_metric_keys(release: Release, keys: list) -> set:
+def get_repository_level_metric_keys(release: Release, keys: list, visible=None) -> set:
     """
     Métricas, entre `keys`, gravadas no nível do projeto (`qualifier = "TRK"`) em algum
     repositório da release. As do SonarQube são gravadas por arquivo e ficam de fora: o
     Service não guarda o valor do `baseComponent`, então elas viriam "sem dado" em todos.
     """
-    repositories_ids = [repository.id for repository in get_release_repositories(release)]
+    repositories_ids = [repository.id for repository in get_release_repositories(release, visible)]
     return set(
         CollectedMetric.objects.filter(
             metric__key__in=keys,
@@ -166,9 +168,11 @@ def get_repository_level_metric_keys(release: Release, keys: list) -> set:
     )
 
 
-def get_release_repositories(release: Release):
+def get_release_repositories(release: Release, visible=None):
     """
     Repositórios da release, sempre restritos ao produto dela; sem nenhum, todos os do produto.
+    Com `visible` (queryset de repositórios), entram só os que o usuário pode ver: quem tem acesso a
+    alguns repositórios do produto não recebe nome nem valores dos demais.
 
     A release pode ter sido criada apontando para repositórios de outro produto, então
     `release.repositories` sozinho vazaria nome e valores de repositórios de fora.
@@ -177,6 +181,8 @@ def get_release_repositories(release: Release):
     repositories = product_repositories.filter(releases=release)
     if not repositories.exists():
         repositories = product_repositories
+    if visible is not None:
+        repositories = repositories.filter(id__in=visible.values("id"))
     return list(repositories.order_by("name", "id"))
 
 

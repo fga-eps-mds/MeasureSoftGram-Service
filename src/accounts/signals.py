@@ -20,6 +20,12 @@ def save_social_token(request, sociallogin, **kwargs):
     elif provider == "gitlab":
         user.gitlab_access_token = token
         user.save(update_fields=["gitlab_access_token"])
+    else:
+        return
+
+    from organizations.utils import sync_provider_memberships
+
+    sync_provider_memberships(user)
 
 
 # Alias for backwards compatibility with existing imports and adapter

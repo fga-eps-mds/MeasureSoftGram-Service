@@ -46,14 +46,14 @@ def get_previous_release(release: Release):
     )
 
 
-def get_entity_matrix(release: Release, configuration, level: str) -> dict:
+def get_entity_matrix(release: Release, configuration, level: str, visible=None) -> dict:
     """
     Colunas: as entidades do nível na ordem da configuração, com o caminho até a
     característica. Linhas: os repositórios da release, com o TSQMI e, por entidade,
     o valor na release, o valor na release anterior e a contribuição.
     """
     model = QualityModel(configuration)
-    repositories = get_release_repositories(release)
+    repositories = get_release_repositories(release, visible)
     repositories_ids = [repository.id for repository in repositories]
     previous_release = get_previous_release(release)
 

@@ -174,7 +174,8 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
                 goal=self.goal,
             )
 
-        with self.assertNumQueries(4):
+        # produto + acessos vencidos + membership (repositórios visíveis) + contagem + releases + repositórios
+        with self.assertNumQueries(6):
             response = self.client.get(path=self.url_default)
         response_data = response.json()
 

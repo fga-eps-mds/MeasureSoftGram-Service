@@ -19,7 +19,7 @@ from metrics.views import SupportedMetricModelViewSet
 from organizations.routers.organizations import OrgRouter
 from organizations.routers.products import ProductRouter
 from organizations.routers.repos import RepoRouter
-from organizations.views import ImportOrganizationViewSet, OrganizationViewSet
+from organizations.views import ImportGitLabGroupViewSet, ImportOrganizationViewSet, OrganizationViewSet
 from subcharacteristics.views import SupportedSubCharacteristicModelViewSet
 
 
@@ -46,6 +46,11 @@ main_router.register(
     "organizations/import",
     ImportOrganizationViewSet,
     basename="organizations-import",
+)
+main_router.register(
+    "organizations/import-gitlab",
+    ImportGitLabGroupViewSet,
+    basename="organizations-import-gitlab",
 )
 main_router.register("organizations", OrganizationViewSet)
 

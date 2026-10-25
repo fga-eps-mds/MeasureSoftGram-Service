@@ -3,6 +3,7 @@ from uuid import uuid4
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils import timezone
 from django.utils.text import slugify
 
 from release_configuration.models import ReleaseConfiguration
@@ -32,6 +33,7 @@ class Organization(models.Model):
     )
     github_org_id = models.BigIntegerField(unique=True, null=True, blank=True)
     github_org_name = models.CharField(max_length=255, null=True, blank=True)
+    gitlab_group_id = models.BigIntegerField(unique=True, null=True, blank=True)
     avatar_url = models.URLField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
@@ -162,3 +164,29 @@ class Repository(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class RepositoryAccess(models.Model):
+    """
+    Acesso de leitura de um usuário a um repositório, concedido pelo provedor (GitHub/GitLab)
+    sem que ele seja membro da Organization. `checked_at` marca a última checagem no provedor.
+    """
+
+    class Meta:
+        unique_together = (("user", "repository"),)
+        verbose_name_plural = "Repository accesses"
+
+    user = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.CASCADE,
+        related_name="repository_accesses",
+    )
+    repository = models.ForeignKey(
+        Repository,
+        on_delete=models.CASCADE,
+        related_name="accesses",
+    )
+    checked_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.user} -> {self.repository}"
