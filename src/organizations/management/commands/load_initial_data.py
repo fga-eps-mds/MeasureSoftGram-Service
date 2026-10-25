@@ -39,6 +39,16 @@ from .utils import create_balance_matrix, create_supported_characteristics, get_
 logger = logging.getLogger(__name__)
 
 
+# Organizações criadas pelo seed de demonstração. O seed só pode ler e escrever
+# dentro delas (ver Command.demo_organizations) — BUG05.04 (#151).
+BADGE_DEMO_ORGANIZATION_NAME = "Badge Demo Organization"
+DEMO_ORGANIZATION_NAMES = (
+    "fga-eps-mds",
+    "UnBArqDsw2021",
+    "IHC-FGA-2020",
+    BADGE_DEMO_ORGANIZATION_NAME,
+)
+
 BADGE_DEMO_REPOSITORIES = [
     {
         "name": "Badge Demo A",
@@ -86,9 +96,8 @@ class Command(BaseCommand):
         # Create fake data
         parser.add_argument(
             "--fake-data",
-            type=bool,
-            default=False,
-            help="Create fake data",
+            action="store_true",
+            help="Cria dados de demonstração (somente nas organizações de demonstração)",
         )
 
     def create_suported_measures(self):
@@ -450,6 +459,23 @@ class Command(BaseCommand):
             get_entity_qty,
         )
 
+    def demo_organizations(self):
+        """
+        Organizações de demonstração: as criadas pelo seed. Uma organização
+        importada do GitHub nunca é de demonstração, mesmo com o mesmo nome
+        (ex.: a org real fga-eps-mds) — BUG05.04 (#151).
+        """
+        return Organization.objects.filter(
+            name__in=DEMO_ORGANIZATION_NAMES,
+            github_org_id__isnull=True,
+        )
+
+    def demo_products(self):
+        return Product.objects.filter(organization__in=self.demo_organizations())
+
+    def demo_repositories(self):
+        return Repository.objects.filter(product__organization__in=self.demo_organizations())
+
     def create_default_pre_config(self, product):
         ReleaseConfiguration.objects.get_or_create(
             name="Default pre-config",
@@ -582,7 +608,7 @@ class Command(BaseCommand):
         ]
 
         for organization in organizations:
-            existing = Organization.objects.filter(name=organization.name).first()
+            existing = self.demo_organizations().filter(name=organization.name).first()
             if existing:
                 organization = existing
             else:
@@ -594,7 +620,7 @@ class Command(BaseCommand):
             organization.members.add(self.get_seed_user())
 
     def create_fake_products(self):
-        organizations = Organization.objects.all()
+        organizations = self.demo_organizations()
 
         organizations = {organization.name: organization for organization in organizations}
 
@@ -651,7 +677,7 @@ class Command(BaseCommand):
             product.save()
 
     def create_fake_repositories(self):
-        products = Product.objects.all()
+        products = self.demo_products()
 
         products = {product.name: product for product in products}
 
@@ -718,7 +744,8 @@ class Command(BaseCommand):
 
     def create_badge_demo_repositories(self):
         organization, _ = Organization.objects.update_or_create(
-            name="Badge Demo Organization",
+            name=BADGE_DEMO_ORGANIZATION_NAME,
+            github_org_id=None,
             defaults={
                 "description": ("Organização mockada para validar visualmente as badges " "A, B, C, D, E e N/A."),
             },
@@ -796,31 +823,34 @@ class Command(BaseCommand):
                 password=os.getenv("SUPERADMIN_PASSWORD", "admin"),
             )
 
+        # Metodologia: roda a cada subida, é idempotente e não toca em dados
+        # de usuários.
         self.create_supported_metrics()
         self.create_suported_measures()
         self.create_github_suported_measures()
         self.create_supported_subcharacteristics()
         self.create_supported_characteristics()
         self.create_balance_matrix()
+
+        # Demonstração: só com CREATE_FAKE_DATA ou --fake-data, e só dentro
+        # das organizações de demonstração — BUG05.04 (#151).
+        if not (settings.CREATE_FAKE_DATA or self.fake_data):
+            return
+
         self.create_fake_organizations()
         self.create_fake_products()
         self.create_fake_repositories()
+        badge_demo_repositories = self.create_badge_demo_repositories()
 
-        if settings.CREATE_FAKE_DATA or self.fake_data:
-            badge_demo_repositories = self.create_badge_demo_repositories()
-            repositories = Repository.objects.all()
+        for repository in self.demo_repositories():
+            self.create_fake_collected_metrics(repository)
+            self.create_fake_calculated_measures(repository)
+            self.create_fake_calculated_subcharacteristics(repository)
+            self.create_fake_calculated_characteristics(repository)
+            self.create_fake_tsqmi_data(repository)
 
-            for repository in repositories:
-                self.create_fake_collected_metrics(repository)
-                self.create_fake_calculated_measures(repository)
-                self.create_fake_calculated_subcharacteristics(repository)
-                self.create_fake_calculated_characteristics(repository)
-                self.create_fake_tsqmi_data(repository)
+        self.create_badge_demo_values(badge_demo_repositories)
 
-            self.create_badge_demo_values(badge_demo_repositories)
-
-        products = Product.objects.all()
-
-        for product in products:
+        for product in self.demo_products():
             self.create_a_goal(product)
             self.create_a_release(product)
