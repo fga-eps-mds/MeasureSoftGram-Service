@@ -4,6 +4,7 @@ from accounts.views import (
     CreateAccountViewSet,
     GithubLoginViewSet,
     GitHubOrganizationsViewSet,
+    GitLabNamespacesViewSet,
     GithubValidateView,
     GitlabLoginViewSet,
     GitlabValidateView,
@@ -79,6 +80,11 @@ urlpatterns = [
                     r"^github-organizations/$",
                     GitHubOrganizationsViewSet.as_view({"get": "list"}),
                     name="github-organizations",
+                ),
+                re_path(
+                    r"^gitlab-namespaces/$",
+                    GitLabNamespacesViewSet.as_view({"get": "list"}),
+                    name="gitlab-namespaces",
                 ),
             ]
         ),

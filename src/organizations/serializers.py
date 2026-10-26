@@ -7,6 +7,8 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueValidator
 
+import utils
+from organizations.access import fresh_access_q, is_member, visible_repositories
 from organizations.models import Organization, Product, Repository
 from tsqmi.models import TSQMI
 from tsqmi.serializers import TSQMISerializer
@@ -53,7 +55,11 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_products(self, obj: Organization):
         products_urls = []
-        for product in obj.products.all():
+        products = obj.products.all()
+        user = self.context["request"].user
+        if not is_member(user, obj):
+            products = products.filter(fresh_access_q(user, "repositories__")).distinct()
+        for product in products:
             url = reverse(
                 "product-detail",
                 kwargs={
@@ -156,7 +162,7 @@ class ProductSerializer(serializers.ModelSerializer):
         """
         repositories_urls = []
 
-        for repository in obj.repositories.all():
+        for repository in visible_repositories(obj, self.context["request"].user):
             url = reverse(
                 "repository-detail",
                 kwargs={
@@ -199,6 +205,10 @@ class ProductSerializer(serializers.ModelSerializer):
             obj, "release-config-entity-relationship-tree-list"
         )
 
+        quality_model_tree_url = self.reverse_product_resource(
+            obj, "product-quality-model-tree-list"
+        )
+
         repositories_latest_tsqmis_url = self.reverse_product_resource(
             obj,
             "repositories-tsqmi-latest-values-list",
@@ -215,6 +225,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "get compare all goals": compare_goals_url,
             "get current release-config": current_release_config_url,
             "get release-config entity relationship tree": pre_config_entity_relationship_tree_url,
+            "get quality model tree": quality_model_tree_url,
             "get all repositories latest tsqmis": repositories_latest_tsqmis_url,
             "get all repositories tsqmi historical values": repositories_tsqmi_historical_values_url,
             "create a new goal": create_a_new_goal_url,
@@ -228,6 +239,10 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
     latest_values = serializers.SerializerMethodField()
     historical_values = serializers.SerializerMethodField()
     actions = serializers.SerializerMethodField()
+    # o campo deixou de aceitar NULL no banco; quem ainda manda null recebe string vazia
+    gitlab_path_with_namespace = serializers.CharField(
+        max_length=255, required=False, allow_blank=True, allow_null=True
+    )
 
     class Meta:
         model = Repository
@@ -242,22 +257,28 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "actions",
             "platform",
             "imported",
+            "gitlab_project_id",
+            "gitlab_path_with_namespace",
         )
         extra_kwargs = {
             "key": {"read_only": True},
         }
 
+    def validate_gitlab_path_with_namespace(self, value):
+        return value or ""
+
     def validate(self, attrs):
         """
         Valida se o nome do repositório é único para o produto
         """
-        name = attrs["name"]
-        product = self.context["view"].get_product()
-        repository_id = self.instance.id if self.instance else None
+        name = attrs.get("name")
+        if name:
+            product = self.context["view"].get_product()
+            repository_id = self.instance.id if self.instance else None
 
-        qs = Repository.objects.filter(name=name, product=product).exclude(id=repository_id)
-        if qs.exists():
-            raise serializers.ValidationError("Repository with this name already exists.")
+            qs = Repository.objects.filter(name=name, product=product).exclude(id=repository_id)
+            if qs.exists():
+                raise serializers.ValidationError("Repository with this name already exists.")
 
         return attrs
 
@@ -492,7 +513,7 @@ class RepositoriesTSQMIHistorySerializer(serializers.ModelSerializer):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
 
         try:
-            qs = obj.calculated_tsqmis.all().reverse()[:MAX]
+            qs = utils.get_latest_history(obj.calculated_tsqmis.all(), MAX)
             return TSQMISerializer(qs, many=True).data
         except TSQMI.DoesNotExist:
             return None

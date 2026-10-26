@@ -576,6 +576,339 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Quality model tree",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/quality-model-tree/",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"quality-model-tree",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Quality model tree por release",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/quality-model-tree/?release_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"quality-model-tree",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Entity analysis",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/entity-analysis/?release_id=1&level=characteristic&key=maintainability",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"entity-analysis",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												},
+												{
+													"key": "level",
+													"value": "characteristic"
+												},
+												{
+													"key": "key",
+													"value": "maintainability"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Entity analysis - entities",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/entity-analysis/entities/?release_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"entity-analysis",
+												"entities",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Entity analysis - matrix",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/entity-analysis/matrix/?release_id=1&level=measure",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"entity-analysis",
+												"matrix",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												},
+												{
+													"key": "level",
+													"value": "measure"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Release dashboard - summary",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/release-dashboard/summary/?release_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"release-dashboard",
+												"summary",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Release dashboard - TSQMI por repositório (characteristics)",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/release-dashboard/characteristics/?release_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"release-dashboard",
+												"characteristics",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "TSQMI release history",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/repositories-tsqmi-release-history/?repository_id=1",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"repositories-tsqmi-release-history",
+												""
+											],
+											"query": [
+												{
+													"key": "repository_id",
+													"value": "1",
+													"description": "Opcional: sem ele, vêm todos os repositórios do produto."
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Analysis distribution",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/analysis-distribution/?release_id=1&repository_id=1&level=characteristic&key=reliability",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"analysis-distribution",
+												""
+											],
+											"query": [
+												{
+													"key": "release_id",
+													"value": "1",
+													"description": "Obrigatório."
+												},
+												{
+													"key": "repository_id",
+													"value": "1",
+													"description": "Obrigatório."
+												},
+												{
+													"key": "level",
+													"value": "characteristic",
+													"description": "tsqmi, characteristic, subcharacteristic, measure ou metric."
+												},
+												{
+													"key": "key",
+													"value": "reliability",
+													"description": "Obrigatório abaixo do TSQMI. No nível metric, só as métricas TRK (GitHub)."
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Correlation",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{MSG_SERVICE_HOST}}/api/v1/organizations/4/products/5/correlation/?repository_id=1&level=characteristic",
+											"host": [
+												"{{MSG_SERVICE_HOST}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations",
+												"4",
+												"products",
+												"5",
+												"correlation",
+												""
+											],
+											"query": [
+												{
+													"key": "repository_id",
+													"value": "1",
+													"description": "Obrigatório."
+												},
+												{
+													"key": "level",
+													"value": "characteristic",
+													"description": "characteristic (padrão) ou subcharacteristic."
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						}

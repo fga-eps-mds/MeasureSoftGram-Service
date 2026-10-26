@@ -1,5 +1,5 @@
 from organizations.routers.routers import Router
-from organizations.views import GitHubReposViewSet, ProductViewSet
+from organizations.views import GitHubReposViewSet, GitLabProjectsViewSet, ProductViewSet
 
 
 class OrgRouter(Router):
@@ -18,6 +18,11 @@ class OrgRouter(Router):
                     "name": "github-repos",
                     "view": GitHubReposViewSet,
                     "basename": "github-repos",
+                },
+                {
+                    "name": "gitlab-projects",
+                    "view": GitLabProjectsViewSet,
+                    "basename": "gitlab-projects",
                 },
                 *children,
             ],

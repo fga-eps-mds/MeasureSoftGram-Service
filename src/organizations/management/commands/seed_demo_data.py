@@ -1,35 +1,33 @@
 """
-Management command: seed_grafana
+Management command: seed_demo_data
 
-Popula o banco com dados ricos para visualização no Grafana:
+Popula o banco com dados ricos para os dashboards do produto:
   - 180 dias de histórico diário para cada entidade do modelo
   - Tendências realistas (melhora/piora + ruído)
   - Releases trimestrais com datas reais
   - Goals por produto linkados ao admin
   - TSQMI com timestamps corretos e evolução coerente
   - Métricas por arquivo para análise de distribuição estatística
+  - Métricas do GitHub (qualifier TRK), com um valor por análise, para o nível
+    Métrica da Distribuição Estatística
   - Garante que TODAS as características sejam criadas para CADA data (evita NULL)
 
 IMPORTANTE: Este seed popula dados para os seguintes dashboards:
-  1. Visão Geral de Qualidade (dashboard-visao-geral.json)
-  2. ECG TSQMI - Pulso de Qualidade (dashboard-ecg-tsqmi.json)
-  3. Evolução Temporal (dashboard-evolucao.json)
-  4. Saúde de Qualidade por Repositório (dashboard-saude-qualidade-repositorio.json)
+  1. Visão Geral de Qualidade
+  2. Pulso de Qualidade (TSQMI)
+  3. Evolução Temporal
+  4. Evolução das características na tela do repositório
 
 Uso:
-    python manage.py seed_grafana
-    python manage.py seed_grafana --days 365
-    python manage.py seed_grafana --repos "MeasureSoftGram-Service,MeasureSoftGram-Front"
-    python manage.py seed_grafana --clean-all  # Limpa e recria todos os dados
+    python manage.py seed_demo_data
+    python manage.py seed_demo_data --days 365
+    python manage.py seed_demo_data --repos "MeasureSoftGram-Service,MeasureSoftGram-Front"
+    python manage.py seed_demo_data --clean-all  # Limpa e recria todos os dados
 """
 
 import datetime as dt
-import json
 import math
 import random
-import urllib.error
-import urllib.parse
-import urllib.request
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -69,6 +67,15 @@ REPO_PROFILES = {
     "2020.1-BCE": "volatile",
 }
 
+# Uma análise (TSQMI + características + métricas do GitHub) a cada N dias do período
+ANALYSIS_EVERY_DAYS = 3
+
+# Métricas do GitHub: gravadas no nível do projeto (qualifier TRK), um valor por análise
+GITHUB_METRICS = ("total_issues", "resolved_issues", "sum_ci_feedback_times", "total_builds")
+
+# Semente fixa: as métricas do GitHub saem iguais a cada execução do seed
+GITHUB_METRICS_SEED = 2103
+
 
 def _clamp(v, lo=0.0, hi=1.0):
     return max(lo, min(hi, v))
@@ -97,7 +104,7 @@ def _make_timestamps(days: int, end: dt.datetime) -> list[dt.datetime]:
 
 
 class Command(BaseCommand):
-    help = "Popula banco com dados ricos para visualização no Grafana"
+    help = "Popula banco com dados ricos para os dashboards do produto"
 
     def add_arguments(self, parser):
         parser.add_argument("--days", type=int, default=180, help="Dias de histórico")
@@ -118,24 +125,6 @@ class Command(BaseCommand):
             action="store_true",
             default=False,
             help="Apaga TODOS os dados de características calculadas antes de recriar (corrige valores NULL)",
-        )
-        parser.add_argument(
-            "--grafana-url",
-            type=str,
-            default="http://localhost:5000",
-            help="URL base do Grafana (default: http://localhost:5000)",
-        )
-        parser.add_argument(
-            "--grafana-user",
-            type=str,
-            default="admin",
-            help="Usuário do Grafana (default: admin)",
-        )
-        parser.add_argument(
-            "--grafana-password",
-            type=str,
-            default="admin123",
-            help="Senha do Grafana (default: admin123)",
         )
 
     def handle(self, *args, **kwargs):
@@ -182,14 +171,7 @@ class Command(BaseCommand):
         self.stdout.write("")
         self._seed_goals_and_releases()
 
-        self.stdout.write("")
-        self._seed_grafana_panel(
-            grafana_url=kwargs["grafana_url"],
-            user=kwargs["grafana_user"],
-            password=kwargs["grafana_password"],
-        )
-
-        self.stdout.write(self.style.SUCCESS("✓ seed_grafana concluído."))
+        self.stdout.write(self.style.SUCCESS("✓ seed_demo_data concluído."))
 
     # ------------------------------------------------------------------
     # Por repositório
@@ -200,12 +182,12 @@ class Command(BaseCommand):
         all_timestamps = _make_timestamps(self.days, self.end_date)
 
         # IMPORTANTE: Para o pulso ECG funcionar, características e TSQMI devem estar nas MESMAS datas
-        # Seleciona 10 timestamps espaçados uniformemente (incluindo o mais recente) para
-        # TSQMI e características — o painel "Planejado vs Realizado" só considera os
-        # últimos 7 dias, então a última amostra precisa ficar perto de `self.end_date`.
-        TSQMI_MEASUREMENTS = 10
+        # Uma análise a cada ANALYSIS_EVERY_DAYS dias, contada a partir do timestamp mais recente:
+        # o painel "Planejado vs Realizado" só considera os últimos 7 dias, então a última
+        # amostra precisa ficar perto de `self.end_date`. O primeiro dia sempre entra, para
+        # que até um período curto tenha pelo menos 2 análises.
         last_idx = len(all_timestamps) - 1
-        indices = [round(i * last_idx / (TSQMI_MEASUREMENTS - 1)) for i in range(TSQMI_MEASUREMENTS)]
+        indices = sorted(set(range(last_idx, -1, -ANALYSIS_EVERY_DAYS)) | {0})
         tsqmi_timestamps = [all_timestamps[i] for i in indices]
 
         if self.clean_tsqmi:
@@ -214,9 +196,10 @@ class Command(BaseCommand):
         self._seed_collected_metrics(repo, all_timestamps)
         self._seed_calculated_measures(repo, profile, all_timestamps)
         self._seed_calculated_subchars(repo, profile, all_timestamps)
-        # Criar características APENAS nas datas dos TSQMIs (10 datas)
+        # Características, TSQMI e métricas do GitHub APENAS nas datas das análises
         self._seed_calculated_chars(repo, profile, tsqmi_timestamps)
         self._seed_tsqmi(repo, profile, tsqmi_timestamps)
+        self._seed_github_metrics(repo, tsqmi_timestamps)
 
     def _seed_collected_metrics(self, repo: Repository, timestamps: list):
         """
@@ -395,6 +378,53 @@ class Command(BaseCommand):
             f"    TSQMI: +{len(to_create)} ({TSQMI_MEASUREMENTS} medições nas MESMAS datas das características)"
         )
 
+    def _seed_github_metrics(self, repo: Repository, timestamps: list):
+        """
+        Cria as métricas do GitHub nas datas das análises: uma linha por métrica em cada
+        análise, com qualifier TRK e sem path, como o MathModelServices grava a coleta.
+
+        Issues e builds crescem de leve ao longo do período. Duas análises trazem valores
+        discrepantes (uma leva de issues e uma pipeline lenta) para os gráficos ganharem forma.
+        """
+        metrics = {metric.key: metric for metric in SupportedMetric.objects.filter(key__in=GITHUB_METRICS)}
+        if not metrics:
+            return
+
+        rng = random.Random(f"{GITHUB_METRICS_SEED}-{repo.name}")
+        issues_spike = round(len(timestamps) * 0.4)
+        slow_ci_spike = round(len(timestamps) * 0.85)
+
+        to_create = []
+        for i, ts in enumerate(timestamps):
+            total_issues = max(1, round(40 + 0.4 * i + rng.gauss(0, 3)))
+            if i == issues_spike:
+                total_issues += 30
+            total_builds = max(1, round(25 + 0.2 * i + rng.gauss(0, 4)))
+            # tempo médio de feedback de cada build, em segundos
+            feedback_time = rng.uniform(2400, 3000) if i == slow_ci_spike else rng.uniform(300, 900)
+            values = {
+                "total_issues": total_issues,
+                "resolved_issues": round(total_issues * rng.uniform(0.5, 0.9)),
+                "sum_ci_feedback_times": round(total_builds * feedback_time),
+                "total_builds": total_builds,
+            }
+            to_create.extend(
+                CollectedMetric(
+                    metric=metric,
+                    value=values[key],
+                    path=None,
+                    qualifier="TRK",
+                    created_at=ts,
+                    repository=repo,
+                )
+                for key, metric in metrics.items()
+            )
+
+        CollectedMetric.objects.bulk_create(to_create, batch_size=500)
+        self.stdout.write(
+            f"    CollectedMetric TRK: +{len(to_create)} ({len(timestamps)} análises × {len(metrics)} métricas)"
+        )
+
     # ------------------------------------------------------------------
     # Goals e Releases
     # ------------------------------------------------------------------
@@ -458,229 +488,3 @@ class Command(BaseCommand):
                 pass
 
         return equalizer.get_goal()
-
-    # ------------------------------------------------------------------
-    # Painel Grafana — Planejado vs Realizado (ECharts)
-    # ------------------------------------------------------------------
-
-    _ECHARTS_GET_OPTION = r"""
-try {
-  const series = context.panel.data.series;
-  if (!series || series.length === 0) {
-    return { title: { text: 'Sem dados', left: 'center', top: 'center' } };
-  }
-
-  const frame = series[0];
-
-  function toArr(field) {
-    if (!field) return [];
-    const v = field.values;
-    if (!v) return [];
-    if (v.buffer) return Array.from(new Float64Array(v.buffer));
-    if (Array.isArray(v)) return v;
-    if (typeof v.toArray === 'function') return v.toArray();
-    return Array.from(v);
-  }
-
-  const chars = toArr(frame.fields[0]);
-  const plan  = toArr(frame.fields[1]);
-  const real  = toArr(frame.fields[2]);
-  const disp  = toArr(frame.fields[3]);
-
-  const rc    = plan.map((v, i) => +Math.max(0, v - real[i]).toFixed(3));
-  const rdiff = plan.map((v, i) => +(v - real[i]).toFixed(3));
-
-  const fmt = arr => '[ ' + arr.map(v => v.toFixed(2)).join(' | ') + ' ]';
-
-  const realLow = real.map((v, i) => +Math.max(0, v - disp[i]).toFixed(3));
-  const band    = real.map((v, i) => +Math.min(1, (v + disp[i]) - Math.max(0, v - disp[i])).toFixed(3));
-
-  return {
-    grid: { left: '18%', right: '18%', bottom: '42%', containLabel: true },
-    legend: { data: ['Planejado', 'Realizado', 'Dispersão'], top: 0 },
-    tooltip: { trigger: 'axis' },
-    xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: chars,
-      axisLabel: {
-        interval: 0,
-        formatter: function(value) { return value.split(' ').join('\n'); }
-      }
-    },
-    yAxis: { type: 'value', min: 0, max: 1 },
-    series: [
-      {
-        name: 'Dispersão', type: 'line', smooth: true, symbol: 'none',
-        stack: 'disp', data: realLow,
-        lineStyle: { opacity: 0 }, areaStyle: { color: 'transparent' }
-      },
-      {
-        name: 'Dispersão', type: 'line', smooth: true, symbol: 'none',
-        stack: 'disp', data: band,
-        lineStyle: { opacity: 0 },
-        areaStyle: { color: 'rgba(255, 140, 0, 0.18)' }
-      },
-      {
-        name: 'Planejado', type: 'line', smooth: true,
-        symbol: 'circle', symbolSize: 6, z: 3,
-        lineStyle: { color: '#1F60C4', width: 3 },
-        itemStyle: { color: '#1F60C4' },
-        data: plan
-      },
-      {
-        name: 'Realizado', type: 'line', smooth: true,
-        symbol: 'circle', symbolSize: 6, z: 3,
-        lineStyle: { color: '#FF8C00', width: 3 },
-        itemStyle: { color: '#FF8C00' },
-        data: real
-      }
-    ],
-    graphic: [
-      {
-        type: 'text', bottom: 130, left: 'center',
-        style: { text: '⃗Rp = ' + fmt(plan), fill: '#1F60C4', fontSize: 13, fontWeight: 'bold', fontFamily: 'monospace' }
-      },
-      {
-        type: 'text', bottom: 100, left: 'center',
-        style: { text: '⃗Rd = ' + fmt(real), fill: '#FF8C00', fontSize: 13, fontWeight: 'bold', fontFamily: 'monospace' }
-      },
-      {
-        type: 'text', bottom: 65, left: 'center',
-        style: { text: '⃗Rc = ' + fmt(rc) + '  ← max(0, Rp−Rd)', fill: '#999', fontSize: 12, fontWeight: 'bold', fontFamily: 'monospace' }
-      },
-      {
-        type: 'text', bottom: 35, left: 'center',
-        style: { text: 'Rp−Rd = ' + fmt(rdiff) + '  ← bruto', fill: '#666', fontSize: 12, fontFamily: 'monospace' }
-      }
-    ]
-  };
-} catch(e) {
-  return { title: { text: 'Erro: ' + e.message, left: 'center', top: 'center' } };
-}
-"""
-
-    _PANEL_SQL = """WITH realizados AS (
-    SELECT sc.name AS char_name, sc.key AS char_key,
-           ROUND(AVG(cc.value)::numeric, 3)    AS realizado,
-           ROUND(STDDEV(cc.value)::numeric, 3) AS dispersao
-    FROM characteristics_calculatedcharacteristic cc
-    JOIN characteristics_supportedcharacteristic sc ON sc.id = cc.characteristic_id
-    WHERE cc.created_at >= NOW() - INTERVAL '7 days'
-    GROUP BY sc.name, sc.key
-),
-planejados AS (
-    SELECT elem.key AS char_key,
-           ROUND((elem.value::numeric / 100), 3) AS planejado
-    FROM goals_goal g
-    CROSS JOIN LATERAL jsonb_each_text(g.data::jsonb) AS elem(key, value)
-    WHERE g.id = (SELECT id FROM goals_goal ORDER BY created_at DESC LIMIT 1)
-)
-SELECT r.char_name                AS char_name,
-       COALESCE(p.planejado, 0.5) AS planejado,
-       r.realizado                AS realizado,
-       COALESCE(r.dispersao, 0)   AS dispersao
-FROM realizados r
-LEFT JOIN planejados p ON p.char_key = r.char_key
-ORDER BY r.char_name"""
-
-    def _seed_grafana_panel(self, grafana_url: str, user: str, password: str):
-        """Cria ou atualiza o painel ECharts no dashboard '1. Visão Geral de Qualidade'."""
-        import base64
-
-        self.stdout.write("Atualizando painel Grafana (Planejado vs Realizado)...")
-
-        auth = base64.b64encode(f"{user}:{password}".encode()).decode()
-        headers = {
-            "Authorization": f"Basic {auth}",
-            "Content-Type": "application/json",
-        }
-
-        base_url = grafana_url if grafana_url.endswith("/") else grafana_url + "/"
-
-        def build_url(path):
-            clean_path = path.lstrip("/")
-            final_url = urllib.parse.urljoin(base_url, clean_path)
-            if not final_url.startswith(base_url):
-                raise ValueError("Caminho inválido: tentativa de manipulação de URL detectada.")
-            return final_url
-
-        def grafana_get(path):
-            req = urllib.request.Request(build_url(path), headers=headers)
-
-            try:
-                with urllib.request.urlopen(req, timeout=5) as r:
-                    return json.load(r)
-            except urllib.error.URLError as exc:
-                self.stderr.write(f"  Grafana inacessível ({exc}). Pulando atualização do painel.")
-                return None
-
-        def grafana_post(path, payload):
-            data = json.dumps(payload).encode()
-            req = urllib.request.Request(
-                build_url(path),
-                data=data,
-                headers=headers,
-                method="POST",
-            )
-            with urllib.request.urlopen(req, timeout=5) as r:
-                return json.load(r)
-
-        # UID fixo definido no provisioning (grafana/provisioning/datasources/measuresoftgram.yml)
-        ds_uid = "measuresoftgram-db"
-
-        # Busca o dashboard pelo slug/tag measuresoftgram
-        search = grafana_get("/api/search?tag=measuresoftgram&type=dash-db")
-        if not search:
-            self.stderr.write('  Nenhum dashboard com tag "measuresoftgram" encontrado.')
-            return
-
-        target = next((d for d in search if "Visão Geral" in d.get("title", "")), None)
-        if not target:
-            self.stderr.write('  Dashboard "Visão Geral de Qualidade" não encontrado.')
-            return
-
-        raw = grafana_get(f'/api/dashboards/uid/{target["uid"]}')
-        if not raw:
-            return
-
-        dashboard = raw["dashboard"]
-
-        new_panel = {
-            "id": 8,
-            "title": "Planejado vs Realizado (por Característica)",
-            "type": "volkovlabs-echarts-panel",
-            "gridPos": next(
-                (p["gridPos"] for p in dashboard["panels"] if p.get("id") == 8),
-                {"h": 16, "w": 10, "x": 8, "y": 8},
-            ),
-            "fieldConfig": {"defaults": {}, "overrides": []},
-            "options": {
-                "renderer": "canvas",
-                "getOption": self._ECHARTS_GET_OPTION,
-            },
-            "targets": [
-                {
-                    "datasource": {
-                        "type": "grafana-postgresql-datasource",
-                        "uid": ds_uid,
-                    },
-                    "format": "table",
-                    "rawSql": self._PANEL_SQL,
-                    "refId": "A",
-                }
-            ],
-        }
-
-        dashboard["panels"] = [new_panel if p.get("id") == 8 else p for p in dashboard["panels"]]
-
-        result = grafana_post(
-            "/api/dashboards/db",
-            {
-                "dashboard": dashboard,
-                "folderId": 0,
-                "overwrite": True,
-                "message": "seed_grafana: painel Planejado vs Realizado atualizado",
-            },
-        )
-        self.stdout.write(f'  Painel atualizado → versão {result.get("version")} ({result.get("status")})')

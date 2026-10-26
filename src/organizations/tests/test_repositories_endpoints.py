@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 
 from metrics.models import CollectedMetric
 from organizations.models import Repository
-from organizations.utils import get_default_mock_payload, onboard_repository_async
+from organizations.utils import onboard_repository_async
 from utils.tests import APITestCaseExpanded
 
 
@@ -354,7 +354,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     def test_if_latest_characteristics_values_action_url_is_working(self):
         latest_values_urls = self.get_repository_urls("latest_values")
         characteristics_url = latest_values_urls["characteristics"]
-        with self.assertNumQueries(3):
+        # o repositório e a contagem; o antigo CacheManager gastava uma terceira só para comparar o filtro
+        with self.assertNumQueries(2):
             response = self.client.get(characteristics_url, format="json")
         self.assertEqual(response.status_code, 200)
 
@@ -374,7 +375,8 @@ class RepositoriesViewsSetCase(APITestCaseExpanded):
     def test_if_historical_measures_values_action_url_is_working(self):
         latest_values_urls = self.get_repository_urls("historical_values")
         measures_url = latest_values_urls["measures"]
-        with self.assertNumQueries(3):
+        # o repositório e a contagem; o antigo CacheManager gastava uma terceira só para comparar o filtro
+        with self.assertNumQueries(2):
             response = self.client.get(measures_url, format="json")
         self.assertEqual(response.status_code, 200)
 
@@ -465,39 +467,112 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
         args, kwargs = mock_post.call_args
         self.assertEqual(kwargs["json"], {"ref": "develop"})
 
+    @patch("organizations.utils.requests.post")
     @patch("organizations.utils.requests.get")
-    def test_onboard_repository_async_fallback_mock(self, mock_get):
+    def test_onboard_repository_async_workflows_request_failed_persists_nothing(self, mock_get, mock_post):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 404
+        mock_get.return_value = mock_resp
+
+        with self.assertLogs("organizations.utils", level="WARNING") as logs:
+            onboard_repository_async(self.repository, self.user)
+
+        mock_post.assert_not_called()
+        self.assertIn("No GitHub Actions triggered for Test Repo", logs.output[-1])
+        self.assert_repository_without_data()
+
+    @patch("organizations.utils.requests.post")
+    @patch("organizations.utils.requests.get")
+    def test_onboard_repository_async_without_workflow_persists_nothing(self, mock_get, mock_post):
         mock_resp = MagicMock()
         mock_resp.status_code = 200
         mock_resp.json.return_value = {"workflows": []}
         mock_get.return_value = mock_resp
 
-        from tsqmi.models import TSQMI
+        with self.assertLogs("organizations.utils", level="WARNING") as logs:
+            onboard_repository_async(self.repository, self.user)
 
-        self.assertEqual(
-            CollectedMetric.objects.filter(repository=self.repository).count(),
-            0,
-        )
+        mock_post.assert_not_called()
+        self.assertIn("No GitHub Actions triggered for Test Repo", logs.output[-1])
+        self.assert_repository_without_data()
 
-        onboard_repository_async(self.repository, self.user)
+    @patch("organizations.utils.requests.get")
+    @patch("organizations.utils.requests.post")
+    def test_onboard_repository_async_dispatch_failed_persists_nothing(self, mock_post, mock_get):
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = 200
+            if "/actions/workflows" in url:
+                resp.json.return_value = {"workflows": [{"id": 123, "name": "CI/CD Measure Flow"}]}
+            else:
+                resp.json.return_value = {"default_branch": "develop"}
+            return resp
 
-        self.assertTrue(CollectedMetric.objects.filter(repository=self.repository).count() > 0)
-        self.assertTrue(TSQMI.objects.filter(repository=self.repository).count() > 0)
+        mock_get.side_effect = side_effect
+
+        mock_post_resp = MagicMock()
+        mock_post_resp.status_code = 422
+        mock_post.return_value = mock_post_resp
+
+        with self.assertLogs("organizations.utils", level="WARNING") as logs:
+            onboard_repository_async(self.repository, self.user)
+
+        self.assertTrue(mock_post.called)
+        self.assertIn("No GitHub Actions triggered for Test Repo", logs.output[-1])
+        self.assert_repository_without_data()
 
     @patch("organizations.utils.requests.get")
     def test_onboard_repository_async_exception_handled(self, mock_get):
         mock_get.side_effect = Exception("GitHub API down")
 
+        with self.assertLogs("organizations.utils", level="WARNING") as logs:
+            onboard_repository_async(self.repository, self.user)
+
+        self.assertIn("Error checking/triggering GitHub Actions for my-org/test-repo", logs.output[0])
+        self.assertIn("No GitHub Actions triggered for Test Repo", logs.output[-1])
+        self.assert_repository_without_data()
+
+    def assert_repository_without_data(self):
+        from characteristics.models import CalculatedCharacteristic
+        from measures.models import CalculatedMeasure
+        from subcharacteristics.models import CalculatedSubCharacteristic
         from tsqmi.models import TSQMI
 
-        onboard_repository_async(self.repository, self.user)
+        for model in (
+            CollectedMetric,
+            CalculatedMeasure,
+            CalculatedSubCharacteristic,
+            CalculatedCharacteristic,
+            TSQMI,
+        ):
+            with self.subTest(model=model.__name__):
+                self.assertFalse(model.objects.filter(repository=self.repository).exists())
 
-        self.assertTrue(TSQMI.objects.filter(repository=self.repository).count() > 0)
+    @patch("organizations.utils.requests.post")
+    @patch("organizations.utils.requests.get")
+    def test_onboard_repository_async_without_github_token_persists_nothing(self, mock_get, mock_post):
+        self.user.github_access_token = None
 
-    def test_get_default_mock_payload(self):
-        payload = get_default_mock_payload()
-        self.assertIn("github", payload)
-        self.assertIn("sonarqube", payload)
+        with self.assertLogs("organizations.utils", level="WARNING") as logs:
+            onboard_repository_async(self.repository, self.user)
+
+        mock_get.assert_not_called()
+        mock_post.assert_not_called()
+        self.assertIn("No GitHub Actions triggered for Test Repo", logs.output[0])
+        self.assert_repository_without_data()
+
+    @patch("organizations.utils.requests.post")
+    @patch("organizations.utils.requests.get")
+    def test_onboard_repository_async_without_github_full_name_persists_nothing(self, mock_get, mock_post):
+        self.repository.github_full_name = ""
+
+        with self.assertLogs("organizations.utils", level="WARNING") as logs:
+            onboard_repository_async(self.repository, self.user)
+
+        mock_get.assert_not_called()
+        mock_post.assert_not_called()
+        self.assertIn("No GitHub Actions triggered for Test Repo", logs.output[0])
+        self.assert_repository_without_data()
 
     def test_tsqmi_latest_and_history_serializers(self):
         from tsqmi.models import TSQMI
@@ -522,3 +597,67 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
         self.assertEqual(len(data_history["history"]), 2)
         self.assertEqual(data_history["history"][0]["value"], 0.85)
         self.assertEqual(data_history["history"][1]["value"], 0.90)
+
+    @patch("organizations.serializers.requests.head")
+    def test_create_a_new_gitlab_repository(self, mock_head):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 200
+        mock_head.return_value = mock_resp
+
+        self.client.force_authenticate(user=self.user)
+
+        data = {
+            "name": "GitLab Test Repo",
+            "description": "GitLab Test Repo Description",
+            "url": "https://gitlab.com/test-org/test-project",
+            "platform": "gitlab",
+            "imported": True,
+            "gitlab_project_id": 98765,
+            "gitlab_path_with_namespace": "test-org/test-project",
+        }
+        org = self.get_organization()
+        product = self.get_product(org)
+        url = reverse("repository-list", args=[org.id, product.id])
+        response = self.client.post(url, data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        res_data = response.json()
+        self.assertEqual(res_data["name"], "GitLab Test Repo")
+        self.assertEqual(res_data["platform"], "gitlab")
+        self.assertEqual(res_data["imported"], True)
+        self.assertEqual(res_data["gitlab_project_id"], 98765)
+        self.assertEqual(res_data["gitlab_path_with_namespace"], "test-org/test-project")
+
+        repo = Repository.objects.get(name="GitLab Test Repo")
+        self.assertEqual(repo.platform, "gitlab")
+        self.assertEqual(repo.imported, True)
+        self.assertEqual(repo.gitlab_project_id, 98765)
+        self.assertEqual(repo.gitlab_path_with_namespace, "test-org/test-project")
+
+    @patch("organizations.serializers.requests.head")
+    def test_create_repository_accepts_null_gitlab_path(self, mock_head):
+        mock_head.return_value = MagicMock(status_code=200)
+        self.client.force_authenticate(user=self.user)
+        org = self.get_organization()
+        product = self.get_product(org)
+
+        response = self.client.post(
+            reverse("repository-list", args=[org.id, product.id]),
+            {"name": "Repo GitHub", "url": "https://github.com/org/repo", "gitlab_path_with_namespace": None},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.json()["gitlab_path_with_namespace"], "")
+        self.assertEqual(Repository.objects.get(name="Repo GitHub").gitlab_path_with_namespace, "")
+
+    def test_gitlab_repository_save_infers_path_from_url(self):
+        org = self.get_organization()
+        product = self.get_product(org)
+        repo = Repository.objects.create(
+            name="Inferred GitLab Repo",
+            product=product,
+            platform="gitlab",
+            url="https://gitlab.com/my-group/my-subgroup/my-repo",
+        )
+        self.assertEqual(repo.gitlab_path_with_namespace, "my-group/my-subgroup/my-repo")

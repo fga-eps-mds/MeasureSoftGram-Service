@@ -48,6 +48,20 @@ class CalculateNormDiffTestCase(SimpleTestCase):
         self.assertIsNone(result)
         self.assertIn("between 0 and 1", logs.output[0])
 
+    def test_returns_none_when_planned_values_are_all_zero(self):
+        # a diferença normalizada divide pela norma do planejado: com a meta em 0 ela seria inf
+        zero_goal = [{"name": "reliability", "value": 0}, {"name": "maintainability", "value": 0}]
+        accomplished = [
+            {"name": "reliability", "value": 0.5},
+            {"name": "maintainability", "value": 0.5},
+        ]
+
+        with self.assertLogs("releases.service", level="WARNING") as logs:
+            result = calculate_norm_diff(zero_goal, accomplished)
+
+        self.assertIsNone(result)
+        self.assertIn("all zero", logs.output[0])
+
 
 class CalculateDiffTestCase(SimpleTestCase):
     def test_aligns_planned_and_accomplished_by_name(self):

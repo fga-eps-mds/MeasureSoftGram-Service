@@ -1,13 +1,19 @@
-﻿from unittest.mock import Mock, patch
+﻿import os
+from unittest.mock import Mock, patch
+
+from django.core.management import call_command
 
 from django.db.utils import IntegrityError
-from django.test import TestCase, override_settings
+from django.contrib.auth import get_user_model
+from django.test import TestCase, TransactionTestCase, override_settings
 
 from characteristics.models import BalanceMatrix, CalculatedCharacteristic, SupportedCharacteristic
 from measures.models import CalculatedMeasure
 from organizations.management.commands.load_initial_data import BADGE_DEMO_REPOSITORIES, Command
 from organizations.management.commands.utils import create_balance_matrix
-from organizations.models import Organization, Product
+from goals.models import Goal
+from organizations.models import Organization, Product, Repository
+from releases.models import Release
 from tsqmi.models import TSQMI
 from utils.tests import APITestCaseExpanded
 
@@ -95,11 +101,11 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
             patch.object(Command, "create_badge_demo_repositories") as mock_create_badge_demo_repositories,
             patch.object(Command, "create_badge_demo_values") as mock_create_badge_demo_values,
             patch.object(Command, "create_a_goal"),
-            patch("organizations.management.commands.load_initial_data.Repository.objects.all") as mock_repository_all,
+            patch.object(Command, "demo_repositories") as mock_demo_repositories,
             patch("organizations.management.commands.load_initial_data.get_user_model") as mock_get_user_model,
         ):
             mock_create_badge_demo_repositories.return_value = {"A": Mock()}
-            mock_repository_all.return_value = [Mock()]
+            mock_demo_repositories.return_value = [Mock()]
             mock_user_model = Mock()
             mock_user_model.objects.create_superuser.side_effect = IntegrityError()
             mock_get_user_model.return_value = mock_user_model
@@ -215,3 +221,91 @@ class CoreMetricsRegistrationTestCase(TestCase):
 
         self.assertEqual(registered_keys, expected_keys)
         self.assertEqual(SupportedMetric.objects.count(), 4)
+
+
+@override_settings(CREATE_FAKE_DATA=False)
+class LoadInitialDataProtegeDadosReaisTestCase(TransactionTestCase):
+    """
+    Regressão do BUG05.04 (#151): o load_initial_data roda a cada subida do
+    container e não pode criar nem alterar nada em organizações, produtos e
+    repositórios de usuários reais, com ou sem dados de demonstração.
+
+    TransactionTestCase (sem transação envolvendo o teste) reproduz o
+    autocommit do start_service.sh: o comando trata IntegrityError de
+    entidades já cadastradas, o que quebraria a transação de um TestCase.
+    """
+
+    DEMO_ORG_NAMES = ("fga-eps-mds", "UnBArqDsw2021", "IHC-FGA-2020", "Badge Demo Organization")
+    SEED_USERNAME = os.getenv("SEED_GITHUB_USERNAME", "msgramteste")
+
+    def setUp(self):
+        # Como no sistema real: a metodologia já existe quando o usuário cria
+        # o produto (Product.save valida a pré-configuração contra ela).
+        command = Command()
+        command.create_supported_metrics()
+        command.create_suported_measures()
+        command.create_github_suported_measures()
+        command.create_supported_subcharacteristics()
+        command.create_supported_characteristics()
+
+        self.user = get_user_model().objects.create_user(username="usuaria-real", password="senha-de-teste")
+        self.org = Organization.objects.create(name="Org Real", admin=self.user)
+        self.org.members.add(self.user)
+        self.product = Product.objects.create(name="Produto Real", organization=self.org)
+        self.repository = Repository.objects.create(name="repo-real", product=self.product)
+
+    def assert_dados_reais_intactos(self):
+        self.assertFalse(self.product.goals.exists())
+        self.assertFalse(Release.objects.filter(product=self.product).exists())
+        self.assertFalse(self.repository.collected_metrics.exists())
+        self.assertFalse(self.repository.calculated_measures.exists())
+        self.assertFalse(self.repository.calculated_subcharacteristics.exists())
+        self.assertFalse(self.repository.calculated_characteristics.exists())
+        self.assertFalse(self.repository.calculated_tsqmis.exists())
+        self.assertFalse(self.org.members.filter(username=self.SEED_USERNAME).exists())
+
+    def test_sem_flag_carrega_somente_a_metodologia(self):
+        call_command("load_initial_data")
+
+        self.assertTrue(SupportedMetric.objects.exists())
+        self.assertTrue(SupportedCharacteristic.objects.exists())
+        self.assertTrue(BalanceMatrix.objects.exists())
+        self.assertFalse(Organization.objects.filter(name__in=self.DEMO_ORG_NAMES).exists())
+        self.assert_dados_reais_intactos()
+
+    def test_com_flag_nao_toca_em_dados_reais(self):
+        call_command("load_initial_data", fake_data=True)
+
+        self.assert_dados_reais_intactos()
+
+        demo_repository = Repository.objects.get(name="2022-1-MeasureSoftGram-Service")
+        self.assertTrue(demo_repository.calculated_tsqmis.exists())
+        self.assertTrue(Release.objects.filter(product=demo_repository.product).exists())
+
+    def test_com_flag_nao_usa_org_importada_do_github_com_nome_de_demo(self):
+        org_importada = Organization.objects.create(name="fga-eps-mds", github_org_id=123, admin=self.user)
+        org_importada.members.add(self.user)
+
+        call_command("load_initial_data", fake_data=True)
+
+        org_importada.refresh_from_db()
+        self.assertEqual(org_importada.admin, self.user)
+        self.assertFalse(org_importada.members.filter(username=self.SEED_USERNAME).exists())
+        self.assertFalse(org_importada.products.exists())
+        self.assertTrue(Organization.objects.filter(name="fga-eps-mds", github_org_id__isnull=True).exists())
+
+    def test_rodar_duas_vezes_nao_duplica_dados_de_demonstracao(self):
+        def contagem():
+            return (
+                Organization.objects.count(),
+                Product.objects.count(),
+                Repository.objects.count(),
+                Goal.objects.count(),
+                Release.objects.count(),
+            )
+
+        call_command("load_initial_data", fake_data=True)
+        primeira = contagem()
+        call_command("load_initial_data", fake_data=True)
+
+        self.assertEqual(contagem(), primeira)

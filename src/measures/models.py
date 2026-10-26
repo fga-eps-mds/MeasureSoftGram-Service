@@ -4,7 +4,6 @@ from django.db import models
 from django.utils import timezone
 
 import utils
-from utils.managers import CacheManager
 
 
 class SupportedMeasure(models.Model):
@@ -15,8 +14,6 @@ class SupportedMeasure(models.Model):
     dessa tabela NxM que temos a associação de quais métricas são usadas para
     calcular uma medida
     """
-
-    objects = CacheManager()
 
     key = models.CharField(max_length=128, unique=True)
     name = models.CharField(max_length=128)

@@ -4,15 +4,12 @@ from django.db import models
 from django.utils import timezone
 
 import utils
-from utils.managers import CacheManager
 
 
 class SupportedSubCharacteristic(models.Model):
     """
     Classe que abstrai uma subcaracterística suportada pelo sistema.
     """
-
-    objects = CacheManager()
 
     name = models.CharField(max_length=128)
     key = models.CharField(max_length=128, unique=True)

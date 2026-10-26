@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import Dict, List, Tuple
 
 from django.db import transaction
+from django.utils import timezone
 from resources import calculate_characteristics, calculate_measures, calculate_subcharacteristics, calculate_tsqmi
 
 from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
@@ -14,9 +15,11 @@ from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubC
 from subcharacteristics.serializers import CalculatedSubCharacteristicSerializer
 from tsqmi.models import TSQMI
 from tsqmi.serializers import TSQMISerializer
+from util.exceptions import MeasureSoftGramCoreException
 import logging
 
 from utils.exceptions import CalculateModelException
+from utils.file_metrics import FILE_LEVEL_METRICS
 from utils.runtime_metrics import RUNTIME_MEASURE_KEYS
 
 # Métricas multi-valor (lista de floats por arquivo) — espelha
@@ -24,16 +27,7 @@ from utils.runtime_metrics import RUNTIME_MEASURE_KEYS
 
 logger = logging.getLogger(__name__)
 
-_LISTED_FIL_METRICS = frozenset(
-    {
-        "coverage",
-        "complexity",
-        "functions",
-        "comment_lines_density",
-        "duplicated_lines_density",
-        "sqale_debt_ratio",
-    }
-)
+_LISTED_FIL_METRICS = FILE_LEVEL_METRICS
 _UTS_METRICS = frozenset({"test_execution_time", "tests"})
 _GITHUB_METRICS = frozenset(
     {
@@ -43,6 +37,15 @@ _GITHUB_METRICS = frozenset(
         "total_builds",
     }
 )
+
+
+def _call_core(func, *args):
+    """Chama o msgram-core e converte as exceções dele em
+    CalculateModelException, que a view devolve como 400."""
+    try:
+        return func(*args)
+    except MeasureSoftGramCoreException as exc:
+        raise CalculateModelException(str(exc)) from exc
 
 
 class MathModelServices:
@@ -63,6 +66,9 @@ class MathModelServices:
     def __init__(self, repository, product):
         self.repository = repository
         self.product = product
+        # instante da coleta, definido em build_collected_metrics e repassado às
+        # camadas calculadas em persist_all
+        self.collected_at = None
 
     # ---------- FASE 1: build em memória ----------
 
@@ -70,6 +76,10 @@ class MathModelServices:
         """Constrói instâncias não-persistidas de CollectedMetric a
         partir do payload bruto da Action (SonarQube + GitHub)."""
         supported_metrics = {sm.key: sm for sm in SupportedMetric.objects.all()}
+        # um único created_at por coleta, para que a análise seja identificável
+        # por igualdade; persist_all repassa o mesmo instante às camadas calculadas
+        collected_at = timezone.now()
+        self.collected_at = collected_at
 
         collected: List[CollectedMetric] = []
 
@@ -84,6 +94,7 @@ class MathModelServices:
                         value=float(metric["value"]),
                         repository=self.repository,
                         qualifier="TRK",
+                        created_at=collected_at,
                     )
                 )
 
@@ -100,6 +111,7 @@ class MathModelServices:
                             metric=supported_metrics[key],
                             value=float(obj["value"]),
                             repository=self.repository,
+                            created_at=collected_at,
                         )
                     )
 
@@ -154,7 +166,8 @@ class MathModelServices:
                     }
                 )
 
-        calculated_result = calculate_measures(
+        calculated_result = _call_core(
+            calculate_measures,
             core_params,
             release_configuration.data,
         )
@@ -199,7 +212,7 @@ class MathModelServices:
                 }
             )
 
-        calculated_result = calculate_subcharacteristics(core_params)
+        calculated_result = _call_core(calculate_subcharacteristics, core_params)
         calculated_values = {s["key"]: s["value"] for s in calculated_result["subcharacteristics"]}
 
         instances: List[CalculatedSubCharacteristic] = []
@@ -242,7 +255,7 @@ class MathModelServices:
                 }
             )
 
-        calculated_result = calculate_characteristics(core_params)
+        calculated_result = _call_core(calculate_characteristics, core_params)
         calculated_values = {c["key"]: c["value"] for c in calculated_result["characteristics"]}
 
         instances: List[CalculatedCharacteristic] = []
@@ -289,7 +302,7 @@ class MathModelServices:
         core_params = {
             "tsqmi": {"key": "tsqmi", "characteristics": chars_params},
         }
-        calculated_result = calculate_tsqmi(core_params)
+        calculated_result = _call_core(calculate_tsqmi, core_params)
         tsqmi_value = calculated_result.get("tsqmi")[0]["value"]
 
         return TSQMI(repository=self.repository, value=tsqmi_value)
@@ -309,7 +322,14 @@ class MathModelServices:
 
         Falha em qualquer bulk_create dispara rollback completo via
         propagação de exceção pra fora do @transaction.atomic.
+
+        As camadas calculadas recebem o created_at das métricas da coleta, para
+        que todas as linhas de uma análise tenham o mesmo instante.
         """
+        if self.collected_at is not None:
+            for instance in (*calculated_measures, *calculated_subchars, *calculated_chars, tsqmi):
+                instance.created_at = self.collected_at
+
         saved_metrics = CollectedMetric.objects.bulk_create(collected_metrics)
         saved_measures = CalculatedMeasure.objects.bulk_create(calculated_measures)
         saved_subchars = CalculatedSubCharacteristic.objects.bulk_create(
@@ -347,6 +367,44 @@ class MathModelServices:
         return index
 
     @staticmethod
+    def _align_listed_metrics_by_path(
+        measure_key: str,
+        listed_keys: List[str],
+        metric_index: Dict[str, List[CollectedMetric]],
+        empty_paths: set,
+    ):
+        """O msgram-core emparelha as métricas por arquivo pela posição
+        (ex.: complexity[i] com functions[i]). Quando a medida usa mais
+        de uma métrica por arquivo, só entram os arquivos que têm todas
+        elas, na mesma ordem de caminho. Retorna None com uma métrica só."""
+        if len(listed_keys) < 2:
+            return None
+
+        # chave (caminho, ocorrência): não colapsa entradas com o mesmo caminho
+        values_by_path: Dict[str, Dict[Tuple[str, int], float]] = {}
+        for key in listed_keys:
+            occurrences: Dict[str, int] = defaultdict(int)
+            values_by_path[key] = {}
+            for cm in metric_index.get(key, []):
+                if cm.qualifier != "FIL" or cm.path in empty_paths:
+                    continue
+                path = cm.path or ""
+                values_by_path[key][(path, occurrences[path])] = cm.value
+                occurrences[path] += 1
+
+        all_paths = set().union(*(values_by_path[key].keys() for key in listed_keys))
+        common_paths = sorted(set.intersection(*(set(values_by_path[key]) for key in listed_keys)))
+        skipped = len(all_paths) - len(common_paths)
+        if skipped:
+            logger.info(
+                "Medida %s: %d arquivo(s) sem todas as métricas (%s) ficaram de fora.",
+                measure_key,
+                skipped,
+                ", ".join(listed_keys),
+            )
+        return {key: [values_by_path[key][path] for path in common_paths] for key in listed_keys}
+
+    @staticmethod
     def _resolve_metric_params_in_memory(
         measure: SupportedMeasure,
         metric_index: Dict[str, List[CollectedMetric]],
@@ -366,16 +424,25 @@ class MathModelServices:
         # espelhando metrics/models.py:125-141.
         empty_paths = {cm.path for cm in metric_index.get("ncloc", []) if cm.qualifier == "FIL" and cm.value == 0}
 
+        metric_keys = [sm.key for sm in measure.metrics.all()]
+
+        listed_keys = [key for key in metric_keys if key in _LISTED_FIL_METRICS]
+        aligned = MathModelServices._align_listed_metrics_by_path(
+            measure.key, listed_keys, metric_index, empty_paths
+        )
+
         params: Dict[str, object] = {}
-        for supported_metric in measure.metrics.all():
-            key = supported_metric.key
+        for key in metric_keys:
             cms = metric_index.get(key, [])
 
             if key in _LISTED_FIL_METRICS:
                 # Lista de valores (1 por arquivo). Vazia se ausente —
                 # msgram-core mantém como lista (não desempacota com len!=1)
                 # e medidas como passed_tests retornam 0.0 nesse caso.
-                params[key] = [cm.value for cm in cms if cm.qualifier == "FIL" and cm.path not in empty_paths]
+                if aligned is None:
+                    params[key] = [cm.value for cm in cms if cm.qualifier == "FIL" and cm.path not in empty_paths]
+                else:
+                    params[key] = aligned[key]
             elif key in _UTS_METRICS:
                 params[key] = [cm.value for cm in cms if cm.qualifier == "UTS"]
             elif key in _GITHUB_METRICS:

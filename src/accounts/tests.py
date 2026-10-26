@@ -4,6 +4,7 @@ from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth import get_user_model
 from django.test import SimpleTestCase
 from parameterized import parameterized
+from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.reverse import reverse
 
@@ -253,8 +254,9 @@ class AccountsViews(APITestCaseExpanded):
         self.user.github_access_token = "gh_token_123"
         self.user.save()
 
-        def side_effect(url, headers=None):
+        def side_effect(url, headers=None, **kwargs):
             resp = MagicMock()
+            resp.links = {}
             resp.status_code = 200
             if "api.github.com/user/orgs" in url:
                 resp.json.return_value = [
@@ -385,8 +387,9 @@ class AccountsViews(APITestCaseExpanded):
         social_account = SocialAccount.objects.create(user=self.user, provider="github", uid="12345")
         SocialToken.objects.create(account=social_account, app=social_app, token="social-token-xyz")
 
-        def side_effect(url, headers=None):
+        def side_effect(url, headers=None, **kwargs):
             resp = MagicMock()
+            resp.links = {}
             resp.status_code = 200
             if "api.github.com/user/orgs" in url:
                 resp.json.return_value = []
@@ -424,12 +427,39 @@ class AccountsViews(APITestCaseExpanded):
         )
 
     @patch("accounts.views.requests.get")
+    def test_github_organizations_follows_next_page(self, mock_get):
+        self.user.github_access_token = "gh_token_123"
+        self.user.save()
+
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = 200
+            resp.links = {}
+            if url == "https://api.github.com/user/orgs?per_page=100":
+                resp.json.return_value = [{"id": 1, "login": "first-page-org"}]
+                resp.links = {"next": {"url": "https://api.github.com/user/orgs?per_page=100&page=2"}}
+            elif url == "https://api.github.com/user/orgs?per_page=100&page=2":
+                resp.json.return_value = [{"id": 2, "login": "fga-eps-mds"}]
+            else:
+                resp.json.return_value = {"id": 123, "login": "test-user"}
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        response = self.client.get(reverse("github-organizations"), format="json")
+        self.assertEqual(response.status_code, 200)
+        names = [o["github_org_name"] for o in response.json()]
+        self.assertEqual(names, ["test-user", "first-page-org", "fga-eps-mds"])
+
+    @patch("accounts.views.requests.get")
     def test_github_organizations_duplicate_org_id(self, mock_get):
         self.user.github_access_token = "gh_token_123"
         self.user.save()
 
-        def side_effect(url, headers=None):
+        def side_effect(url, headers=None, **kwargs):
             resp = MagicMock()
+            resp.links = {}
             resp.status_code = 200
             if "api.github.com/user/orgs" in url:
                 resp.json.return_value = [
@@ -458,14 +488,34 @@ class AccountsViews(APITestCaseExpanded):
         self.assertEqual(len(response.json()), 1)
 
     @patch("accounts.views.requests.get")
-    def test_github_organizations_fetch_failure(self, mock_get):
+    def test_github_organizations_token_invalid_401(self, mock_get):
         self.user.github_access_token = "gh_token_123"
         self.user.save()
 
-        def side_effect(url, headers=None):
+        mock_resp = MagicMock()
+        mock_resp.status_code = 401
+        mock_resp.json.return_value = {"message": "Bad credentials"}
+        mock_get.return_value = mock_resp
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("github-organizations")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["error"], "github_token_invalid")
+
+    @patch("accounts.views.requests.get")
+    def test_github_organizations_token_invalid_on_orgs_403(self, mock_get):
+        self.user.github_access_token = "gh_token_123"
+        self.user.save()
+
+        def side_effect(url, headers=None, timeout=None):
             resp = MagicMock()
-            resp.status_code = 401
-            resp.json.return_value = {"message": "Bad credentials"}
+            if "api.github.com/user/orgs" in url:
+                resp.status_code = 403
+                resp.json.return_value = {"message": "Resource not accessible by integration"}
+            else:
+                resp.status_code = 200
+                resp.json.return_value = {"id": 123, "login": "test-user", "avatar_url": "http://avatar1"}
             return resp
 
         mock_get.side_effect = side_effect
@@ -473,11 +523,40 @@ class AccountsViews(APITestCaseExpanded):
         self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
         url = reverse("github-organizations")
         response = self.client.get(url, format="json")
-        self.assertEqual(response.status_code, 401)
-        self.assertEqual(
-            response.json()["error"],
-            "Failed to fetch organizations from GitHub",
-        )
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.json()["error"], "github_token_invalid")
+
+    @patch("accounts.views.requests.get")
+    def test_github_organizations_timeout(self, mock_get):
+        import requests as req
+        self.user.github_access_token = "gh_token_123"
+        self.user.save()
+
+        mock_get.side_effect = req.exceptions.Timeout("Connection timed out")
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("github-organizations")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.json()["error"], "Timeout contacting GitHub API.")
+
+    @patch("accounts.views.requests.get")
+    def test_github_organizations_fetch_failure(self, mock_get):
+        self.user.github_access_token = "gh_token_123"
+        self.user.save()
+
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = 500
+            resp.json.return_value = {"message": "Internal GitHub Error"}
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("github-organizations")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, 500)
 
     @patch("accounts.views.requests.post")
     def test_github_validate_exception(self, mock_post):
@@ -609,6 +688,180 @@ class AccountsViews(APITestCaseExpanded):
     def test_gitlab_login_reverse(self):
         url = reverse("gitlab-login")
         self.assertEqual(url, "/api/v1/accounts/gitlab/login/")
+
+    def test_gitlab_namespaces_unauthenticated(self):
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_gitlab_namespaces_missing_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["error"], "GitLab account not linked.")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_success(self, mock_get):
+        self.user.gitlab_access_token = "gl_token_123"
+        self.user.save()
+
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = 200
+            if "api/v4/user" in url:
+                resp.json.return_value = {
+                    "id": 101,
+                    "username": "gl_user",
+                    "name": "GitLab User",
+                    "avatar_url": "https://gitlab.com/avatar/user.png",
+                    "bio": "Personal bio",
+                }
+            else:
+                resp.json.return_value = [
+                    {
+                        "id": 201,
+                        "name": "Org Group",
+                        "full_path": "org-group",
+                        "avatar_url": "https://gitlab.com/avatar/group.png",
+                        "description": "Group description",
+                    }
+                ]
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        data = response.json()
+        self.assertEqual(len(data), 2)
+
+        user_item = data[0]
+        self.assertEqual(user_item["id"], 101)
+        self.assertEqual(user_item["name"], "GitLab User")
+        self.assertEqual(user_item["full_path"], "gl_user")
+        self.assertEqual(user_item["avatar_url"], "https://gitlab.com/avatar/user.png")
+        self.assertEqual(user_item["description"], "Personal bio")
+        self.assertEqual(user_item["kind"], "user")
+
+        group_item = data[1]
+        self.assertEqual(group_item["id"], 201)
+        self.assertEqual(group_item["name"], "Org Group")
+        self.assertEqual(group_item["full_path"], "org-group")
+        self.assertEqual(group_item["avatar_url"], "https://gitlab.com/avatar/group.png")
+        self.assertEqual(group_item["description"], "Group description")
+        self.assertEqual(group_item["kind"], "group")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_via_social_token(self, mock_get):
+        from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
+        from django.contrib.sites.models import Site
+
+        self.user.gitlab_access_token = None
+        self.user.save()
+
+        app = SocialApp.objects.create(provider="gitlab", name="GitLab", client_id="gl_cid", secret="gl_sec")
+        app.sites.add(Site.objects.get_current())
+        account = SocialAccount.objects.create(user=self.user, provider="gitlab", uid="gl_uid_123")
+        SocialToken.objects.create(app=app, account=account, token="recovered_gl_token")
+
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = 200
+            if "api/v4/user" in url:
+                resp.json.return_value = {"id": 1, "username": "recovered_user"}
+            else:
+                resp.json.return_value = []
+            return resp
+
+        mock_get.side_effect = side_effect
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.gitlab_access_token, "recovered_gl_token")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_401(self, mock_get):
+        self.user.gitlab_access_token = "gl_token_123"
+        self.user.save()
+
+        mock_resp = MagicMock()
+        mock_resp.status_code = 401
+        mock_resp.json.return_value = {"message": "401 Unauthorized"}
+        mock_get.return_value = mock_resp
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+        self.assertEqual(response.json()["error"], "gitlab_token_invalid")
+
+    def _gitlab_namespaces_with_status(self, mock_get, user_status, groups_status):
+        self.user.gitlab_access_token = "gl_token_123"
+        self.user.save()
+
+        def side_effect(url, headers=None, timeout=None):
+            resp = MagicMock()
+            resp.status_code = user_status if "api/v4/user" in url else groups_status
+            resp.content = b"{}"
+            resp.json.return_value = {"message": "falhou"} if resp.status_code != 200 else {"id": 1}
+            return resp
+
+        mock_get.side_effect = side_effect
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        return self.client.get(reverse("gitlab-namespaces"), format="json")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_user_request_fails(self, mock_get):
+        response = self._gitlab_namespaces_with_status(mock_get, user_status=500, groups_status=200)
+
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.json()["error"], "Failed to fetch user from GitLab")
+        self.assertEqual(response.json()["details"], {"message": "falhou"})
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_groups_request_fails(self, mock_get):
+        response = self._gitlab_namespaces_with_status(mock_get, user_status=200, groups_status=502)
+
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(response.json()["error"], "Failed to fetch groups from GitLab")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_timeout(self, mock_get):
+        from requests.exceptions import Timeout
+
+        self.user.gitlab_access_token = "gl_token_123"
+        self.user.save()
+
+        mock_get.side_effect = Timeout("Timeout from gitlab")
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_504_GATEWAY_TIMEOUT)
+        self.assertEqual(response.json()["error"], "gitlab_timeout")
+
+    @patch("accounts.views.requests.get")
+    def test_gitlab_namespaces_connection_error(self, mock_get):
+        from requests.exceptions import ConnectionError
+
+        self.user.gitlab_access_token = "gl_token_123"
+        self.user.save()
+
+        mock_get.side_effect = ConnectionError("ConnectionError from gitlab")
+
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + Token.objects.create(user=self.user).key)
+        url = reverse("gitlab-namespaces")
+        response = self.client.get(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_502_BAD_GATEWAY)
+        self.assertEqual(response.json()["error"], "gitlab_unavailable")
 
 
 class AccountsAppConfigTest(SimpleTestCase):

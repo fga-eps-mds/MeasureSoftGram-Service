@@ -1,3 +1,5 @@
+import contextlib
+
 import requests
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
@@ -20,6 +22,8 @@ from accounts.serializers import (
     GitHubAccessTokenRetrieveSerializer,
     UserListSerializer,
 )
+
+JSON_CONTENT_TYPE = "application/json"
 
 
 class GithubLoginViewSet(SocialLoginView):
@@ -131,7 +135,7 @@ class UserRepos(viewsets.ReadOnlyModelViewSet):
     def retrieve(self, request):
         code = request.query_params.get("code")
 
-        headers = {"Accept": "application/json"}
+        headers = {"Accept": JSON_CONTENT_TYPE}
 
         urlToken = "https://github.com/login/oauth/access_token"
         data = {
@@ -166,70 +170,253 @@ class UserRepos(viewsets.ReadOnlyModelViewSet):
 class GitHubOrganizationsViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
+    def _get_token(self, user):
+        token = user.github_access_token
+        if token:
+            return token, None
+        from allauth.socialaccount.models import SocialToken
+
+        st = SocialToken.objects.filter(account__user=user, account__provider="github").first()
+        if not st:
+            return None, Response(
+                {"error": "GitHub account not linked or access token missing."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        token = st.token
+        user.github_access_token = token
+        user.save()
+        st.delete()
+        return token, None
+
+    def _fetch_github(self, url, headers, timeout, follow_next=False):
+        try:
+            r = requests.get(url, headers=headers, timeout=timeout)
+        except requests.exceptions.Timeout:
+            return None, Response(
+                {"error": "Timeout contacting GitHub API."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        except requests.exceptions.RequestException:
+            return None, Response(
+                {"error": "Error contacting GitHub API."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        if r.status_code in (401, 403):
+            details = {}
+            with contextlib.suppress(Exception):
+                details = r.json()
+            return None, Response(
+                {"error": "github_token_invalid", "details": details},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        if r.status_code != 200:
+            details = {}
+            with contextlib.suppress(Exception):
+                details = r.json()
+            return None, Response(
+                {"error": "Failed to fetch organizations from GitHub", "details": details},
+                status=r.status_code,
+            )
+
+        if not follow_next:
+            return r.json(), None
+
+        # listas do GitHub vêm em páginas: segue o rel="next" do header Link até a última
+        items = list(r.json())
+        next_url = (r.links or {}).get("next", {}).get("url")
+        if isinstance(next_url, str) and next_url:
+            next_items, err = self._fetch_github(next_url, headers, timeout, follow_next=True)
+            if err:
+                return None, err
+            items.extend(next_items)
+        return items, None
+
+    def list(self, request):
+        token, err = self._get_token(request.user)
+        if err:
+            return err
+
+        headers = {
+            "Authorization": f"token {token}",
+            "Accept": JSON_CONTENT_TYPE,
+        }
+        timeout = getattr(settings, "GITHUB_TIMEOUT", 10)
+        results = []
+
+        user_data, user_err = self._fetch_github("https://api.github.com/user", headers, timeout)
+        if user_err:
+            return user_err
+
+        results.append(
+            {
+                "github_org_id": user_data.get("id"),
+                "github_org_name": user_data.get("login"),
+                "avatar_url": user_data.get("avatar_url"),
+                "description": "Personal account",
+            }
+        )
+
+        orgs_data, orgs_err = self._fetch_github(
+            "https://api.github.com/user/orgs?per_page=100", headers, timeout, follow_next=True
+        )
+        if orgs_err and (orgs_err.status_code == status.HTTP_409_CONFLICT or not results):
+            return orgs_err
+
+        if orgs_data:
+            existing_ids = {x["github_org_id"] for x in results}
+            for org in orgs_data:
+                if org.get("id") not in existing_ids:
+                    results.append(
+                        {
+                            "github_org_id": org.get("id"),
+                            "github_org_name": org.get("login"),
+                            "avatar_url": org.get("avatar_url"),
+                            "description": org.get("description"),
+                        }
+                    )
+                    existing_ids.add(org.get("id"))
+
+        return Response(results, status=status.HTTP_200_OK)
+
+
+class GitLabNamespacesViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
     def list(self, request):
         user = request.user
-        token = user.github_access_token
+        token = user.gitlab_access_token
         if not token:
             from allauth.socialaccount.models import SocialToken
 
-            st = SocialToken.objects.filter(account__user=user, account__provider="github").first()
+            st = SocialToken.objects.filter(account__user=user, account__provider="gitlab").first()
             if st:
                 token = st.token
-                user.github_access_token = token
+                user.gitlab_access_token = token
                 user.save()
                 st.delete()
             else:
                 return Response(
-                    {"error": "GitHub account not linked or access token missing."},
+                    {"error": "GitLab account not linked."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
         headers = {
-            "Authorization": f"token {token}",
-            "Accept": "application/json",
+            "Authorization": f"Bearer {token}",
+            "Accept": JSON_CONTENT_TYPE,
         }
-        results = []
+        timeout = getattr(settings, "GITLAB_TIMEOUT", 10)
 
-        # 1. Fetch user's own profile (personal space)
-        r_user = requests.get("https://api.github.com/user", headers=headers)
-        if r_user.status_code == 200:
-            user_data = r_user.json()
-            results.append(
-                {
-                    "github_org_id": user_data.get("id"),
-                    "github_org_name": user_data.get("login"),
-                    "avatar_url": user_data.get("avatar_url"),
-                    "description": "Personal account",
-                }
+        from concurrent.futures import ThreadPoolExecutor
+
+        try:
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                future_user = executor.submit(
+                    requests.get,
+                    "https://gitlab.com/api/v4/user",
+                    headers=headers,
+                    timeout=timeout,
+                )
+                future_groups = executor.submit(self._fetch_all_groups, headers, timeout)
+                r_user = future_user.result()
+                r_groups = future_groups.result()
+        except requests.exceptions.Timeout:
+            return Response(
+                {"error": "gitlab_timeout", "details": "Timeout contacting GitLab API."},
+                status=status.HTTP_504_GATEWAY_TIMEOUT,
+            )
+        except requests.exceptions.RequestException:
+            return Response(
+                {"error": "gitlab_unavailable", "details": "Error contacting GitLab API."},
+                status=status.HTTP_502_BAD_GATEWAY,
             )
 
-        # 2. Fetch user's organizations
-        r_orgs = requests.get("https://api.github.com/user/orgs", headers=headers)
-        if r_orgs.status_code == 200:
-            orgs = r_orgs.json()
-            for org in orgs:
-                if any(x["github_org_id"] == org.get("id") for x in results):
-                    continue
-                results.append(
-                    {
-                        "github_org_id": org.get("id"),
-                        "github_org_name": org.get("login"),
-                        "avatar_url": org.get("avatar_url"),
-                        "description": org.get("description"),
-                    }
-                )
-        else:
-            # If fetching orgs failed but user fetched successfully, return at least user
-            if not results:
-                return Response(
-                    {
-                        "error": "Failed to fetch organizations from GitHub",
-                        "details": r_orgs.json(),
-                    },
-                    status=r_orgs.status_code,
-                )
+        return self._build_response(r_user, r_groups)
+
+    @staticmethod
+    def _fetch_all_groups(headers, timeout):
+        """Segue o X-Next-Page de /groups até o fim; a resposta devolvida leva todos os itens em `all_groups`."""
+        base_url = "https://gitlab.com/api/v4/groups?min_access_level=10&per_page=100"
+        response = requests.get(base_url, headers=headers, timeout=timeout)
+        groups = []
+        current = response
+        while current.status_code == 200:
+            page_data = current.json()
+            if isinstance(page_data, list):
+                groups.extend(page_data)
+            next_page = current.headers.get("X-Next-Page")
+            if not (isinstance(next_page, str) and next_page.isdigit()):
+                break
+            current = requests.get(f"{base_url}&page={next_page}", headers=headers, timeout=timeout)
+        if current.status_code != 200:
+            return current
+        response.all_groups = groups
+        return response
+
+    @classmethod
+    def _build_response(cls, r_user, r_groups):
+        error_response = cls._gitlab_error_response(r_user, r_groups)
+        if error_response is not None:
+            return error_response
+
+        results = [cls._serialize_gitlab_user(r_user.json())]
+        groups_data = getattr(r_groups, "all_groups", None)
+        if not isinstance(groups_data, list):
+            groups_data = r_groups.json()
+        if isinstance(groups_data, list):
+            results.extend(cls._serialize_gitlab_group(group) for group in groups_data)
 
         return Response(results, status=status.HTTP_200_OK)
+
+    @staticmethod
+    def _gitlab_error_response(r_user, r_groups):
+        """Resposta de erro quando o GitLab recusa o token ou falha; None quando os dois pedidos deram certo."""
+        if r_user.status_code in (401, 403) or r_groups.status_code in (401, 403):
+            bad_resp = r_user if r_user.status_code in (401, 403) else r_groups
+            details = {}
+            try:
+                details = bad_resp.json()
+            except Exception:
+                pass
+            return Response(
+                {"error": "gitlab_token_invalid", "details": details},
+                status=status.HTTP_409_CONFLICT,
+            )
+
+        for response, error in (
+            (r_user, "Failed to fetch user from GitLab"),
+            (r_groups, "Failed to fetch groups from GitLab"),
+        ):
+            if response.status_code != 200:
+                return Response(
+                    {"error": error, "details": response.json() if response.content else {}},
+                    status=response.status_code,
+                )
+
+        return None
+
+    @staticmethod
+    def _serialize_gitlab_user(user_data):
+        return {
+            "id": user_data.get("id"),
+            "name": user_data.get("name") or user_data.get("username"),
+            "full_path": user_data.get("username"),
+            "avatar_url": user_data.get("avatar_url"),
+            "description": user_data.get("bio") or "",
+            "kind": "user",
+        }
+
+    @staticmethod
+    def _serialize_gitlab_group(group):
+        return {
+            "id": group.get("id"),
+            "name": group.get("name"),
+            "full_path": group.get("full_path") or group.get("path"),
+            "avatar_url": group.get("avatar_url"),
+            "description": group.get("description") or "",
+            "kind": "group",
+        }
 
 
 class GithubValidateView(APIView):

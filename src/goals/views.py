@@ -61,7 +61,7 @@ class CompareGoalsModelViewSet(GoalModelViewSetMixin):
     def get_goals(self, product):
         release_id = self.request.query_params.get("release_id", None)
         if release_id:
-            return Goal.objects.filter(id=release_id)
+            return Goal.objects.filter(id=release_id, product=product)
         return Goal.objects.filter(product=product)
 
 
