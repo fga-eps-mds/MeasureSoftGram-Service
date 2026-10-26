@@ -4,78 +4,7 @@ from urllib.parse import parse_qs, urlparse
 
 import requests
 
-from math_model.services import MathModelServices
-from math_model.utils import parse_release_configuration
-from release_configuration.models import ReleaseConfiguration
-from release_configuration.serializers import ReleaseConfigurationSerializer
-from utils import staticfiles
-
 logger = logging.getLogger(__name__)
-
-
-def get_default_mock_payload():
-    return {
-        "github": {
-            "metrics": [
-                {"name": "total_issues", "value": 1},
-                {"name": "resolved_issues", "value": 0},
-                {"name": "sum_ci_feedback_times", "value": 1},
-                {"name": "total_builds", "value": 1},
-            ],
-        },
-        "sonarqube": {
-            "components": [
-                {
-                    "qualifier": "FIL",
-                    "path": "src/foo.py",
-                    "measures": [
-                        {"metric": "coverage", "value": 0.0},
-                        {"metric": "complexity", "value": 1},
-                        {"metric": "functions", "value": 1},
-                        {"metric": "comment_lines_density", "value": 0.0},
-                        {"metric": "duplicated_lines_density", "value": 0.0},
-                        {"metric": "ncloc", "value": 1},
-                    ],
-                },
-                {
-                    "qualifier": "FIL",
-                    "path": "src/bar.py",
-                    "measures": [
-                        {"metric": "coverage", "value": 0.0},
-                        {"metric": "complexity", "value": 1},
-                        {"metric": "functions", "value": 1},
-                        {"metric": "comment_lines_density", "value": 0.0},
-                        {"metric": "duplicated_lines_density", "value": 0.0},
-                        {"metric": "ncloc", "value": 1},
-                    ],
-                },
-                {
-                    "qualifier": "UTS",
-                    "path": "tests/foo_test.py",
-                    "measures": [
-                        {"metric": "tests", "value": 1},
-                        {"metric": "test_execution_time", "value": 1},
-                    ],
-                },
-                {
-                    "qualifier": "UTS",
-                    "path": "tests/bar_test.py",
-                    "measures": [
-                        {"metric": "tests", "value": 1},
-                        {"metric": "test_execution_time", "value": 1},
-                    ],
-                },
-                {
-                    "qualifier": "TRK",
-                    "path": "",
-                    "measures": [
-                        {"metric": "test_failures", "value": 0},
-                        {"metric": "test_errors", "value": 0},
-                    ],
-                },
-            ],
-        },
-    }
 
 
 def _trigger_github_workflow(repo_full_name, headers):
@@ -140,52 +69,10 @@ def onboard_repository_async(repository, user):
         has_triggered_workflow = _trigger_github_workflow(repo_full_name, headers)
 
     if not has_triggered_workflow:
-        logger.info(f"No GitHub Actions triggered. Generating mock metrics for {repository.name}...")
-        try:
-            product = repository.product
-            release_configuration, _ = ReleaseConfiguration.objects.get_or_create(
-                name="Default pre-config",
-                product=product,
-                defaults={
-                    "data": staticfiles.DEFAULT_PRE_CONFIG,
-                },
-            )
-
-            services = MathModelServices(repository, product)
-            config_serializer = ReleaseConfigurationSerializer(release_configuration)
-            char_keys, subchar_keys, measure_keys = parse_release_configuration(
-                config_serializer.data,
-            )
-
-            mock_payload = get_default_mock_payload()
-            collected_metrics = services.build_collected_metrics(mock_payload)
-            measures, measure_values = services.build_calculated_measures(
-                measure_keys,
-                release_configuration,
-                collected_metrics,
-            )
-            subchars, subchar_values = services.build_calculated_subcharacteristics(
-                subchar_keys,
-                release_configuration,
-                measure_values,
-            )
-            chars, char_values = services.build_calculated_characteristics(
-                char_keys,
-                release_configuration,
-                subchar_values,
-            )
-            tsqmi = services.build_tsqmi(release_configuration, char_values)
-
-            services.persist_all(
-                collected_metrics,
-                measures,
-                subchars,
-                chars,
-                tsqmi,
-            )
-            logger.info(f"Successfully populated mock math model calculations for {repository.name}")
-        except Exception as exc:
-            logger.error(f"Failed to populate mock calculations for {repository.name}: {exc}")
+        logger.warning(
+            f"No GitHub Actions triggered for {repository.name}. "
+            "The repository stays without metrics until the first real collection."
+        )
 
 
 GITHUB_REPOS_PER_PAGE = 10
