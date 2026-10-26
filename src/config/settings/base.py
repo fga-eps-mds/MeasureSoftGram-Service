@@ -40,6 +40,7 @@ if _env_cors:
     CORS_ALLOWED_ORIGINS.extend([o.strip() for o in _env_cors.split(",") if o.strip()])
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_EXPOSE_HEADERS = ["X-Total-Pages", "X-Next-Page", "X-Page", "X-Total"]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STORAGES = {
@@ -94,7 +95,6 @@ APPLICATION_APPS = [
     "math_model",
     "utils",
     "releases",
-    "grafana_proxy",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + APPLICATION_APPS
@@ -206,6 +206,18 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("accounts.authentication.SessionOrApiTokenAuthentication",),
 }
 
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Token": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Formato: Token <seu_token_aqui>",
+        }
+    },
+    "USE_SESSION_AUTH": False,
+}
+
 # allauth related configs
 SITE_ID = int(os.getenv("SITE_ID", "1"))
 
@@ -250,6 +262,7 @@ SOCIALACCOUNT_PROVIDERS = {
             "openid",
             "profile",
             "email",
+            "read_api",
         ],
     },
 }
@@ -263,6 +276,7 @@ AMBIENT_TEST_OR_DEV = os.getenv("AMBIENT_TEST_OR_DEV", "True").lower() in (
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
 GITHUB_TIMEOUT = int(os.getenv("GITHUB_TIMEOUT", "10"))
+GITLAB_TIMEOUT = int(os.getenv("GITLAB_TIMEOUT", "10"))
 GITHUB_ISSUE_METRICS_THRESHOLD = int(os.getenv("GITHUB_ISSUE_METRICS_THRESHOLD", "7"))
 
 MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS = int(
@@ -278,6 +292,15 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = int(
     os.getenv(
         "DATA_UPLOAD_MAX_NUMBER_FIELDS",
         "100000",
+    )
+)
+
+# O calculate/math-model/ recebe todos os componentes do SonarQube (~870 bytes
+# cada). 50 MiB, o mesmo limite do nginx (client_max_body_size 50m).
+DATA_UPLOAD_MAX_MEMORY_SIZE = int(
+    os.getenv(
+        "DATA_UPLOAD_MAX_MEMORY_SIZE",
+        "52428800",
     )
 )
 
@@ -334,15 +357,3 @@ CREATE_FAKE_DATA = os.getenv("CREATE_FAKE_DATA", "False").lower() in (
 
 # Maximum number of days without a new TSQMI calculation before the badge shows "N/A".
 BADGE_STALENESS_DAYS = int(os.getenv("BADGE_STALENESS_DAYS", "30"))
-
-# Grafana Proxy Configuration
-GRAFANA_CONFIG = {
-    # NOSONAR — rede interna Docker
-    "BASE_URL": os.getenv("GRAFANA_BASE_URL", "http://grafana:3000"),  # NOSONAR — rede interna Docker
-    # NOSONAR — URL de dev
-    "PUBLIC_URL": os.getenv("GRAFANA_PUBLIC_URL", "http://localhost:5000"),
-    "USERNAME": os.getenv("GRAFANA_USERNAME", "admin"),
-    # sem default — obrigatório via env
-    "PASSWORD": os.getenv("GRAFANA_PASSWORD", ""),
-    "TIMEOUT": int(os.getenv("GRAFANA_TIMEOUT", "10")),
-}

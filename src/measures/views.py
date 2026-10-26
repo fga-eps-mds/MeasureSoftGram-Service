@@ -26,7 +26,9 @@ class RepositoryMeasuresMixin(UserScopedMixin):
         repository = self.get_repository()
         qs = repository.calculated_measures.all()
         qs = qs.values_list("measure", flat=True).distinct()
-        return SupportedMeasure.objects.filter(id__in=qs).prefetch_related("calculated_measures")
+        # sem prefetch de calculated_measures: os serializers filtram pelo repositório, e o prefetch
+        # carregava as medidas calculadas de todos os repositórios só para descartá-las
+        return SupportedMeasure.objects.filter(id__in=qs)
 
 
 class LatestCalculatedMeasureModelViewSet(

@@ -2,6 +2,8 @@ import logging
 
 import numpy as np
 from core.transformations import diff, norm_diff
+from django.db.models import QuerySet
+from django.utils import timezone
 
 from characteristics.models import CalculatedCharacteristic
 from releases.models import Release
@@ -10,27 +12,25 @@ logger = logging.getLogger(__name__)
 
 
 def calculate_diff(planned, accomplished):
-    diffs = {}
+    """
+    Calcula Rc = max(0, Rp - Rd) (função `diff` do Core) para cada característica realizada.
+
+    Rp e Rd são associados pelo nome da característica. Uma característica realizada que não
+    foi planejada não tem Rp; ela fica com `diff = None` em vez de desalinhar os vetores.
+    """
     planned_values = {item["name"]: item["value"] for item in planned}
 
     for repo in accomplished:
-        rp = []
-        rd = []
-        repo_name = repo["repository_name"]
+        comparable = [
+            characteristic for characteristic in repo["characteristics"] if characteristic["name"] in planned_values
+        ]
+
+        rp = [planned_values[characteristic["name"]] for characteristic in comparable]
+        rd = [characteristic["value"] for characteristic in comparable]
+        diff_by_name = dict(zip((c["name"] for c in comparable), diff(rp, rd)))
 
         for characteristic in repo["characteristics"]:
-            name = characteristic["name"]
-            value = characteristic["value"]
-            rd.append(value)
-
-            if name in planned_values:
-                rp.append(planned_values[name])
-
-        diff_array = diff(rp, rd)
-        diffs[repo_name] = diff_array
-
-        for characteristic, i in zip(repo["characteristics"], range(len(repo["characteristics"]))):
-            characteristic["diff"] = diffs[repo_name][i]
+            characteristic["diff"] = diff_by_name.get(characteristic["name"])
 
     return accomplished
 
@@ -50,7 +50,15 @@ def get_planned_values(release: Release):
 
 
 def get_accomplished_values(release: Release, repositories_ids: list[int]):
-    result_calculated = CalculatedCharacteristic.objects.filter(release=release).all().order_by("-created_at")[:2]
+    # Todos os cálculos da release, do mais recente para o mais antigo. A deduplicação em
+    # get_process_calculated_characteristics_to_list mantém o valor mais recente de cada
+    # característica por repositório. (Antes havia um [:2], que limitava a resposta às duas
+    # últimas características calculadas e escondia as demais.)
+    result_calculated = (
+        CalculatedCharacteristic.objects.filter(release=release)
+        .select_related("repository", "characteristic")
+        .order_by("-created_at")
+    )
 
     if len(result_calculated) == 0:
         result_calculated = get_calculated_characteristic_by_ids_repositories(repositories_ids)
@@ -95,8 +103,16 @@ def get_process_calculated_characteristics_to_list(
 
 
 def get_norm_diff(planned_values, accomplished_values):
+    planned_names = {characteristic["name"] for characteristic in planned_values}
+
     for repository in accomplished_values:
-        repository["norm_diff"] = calculate_norm_diff(planned_values, repository["characteristics"])
+        # só as características planejadas entram na diferença normalizada
+        planned_characteristics = [
+            characteristic
+            for characteristic in repository["characteristics"]
+            if characteristic["name"] in planned_names
+        ]
+        repository["norm_diff"] = calculate_norm_diff(planned_values, planned_characteristics)
 
     return accomplished_values
 
@@ -133,6 +149,12 @@ def calculate_norm_diff(planned_values, accomplished_characteristics):
 
             rd.append(accomplished_value)
 
+        # norm_diff divide pela norma do planejado: com a meta toda em 0, o resultado seria inf (ou nan), que não
+        # cabe no JSON e derrubava o analysis_data da release
+        if not np.any(rp):
+            logger.warning("The planned values are all zero: the normalized difference is undefined.")
+            return None
+
         return norm_diff(np.array(rp), np.array(rd))
 
 
@@ -146,7 +168,8 @@ def get_process_calculated_characteristics(
 
         if repository not in accomplished:
             accomplished[repository] = {}
-        accomplished[repository].update({characteristic: calculated_characteristic.value})
+        # os cálculos chegam do mais recente para o mais antigo: mantém o mais recente
+        accomplished[repository].setdefault(characteristic, calculated_characteristic.value)
     return accomplished
 
 
@@ -155,10 +178,11 @@ def get_calculated_characteristic_by_ids_repositories(
 ):
     result_calculated = []
     for id_repository in ids_repositories:
+        # todos os cálculos do repositório (sem o antigo [:2]); a deduplicação mantém o mais recente
         calculated_characteristic = (
             CalculatedCharacteristic.objects.filter(repository_id=id_repository, release=None)
-            .all()
-            .order_by("-created_at")[:2]
+            .select_related("repository", "characteristic")
+            .order_by("-created_at")
         )
         result_calculated = result_calculated + list(calculated_characteristic)
     return result_calculated
@@ -196,3 +220,38 @@ def update_release_end_at(release_id: int, new_end_at):
     release.save()
 
     return release
+
+
+def filter_release_window(queryset: QuerySet, release: Release) -> QuerySet:
+    """
+    Restringe um queryset de valores calculados/coletados à janela da release.
+
+    A janela vai do dia de `start_at` ao dia de `end_at`, ambos inclusive, no fuso do
+    projeto. As datas da release são gravadas à meia-noite, então comparar o horário
+    exato deixaria de fora tudo o que foi calculado no último dia.
+    """
+    return queryset.filter(
+        created_at__date__gte=timezone.localtime(release.start_at).date(),
+        created_at__date__lte=timezone.localtime(release.end_at).date(),
+    )
+
+
+def get_latest_values_in_release_window(queryset: QuerySet, release: Release, entity_field: str) -> dict:
+    """
+    Último valor de cada entidade em cada repositório dentro da janela da release.
+
+    Mesma regra do gráfico de pulso do TSQMI (US06.01): vale o cálculo mais recente
+    feito entre `start_at` e `end_at`. `entity_field` é o nome do FK da entidade no
+    model (`characteristic`, `subcharacteristic`, `measure` ou `metric`).
+
+    Retorna `{(repository_id, entity_key): registro}`; a ausência da chave significa
+    que o repositório não tem valor na release.
+    """
+    entity_id = f"{entity_field}_id"
+    latest = (
+        filter_release_window(queryset, release)
+        .select_related(entity_field)
+        .order_by("repository_id", entity_id, "-created_at", "-id")
+        .distinct("repository_id", entity_id)
+    )
+    return {(item.repository_id, getattr(item, entity_field).key): item for item in latest}

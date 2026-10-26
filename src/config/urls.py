@@ -19,7 +19,7 @@ from metrics.views import SupportedMetricModelViewSet
 from organizations.routers.organizations import OrgRouter
 from organizations.routers.products import ProductRouter
 from organizations.routers.repos import RepoRouter
-from organizations.views import ImportOrganizationViewSet, OrganizationViewSet
+from organizations.views import ImportGitLabGroupViewSet, ImportOrganizationViewSet, OrganizationViewSet
 from subcharacteristics.views import SupportedSubCharacteristicModelViewSet
 
 
@@ -46,6 +46,11 @@ main_router.register(
     "organizations/import",
     ImportOrganizationViewSet,
     basename="organizations-import",
+)
+main_router.register(
+    "organizations/import-gitlab",
+    ImportGitLabGroupViewSet,
+    basename="organizations-import-gitlab",
 )
 main_router.register("organizations", OrganizationViewSet)
 
@@ -81,7 +86,6 @@ urlpatterns = [
     path("api/v1/", include(prod_router.nested_router.urls)),
     path("api/v1/", include(repo_router.nested_router.urls)),
     path("api/v1/", include(accounts_urls.urlpatterns)),
-    path("api/v1/grafana/", include("grafana_proxy.urls")),
     path(
         REPO_PREFIX + "latest-values/characteristics/<str:characteristic_key>/badge/",
         LatestCalculatedCharacteristicBadgeViewSet.as_view({"get": "list"}),

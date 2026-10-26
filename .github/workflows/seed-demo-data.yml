@@ -1,14 +1,14 @@
-name: Seed Grafana Demo Data (Prod)
+name: Seed Demo Data (Prod)
 
 # Popula/atualiza os dados MOCKADOS da conta de demonstracao (msgramteste)
 # direto na producao, via runner self-hosted (unico jeito de rodar comandos
 # na VPS sem acesso SSH direto).
 #
 # Escopo travado nos repositorios de demo conhecidos (REPO_PROFILES em
-# seed_grafana.py) -- --clean-all e --clean-tsqmi filtram por --repos, entao
+# seed_demo_data.py) -- --clean-all e --clean-tsqmi filtram por --repos, entao
 # NUNCA tocam em dados reais de outras equipes.
 #
-# Uso: aba Actions -> "Seed Grafana Demo Data (Prod)" -> Run workflow ->
+# Uso: aba Actions -> "Seed Demo Data (Prod)" -> Run workflow ->
 #   escrever SEED no campo de confirmacao.
 
 on:
@@ -33,9 +33,8 @@ jobs:
             exit 1
           fi
 
-      - name: Rodar seed_grafana (escopo travado nos repos de demo)
+      - name: Rodar seed_demo_data (escopo travado nos repos de demo)
         run: |
-          docker exec msgram_service python manage.py seed_grafana \
+          docker exec msgram_service python manage.py seed_demo_data \
             --days 180 --clean-tsqmi --clean-all \
-            --repos "2019.2-Acacia,2019.2-Acacia-Frontend,2020.1-BCE,2021.1_G01_Animalesco_BackEnd,2021.1_G01_Animalesco_FrontEnd,2022-1-MeasureSoftGram-Service,2022-1-MeasureSoftGram-Core,2022-1-MeasureSoftGram-Front,2022-1-MeasureSoftGram-CLI" \
-            --grafana-url http://grafana:3000
+            --repos "2019.2-Acacia,2019.2-Acacia-Frontend,2020.1-BCE,2021.1_G01_Animalesco_BackEnd,2021.1_G01_Animalesco_FrontEnd,2022-1-MeasureSoftGram-Service,2022-1-MeasureSoftGram-Core,2022-1-MeasureSoftGram-Front,2022-1-MeasureSoftGram-CLI"

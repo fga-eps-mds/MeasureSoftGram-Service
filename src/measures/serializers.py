@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework import serializers
 
+import utils
 from measures.models import CalculatedMeasure, SupportedMeasure
 
 
@@ -34,12 +35,14 @@ class CalculatedMeasureSerializer(serializers.ModelSerializer):
         )
 
 
-class LatestMeasuresCalculationsRequestSerializer(serializers.ModelSerializer):
+class LatestMeasuresCalculationsRequestSerializer(utils.RepositoryRecordsMixin, serializers.ModelSerializer):
     """
     Serializadora usada para serializar as medidas suportadas
     e seu último cálculo
     """
 
+    records_model = CalculatedMeasure
+    entity_field = "measure_id"
     latest = serializers.SerializerMethodField()
 
     class Meta:
@@ -53,17 +56,12 @@ class LatestMeasuresCalculationsRequestSerializer(serializers.ModelSerializer):
         )
 
     def get_latest(self, obj: SupportedMeasure):
-        try:
-            repository = self.context["view"].get_repository()
-
-            latest = obj.calculated_measures.filter(repository=repository).first()
-
-            return CalculatedMeasureSerializer(latest).data
-        except CalculatedMeasure.DoesNotExist:
-            return None
+        return CalculatedMeasureSerializer(self.get_entity_latest(obj)).data
 
 
-class CalculatedMeasureHistorySerializer(serializers.ModelSerializer):
+class CalculatedMeasureHistorySerializer(utils.RepositoryRecordsMixin, serializers.ModelSerializer):
+    records_model = CalculatedMeasure
+    entity_field = "measure_id"
     history = serializers.SerializerMethodField()
 
     class Meta:
@@ -78,14 +76,4 @@ class CalculatedMeasureHistorySerializer(serializers.ModelSerializer):
 
     def get_history(self, obj: SupportedMeasure):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
-        try:
-            # Os últimos 10 registros criados em ordem decrescente
-            qs = obj.calculated_measures.all()
-
-            repository = self.context["view"].get_repository()
-            qs = qs.filter(repository=repository)
-            qs = qs.reverse()
-
-            return CalculatedMeasureSerializer(qs[:MAX], many=True).data
-        except CalculatedMeasure.DoesNotExist:
-            return None
+        return CalculatedMeasureSerializer(self.get_entity_records(obj, MAX), many=True).data

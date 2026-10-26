@@ -9,8 +9,9 @@ from django_apscheduler.jobstores import DjangoJobStore, register_events
 from resources import calculate_characteristics
 
 from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
-from organizations.models import Product, Repository
+from organizations.models import Repository
 from releases.models import Release
+from subcharacteristics.models import CalculatedSubCharacteristic
 
 logger = logging.getLogger(__name__)
 
@@ -20,94 +21,118 @@ logger = logging.getLogger(__name__)
 SCHEDULER_ADVISORY_LOCK_KEY = 728_945_113
 
 
+# Características calculadas no fechamento da release (a TASK07.01.09 troca pela configuração da release).
+RELEASE_CHARACTERISTICS_KEYS = ("reliability", "maintainability")
+
+
 def get_releases_and_create_results():
     today = timezone.now()
     today_min = today.replace(hour=0, minute=0, second=0, microsecond=0)
     today_max = today.replace(hour=23, minute=59, second=59, microsecond=59)
 
-    releases = Release.objects.filter(end_at__lte=today_max, end_at__gte=today_min).all()
+    releases = list(
+        Release.objects.filter(end_at__lte=today_max, end_at__gte=today_min)
+        .select_related("product")
+        .prefetch_related("repositories")
+    )
 
-    if len(releases) == 0:
+    if not releases:
         return
 
+    characteristics = list(
+        SupportedCharacteristic.objects.filter(key__in=RELEASE_CHARACTERISTICS_KEYS).prefetch_related(
+            "subcharacteristics"
+        )
+    )
+    latest_subcharacteristic_values = _get_latest_subcharacteristic_values(characteristics)
+
     for release in releases:
-        if release.repositories.exists():
-            repositories = release.repositories.all()
-        else:
-            repositories = Repository.objects.filter(product_id=release.product_id).all()  # type: ignore
+        repositories = list(release.repositories.all()) or list(
+            Repository.objects.filter(product_id=release.product_id)  # type: ignore
+        )
+        if not repositories:
+            continue
+
+        # os parâmetros não dependem do repositório, então o Core calcula uma vez por release
+        pre_config = release.product.release_configuration.first()
+        core_params = {
+            "characteristics": [
+                {
+                    "key": characteristic.key,
+                    "subcharacteristics": _get_subcharacteristics_params(
+                        characteristic, pre_config, latest_subcharacteristic_values
+                    ),
+                }
+                for characteristic in characteristics
+            ]
+        }
+        calculate_result = calculate_characteristics(core_params)
+        calculated_values = {
+            characteristic["key"]: characteristic["value"] for characteristic in calculate_result["characteristics"]
+        }
 
         for repository in repositories:
-            product = Product.objects.filter(id=repository.product_id).first()  # type: ignore
+            _create_release_results(release, repository, characteristics, calculated_values)
 
-            data_characteristics = {
-                "characteristics": [
-                    {"key": "reliability"},
-                    {"key": "maintainability"},
-                ]
-            }
 
-            characteristics_keys = [
-                characteristic["key"] for characteristic in data_characteristics["characteristics"]
-            ]
+def _get_latest_subcharacteristic_values(characteristics) -> dict:
+    """
+    Último valor calculado de cada subcaracterística, numa consulta só.
 
-            qs = SupportedCharacteristic.objects.filter(key__in=characteristics_keys).prefetch_related(
-                "subcharacteristics",
-                "subcharacteristics__calculated_subcharacteristics",
+    Mesma regra de `SupportedSubCharacteristic.get_latest_subcharacteristic_value`: o mais recente
+    de qualquer repositório. Antes o job carregava todos os cálculos de subcaracterística do banco
+    para cada repositório da release.
+    """
+    subcharacteristic_ids = {sub.id for char in characteristics for sub in char.subcharacteristics.all()}
+    latest = (
+        CalculatedSubCharacteristic.objects.filter(subcharacteristic_id__in=subcharacteristic_ids)
+        .order_by("subcharacteristic_id", "-created_at")
+        .distinct("subcharacteristic_id")
+    )
+    return {item.subcharacteristic_id: item.value for item in latest}
+
+
+def _get_subcharacteristics_params(characteristic, pre_config, latest_values: dict) -> list:
+    """Mesmos parâmetros de `SupportedCharacteristic.get_latest_subcharacteristics_params`."""
+    params = []
+    for subcharacteristic in characteristic.subcharacteristics.all():
+        weight = pre_config.get_subcharacteristic_weight(subcharacteristic.key)
+        if weight:
+            params.append(
+                {
+                    "key": subcharacteristic.key,
+                    "value": latest_values.get(subcharacteristic.id),
+                    "weight": weight,
+                }
             )
+    return params
 
-            pre_config = product.release_configuration.first()  # type: ignore
 
-            core_params = {"characteristics": []}
+def _create_release_results(release, repository, characteristics, calculated_values: dict):
+    calculated_characteristics = [
+        CalculatedCharacteristic(
+            characteristic=characteristic,
+            value=calculated_values[characteristic.key],
+            repository=repository,
+            created_at=timezone.now(),
+            release=release,
+        )
+        for characteristic in characteristics
+    ]
 
-            char: SupportedCharacteristic
-            for char in qs:
-                subchars_params = char.get_latest_subcharacteristics_params(
-                    pre_config,
-                )
-
-                core_params["characteristics"].append(
-                    {
-                        "key": char.key,
-                        "subcharacteristics": subchars_params,
-                    }
-                )
-
-            calculate_result = calculate_characteristics(core_params)
-
-            calculated_values = {
-                characteristic["key"]: characteristic["value"]
-                for characteristic in calculate_result["characteristics"]
-            }
-
-            calculated_characteristics = []
-
-            for characteristic in qs:
-                value = calculated_values[characteristic.key]
-
-                calculated_characteristics.append(
-                    CalculatedCharacteristic(
-                        characteristic=characteristic,
-                        value=value,
-                        repository=repository,
-                        created_at=timezone.now(),
-                        release=release,
-                    )
-                )
-
-            try:
-                CalculatedCharacteristic.objects.bulk_create(calculated_characteristics)
-                logger.info(
-                    "Características calculadas criadas (release %s, repositório %s)",
-                    release.id,
-                    repository.id,
-                )
-            except Exception:
-                logger.exception(
-                    "Erro ao criar as características calculadas (release %s, repositório %s)",
-                    release.id,
-                    repository.id,
-                )
-                continue
+    try:
+        CalculatedCharacteristic.objects.bulk_create(calculated_characteristics)
+        logger.info(
+            "Características calculadas criadas (release %s, repositório %s)",
+            release.id,
+            repository.id,
+        )
+    except Exception:
+        logger.exception(
+            "Erro ao criar as características calculadas (release %s, repositório %s)",
+            release.id,
+            repository.id,
+        )
 
 
 def acquire_scheduler_lock():

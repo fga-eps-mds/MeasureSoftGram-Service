@@ -174,7 +174,8 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
                 goal=self.goal,
             )
 
-        with self.assertNumQueries(4):
+        # produto + acessos vencidos + membership (repositórios visíveis) + contagem + releases + repositórios
+        with self.assertNumQueries(6):
             response = self.client.get(path=self.url_default)
         response_data = response.json()
 
@@ -510,6 +511,93 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
 
         assert response.status_code == 200
         assert response.json()["accomplished"] == accomplished
+
+    def test_get_analysis_data_with_zero_goal_returns_without_norm_diff(self):
+        zero_goal = Goal.objects.create(
+            created_at=date.today(),
+            created_by_id=self.user.id,
+            product=self.product,
+            data={"reliability": 0, "maintainability": 0},
+        )
+        Release.objects.create(
+            id=998,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name="Release com meta zerada",
+            created_by=self.user,
+            product=self.product,
+            goal=zero_goal,
+        )
+        repository = Repository.objects.create(name="Repositorio", key="repo-meta-zero", product=self.product)
+        for key in ("reliability", "maintainability"):
+            CalculatedCharacteristic.objects.create(
+                release_id=998,
+                characteristic=SupportedCharacteristic.objects.get(key=key),
+                repository=repository,
+                value=0.5,
+            )
+
+        response = self.client.get(path=f"{self.url_default}998/analysis_data/")
+
+        # antes: 500, porque a diferença normalizada dava inf e não cabia no JSON
+        assert response.status_code == 200
+        assert response.json()["accomplished"][0]["norm_diff"] is None
+
+    def test_get_analysis_data_returns_all_latest_characteristics(self):
+        """Antes havia um [:2] e só as duas últimas características calculadas eram retornadas."""
+        Release.objects.create(
+            id=999,
+            created_at=date.today(),
+            start_at=date.today(),
+            end_at=date.today() + timedelta(days=2),
+            release_name="Release 999",
+            created_by=self.user,
+            product=self.product,
+            goal=self.goal,
+        )
+
+        reliability = SupportedCharacteristic.objects.filter(key="reliability").first()
+        maintainability = SupportedCharacteristic.objects.filter(key="maintainability").first()
+        security = SupportedCharacteristic.objects.filter(key="security").first()
+
+        repository = Repository.objects.create(
+            id=1,
+            name="Repository_name",
+            key="2023-2-Msg",
+            product=self.product,
+        )
+
+        # (repository, release, characteristic) é único: um cálculo por característica
+        CalculatedCharacteristic.objects.create(
+            release_id=999,
+            characteristic=reliability,
+            repository=repository,
+            value=0.4,
+        )
+        CalculatedCharacteristic.objects.create(
+            release_id=999,
+            characteristic=maintainability,
+            repository=repository,
+            value=0.6,
+        )
+        if security:
+            CalculatedCharacteristic.objects.create(
+                release_id=999,
+                characteristic=security,
+                repository=repository,
+                value=0.9,
+            )
+
+        response = self.client.get(path=f"{self.url_default}999/analysis_data/")
+
+        assert response.status_code == 200
+        characteristics = {c["name"]: c for c in response.json()["accomplished"][0]["characteristics"]}
+        assert characteristics["reliability"]["value"] == 0.4
+        assert characteristics["maintainability"]["value"] == 0.6
+        assert response.json()["accomplished"][0]["norm_diff"] is not None
+        if security:
+            assert characteristics["security"]["diff"] is None
 
     def test_get_analysis_data_release_not_found(self):
         response = self.client.get(path=f"{self.url_default}999/analysis_data/")

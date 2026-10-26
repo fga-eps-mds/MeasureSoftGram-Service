@@ -1,4 +1,7 @@
-from entity_trees.views import ReleaseConfigurationEntitiesRelationshipTreeViewSet
+from entity_trees.views import (
+    QualityModelTreeViewSet,
+    ReleaseConfigurationEntitiesRelationshipTreeViewSet,
+)
 from goals.views import CompareGoalsModelViewSet, CreateGoalModelViewSet, CurrentGoalModelViewSet
 from organizations.routers.routers import Router
 from organizations.views import RepositoriesTSQMIHistoryViewSet, RepositoriesTSQMILatestValueViewSet, RepositoryViewSet
@@ -7,7 +10,14 @@ from release_configuration.views import (
     CurrentReleaseConfigModelViewSet,
     DefaultPreConfigModelViewSet,
 )
-from releases.views import ReleaseModelViewSet
+from releases.views import (
+    AnalysisDistributionViewSet,
+    CorrelationViewSet,
+    EntityAnalysisViewSet,
+    ProductTsqmiReleaseHistoryViewSet,
+    ReleaseDashboardViewSet,
+    ReleaseModelViewSet,
+)
 
 
 class ProductRouter(Router):
@@ -23,6 +33,11 @@ class ProductRouter(Router):
                     "basename": "release-config-entity-relationship-tree",
                 },
                 {
+                    "name": "quality-model-tree",
+                    "view": QualityModelTreeViewSet,
+                    "basename": "product-quality-model-tree",
+                },
+                {
                     "name": "repositories-tsqmi-latest-values",
                     "view": RepositoriesTSQMILatestValueViewSet,
                     "basename": "repositories-tsqmi-latest-values",
@@ -31,6 +46,31 @@ class ProductRouter(Router):
                     "name": "repositories-tsqmi-historical-values",
                     "view": RepositoriesTSQMIHistoryViewSet,
                     "basename": "repositories-tsqmi-historical-values",
+                },
+                {
+                    "name": "repositories-tsqmi-release-history",
+                    "view": ProductTsqmiReleaseHistoryViewSet,
+                    "basename": "repositories-tsqmi-release-history",
+                },
+                {
+                    "name": "entity-analysis",
+                    "view": EntityAnalysisViewSet,
+                    "basename": "entity-analysis",
+                },
+                {
+                    "name": "release-dashboard",
+                    "view": ReleaseDashboardViewSet,
+                    "basename": "release-dashboard",
+                },
+                {
+                    "name": "analysis-distribution",
+                    "view": AnalysisDistributionViewSet,
+                    "basename": "analysis-distribution",
+                },
+                {
+                    "name": "correlation",
+                    "view": CorrelationViewSet,
+                    "basename": "correlation",
                 },
                 {
                     "name": "repositories",

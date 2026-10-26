@@ -106,8 +106,8 @@ Antes de integrar o PR, combine com o responsável pela infraestrutura:
 
 1. Provisionar certificado válido para `msgram.lappis.rocks`, renovação
    automática e recarga do proxy após renovação; adaptar o desafio ACME.
-2. Conferir o template com a topologia real, incluindo WebSockets do Grafana,
-   liberar 443 e redirecionar 80 para HTTPS na borda.
+2. Conferir o template com a topologia real, liberar 443 e redirecionar 80
+   para HTTPS na borda.
 3. Restringir a porta interna e ajustar o upstream para a nova publicação.
 4. Provisionar a chave de cifragem e backup, sem registrá-los em logs.
 5. Atualizar `CSRF_TRUSTED_ORIGINS`, `FRONTEND_PROD_URL`,
