@@ -9,6 +9,7 @@ from django_apscheduler.jobstores import DjangoJobStore, register_events
 from resources import calculate_characteristics
 
 from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
+from entity_trees.services import resolve_release_configuration
 from organizations.models import Repository
 from releases.models import Release
 from subcharacteristics.models import CalculatedSubCharacteristic
@@ -19,10 +20,6 @@ logger = logging.getLogger(__name__)
 # unico worker como dono do scheduler. Qualquer int de 64 bits estavel
 # serve, contanto que seja o mesmo em todos os workers do mesmo banco.
 SCHEDULER_ADVISORY_LOCK_KEY = 728_945_113
-
-
-# Características calculadas no fechamento da release (a TASK07.01.09 troca pela configuração da release).
-RELEASE_CHARACTERISTICS_KEYS = ("reliability", "maintainability")
 
 
 def get_releases_and_create_results():
@@ -39,12 +36,12 @@ def get_releases_and_create_results():
     if not releases:
         return
 
-    characteristics = list(
-        SupportedCharacteristic.objects.filter(key__in=RELEASE_CHARACTERISTICS_KEYS).prefetch_related(
-            "subcharacteristics"
-        )
+    configurations = {release.id: resolve_release_configuration(release.product, release) for release in releases}
+    latest_subcharacteristic_values = _get_latest_subcharacteristic_values(configurations.values())
+    characteristics = SupportedCharacteristic.objects.in_bulk(
+        {key for configuration in configurations.values() for key in configuration.get_characteristics_keys()},
+        field_name="key",
     )
-    latest_subcharacteristic_values = _get_latest_subcharacteristic_values(characteristics)
 
     for release in releases:
         repositories = list(release.repositories.all()) or list(
@@ -54,17 +51,8 @@ def get_releases_and_create_results():
             continue
 
         # os parâmetros não dependem do repositório, então o Core calcula uma vez por release
-        pre_config = release.product.release_configuration.first()
         core_params = {
-            "characteristics": [
-                {
-                    "key": characteristic.key,
-                    "subcharacteristics": _get_subcharacteristics_params(
-                        characteristic, pre_config, latest_subcharacteristic_values
-                    ),
-                }
-                for characteristic in characteristics
-            ]
+            "characteristics": _get_characteristics_params(configurations[release.id], latest_subcharacteristic_values)
         }
         calculate_result = calculate_characteristics(core_params)
         calculated_values = {
@@ -75,49 +63,58 @@ def get_releases_and_create_results():
             _create_release_results(release, repository, characteristics, calculated_values)
 
 
-def _get_latest_subcharacteristic_values(characteristics) -> dict:
+def _get_latest_subcharacteristic_values(configurations) -> dict:
     """
-    Último valor calculado de cada subcaracterística, numa consulta só.
+    Último valor calculado de cada subcaracterística das configurações, numa consulta só.
 
     Mesma regra de `SupportedSubCharacteristic.get_latest_subcharacteristic_value`: o mais recente
     de qualquer repositório. Antes o job carregava todos os cálculos de subcaracterística do banco
     para cada repositório da release.
     """
-    subcharacteristic_ids = {sub.id for char in characteristics for sub in char.subcharacteristics.all()}
+    subcharacteristic_keys = {
+        subcharacteristic["key"]
+        for configuration in configurations
+        for characteristic in configuration.data["characteristics"]
+        for subcharacteristic in characteristic["subcharacteristics"]
+    }
     latest = (
-        CalculatedSubCharacteristic.objects.filter(subcharacteristic_id__in=subcharacteristic_ids)
+        CalculatedSubCharacteristic.objects.filter(subcharacteristic__key__in=subcharacteristic_keys)
         .order_by("subcharacteristic_id", "-created_at")
         .distinct("subcharacteristic_id")
+        .values_list("subcharacteristic__key", "value")
     )
-    return {item.subcharacteristic_id: item.value for item in latest}
+    return dict(latest)
 
 
-def _get_subcharacteristics_params(characteristic, pre_config, latest_values: dict) -> list:
-    """Mesmos parâmetros de `SupportedCharacteristic.get_latest_subcharacteristics_params`."""
+def _get_characteristics_params(configuration, latest_values: dict) -> list:
+    """
+    Características da configuração da release, com o último valor de cada subcaracterística.
+
+    Como no cálculo do modelo (`math_model/services.py`), a subcaracterística sem valor calculado fica
+    de fora, e a característica sem nenhuma também, para não derrubar no Core o cálculo das outras.
+    """
     params = []
-    for subcharacteristic in characteristic.subcharacteristics.all():
-        weight = pre_config.get_subcharacteristic_weight(subcharacteristic.key)
-        if weight:
-            params.append(
-                {
-                    "key": subcharacteristic.key,
-                    "value": latest_values.get(subcharacteristic.id),
-                    "weight": weight,
-                }
-            )
+    for characteristic in configuration.data["characteristics"]:
+        subcharacteristics = [
+            {"key": sub["key"], "value": latest_values[sub["key"]], "weight": sub["weight"]}
+            for sub in characteristic["subcharacteristics"]
+            if sub["weight"] and sub["key"] in latest_values
+        ]
+        if subcharacteristics:
+            params.append({"key": characteristic["key"], "subcharacteristics": subcharacteristics})
     return params
 
 
 def _create_release_results(release, repository, characteristics, calculated_values: dict):
     calculated_characteristics = [
         CalculatedCharacteristic(
-            characteristic=characteristic,
-            value=calculated_values[characteristic.key],
+            characteristic=characteristics[key],
+            value=value,
             repository=repository,
             created_at=timezone.now(),
             release=release,
         )
-        for characteristic in characteristics
+        for key, value in calculated_values.items()
     ]
 
     try:

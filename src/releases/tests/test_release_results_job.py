@@ -1,13 +1,17 @@
+import copy
 from datetime import timedelta
 from unittest import mock
 
 from django.utils import timezone
+from resources import calculate_characteristics
 
 from characteristics.models import CalculatedCharacteristic
 from goals.models import Goal
+from release_configuration.models import ReleaseConfiguration
 from releases.jobs import get_releases_and_create_results
 from releases.models import Release
 from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
+from utils.staticfiles import DEFAULT_PRE_CONFIG
 from utils.tests import APITestCaseExpanded
 
 CORE_RESULT = {
@@ -15,6 +19,14 @@ CORE_RESULT = {
         {"key": "reliability", "value": 0.7},
         {"key": "maintainability", "value": 0.4},
     ]
+}
+
+# último valor de cada subcaracterística da configuração padrão, que tem três características
+SUBCHARACTERISTIC_VALUES = {
+    "testing_status": 0.9,
+    "maturity": 0.5,
+    "modifiability": 0.6,
+    "functional_completeness": 0.3,
 }
 
 
@@ -43,6 +55,21 @@ class GetReleasesAndCreateResultsTestCase(APITestCaseExpanded):
         if repositories:
             release.repositories.set(repositories)
         return release
+
+    def create_subcharacteristic_values(self, values):
+        for key, value in values.items():
+            CalculatedSubCharacteristic.objects.create(
+                subcharacteristic=SupportedSubCharacteristic.objects.get(key=key),
+                repository=self.repository,
+                value=value,
+            )
+
+    def sent_subcharacteristic_weights(self, core):
+        """Pesos das subcaracterísticas enviadas ao Core, por característica."""
+        return {
+            characteristic["key"]: {sub["key"]: sub["weight"] for sub in characteristic["subcharacteristics"]}
+            for characteristic in core.call_args.args[0]["characteristics"]
+        }
 
     def test_does_nothing_when_no_release_ends_today(self, core):
         self.create_release(end_at=timezone.now() - timedelta(days=3))
@@ -109,3 +136,63 @@ class GetReleasesAndCreateResultsTestCase(APITestCaseExpanded):
         }
         self.assertEqual(subcharacteristics["modifiability"], 0.9)
         self.assertEqual(CalculatedCharacteristic.objects.count(), 4)
+
+    def test_calculates_every_characteristic_of_the_release_configuration(self, core):
+        core.side_effect = calculate_characteristics
+        self.create_subcharacteristic_values(SUBCHARACTERISTIC_VALUES)
+        release = self.create_release(end_at=timezone.now(), repositories=[self.repository])
+
+        get_releases_and_create_results()
+
+        results = CalculatedCharacteristic.objects.filter(release=release, repository=self.repository)
+        self.assertEqual(
+            {r.characteristic.key for r in results},
+            {"reliability", "maintainability", "functional_suitability"},
+        )
+
+    def test_uses_the_configuration_of_the_release_instead_of_the_current_one(self, core):
+        end_at = timezone.now()
+        release_data = copy.deepcopy(DEFAULT_PRE_CONFIG)
+        testing_status, maturity = release_data["characteristics"][0]["subcharacteristics"]
+        testing_status["weight"], maturity["weight"] = 80, 20
+        current_data = copy.deepcopy(DEFAULT_PRE_CONFIG)
+        current_data["characteristics"] = current_data["characteristics"][:2]
+        current_data["characteristics"][0]["weight"] = current_data["characteristics"][1]["weight"] = 50
+        self.product.release_configuration.all().delete()
+        ReleaseConfiguration.objects.create(
+            product=self.product, name="Da release", data=release_data, created_at=end_at - timedelta(days=30)
+        )
+        # criada depois do fim da release: é a atual do produto, mas não vale para a release
+        ReleaseConfiguration.objects.create(
+            product=self.product, name="Atual", data=current_data, created_at=end_at + timedelta(hours=1)
+        )
+        self.create_subcharacteristic_values(SUBCHARACTERISTIC_VALUES)
+        self.create_release(end_at=end_at, repositories=[self.repository])
+
+        get_releases_and_create_results()
+
+        self.assertEqual(
+            self.sent_subcharacteristic_weights(core),
+            {
+                "reliability": {"testing_status": 80, "maturity": 20},
+                "maintainability": {"modifiability": 100},
+                "functional_suitability": {"functional_completeness": 100},
+            },
+        )
+
+    def test_characteristic_without_calculated_subcharacteristics_does_not_stop_the_others(self, core):
+        core.side_effect = calculate_characteristics
+        # sem maturity e sem functional_completeness, a única subcaracterística de functional_suitability
+        self.create_subcharacteristic_values({"testing_status": 0.9, "modifiability": 0.6})
+        release = self.create_release(end_at=timezone.now(), repositories=[self.repository])
+
+        get_releases_and_create_results()
+
+        self.assertEqual(
+            self.sent_subcharacteristic_weights(core),
+            {"reliability": {"testing_status": 50}, "maintainability": {"modifiability": 100}},
+        )
+        self.assertEqual(
+            {r.characteristic.key for r in CalculatedCharacteristic.objects.filter(release=release)},
+            {"reliability", "maintainability"},
+        )
