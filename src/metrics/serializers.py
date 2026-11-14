@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.urls import reverse_lazy
 from django.utils.dateparse import parse_date
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 import utils
+from utils.schema import record_schema
 from metrics.models import CollectedMetric, SupportedMetric
 
 
@@ -77,6 +79,7 @@ class LatestCollectedMetricSerializer(utils.RepositoryRecordsMixin, serializers.
         qualifier = self.context.get("qualifier")
         return qs.filter(qualifier=qualifier) if qualifier else qs
 
+    @swagger_serializer_method(record_schema("LatestMetricRecord", "metric_id", latest=True))
     def get_latest(self, obj: SupportedMetric):
         return CollectedMetricSerializer(self.get_entity_latest(obj)).data
 
@@ -115,6 +118,7 @@ class CollectedMetricHistorySerializer(utils.RepositoryRecordsMixin, serializers
             qs = qs.filter(created_at__lte=end_date)
         return qs
 
+    @swagger_serializer_method(record_schema("MetricHistoryRecord", "metric_id")(many=True))
     def get_history(self, obj: SupportedMetric):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
         return CollectedMetricSerializer(self.get_entity_records(obj, MAX), many=True).data

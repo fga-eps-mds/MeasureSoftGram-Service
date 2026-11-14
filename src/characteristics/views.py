@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
@@ -13,6 +14,7 @@ from characteristics.serializers import (
 from organizations.mixins import UserScopedMixin
 from organizations.models import Repository
 from organizations.quality_bands import build_bands, get_limits
+from utils.badge import BADGE_SWAGGER_RESPONSE
 
 
 class SupportedCharacteristicModelViewSet(
@@ -113,6 +115,7 @@ class LatestCalculatedCharacteristicBadgeViewSet(
             product__organization_id=self.kwargs["organization_pk"],
         )
 
+    @swagger_auto_schema(responses={200: BADGE_SWAGGER_RESPONSE})
     def list(self, request, *args, **kwargs):
         from utils.badge import is_stale, render_badge_svg, render_stale_badge_svg
 

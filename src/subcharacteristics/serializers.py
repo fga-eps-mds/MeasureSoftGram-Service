@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.utils import timezone
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 import utils
+from utils.schema import record_schema
 from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
 
 
@@ -55,6 +57,7 @@ class LatestCalculatedSubCharacteristicSerializer(utils.RepositoryRecordsMixin, 
             "latest",
         )
 
+    @swagger_serializer_method(record_schema("LatestSubCharacteristicRecord", "subcharacteristic_id", latest=True))
     def get_latest(self, obj: SupportedSubCharacteristic):
         return CalculatedSubCharacteristicSerializer(self.get_entity_latest(obj)).data
 
@@ -74,6 +77,7 @@ class CalculatedSubCharacteristicHistorySerializer(utils.RepositoryRecordsMixin,
             "history",
         )
 
+    @swagger_serializer_method(record_schema("SubCharacteristicHistoryRecord", "subcharacteristic_id")(many=True))
     def get_history(self, obj: SupportedSubCharacteristic):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
         return CalculatedSubCharacteristicSerializer(self.get_entity_records(obj, MAX), many=True).data

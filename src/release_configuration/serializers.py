@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from release_configuration.models import ReleaseConfiguration
@@ -17,6 +18,7 @@ class ReleaseConfigurationSerializer(serializers.ModelSerializer):
             },
         }
 
+    @swagger_serializer_method(serializers.BooleanField())
     def has_created_config(self, obj):
         return len(ReleaseConfiguration.objects.values("id")) > 1
 

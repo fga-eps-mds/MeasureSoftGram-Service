@@ -1,4 +1,5 @@
 import requests
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, permissions, status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import get_object_or_404
@@ -20,6 +21,11 @@ from organizations.utils import (
     paginate_list,
 )
 from organizations.models import Organization, Product, Repository
+from organizations.response_serializers import (
+    GitHubRepoSerializer,
+    GitLabProjectSerializer,
+    QualityBandsResponseSerializer,
+)
 from organizations.serializers import (
     OrganizationSerializer,
     ProductSerializer,
@@ -80,10 +86,12 @@ class ProductQualityBandsViewSet(UserScopedMixin, viewsets.ViewSet):
             raise PermissionDenied("Só o administrador da organização altera as faixas de qualidade.")
         return product
 
+    @swagger_auto_schema(responses={200: QualityBandsResponseSerializer})
     def retrieve(self, request, *args, **kwargs):
         product = self.get_product()
         return Response(quality_bands.serialize(product, self._can_edit(product)))
 
+    @swagger_auto_schema(request_body=QualityBandsSerializer, responses={200: QualityBandsResponseSerializer})
     def update(self, request, *args, **kwargs):
         product = self._editable_product()
         serializer = QualityBandsSerializer(data=request.data)
@@ -102,6 +110,7 @@ class ProductQualityBandsViewSet(UserScopedMixin, viewsets.ViewSet):
         product.save(update_fields=["quality_band_limits"])
         return Response(quality_bands.serialize(product, can_edit=True))
 
+    @swagger_auto_schema(responses={200: QualityBandsResponseSerializer})
     def destroy(self, request, *args, **kwargs):
         product = self._editable_product()
         product.quality_band_limits = None
@@ -402,6 +411,7 @@ class ImportGitLabPersonalViewSet(viewsets.ViewSet):
 class GitHubReposViewSet(UserScopedMixin, viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(responses={200: GitHubRepoSerializer(many=True)})
     def list(self, request, organization_pk=None):  # noqa: C901
         org = self.get_organization()
         github_org_name = org.github_org_name
@@ -530,6 +540,7 @@ class GitHubReposViewSet(UserScopedMixin, viewsets.ViewSet):
 class GitLabProjectsViewSet(UserScopedMixin, viewsets.ViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(responses={200: GitLabProjectSerializer(many=True)})
     def list(self, request, organization_pk=None):  # noqa: C901
         org = self.get_organization()
 

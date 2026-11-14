@@ -1,5 +1,6 @@
 from core.transformations import diff
 from django.db.models import Prefetch
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
@@ -27,6 +28,17 @@ from releases.entity_analysis import (
 )
 from releases.entity_matrix import MATRIX_LEVELS, get_entity_matrix
 from releases.models import Release
+from releases.response_serializers import (
+    AnalysisDistributionSerializer,
+    CorrelationSerializer,
+    EntityAnalysisSerializer,
+    EntityCatalogSerializer,
+    EntityMatrixSerializer,
+    ReleaseAnalysisDataSerializer,
+    ReleaseRepositoriesTsqmiSerializer,
+    ReleaseSummarySerializer,
+    TsqmiReleaseHistorySerializer,
+)
 from releases.serializers import CheckReleaseSerializer, ReleaseAllSerializer, ReleaseSerializer
 from releases.service import (
     calculate_diff,
@@ -164,6 +176,7 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
         else:
             return Response({"detail": RELEASE_NOT_FOUND}, status=404)
 
+    @swagger_auto_schema(responses={200: ReleaseAnalysisDataSerializer})
     @action(detail=True, methods=["get"])
     def analysis_data(self, request, pk=None, *args, **kwargs):
         release_id = pk
@@ -234,6 +247,7 @@ class EntityAnalysisViewSet(ReleaseScopedMixin, viewsets.ViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    @swagger_auto_schema(responses={200: EntityAnalysisSerializer})
     def list(self, request, *args, **kwargs):
         level = request.query_params.get("level")
         key = request.query_params.get("key")
@@ -258,6 +272,7 @@ class EntityAnalysisViewSet(ReleaseScopedMixin, viewsets.ViewSet):
 
         return Response(analysis)
 
+    @swagger_auto_schema(responses={200: EntityCatalogSerializer})
     @action(detail=False, methods=["get"])
     def entities(self, request, *args, **kwargs):
         release = self.get_release()
@@ -270,6 +285,7 @@ class EntityAnalysisViewSet(ReleaseScopedMixin, viewsets.ViewSet):
 
         return Response(get_entity_catalog(release, configuration, self.get_visible_repositories(release.product)))
 
+    @swagger_auto_schema(responses={200: EntityMatrixSerializer})
     @action(detail=False, methods=["get"])
     def matrix(self, request, *args, **kwargs):
         level = request.query_params.get("level")
@@ -296,6 +312,7 @@ class AnalysisDistributionViewSet(ReleaseScopedMixin, viewsets.ViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    @swagger_auto_schema(responses={200: AnalysisDistributionSerializer})
     def list(self, request, *args, **kwargs):
         level = request.query_params.get("level")
         key = request.query_params.get("key")
@@ -335,6 +352,7 @@ class CorrelationViewSet(UserScopedMixin, viewsets.ViewSet):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
+    @swagger_auto_schema(responses={200: CorrelationSerializer})
     def list(self, request, *args, **kwargs):
         level = request.query_params.get("level", CORRELATION_LEVELS[0])
         repository_id = request.query_params.get("repository_id")
@@ -361,6 +379,7 @@ class ReleaseDashboardViewSet(ReleaseScopedMixin, viewsets.ViewSet):
 
     permission_classes = (IsAuthenticated,)
 
+    @swagger_auto_schema(responses={200: ReleaseSummarySerializer})
     @action(detail=False, methods=["get"])
     def summary(self, request, *args, **kwargs):
         release = self.get_release()
@@ -371,6 +390,7 @@ class ReleaseDashboardViewSet(ReleaseScopedMixin, viewsets.ViewSet):
         visible = self.get_visible_repositories(release.product)
         return Response(get_release_summary(release, configuration, visible))
 
+    @swagger_auto_schema(responses={200: ReleaseRepositoriesTsqmiSerializer})
     @action(detail=False, methods=["get"])
     def characteristics(self, request, *args, **kwargs):
         release = self.get_release()
@@ -389,6 +409,7 @@ class ProductTsqmiReleaseHistoryViewSet(UserScopedMixin, viewsets.ViewSet):
 
     permission_classes = (IsAuthenticated,)
 
+    @swagger_auto_schema(responses={200: TsqmiReleaseHistorySerializer})
     def list(self, request, *args, **kwargs):
         product = self.get_product()
         repository_id = request.query_params.get("repository_id")

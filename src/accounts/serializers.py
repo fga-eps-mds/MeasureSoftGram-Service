@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
@@ -46,14 +47,17 @@ class AccountsRetrieveSerializer(serializers.ModelSerializer):
         if self.instance.socialaccount_set.exists():
             return self.instance.socialaccount_set.first()
 
+    @swagger_serializer_method(serializers.CharField(allow_null=True, allow_blank=True))
     def get_avatar_url(self, obj):
         if self.socialaccount and isinstance(self.socialaccount.extra_data, dict):
             return self.socialaccount.extra_data.get("avatar_url")
 
+    @swagger_serializer_method(serializers.CharField(allow_null=True, allow_blank=True))
     def get_repos_url(self, obj):
         if self.socialaccount and isinstance(self.socialaccount.extra_data, dict):
             return self.socialaccount.extra_data.get("repos_url") or self.socialaccount.extra_data.get("web_url")
 
+    @swagger_serializer_method(serializers.CharField(allow_null=True, allow_blank=True))
     def get_organizations_url(self, obj):
         if self.socialaccount and isinstance(self.socialaccount.extra_data, dict):
             return self.socialaccount.extra_data.get("organizations_url")

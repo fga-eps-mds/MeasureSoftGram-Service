@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -5,7 +7,7 @@ from rest_framework.reverse import reverse
 
 from accounts.models import CustomUser
 from goals.models import Goal
-from goals.serializers import AllGoalsSerializer, GoalSerializer
+from goals.serializers import AllGoalsSerializer, GoalResponseSerializer, GoalSerializer
 from organizations.mixins import UserScopedMixin
 
 
@@ -47,6 +49,7 @@ class GoalModelViewSetMixin(
         return Response(serializer.data, status.HTTP_200_OK)
 
 
+@method_decorator(name="list", decorator=swagger_auto_schema(responses={200: GoalResponseSerializer}))
 class CurrentGoalModelViewSet(GoalModelViewSetMixin):
     serializer_class = GoalSerializer
 
@@ -54,6 +57,7 @@ class CurrentGoalModelViewSet(GoalModelViewSetMixin):
         return Goal.objects.filter(product=product).first()
 
 
+@method_decorator(name="list", decorator=swagger_auto_schema(responses={200: AllGoalsSerializer(many=True)}))
 class CompareGoalsModelViewSet(GoalModelViewSetMixin):
     serializer_class = AllGoalsSerializer
     serializer_args = {"many": True}

@@ -3,11 +3,13 @@ from urllib.parse import urlparse
 import requests
 from django.conf import settings
 from requests.exceptions import RequestException
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework.validators import UniqueValidator
 
 import utils
+from utils.schema import record_schema
 from organizations.access import fresh_access_q, is_member, visible_repositories
 from organizations.models import Organization, Product, Repository
 from tsqmi.models import TSQMI
@@ -57,6 +59,7 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
             "gitlab_user_id": {"read_only": True},
         }
 
+    @swagger_serializer_method(serializers.ListField(child=serializers.CharField()))
     def get_products(self, obj: Organization):
         products_urls = []
         products = obj.products.all()
@@ -75,6 +78,7 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
             products_urls.append(url)
         return products_urls
 
+    @swagger_serializer_method(serializers.DictField(child=serializers.CharField()))
     def get_actions(self, obj: Organization):
         create_a_new_product_url = reverse(
             "product-list",
@@ -143,6 +147,7 @@ class ProductSerializer(serializers.ModelSerializer):
             request=self.context["request"],
         )
 
+    @swagger_serializer_method(serializers.ListField(child=serializers.CharField()))
     def get_repositories(self, obj: Product):
         """
         Retorna as URLS dos repositórios desse produto
@@ -172,6 +177,7 @@ class ProductSerializer(serializers.ModelSerializer):
             request=self.context["request"],
         )
 
+    @swagger_serializer_method(serializers.DictField(child=serializers.CharField()))
     def get_actions(self, obj: Product):
         """
         Retorna o valor atuais das entidades associadas a um produto
@@ -359,6 +365,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             request=self.context["request"],
         )
 
+    @swagger_serializer_method(serializers.DictField(child=serializers.CharField()))
     def get_actions(self, obj):
         # Lista todas as ações que podem ser feitas no repositório
 
@@ -368,6 +375,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "calculate-math-model": calculate_math_model_url,
         }
 
+    @swagger_serializer_method(serializers.DictField(child=serializers.CharField()))
     def get_historical_values(self, obj: Repository):
         """
         Gera a URL dos valores coletados históricos desse repositório
@@ -405,6 +413,7 @@ class RepositorySerializer(serializers.HyperlinkedModelSerializer):
             "tsqmi": tsqmi_historical_values_url,
         }
 
+    @swagger_serializer_method(serializers.DictField(child=serializers.CharField()))
     def get_latest_values(self, obj: Repository):
         """
         Gera a URL dos últimos valores coletados desse repositório
@@ -453,6 +462,7 @@ class RepositoryTSQMILatestValueSerializer(serializers.ModelSerializer):
         model = Repository
         fields = ("id", "url", "name", "current_tsqmi")
 
+    @swagger_serializer_method(record_schema("LatestTSQMIRecord", latest=True))
     def get_current_tsqmi(self, repository: Repository):
         tsqmi = repository.calculated_tsqmis.first()
         return TSQMISerializer(tsqmi).data if tsqmi else {}
@@ -494,6 +504,7 @@ class RepositoriesTSQMIHistorySerializer(serializers.ModelSerializer):
             request=self.context["request"],
         )
 
+    @swagger_serializer_method(TSQMISerializer(many=True))
     def get_history(self, obj: Repository):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
 

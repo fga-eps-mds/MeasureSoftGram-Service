@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from accounts.models import CustomUser
@@ -32,13 +33,16 @@ class AllGoalsSerializer(serializers.ModelSerializer):
             "accomplished",
         )
 
+    @swagger_serializer_method(serializers.CharField())
     def get_created_by(self, obj):
         user = CustomUser.objects.get(id=obj.created_by.id)
         return user.username
 
+    @swagger_serializer_method(serializers.DictField(child=serializers.FloatField()))
     def get_goal(self, obj):
         return obj.data
 
+    @swagger_serializer_method(serializers.DictField(child=serializers.FloatField()))
     def get_accomplished(self, obj):
         chars = (
             CalculatedCharacteristic.objects.filter(
@@ -83,6 +87,7 @@ class GoalSerializer(serializers.ModelSerializer):
             "allow_dynamic",
         )
 
+    @swagger_serializer_method(serializers.DictField(child=serializers.FloatField()))
     def get_data(self, obj):
         return obj.data
 
@@ -178,3 +183,12 @@ class GoalSerializer(serializers.ModelSerializer):
         self.validated_data.pop("changes")
         self.validated_data.pop("allow_dynamic")
         return super().save(data=data, **kwargs)
+
+
+class GoalResponseSerializer(GoalSerializer):
+    """Só documentação: o Goal como as views o devolvem, sem o `changes` (só de escrita)."""
+
+    changes = None
+
+    class Meta(GoalSerializer.Meta):
+        fields = ("id", "data", "allow_dynamic")

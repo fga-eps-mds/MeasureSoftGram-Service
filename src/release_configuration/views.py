@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 from staticfiles import SUPPORTED_MEASURES
@@ -16,6 +17,7 @@ class CurrentReleaseConfigModelViewSet(
     queryset = ReleaseConfiguration.objects.all()
     serializer_class = ReleaseConfigurationSerializer
 
+    @swagger_auto_schema(responses={200: ReleaseConfigurationSerializer})
     def list(self, request, *args, **kwargs):
         # first() == mais recente == pre configuração atual
         product = self.get_product()
@@ -32,6 +34,7 @@ class DefaultPreConfigModelViewSet(
     queryset = ReleaseConfiguration.objects.all()
     serializer_class = ReleaseConfigurationSerializer
 
+    @swagger_auto_schema(responses={200: DefaultPreConfigSerializer})
     def list(self, request, *args, **kwargs):
         pre_config = staticfiles.DEFAULT_PRE_CONFIG
         serializer = DefaultPreConfigSerializer(pre_config)

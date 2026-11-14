@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 from characteristics.models import SupportedCharacteristic
@@ -5,6 +6,29 @@ from characteristics.serializers import SupportedCharacteristicSerializer
 from measures.serializers import SupportedMeasureSerializer
 from release_configuration.models import ReleaseConfiguration
 from subcharacteristics.serializers import SupportedSubCharacteristicSerializer
+
+
+class SubCharacteristicEntityRelationshipTreeSerializer(
+    serializers.ModelSerializer,
+):
+    measures = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SupportedCharacteristic
+        fields = (
+            "id",
+            "name",
+            "key",
+            "description",
+            "measures",
+        )
+
+    @swagger_serializer_method(SupportedMeasureSerializer(many=True))
+    def get_measures(self, obj: SupportedCharacteristic):
+        return SupportedMeasureSerializer(
+            obj.measures.all(),
+            many=True,
+        ).data
 
 
 class CharacteristicEntityRelationshipTreeSerializer(
@@ -26,31 +50,10 @@ class CharacteristicEntityRelationshipTreeSerializer(
             "subcharacteristics",
         )
 
+    @swagger_serializer_method(SubCharacteristicEntityRelationshipTreeSerializer(many=True))
     def get_subcharacteristics(self, obj: SupportedCharacteristic):
         return SubCharacteristicEntityRelationshipTreeSerializer(
             obj.subcharacteristics.all(),
-            many=True,
-        ).data
-
-
-class SubCharacteristicEntityRelationshipTreeSerializer(
-    serializers.ModelSerializer,
-):
-    measures = serializers.SerializerMethodField()
-
-    class Meta:
-        model = SupportedCharacteristic
-        fields = (
-            "id",
-            "name",
-            "key",
-            "description",
-            "measures",
-        )
-
-    def get_measures(self, obj: SupportedCharacteristic):
-        return SupportedMeasureSerializer(
-            obj.measures.all(),
             many=True,
         ).data
 

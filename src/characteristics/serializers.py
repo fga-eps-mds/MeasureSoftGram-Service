@@ -1,7 +1,9 @@
 from django.conf import settings
+from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
 import utils
+from utils.schema import record_schema
 from characteristics.models import BalanceMatrix, CalculatedCharacteristic, SupportedCharacteristic
 
 
@@ -76,6 +78,7 @@ class LatestCalculatedCharacteristicSerializer(utils.RepositoryRecordsMixin, ser
             "latest",
         )
 
+    @swagger_serializer_method(record_schema("LatestCharacteristicRecord", "characteristic_id", latest=True))
     def get_latest(self, obj: SupportedCharacteristic):
         return CalculatedCharacteristicSerializer(self.get_entity_latest(obj)).data
 
@@ -95,6 +98,7 @@ class CalculatedCharacteristicHistorySerializer(utils.RepositoryRecordsMixin, se
             "history",
         )
 
+    @swagger_serializer_method(record_schema("CharacteristicHistoryRecord", "characteristic_id")(many=True))
     def get_history(self, obj: SupportedCharacteristic):
         MAX = settings.MAXIMUM_NUMBER_OF_HISTORICAL_RECORDS
         return CalculatedCharacteristicSerializer(self.get_entity_records(obj, MAX), many=True).data

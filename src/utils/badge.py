@@ -4,6 +4,7 @@ from html import escape
 from django.conf import settings
 from django.http import HttpResponse
 from django.utils import timezone
+from drf_yasg import openapi
 
 from organizations.quality_bands import BAND_COLORS, get_band
 
@@ -88,3 +89,7 @@ def render_stale_badge_svg(label):
         label=label,
     )
     return HttpResponse(svg, content_type="image/svg+xml")
+
+
+# o corpo é SVG, não JSON: sem schema, o E2E do Front não valida o corpo
+BADGE_SWAGGER_RESPONSE = openapi.Response("Badge em SVG (image/svg+xml).")

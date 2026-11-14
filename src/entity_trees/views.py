@@ -6,11 +6,13 @@ Isso é:
 * Subcaracterísticas com medidas
 """
 
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
 from characteristics.models import SupportedCharacteristic
 from entity_trees.serializers import CharacteristicEntityRelationshipTreeSerializer, pre_config_to_entity_tree
+from entity_trees.response_serializers import QualityModelTreeSerializer
 from entity_trees.services import build_quality_model_tree, resolve_release_configuration
 from organizations.mixins import UserScopedMixin
 from releases.models import Release
@@ -27,6 +29,7 @@ class SupportedEntitiesRelationshipTreeViewSet(
     serializer_class = CharacteristicEntityRelationshipTreeSerializer
     queryset = SupportedCharacteristic.objects.all()
 
+    @swagger_auto_schema(responses={200: CharacteristicEntityRelationshipTreeSerializer(many=True)})
     def list(self, request, *args, **kwargs):
         qs = SupportedCharacteristic.objects.all().prefetch_related(
             "subcharacteristics",
@@ -54,6 +57,7 @@ class ReleaseConfigurationEntitiesRelationshipTreeViewSet(
     serializer_class = CharacteristicEntityRelationshipTreeSerializer
     queryset = SupportedCharacteristic.objects.all()
 
+    @swagger_auto_schema(responses={200: CharacteristicEntityRelationshipTreeSerializer(many=True)})
     def list(self, request, *args, **kwargs):
         product = self.get_product()
         current_pre_config = product.release_configuration.first()
@@ -71,6 +75,7 @@ class QualityModelTreeViewSet(
     (ou da configuração atual, caso release_id não seja informado).
     """
 
+    @swagger_auto_schema(responses={200: QualityModelTreeSerializer(many=True)})
     def list(self, request, *args, **kwargs):
         product = self.get_product()
 

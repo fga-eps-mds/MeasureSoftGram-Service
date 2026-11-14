@@ -1,3 +1,5 @@
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
@@ -16,6 +18,11 @@ class CalculateMathModelViewSet(
 ):
     """ViewSet para cálculo do modelo matemático do MeasureSoftGram."""
 
+    # sem serializer_class: o corpo é o JSON do coletor, lido por MathModelServices.build_collected_metrics
+    @swagger_auto_schema(
+        request_body=openapi.Schema(type=openapi.TYPE_OBJECT, description="Métricas coletadas (JSON do coletor)."),
+        responses={201: openapi.Response("Valores calculados e gravados.")},
+    )
     def create(self, request, *args, **kwargs):
         repository = self.get_repository()
         product = self.get_product()

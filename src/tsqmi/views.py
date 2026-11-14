@@ -1,3 +1,4 @@
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, viewsets
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny
@@ -7,7 +8,8 @@ from organizations.mixins import UserScopedMixin
 from organizations.models import Repository
 from organizations.quality_bands import build_bands, get_limits
 from tsqmi.serializers import TSQMISerializer
-from utils.badge import is_stale, render_badge_svg, render_stale_badge_svg
+from utils.badge import BADGE_SWAGGER_RESPONSE, is_stale, render_badge_svg, render_stale_badge_svg
+from utils.schema import record_schema
 
 
 class LatestCalculatedTSQMIViewSet(
@@ -21,6 +23,8 @@ class LatestCalculatedTSQMIViewSet(
         repository = self.get_repository()
         return repository.calculated_tsqmis.all()
 
+    # sem TSQMI calculado, o serializer devolve {"created_at": null}
+    @swagger_auto_schema(responses={200: record_schema("LatestRepositoryTSQMI", latest=True)})
     def list(self, request, *args, **kwargs):
         repository = self.get_repository()
         latest_tsqmi = repository.calculated_tsqmis.first()
@@ -44,6 +48,7 @@ class LatestCalculatedTSQMIBadgeViewSet(
             product__organization_id=self.kwargs["organization_pk"],
         )
 
+    @swagger_auto_schema(responses={200: BADGE_SWAGGER_RESPONSE})
     def list(self, request, *args, **kwargs):
         repository = self.get_repository()
         latest_tsqmi = repository.calculated_tsqmis.first()

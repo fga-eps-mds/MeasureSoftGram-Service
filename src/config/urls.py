@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
-from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 from rest_framework_nested import routers
@@ -13,6 +12,7 @@ from characteristics.views import (
     SupportedCharacteristicModelViewSet,
 )
 from config.health import health_check
+from config.swagger import api_info
 from entity_trees.views import SupportedEntitiesRelationshipTreeViewSet
 from measures.views import SupportedMeasureModelViewSet
 from metrics.views import SupportedMetricModelViewSet
@@ -76,11 +76,7 @@ repo_router = RepoRouter(prod_router.nested_router)
 
 
 schema_view = get_schema_view(
-    openapi.Info(
-        title="MeasureSoftGram API",
-        default_version="v1",
-        description="Swagger dos endpoints da API do measuresoftgram",
-    ),
+    api_info,
     public=True,
     permission_classes=(permissions.AllowAny,),
 )

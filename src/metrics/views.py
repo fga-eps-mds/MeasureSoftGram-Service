@@ -51,7 +51,9 @@ class LatestCollectedMetricModelViewSet(
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context["qualifier"] = self.request.query_params.get("qualifier")
+        # sem request quando o drf_yasg gera o schema
+        params = self.request.query_params if self.request else {}
+        context["qualifier"] = params.get("qualifier")
         return context
 
 
@@ -76,7 +78,8 @@ class CollectedMetricHistoryModelViewSet(
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context["start_at"] = self.request.query_params.get("start_at")
-        context["end_at"] = self.request.query_params.get("end_at")
-        context["qualifier"] = self.request.query_params.get("qualifier")
+        params = self.request.query_params if self.request else {}
+        context["start_at"] = params.get("start_at")
+        context["end_at"] = params.get("end_at")
+        context["qualifier"] = params.get("qualifier")
         return context
