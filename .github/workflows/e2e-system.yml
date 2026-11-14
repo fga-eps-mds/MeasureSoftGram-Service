@@ -1,0 +1,11 @@
+name: E2E de sistema
+# Front, Service e Postgres reais (suíte do Platform) com este commit do Service, a cada merge na develop
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+jobs:
+  e2e-system:
+    uses: fga-eps-mds/2026.2-MeasureSoftGram-Platform/.github/workflows/e2e-system.yml@main
+    with:
+      service_ref: ${{ github.sha }}
