@@ -229,6 +229,8 @@ class ImportOrganizationViewSet(viewsets.ViewSet):
             )
         return r.json(), None
 
+    # a organização criada ou a que já existia, sempre com 201
+    @swagger_auto_schema(responses={201: OrganizationSerializer})
     def create(self, request):
         github_org_name = request.data.get("github_org_name")
         if not github_org_name:
@@ -308,6 +310,8 @@ class ImportGitLabGroupViewSet(viewsets.ViewSet):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    # a organização criada ou a que já existia, sempre com 201
+    @swagger_auto_schema(responses={201: OrganizationSerializer})
     def create(self, request):
         group_id = request.data.get("gitlab_group_id")
         if not group_id:
@@ -363,6 +367,8 @@ class ImportGitLabPersonalViewSet(viewsets.ViewSet):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    # a organização criada ou a que já existia, sempre com 201
+    @swagger_auto_schema(responses={201: OrganizationSerializer})
     def create(self, request):
         user = request.user
         token = user.gitlab_access_token
