@@ -202,3 +202,10 @@ class CollectedMetric(models.Model):
         related_name="collected_metrics",
         on_delete=models.CASCADE,
     )
+    analysis = models.ForeignKey(
+        to="math_model.QualityAnalysis",
+        related_name="collected_metrics",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )

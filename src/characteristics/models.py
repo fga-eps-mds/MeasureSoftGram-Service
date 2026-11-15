@@ -164,7 +164,6 @@ class CalculatedCharacteristic(models.Model):
         # Aqui estamos ordenando na ordem decrescente, ou seja, nos querysets
         # os registros mais recentes vem primeiro (qs.first() == mais recente)
         ordering = ["-created_at"]
-        unique_together = ["repository", "release", "characteristic"]
         indexes = [
             models.Index(fields=["repository", "characteristic", "-created_at"]),
         ]
@@ -184,6 +183,13 @@ class CalculatedCharacteristic(models.Model):
     )
     release = models.ForeignKey(
         to="releases.Release",
+        related_name="calculated_characteristics",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    analysis = models.ForeignKey(
+        to="math_model.QualityAnalysis",
         related_name="calculated_characteristics",
         on_delete=models.CASCADE,
         null=True,

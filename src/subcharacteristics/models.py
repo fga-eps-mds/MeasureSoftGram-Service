@@ -128,3 +128,10 @@ class CalculatedSubCharacteristic(models.Model):
         related_name="calculated_subcharacteristics",
         on_delete=models.CASCADE,
     )
+    analysis = models.ForeignKey(
+        to="math_model.QualityAnalysis",
+        related_name="calculated_subcharacteristics",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )

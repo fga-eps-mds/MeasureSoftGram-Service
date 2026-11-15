@@ -23,3 +23,10 @@ class TSQMI(models.Model):
         related_name="calculated_tsqmis",
         on_delete=models.CASCADE,
     )
+    analysis = models.ForeignKey(
+        to="math_model.QualityAnalysis",
+        related_name="tsqmis",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
