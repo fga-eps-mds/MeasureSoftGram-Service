@@ -206,6 +206,4 @@ class CollectedMetric(models.Model):
         to="math_model.QualityAnalysis",
         related_name="collected_metrics",
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
     )

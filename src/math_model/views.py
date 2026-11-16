@@ -3,6 +3,10 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
 
+from entity_trees.services import resolve_release_configuration
+from releases.analyses import resolve_active_release
+from django.utils import timezone
+
 from math_model.services import MathModelServices
 from organizations.mixins import UserScopedMixin
 from release_configuration.serializers import ReleaseConfigurationSerializer
@@ -28,7 +32,14 @@ class CalculateMathModelViewSet(
         product = self.get_product()
         services = MathModelServices(repository, product)
 
-        release_configuration = product.release_configuration.first()
+        try:
+            services.release = resolve_active_release(repository, timezone.now())
+            services.release_resolved = True
+        except CalculateModelException as exc:
+            return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        release_configuration = resolve_release_configuration(product, services.release)
+        if release_configuration is None:
+            return Response({"error": "Produto sem configuração do modelo."}, status=status.HTTP_400_BAD_REQUEST)
         config_serializer = ReleaseConfigurationSerializer(release_configuration)
         char_keys, subchar_keys, measure_keys = parse_release_configuration(
             config_serializer.data,

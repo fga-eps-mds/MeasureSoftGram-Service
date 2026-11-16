@@ -40,11 +40,6 @@ fi
 echo '======= COLLECTING STATIC FILES'
 python3 manage.py collectstatic --noinput
 
-# ATENCAO scheduler: o APScheduler sobe no ready() do AppConfig, uma vez
-# por worker do gunicorn. A eleicao de lider via advisory lock do Postgres
-# (releases/jobs.py:acquire_scheduler_lock) garante que so 1 worker starta
-# o cron mesmo com GUNICORN_WORKERS>1. Se o banco nao suportar advisory
-# lock, force GUNICORN_WORKERS=1.
 # Threads (gthread): uma pagina do front dispara de 7 a 21 chamadas de uma vez;
 # com workers sincronos, so GUNICORN_WORKERS delas eram atendidas por vez e uma
 # consulta lenta prendia o worker inteiro. GUNICORN_THREADS=1 volta ao sincrono.

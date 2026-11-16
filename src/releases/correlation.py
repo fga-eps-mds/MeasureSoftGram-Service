@@ -15,7 +15,7 @@ from characteristics.models import CalculatedCharacteristic
 from entity_trees.services import resolve_release_configuration
 from releases.dashboard import get_configured_keys, get_repository_releases, serialize_release
 from releases.entity_analysis import CHARACTERISTIC, SUBCHARACTERISTIC, get_entity_names
-from releases.service import get_latest_values_in_release_window
+from releases.service import get_latest_analysis_values
 from subcharacteristics.models import CalculatedSubCharacteristic
 
 LEVELS = (CHARACTERISTIC, SUBCHARACTERISTIC)
@@ -100,12 +100,11 @@ def critical_value(n: int) -> float:
 
 def _get_release_values(level: str, release, repository, keys: list) -> dict:
     if level == CHARACTERISTIC:
-        # as linhas do fechamento da release (releases/jobs.py) não são análises
-        queryset = CalculatedCharacteristic.objects.filter(release__isnull=True, characteristic__key__in=keys)
+        queryset = CalculatedCharacteristic.objects.filter(characteristic__key__in=keys)
     else:
         queryset = CalculatedSubCharacteristic.objects.filter(subcharacteristic__key__in=keys)
 
-    return get_latest_values_in_release_window(queryset.filter(repository=repository), release, level)
+    return get_latest_analysis_values(queryset.filter(repository=repository), release, level)
 
 
 def _serialize_pair(keys: list, result: dict, row: int, column: int) -> dict:

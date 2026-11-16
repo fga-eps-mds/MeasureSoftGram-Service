@@ -96,3 +96,24 @@ class APITestCaseExpanded(APITestCase):
             return get_user_model().objects.create(**maybe_user)
 
         return check_user[0]
+
+
+def create_test_analysis(repository, created_at=None, release_id=None):
+    """Fixtures antigas: datas explícitas do cenário definem o vínculo da AQ.
+
+    Apenas para testes. O código de produção não reconstrói release por janela.
+    Camadas com o mesmo repo/instante pertencem à mesma execução da fixture.
+    """
+    from django.utils import timezone
+    from math_model.models import QualityAnalysis
+    from releases.analyses import resolve_active_release
+
+    at = created_at or timezone.now().replace(hour=12, minute=0, second=0, microsecond=0)
+    if release_id is None and created_at is not None:
+        release = resolve_active_release(repository, at)
+        release_id = release.pk if release else None
+    return QualityAnalysis.objects.get_or_create(
+        repository=repository,
+        created_at=at,
+        release_id=release_id,
+    )[0]

@@ -27,6 +27,9 @@ from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from math_model.models import QualityAnalysis
+from django.db import transaction
+
 from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from goals.models import Equalizer, Goal
 from measures.models import CalculatedMeasure
@@ -74,14 +77,15 @@ def e2e_credentials():
 class Command(BaseCommand):
     help = "Cria os dados fixos do E2E de sistema (usuário, organização, produto, repositório, análises e release)"
 
+    @transaction.atomic
     def handle(self, *args, **kwargs):
         # metodologia (métricas, medidas, características suportadas): idempotente
         call_command("load_initial_data", stdout=self.stdout)
 
         user = self.create_user()
         repository = self.create_repository(user)
-        self.create_analyses(repository)
-        self.create_release(repository, user)
+        release = self.create_release(repository, user)
+        self.create_analyses(repository, release)
 
         username = e2e_credentials()[0]
         self.stdout.write(
@@ -119,19 +123,21 @@ class Command(BaseCommand):
         )
         return repository
 
-    def create_analyses(self, repository):
-        for model in (
-            TSQMI,
-            CalculatedCharacteristic,
-            CalculatedSubCharacteristic,
-            CalculatedMeasure,
-            CollectedMetric,
-        ):
-            model.objects.filter(repository=repository).delete()
-
+    def create_analyses(self, repository, release):
+        repository.quality_analyses.all().delete()
         dates = analysis_dates()
+        analyses = {
+            date: QualityAnalysis.objects.create(
+                repository=repository,
+                release=release,
+                created_at=date,
+                release_configuration=repository.product.release_configuration.first(),
+            )
+            for date in dates
+        }
         TSQMI.objects.bulk_create(
-            TSQMI(value=value, created_at=date, repository=repository) for date, value in zip(dates, VALUES["tsqmi"])
+            TSQMI(value=value, created_at=date, repository=repository, analysis=analyses[date])
+            for date, value in zip(dates, VALUES["tsqmi"])
         )
 
         characteristics = (
@@ -141,10 +147,10 @@ class Command(BaseCommand):
         )
         for characteristic in characteristics:
             for date, value in zip(dates, VALUES[characteristic.key]):
-                self.create_tree(repository, characteristic, date, value)
+                self.create_tree(repository, characteristic, date, value, analyses[date])
 
-    def create_tree(self, repository, characteristic, date, value):
-        common = {"value": value, "created_at": date, "repository": repository}
+    def create_tree(self, repository, characteristic, date, value, analysis):
+        common = {"analysis": analysis, "value": value, "created_at": date, "repository": repository}
         CalculatedCharacteristic.objects.create(characteristic=characteristic, **common)
         for subcharacteristic in characteristic.subcharacteristics.all():
             CalculatedSubCharacteristic.objects.create(subcharacteristic=subcharacteristic, **common)
@@ -153,6 +159,7 @@ class Command(BaseCommand):
                 for metric in measure.metrics.all():
                     metric_value = value if metric.metric_type == "PERCENT" else round(value * 100)
                     CollectedMetric.objects.get_or_create(
+                        analysis=analysis,
                         metric=metric,
                         repository=repository,
                         created_at=date,
@@ -180,3 +187,4 @@ class Command(BaseCommand):
             goal=goal,
         )
         release.repositories.add(repository)
+        return release

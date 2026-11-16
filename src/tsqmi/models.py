@@ -27,6 +27,4 @@ class TSQMI(models.Model):
         to="math_model.QualityAnalysis",
         related_name="tsqmis",
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
     )

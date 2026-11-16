@@ -1,3 +1,4 @@
+from utils.tests import create_test_analysis
 from datetime import datetime
 
 from django.utils import timezone
@@ -54,6 +55,7 @@ class ReleaseDashboardTestCase(APITestCaseExpanded):
 
     def calculated_characteristic(self, repository, key, value, created_at):
         return CalculatedCharacteristic.objects.create(
+            analysis=create_test_analysis(repository, created_at),
             characteristic=SupportedCharacteristic.objects.get(key=key),
             repository=repository,
             value=value,
@@ -62,6 +64,7 @@ class ReleaseDashboardTestCase(APITestCaseExpanded):
 
     def collected_metric(self, repository, key, value, created_at, qualifier="TRK", path=None):
         return CollectedMetric.objects.create(
+            analysis=create_test_analysis(repository, created_at),
             metric=SupportedMetric.objects.get(key=key),
             repository=repository,
             value=value,
@@ -71,7 +74,12 @@ class ReleaseDashboardTestCase(APITestCaseExpanded):
         )
 
     def tsqmi(self, repository, value, created_at):
-        return TSQMI.objects.create(repository=repository, value=value, created_at=created_at)
+        return TSQMI.objects.create(
+            analysis=create_test_analysis(repository, created_at),
+            repository=repository,
+            value=value,
+            created_at=created_at,
+        )
 
     def client_for(self, user):
         client = APIClient()
@@ -118,6 +126,7 @@ class ReleaseSummaryTestCase(ReleaseDashboardTestCase):
         for day in (5, 10, 15):
             self.calculated_characteristic(self.api, "reliability", 0.5, local_datetime(2026, 3, day))
             CalculatedMeasure.objects.create(
+                analysis=create_test_analysis(self.api, local_datetime(2026, 3, day)),
                 measure=SupportedMeasure.objects.get(key="test_coverage"),
                 repository=self.api,
                 value=0.5,
@@ -332,14 +341,14 @@ class ProductTsqmiReleaseHistoryTestCase(ReleaseDashboardTestCase):
         self.assertEqual(data["releases"], [])
         self.assertEqual([repository["history"] for repository in data["repositories"]], [[], []])
 
-    def test_history_appears_once_product_has_releases(self):
+    def test_new_release_does_not_reassign_previous_analyses(self):
         Release.objects.filter(product=self.product).delete()
         self.tsqmi(self.api, 0.5, local_datetime(2026, 3, 5))
         self.assertEqual(self.get_history()["releases"], [])
 
         self.create_release("v1.0", local_datetime(2026, 3, 1), local_datetime(2026, 3, 31))
 
-        self.assertEqual(self.values_of(self.get_history(), self.api), [0.5])
+        self.assertEqual(self.values_of(self.get_history(), self.api), [None])
 
     def test_repository_id_filters_a_single_repository(self):
         data = self.get_history(repository_id=self.web.id)

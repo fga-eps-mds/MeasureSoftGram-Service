@@ -1,3 +1,4 @@
+from utils.tests import create_test_analysis
 from datetime import date, timedelta
 
 from rest_framework.authtoken.models import Token
@@ -419,14 +420,14 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         maintainability = SupportedCharacteristic.objects.filter(key="maintainability").first()
 
         CalculatedCharacteristic.objects.create(
-            release_id=999,
+            analysis=create_test_analysis(repository, None, release_id=999),
             characteristic=reliability,
             repository=repository,
             value=1,
         )
 
         CalculatedCharacteristic.objects.create(
-            release_id=999,
+            analysis=create_test_analysis(repository, None, release_id=999),
             characteristic=maintainability,
             repository=repository,
             value=1,
@@ -483,14 +484,14 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         )
 
         CalculatedCharacteristic.objects.create(
-            release_id=999,
+            analysis=create_test_analysis(repository1, None, release_id=999),
             characteristic=reliability,
             repository=repository1,
             value=1,
         )
 
         CalculatedCharacteristic.objects.create(
-            release_id=999,
+            analysis=create_test_analysis(repository1, None, release_id=999),
             characteristic=maintainability,
             repository=repository1,
             value=1,
@@ -532,7 +533,7 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
         repository = Repository.objects.create(name="Repositorio", key="repo-meta-zero", product=self.product)
         for key in ("reliability", "maintainability"):
             CalculatedCharacteristic.objects.create(
-                release_id=998,
+                analysis=create_test_analysis(repository, None, release_id=998),
                 characteristic=SupportedCharacteristic.objects.get(key=key),
                 repository=repository,
                 value=0.5,
@@ -570,20 +571,20 @@ class ReleaseEndpointsTestCase(APITestCaseExpanded):
 
         # (repository, release, characteristic) é único: um cálculo por característica
         CalculatedCharacteristic.objects.create(
-            release_id=999,
+            analysis=create_test_analysis(repository, None, release_id=999),
             characteristic=reliability,
             repository=repository,
             value=0.4,
         )
         CalculatedCharacteristic.objects.create(
-            release_id=999,
+            analysis=create_test_analysis(repository, None, release_id=999),
             characteristic=maintainability,
             repository=repository,
             value=0.6,
         )
         if security:
             CalculatedCharacteristic.objects.create(
-                release_id=999,
+                analysis=create_test_analysis(repository, None, release_id=999),
                 characteristic=security,
                 repository=repository,
                 value=0.9,

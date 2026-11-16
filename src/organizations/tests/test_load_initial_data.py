@@ -1,4 +1,5 @@
-﻿import os
+from utils.tests import create_test_analysis
+import os
 from unittest.mock import Mock, patch
 
 from django.conf import settings
@@ -49,8 +50,9 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
         repositories = self.command.create_badge_demo_repositories()
 
         repository_a = repositories["A"]
-        TSQMI.objects.create(value=0.01, repository=repository_a)
+        TSQMI.objects.create(analysis=create_test_analysis(repository_a, None), value=0.01, repository=repository_a)
         CalculatedCharacteristic.objects.create(
+            analysis=create_test_analysis(repository_a, None),
             characteristic=SupportedCharacteristic.objects.first(),
             value=0.01,
             repository=repository_a,
@@ -94,11 +96,7 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
             patch.object(Command, "create_fake_organizations"),
             patch.object(Command, "create_fake_products"),
             patch.object(Command, "create_fake_repositories"),
-            patch.object(Command, "create_fake_collected_metrics") as mock_create_fake_collected_metrics,
-            patch.object(Command, "create_fake_calculated_measures"),
-            patch.object(Command, "create_fake_calculated_subcharacteristics"),
-            patch.object(Command, "create_fake_calculated_characteristics"),
-            patch.object(Command, "create_fake_tsqmi_data") as mock_create_fake_tsqmi_data,
+            patch.object(Command, "create_fake_analyses") as mock_create_fake_analyses,
             patch.object(Command, "create_badge_demo_repositories") as mock_create_badge_demo_repositories,
             patch.object(Command, "create_badge_demo_values") as mock_create_badge_demo_values,
             patch.object(Command, "create_a_goal"),
@@ -115,8 +113,7 @@ class LoadInitialDataBadgeDemoTestCase(APITestCaseExpanded):
 
             mock_create_badge_demo_repositories.assert_called_once()
             mock_create_badge_demo_values.assert_called_once()
-            mock_create_fake_collected_metrics.assert_called()
-            mock_create_fake_tsqmi_data.assert_called()
+            mock_create_fake_analyses.assert_called()
 
     def test_create_balance_matrix_is_idempotent(self):
         characteristics = SupportedCharacteristic.objects.all()
@@ -137,25 +134,27 @@ class LoadInitialDataFakeDataTestCase(APITestCaseExpanded):
 
     def test_create_fake_tsqmi_data_creates_entries(self):
         self.command.fake_data = True
-        self.command.create_fake_tsqmi_data(self.repository)
-        self.assertEqual(self.repository.calculated_tsqmis.count(), 50)
+        self.command.create_fake_analyses(self.repository)
+        self.assertEqual(self.repository.calculated_tsqmis.count(), 30)
 
     @override_settings(CREATE_FAKE_DATA=False)
     def test_create_fake_tsqmi_data_skips_when_disabled(self):
         self.command.fake_data = False
-        self.command.create_fake_tsqmi_data(self.repository)
+        self.command.create_fake_analyses(self.repository)
         self.assertEqual(self.repository.calculated_tsqmis.count(), 0)
 
     def test_create_fake_tsqmi_data_skips_when_already_populated(self):
         for _ in range(50):
-            TSQMI.objects.create(value=0.5, repository=self.repository)
+            TSQMI.objects.create(
+                analysis=create_test_analysis(self.repository, None), value=0.5, repository=self.repository
+            )
         self.command.fake_data = True
-        self.command.create_fake_tsqmi_data(self.repository)
+        self.command.create_fake_analyses(self.repository)
         self.assertEqual(self.repository.calculated_tsqmis.count(), 50)
 
     def test_create_fake_calculated_measures_creates_entries(self):
         self.command.fake_data = True
-        self.command.create_fake_calculated_measures(self.repository)
+        self.command.create_fake_analyses(self.repository)
 
         calculated_keys = set(
             CalculatedMeasure.objects.filter(
@@ -172,7 +171,6 @@ class LoadInitialDataFakeDataTestCase(APITestCaseExpanded):
             "duplication_absense",
             "team_throughput",
             "ci_feedback_time",
-            "technical_debt_ratio",
         }
 
         self.assertEqual(calculated_keys, expected_keys)
@@ -180,7 +178,7 @@ class LoadInitialDataFakeDataTestCase(APITestCaseExpanded):
     @override_settings(CREATE_FAKE_DATA=False)
     def test_create_fake_calculated_measures_skips_when_disabled(self):
         self.command.fake_data = False
-        self.command.create_fake_calculated_measures(self.repository)
+        self.command.create_fake_analyses(self.repository)
         self.assertFalse(CalculatedMeasure.objects.filter(repository=self.repository).exists())
 
 
@@ -195,9 +193,7 @@ class CoreMetricsRegistrationTestCase(TestCase):
             for definition in measure.values()
             for metric_key in definition["metrics"]
         }
-        registered_keys = set(
-            SupportedMetric.objects.values_list("key", flat=True)
-        )
+        registered_keys = set(SupportedMetric.objects.values_list("key", flat=True))
 
         missing_keys = required_keys - registered_keys
         self.assertFalse(
@@ -216,9 +212,7 @@ class CoreMetricsRegistrationTestCase(TestCase):
             "cpu_usage",
             "memory_usage",
         }
-        registered_keys = set(
-            SupportedMetric.objects.values_list("key", flat=True)
-        )
+        registered_keys = set(SupportedMetric.objects.values_list("key", flat=True))
 
         self.assertEqual(registered_keys, expected_keys)
         self.assertEqual(SupportedMetric.objects.count(), 4)
@@ -337,3 +331,26 @@ class LoadInitialDataProtegeDadosReaisTestCase(TransactionTestCase):
         call_command("load_initial_data", fake_data=True)
 
         self.assertEqual(contagem(), primeira)
+
+    def test_reset_demo_preserves_real_analysis_and_rebuilds_complete_demo(self):
+        from math_model.models import QualityAnalysis
+
+        real = QualityAnalysis.objects.create(repository=self.repository)
+        call_command("load_initial_data", reset_demo_analyses=True)
+        self.assertTrue(QualityAnalysis.objects.filter(pk=real.pk).exists())
+        demo = Repository.objects.get(name="2022-1-MeasureSoftGram-Service")
+        analyses = list(demo.quality_analyses.all())
+        self.assertEqual(len(analyses), 30)
+        for analysis in analyses:
+            self.assertTrue(analysis.collected_metrics.exists())
+            self.assertTrue(analysis.calculated_measures.exists())
+            self.assertTrue(analysis.calculated_subcharacteristics.exists())
+            self.assertTrue(analysis.calculated_characteristics.exists())
+            self.assertEqual(analysis.tsqmis.count(), 1)
+            self.assertIsNotNone(analysis.release_id)
+            self.assertIsNotNone(analysis.release_configuration_id)
+        previous_ids = [analysis.pk for analysis in analyses]
+        call_command("load_initial_data", reset_demo_analyses=True)
+        self.assertFalse(QualityAnalysis.objects.filter(pk__in=previous_ids).exists())
+        self.assertEqual(demo.quality_analyses.count(), 30)
+        self.assertTrue(QualityAnalysis.objects.filter(pk=real.pk).exists())

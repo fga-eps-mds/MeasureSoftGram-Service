@@ -8,6 +8,8 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from releases.analyses import latest_analysis_records
+
 from characteristics.models import CalculatedCharacteristic
 from entity_trees.services import resolve_release_configuration
 from organizations.mixins import UserScopedMixin
@@ -44,7 +46,6 @@ from releases.service import (
     calculate_diff,
     get_accomplished_values,
     get_arrays_diff,
-    get_calculated_characteristic_by_ids_repositories,
     get_norm_diff,
     get_planned_values,
     get_process_calculated_characteristics,
@@ -69,8 +70,8 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
         visible = self.get_visible_repositories(product)
         return (
             Release.objects.filter(product=product)
-            .select_related('goal', 'created_by')
-            .prefetch_related(Prefetch('repositories', queryset=visible))
+            .select_related("goal", "created_by")
+            .prefetch_related(Prefetch("repositories", queryset=visible))
         )
 
     @action(detail=False, methods=["get"], url_path="is-valid")
@@ -141,18 +142,10 @@ class ReleaseModelViewSet(UserScopedMixin, viewsets.ModelViewSet):
         if release is None:
             return Response({"detail": RELEASE_NOT_FOUND}, status=404)
         visible_ids = list(self.get_visible_repositories(release.product).values_list("id", flat=True))
-        result_calculated = CalculatedCharacteristic.objects.filter(
-            release=release, repository_id__in=visible_ids
-        ).all()
-
-        if len(result_calculated) > 0:
-            accomplished = get_process_calculated_characteristics(list(result_calculated))
-        else:
-            release_ids = [repository.id for repository in release.repositories.all()]
-            ids_repositories = release_ids or visible_ids
-
-            result_calculated = get_calculated_characteristic_by_ids_repositories(ids_repositories)
-            accomplished = get_process_calculated_characteristics(list(result_calculated))
+        result_calculated = latest_analysis_records(
+            CalculatedCharacteristic.objects.filter(repository_id__in=visible_ids), release, visible_ids
+        )
+        accomplished = get_process_calculated_characteristics(list(result_calculated))
         if len(accomplished.keys()) > 0:
             for key_repository in accomplished:
                 arrays_rp_rd = get_arrays_diff(release.goal.data, accomplished[key_repository])
@@ -290,9 +283,7 @@ class EntityAnalysisViewSet(ReleaseScopedMixin, viewsets.ViewSet):
     def matrix(self, request, *args, **kwargs):
         level = request.query_params.get("level")
         if level not in MATRIX_LEVELS:
-            return Response(
-                {"detail": f"O parâmetro level deve ser um de: {', '.join(MATRIX_LEVELS)}."}, status=400
-            )
+            return Response({"detail": f"O parâmetro level deve ser um de: {', '.join(MATRIX_LEVELS)}."}, status=400)
 
         release = self.get_release()
         if release is None:

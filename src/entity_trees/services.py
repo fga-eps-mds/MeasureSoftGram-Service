@@ -33,6 +33,19 @@ def resolve_release_configuration(
        (a mais recente / vigente).
     """
     if release is not None:
+        from math_model.models import QualityAnalysis
+
+        analysis = (
+            QualityAnalysis.objects.filter(
+                release=release,
+                repository__product=product,
+                release_configuration__product=product,
+            )
+            .select_related("release_configuration")
+            .first()
+        )
+        if analysis is not None:
+            return analysis.release_configuration
         config = product.release_configuration.filter(
             created_at__lte=release.end_at,
         ).first()

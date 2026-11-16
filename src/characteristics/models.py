@@ -181,17 +181,8 @@ class CalculatedCharacteristic(models.Model):
         related_name="calculated_characteristics",
         on_delete=models.CASCADE,
     )
-    release = models.ForeignKey(
-        to="releases.Release",
-        related_name="calculated_characteristics",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-    )
     analysis = models.ForeignKey(
         to="math_model.QualityAnalysis",
         related_name="calculated_characteristics",
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
     )

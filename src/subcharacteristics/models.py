@@ -132,6 +132,4 @@ class CalculatedSubCharacteristic(models.Model):
         to="math_model.QualityAnalysis",
         related_name="calculated_subcharacteristics",
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
     )

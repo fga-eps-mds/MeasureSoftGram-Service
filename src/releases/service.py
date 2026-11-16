@@ -3,7 +3,7 @@ import logging
 import numpy as np
 from core.transformations import diff, norm_diff
 from django.db.models import QuerySet
-from django.utils import timezone
+from releases.analyses import latest_analysis_records
 
 from characteristics.models import CalculatedCharacteristic
 from releases.models import Release
@@ -50,20 +50,10 @@ def get_planned_values(release: Release):
 
 
 def get_accomplished_values(release: Release, repositories_ids: list[int]):
-    # Todos os cálculos da release, do mais recente para o mais antigo. A deduplicação em
-    # get_process_calculated_characteristics_to_list mantém o valor mais recente de cada
-    # característica por repositório. (Antes havia um [:2], que limitava a resposta às duas
-    # últimas características calculadas e escondia as demais.)
-    result_calculated = (
-        CalculatedCharacteristic.objects.filter(release=release)
-        .select_related("repository", "characteristic")
-        .order_by("-created_at")
-    )
-
-    if len(result_calculated) == 0:
-        result_calculated = get_calculated_characteristic_by_ids_repositories(repositories_ids)
-
-    return get_process_calculated_characteristics_to_list(list(result_calculated))
+    rows = latest_analysis_records(
+        CalculatedCharacteristic.objects.filter(repository_id__in=repositories_ids), release, repositories_ids
+    ).select_related("repository", "characteristic")
+    return get_process_calculated_characteristics_to_list(list(rows))
 
 
 def get_process_calculated_characteristics_to_list(
@@ -181,21 +171,6 @@ def get_process_calculated_characteristics(
     return accomplished
 
 
-def get_calculated_characteristic_by_ids_repositories(
-    ids_repositories: list[int],
-):
-    result_calculated = []
-    for id_repository in ids_repositories:
-        # todos os cálculos do repositório (sem o antigo [:2]); a deduplicação mantém o mais recente
-        calculated_characteristic = (
-            CalculatedCharacteristic.objects.filter(repository_id=id_repository, release=None)
-            .select_related("repository", "characteristic")
-            .order_by("-created_at")
-        )
-        result_calculated = result_calculated + list(calculated_characteristic)
-    return result_calculated
-
-
 def get_arrays_diff(goal_data: dict, characteristic_repo: dict):
     array_rp = []
     array_rd = []
@@ -230,36 +205,7 @@ def update_release_end_at(release_id: int, new_end_at):
     return release
 
 
-def filter_release_window(queryset: QuerySet, release: Release) -> QuerySet:
-    """
-    Restringe um queryset de valores calculados/coletados à janela da release.
-
-    A janela vai do dia de `start_at` ao dia de `end_at`, ambos inclusive, no fuso do
-    projeto. As datas da release são gravadas à meia-noite, então comparar o horário
-    exato deixaria de fora tudo o que foi calculado no último dia.
-    """
-    return queryset.filter(
-        created_at__date__gte=timezone.localtime(release.start_at).date(),
-        created_at__date__lte=timezone.localtime(release.end_at).date(),
-    )
-
-
-def get_latest_values_in_release_window(queryset: QuerySet, release: Release, entity_field: str) -> dict:
-    """
-    Último valor de cada entidade em cada repositório dentro da janela da release.
-
-    Mesma regra do gráfico de pulso do TSQMI (US06.01): vale o cálculo mais recente
-    feito entre `start_at` e `end_at`. `entity_field` é o nome do FK da entidade no
-    model (`characteristic`, `subcharacteristic`, `measure` ou `metric`).
-
-    Retorna `{(repository_id, entity_key): registro}`; a ausência da chave significa
-    que o repositório não tem valor na release.
-    """
-    entity_id = f"{entity_field}_id"
-    latest = (
-        filter_release_window(queryset, release)
-        .select_related(entity_field)
-        .order_by("repository_id", entity_id, "-created_at", "-id")
-        .distinct("repository_id", entity_id)
-    )
+def get_latest_analysis_values(queryset: QuerySet, release: Release, entity_field: str) -> dict:
+    repository_ids = release.product.repositories.values("id")
+    latest = latest_analysis_records(queryset, release, repository_ids).select_related(entity_field)
     return {(item.repository_id, getattr(item, entity_field).key): item for item in latest}

@@ -1,3 +1,4 @@
+from utils.tests import create_test_analysis
 from datetime import timedelta
 
 from django.test import override_settings
@@ -27,6 +28,7 @@ class LatestCalculatedTSQMIBadgeViewSetTest(APITestCaseExpanded):
 
     def _create_tsqmi(self, value):
         return TSQMI.objects.create(
+            analysis=create_test_analysis(self.repository, None),
             value=value,
             repository=self.repository,
         )

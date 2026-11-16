@@ -1,3 +1,4 @@
+from utils.tests import create_test_analysis
 from unittest.mock import MagicMock, Mock, patch
 
 from requests.exceptions import ConnectionError
@@ -577,8 +578,12 @@ class OnboardRepositoryTestCase(APITestCaseExpanded):
     def test_tsqmi_latest_and_history_serializers(self):
         from tsqmi.models import TSQMI
 
-        TSQMI.objects.create(repository=self.repository, value=0.85)
-        TSQMI.objects.create(repository=self.repository, value=0.90)
+        TSQMI.objects.create(
+            analysis=create_test_analysis(self.repository, None), repository=self.repository, value=0.85
+        )
+        TSQMI.objects.create(
+            analysis=create_test_analysis(self.repository, None), repository=self.repository, value=0.90
+        )
 
         from rest_framework.test import APIRequestFactory
 

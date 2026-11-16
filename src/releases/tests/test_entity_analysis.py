@@ -1,3 +1,4 @@
+from utils.tests import create_test_analysis
 from datetime import datetime, timedelta
 
 from django.utils import timezone
@@ -55,6 +56,7 @@ class EntityAnalysisEndpointTestCase(APITestCaseExpanded):
 
     def calculated_characteristic(self, repository, key, value, created_at):
         return CalculatedCharacteristic.objects.create(
+            analysis=create_test_analysis(repository, created_at),
             characteristic=SupportedCharacteristic.objects.get(key=key),
             repository=repository,
             value=value,
@@ -63,6 +65,7 @@ class EntityAnalysisEndpointTestCase(APITestCaseExpanded):
 
     def calculated_subcharacteristic(self, repository, key, value, created_at):
         return CalculatedSubCharacteristic.objects.create(
+            analysis=create_test_analysis(repository, created_at),
             subcharacteristic=SupportedSubCharacteristic.objects.get(key=key),
             repository=repository,
             value=value,
@@ -71,6 +74,7 @@ class EntityAnalysisEndpointTestCase(APITestCaseExpanded):
 
     def calculated_measure(self, repository, key, value, created_at):
         return CalculatedMeasure.objects.create(
+            analysis=create_test_analysis(repository, created_at),
             measure=SupportedMeasure.objects.get(key=key),
             repository=repository,
             value=value,
@@ -79,6 +83,7 @@ class EntityAnalysisEndpointTestCase(APITestCaseExpanded):
 
     def collected_metric(self, repository, key, value, created_at, qualifier="TRK", path=None):
         return CollectedMetric.objects.create(
+            analysis=create_test_analysis(repository, created_at),
             metric=SupportedMetric.objects.get(key=key),
             repository=repository,
             value=value,
@@ -174,7 +179,7 @@ class EntityAnalysisEndpointTestCase(APITestCaseExpanded):
     def test_metric_returns_project_level_raw_value(self):
         self.collected_metric(self.api, "coverage", 81.0, local_datetime(2026, 3, 15))
         # valor de arquivo não é o valor do repositório
-        self.collected_metric(self.api, "coverage", 10.0, local_datetime(2026, 3, 16), qualifier="FIL", path="a.py")
+        self.collected_metric(self.api, "coverage", 10.0, local_datetime(2026, 3, 15), qualifier="FIL", path="a.py")
         self.collected_metric(self.parser, "coverage", 5.0, local_datetime(2026, 3, 16), qualifier="FIL", path="b.py")
 
         response = self.get("metric", "coverage")
@@ -296,10 +301,10 @@ class EntityAnalysisEndpointTestCase(APITestCaseExpanded):
 
         self.assertEqual(self.entity_keys("metric"), ["total_builds"])
 
-    def test_entities_lists_metric_with_repository_level_value_outside_the_release_window(self):
+    def test_entities_excludes_metrics_without_analysis_linked_to_release(self):
         self.collected_metric(self.web, "total_builds", 12, local_datetime(2025, 1, 10))
 
-        self.assertEqual(self.entity_keys("metric"), ["total_builds"])
+        self.assertEqual(self.entity_keys("metric"), [])
 
     def test_entities_ignores_metrics_of_repositories_outside_the_product(self):
         other_org = self.get_organization(name="Other Organization", add_user=False)

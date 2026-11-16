@@ -4,7 +4,7 @@ Dados da Visão Geral de Qualidade por release (US07.01), para o Front desenhar 
 O planejado × realizado e o radar usam o `analysis-data` da release, e a Evolução Temporal e a
 tela do repositório usam `historical-values/*` (correções do PO de 21/10). Aqui ficam os totais
 e o Indicador Total da Qualidade (TSQMI) de cada repositório na release: o último calculado
-dentro da janela da release (ver `releases.service.filter_release_window`).
+dentro da janela da release (ver `releases.service.filter_release_analyses`).
 """
 
 from metrics.models import CollectedMetric
@@ -19,7 +19,7 @@ from releases.entity_analysis import (
     unique_by_key,
 )
 from releases.models import Release
-from releases.service import filter_release_window
+from releases.analyses import filter_release_analyses, latest_analysis_records
 from tsqmi.models import TSQMI
 
 TOTALS = {
@@ -40,7 +40,7 @@ def get_release_summary(release: Release, configuration, visible=None) -> dict:
     repositories_ids = [repository.id for repository in get_release_repositories(release, visible)]
 
     analyzed_repositories = (
-        filter_release_window(TSQMI.objects.filter(repository_id__in=repositories_ids), release)
+        filter_release_analyses(TSQMI.objects.filter(repository_id__in=repositories_ids), release)
         .order_by()
         .values("repository_id")
         .distinct()
@@ -48,7 +48,7 @@ def get_release_summary(release: Release, configuration, visible=None) -> dict:
     )
     # o mesmo caminho em dois repositórios são dois arquivos
     analyzed_files = (
-        filter_release_window(
+        filter_release_analyses(
             CollectedMetric.objects.filter(
                 repository_id__in=repositories_ids,
                 qualifier="FIL",
@@ -186,9 +186,5 @@ def serialize_release(release: Release) -> dict:
 
 
 def get_latest_tsqmis(release: Release, repositories_ids: list) -> dict:
-    latest = (
-        filter_release_window(TSQMI.objects.filter(repository_id__in=repositories_ids), release)
-        .order_by("repository_id", "-created_at", "-id")
-        .distinct("repository_id")
-    )
+    latest = latest_analysis_records(TSQMI.objects.all(), release, repositories_ids)
     return {item.repository_id: item for item in latest}

@@ -2,10 +2,8 @@
 Distribuição estatística (US21.03): como os valores de uma entidade do modelo se
 espalham entre as análises de um repositório na release.
 
-Cada análise é uma execução da coleta: MathModelServices.persist_all grava uma
-linha por entidade e por repositório. A série de cada entidade é lida sozinha,
-sem ligar as camadas pela data, então os dados antigos (em que as camadas da
-mesma análise têm instantes um pouco diferentes) entram sem tolerância.
+Cada análise é identificada por QualityAnalysis; as séries usam o vínculo salvo
+com a release, sem inferência pela data das camadas.
 """
 
 from statistics import fmean, quantiles, stdev, variance
@@ -27,7 +25,7 @@ from releases.entity_analysis import (
     get_repository_level_metric_keys,
     unique_by_key,
 )
-from releases.service import filter_release_window
+from releases.analyses import filter_release_analyses
 from subcharacteristics.models import CalculatedSubCharacteristic
 from tsqmi.models import TSQMI
 
@@ -182,15 +180,14 @@ def _get_series(level: str, repository, release, keys: list) -> dict:
     """Análises (created_at, valor) de cada entidade em `keys`, ordenadas por data."""
     if level == TSQMI_LEVEL:
         rows = (
-            filter_release_window(TSQMI.objects.filter(repository=repository), release)
-            .order_by("created_at", "id")
-            .values_list("created_at", "value")
+            filter_release_analyses(TSQMI.objects.filter(repository=repository), release)
+            .order_by("analysis__created_at", "analysis_id", "id")
+            .values_list("analysis__created_at", "value")
         )
         return {TSQMI_LEVEL: list(rows)}
 
     if level == CHARACTERISTIC:
-        # as linhas do fechamento da release (releases/jobs.py) não são análises
-        queryset = CalculatedCharacteristic.objects.filter(release__isnull=True)
+        queryset = CalculatedCharacteristic.objects.all()
     elif level == SUBCHARACTERISTIC:
         queryset = CalculatedSubCharacteristic.objects.all()
     elif level == MEASURE:
@@ -201,9 +198,9 @@ def _get_series(level: str, repository, release, keys: list) -> dict:
 
     key_field = f"{level}__key"
     rows = (
-        filter_release_window(queryset.filter(repository=repository, **{f"{key_field}__in": keys}), release)
-        .order_by("created_at", "id")
-        .values_list(key_field, "created_at", "value")
+        filter_release_analyses(queryset.filter(repository=repository, **{f"{key_field}__in": keys}), release)
+        .order_by("analysis__created_at", "analysis_id", "id")
+        .values_list(key_field, "analysis__created_at", "value")
     )
 
     series = {}

@@ -1,3 +1,4 @@
+from utils.tests import create_test_analysis
 from datetime import datetime, timedelta
 
 from django.db import connection
@@ -47,7 +48,11 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
         characteristic = SupportedCharacteristic.objects.get(key="maintainability")
         for n in range(5):
             CalculatedCharacteristic.objects.create(
-                characteristic=characteristic, repository=self.repository, value=n / 10, created_at=day(n)
+                analysis=create_test_analysis(self.repository, day(n)),
+                characteristic=characteristic,
+                repository=self.repository,
+                value=n / 10,
+                created_at=day(n),
             )
 
         self.assertEqual(self.history("characteristics", "maintainability"), [0.2, 0.3, 0.4])
@@ -56,7 +61,11 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
         subcharacteristic = SupportedSubCharacteristic.objects.get(key="modifiability")
         for n in range(5):
             CalculatedSubCharacteristic.objects.create(
-                subcharacteristic=subcharacteristic, repository=self.repository, value=n / 10, created_at=day(n)
+                analysis=create_test_analysis(self.repository, day(n)),
+                subcharacteristic=subcharacteristic,
+                repository=self.repository,
+                value=n / 10,
+                created_at=day(n),
             )
 
         self.assertEqual(self.history("subcharacteristics", "modifiability"), [0.2, 0.3, 0.4])
@@ -65,7 +74,11 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
         measure = SupportedMeasure.objects.get(key="test_coverage")
         for n in range(5):
             CalculatedMeasure.objects.create(
-                measure=measure, repository=self.repository, value=n / 10, created_at=day(n)
+                analysis=create_test_analysis(self.repository, day(n)),
+                measure=measure,
+                repository=self.repository,
+                value=n / 10,
+                created_at=day(n),
             )
 
         self.assertEqual(self.history("measures", "test_coverage"), [0.2, 0.3, 0.4])
@@ -74,7 +87,13 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
         measure = SupportedMeasure.objects.get(key="test_coverage")
         other_repository = self.get_repository(self.product, name="Outro Repositório")
         for repository in (self.repository, other_repository):
-            CalculatedMeasure.objects.create(measure=measure, repository=repository, value=0.5, created_at=day(0))
+            CalculatedMeasure.objects.create(
+                analysis=create_test_analysis(repository, day(0)),
+                measure=measure,
+                repository=repository,
+                value=0.5,
+                created_at=day(0),
+            )
 
         for endpoint in (self.url, self.url.replace("historical-values", "latest-values")):
             with CaptureQueriesContext(connection) as queries:
@@ -91,7 +110,12 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
         metric = SupportedMetric.objects.get(key="total_builds")
         for n in range(5):
             CollectedMetric.objects.create(
-                metric=metric, repository=self.repository, value=n, qualifier="TRK", created_at=day(n)
+                analysis=create_test_analysis(self.repository, day(n)),
+                metric=metric,
+                repository=self.repository,
+                value=n,
+                qualifier="TRK",
+                created_at=day(n),
             )
 
         self.assertEqual(self.history("metrics", "total_builds"), [2, 3, 4])
@@ -99,10 +123,16 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
     def test_metrics_history_filters_by_qualifier(self):
         metric = SupportedMetric.objects.get(key="coverage")
         CollectedMetric.objects.create(
-            metric=metric, repository=self.repository, value=70, qualifier="TRK", created_at=day(0)
+            analysis=create_test_analysis(self.repository, day(0)),
+            metric=metric,
+            repository=self.repository,
+            value=70,
+            qualifier="TRK",
+            created_at=day(0),
         )
         for n in range(3):
             CollectedMetric.objects.create(
+                analysis=create_test_analysis(self.repository, day(1)),
                 metric=metric,
                 repository=self.repository,
                 value=10 + n,
@@ -111,7 +141,12 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
                 created_at=day(1),
             )
         CollectedMetric.objects.create(
-            metric=metric, repository=self.repository, value=80, qualifier="TRK", created_at=day(2)
+            analysis=create_test_analysis(self.repository, day(2)),
+            metric=metric,
+            repository=self.repository,
+            value=80,
+            qualifier="TRK",
+            created_at=day(2),
         )
 
         self.assertEqual(self.history("metrics", "coverage", {"qualifier": "TRK"}), [70, 80])
@@ -120,7 +155,12 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
 
     def test_repositories_tsqmi_history_keeps_the_latest_records(self):
         for n in range(5):
-            TSQMI.objects.create(repository=self.repository, value=n / 10, created_at=day(n))
+            TSQMI.objects.create(
+                analysis=create_test_analysis(self.repository, day(n)),
+                repository=self.repository,
+                value=n / 10,
+                created_at=day(n),
+            )
 
         response = self.client.get(f"{self.product_url}/repositories-tsqmi-historical-values/")
 
@@ -141,22 +181,64 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
         latest_url = self.url.replace("historical-values", "latest-values")
         urls = [f"{base}/{entity}/" for base in (self.url, latest_url) for entity in ("metrics", "measures")]
 
-        CollectedMetric.objects.create(metric=metrics[0], repository=self.repository, value=1, created_at=day(0))
-        CalculatedMeasure.objects.create(measure=measures[0], repository=self.repository, value=0.1, created_at=day(0))
+        CollectedMetric.objects.create(
+            analysis=create_test_analysis(self.repository, day(0)),
+            metric=metrics[0],
+            repository=self.repository,
+            value=1,
+            created_at=day(0),
+        )
+        CalculatedMeasure.objects.create(
+            analysis=create_test_analysis(self.repository, day(0)),
+            measure=measures[0],
+            repository=self.repository,
+            value=0.1,
+            created_at=day(0),
+        )
         with_one_entity = [self.count_queries(url) for url in urls]
 
         for n, (metric, measure) in enumerate(zip(metrics[1:], measures[1:])):
-            CollectedMetric.objects.create(metric=metric, repository=self.repository, value=n, created_at=day(n))
-            CalculatedMeasure.objects.create(measure=measure, repository=self.repository, value=0.1, created_at=day(n))
+            CollectedMetric.objects.create(
+                analysis=create_test_analysis(self.repository, day(n)),
+                metric=metric,
+                repository=self.repository,
+                value=n,
+                created_at=day(n),
+            )
+            CalculatedMeasure.objects.create(
+                analysis=create_test_analysis(self.repository, day(n)),
+                measure=measure,
+                repository=self.repository,
+                value=0.1,
+                created_at=day(n),
+            )
 
         self.assertEqual([self.count_queries(url) for url in urls], with_one_entity)
 
     def test_latest_value_keeps_the_first_record_of_a_collection(self):
         # uma coleta grava vários registros no mesmo instante; fica o primeiro gravado, como antes
         metric = SupportedMetric.objects.get(key="coverage")
-        first = CollectedMetric.objects.create(metric=metric, repository=self.repository, value=70, created_at=day(1))
-        CollectedMetric.objects.create(metric=metric, repository=self.repository, value=10, created_at=day(1))
-        CollectedMetric.objects.create(metric=metric, repository=self.repository, value=5, created_at=day(0))
+        first = CollectedMetric.objects.create(
+            analysis=create_test_analysis(self.repository, day(1)),
+            metric=metric,
+            repository=self.repository,
+            value=70,
+            created_at=day(1),
+        )
+        CollectedMetric.objects.create(
+            analysis=create_test_analysis(self.repository, day(1)),
+            metric=metric,
+            repository=self.repository,
+            value=10,
+            created_at=day(1),
+        )
+        CollectedMetric.objects.create(
+            analysis=create_test_analysis(self.repository, day(0)),
+            metric=metric,
+            repository=self.repository,
+            value=5,
+            created_at=day(0),
+        )
 
         response = self.client.get(f"{self.url.replace('historical-values', 'latest-values')}/metrics/")
 
@@ -166,10 +248,21 @@ class HistoricalValuesEndpointsTestCase(APITestCaseExpanded):
     def test_latest_metric_value_filters_by_qualifier(self):
         metric = SupportedMetric.objects.get(key="coverage")
         CollectedMetric.objects.create(
-            metric=metric, repository=self.repository, value=10, qualifier="FIL", path="a.py", created_at=day(1)
+            analysis=create_test_analysis(self.repository, day(1)),
+            metric=metric,
+            repository=self.repository,
+            value=10,
+            qualifier="FIL",
+            path="a.py",
+            created_at=day(1),
         )
         CollectedMetric.objects.create(
-            metric=metric, repository=self.repository, value=70, qualifier="TRK", created_at=day(1)
+            analysis=create_test_analysis(self.repository, day(1)),
+            metric=metric,
+            repository=self.repository,
+            value=70,
+            qualifier="TRK",
+            created_at=day(1),
         )
         latest_url = f"{self.url.replace('historical-values', 'latest-values')}/metrics/"
 

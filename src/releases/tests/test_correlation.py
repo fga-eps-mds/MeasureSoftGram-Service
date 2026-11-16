@@ -1,3 +1,5 @@
+from utils.tests import create_test_analysis
+from math_model.models import QualityAnalysis
 from datetime import datetime, timedelta
 
 from django.contrib.auth import get_user_model
@@ -90,15 +92,22 @@ class CorrelationEndpointTestCase(APITestCaseExpanded):
 
     def characteristic(self, key, value, in_release, hours=10, **fields):
         return CalculatedCharacteristic.objects.create(
+            analysis=(
+                QualityAnalysis.objects.create(
+                    repository=self.api, created_at=in_release.start_at + timedelta(hours=hours)
+                )
+                if fields.get("release")
+                else create_test_analysis(self.api, in_release.start_at + timedelta(hours=hours))
+            ),
             characteristic=SupportedCharacteristic.objects.get(key=key),
             repository=self.api,
             value=value,
             created_at=in_release.start_at + timedelta(hours=hours),
-            **fields,
         )
 
     def subcharacteristic(self, key, value, release):
         return CalculatedSubCharacteristic.objects.create(
+            analysis=create_test_analysis(self.api, release.start_at + timedelta(hours=10)),
             subcharacteristic=SupportedSubCharacteristic.objects.get(key=key),
             repository=self.api,
             value=value,
@@ -183,6 +192,8 @@ class CorrelationEndpointTestCase(APITestCaseExpanded):
         self.characteristic("functional_suitability", 0.7, releases[2])
         # análise mais recente da primeira release
         self.characteristic("functional_suitability", 0.9, releases[0], hours=20)
+        self.characteristic("reliability", 0.1, releases[0], hours=20)
+        self.characteristic("maintainability", 0.3, releases[0], hours=20)
 
         data = self.get().json()
 
@@ -219,7 +230,7 @@ class CorrelationEndpointTestCase(APITestCaseExpanded):
             {"reliability": 0.3, "maintainability": 0.2, "functional_suitability": None},
         )
 
-    def test_release_closing_rows_are_not_analyses(self):
+    def test_detached_legacy_analyses_are_not_in_release(self):
         releases = self.create_releases(3)
         self.characteristics(
             releases,

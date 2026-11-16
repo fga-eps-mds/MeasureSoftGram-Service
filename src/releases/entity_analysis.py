@@ -7,7 +7,7 @@ from characteristics.models import CalculatedCharacteristic, SupportedCharacteri
 from measures.models import CalculatedMeasure, SupportedMeasure
 from metrics.models import CollectedMetric, SupportedMetric
 from releases.models import Release
-from releases.service import get_latest_values_in_release_window
+from releases.service import get_latest_analysis_values
 from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
 
 CHARACTERISTIC = "characteristic"
@@ -159,6 +159,7 @@ def get_repository_level_metric_keys(release: Release, keys: list, visible=None)
     repositories_ids = [repository.id for repository in get_release_repositories(release, visible)]
     return set(
         CollectedMetric.objects.filter(
+            analysis__release=release,
             metric__key__in=keys,
             qualifier="TRK",
             repository_id__in=repositories_ids,
@@ -197,7 +198,7 @@ def get_entity_values(level: str, release: Release, repositories_ids: list, keys
         # o valor do repositório é o da métrica no nível do projeto, não o de cada arquivo
         queryset = CollectedMetric.objects.filter(metric__key__in=keys, qualifier="TRK")
 
-    return get_latest_values_in_release_window(queryset.filter(repository_id__in=repositories_ids), release, level)
+    return get_latest_analysis_values(queryset.filter(repository_id__in=repositories_ids), release, level)
 
 
 def _get_children(level: str, key: str, entities: dict, release: Release, repositories_ids: list) -> list:

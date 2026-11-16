@@ -1,3 +1,5 @@
+from utils.tests import create_test_analysis
+
 """
 Smoke tests do endpoint de cálculo do modelo matemático.
 
@@ -130,6 +132,7 @@ class MathModelAtomicitySmokeTest(APITestCaseExpanded):
         # payload (única fonte permitida pós-refactor).
         ncloc = SupportedMetric.objects.get(key="ncloc")
         CollectedMetric.objects.create(
+            analysis=create_test_analysis(self.repository, None),
             value=999,
             metric=ncloc,
             repository=self.repository,

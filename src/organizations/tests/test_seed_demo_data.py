@@ -7,6 +7,8 @@ from django.utils import timezone
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APIClient
 
+from math_model.models import QualityAnalysis
+
 from characteristics.models import CalculatedCharacteristic
 from goals.models import Goal
 from metrics.models import CollectedMetric
@@ -107,6 +109,7 @@ class SeedDemoDataTestCase(APITestCaseExpanded):
             product=self.product,
             goal=goal,
         )
+        QualityAnalysis.objects.filter(repository=self.repository).update(release=release)
         client = APIClient()
         client.force_authenticate(self.admin, token=Token.objects.create(user=self.admin))
 

@@ -2,7 +2,7 @@
 Test settings — DJANGO_SETTINGS_MODULE=config.settings.test
 
 DEBUG desligado, banco isolado (sufixo _test), hasher rapido,
-APScheduler desligado pra nao subir o cron job em testes.
+Sem geração de dados de demonstração.
 """
 
 from .base import *  # noqa: F401,F403
@@ -16,9 +16,6 @@ DATABASES["default"]["NAME"] = f"{DATABASES['default']['NAME']}_test"
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.MD5PasswordHasher",
 ]
-
-# Nao registra o job cron de releases.
-SCHEDULER_AUTOSTART = False
 
 # Em testes: nao popular fake data; cada teste usa fixtures proprios.
 CREATE_FAKE_DATA = False

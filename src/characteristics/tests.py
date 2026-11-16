@@ -1,4 +1,5 @@
-﻿from datetime import timedelta
+from utils.tests import create_test_analysis
+from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.test import override_settings
@@ -88,6 +89,7 @@ class LatestCalculatedCharacteristicBadgeViewSetTest(APITestCaseExpanded):
     def _create_calculated_characteristic(self, value, characteristic=None):
         char = characteristic or self.characteristic
         return CalculatedCharacteristic.objects.create(
+            analysis=create_test_analysis(self.repository, None),
             characteristic=char,
             value=value,
             repository=self.repository,

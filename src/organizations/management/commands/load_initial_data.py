@@ -1,9 +1,8 @@
-﻿# Python Imports
+# Python Imports
 import contextlib
 import datetime as dt
 import logging
 import os
-import random
 
 # 3rd Party Imports
 from django.conf import settings
@@ -11,28 +10,30 @@ from django.conf import settings
 # Django Imports
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
-from django.db.models import Count
+from django.db import transaction
 from django.db.utils import IntegrityError
 from django.utils import timezone
 from staticfiles import SUPPORTED_MEASURES
 
 import utils
+from math_model.models import QualityAnalysis
+from utils.demo_payload import demo_payload, persist_demo_analysis
+
 from characteristics.models import CalculatedCharacteristic, SupportedCharacteristic
 from goals.serializers import GoalSerializer
-from measures.models import CalculatedMeasure, SupportedMeasure
-from metrics.models import CollectedMetric, SupportedMetric
+from measures.models import SupportedMeasure
+from metrics.models import SupportedMetric
 from organizations.models import Organization, Product, Repository
 from release_configuration.models import ReleaseConfiguration
 from releases.models import Release
-from subcharacteristics.models import CalculatedSubCharacteristic, SupportedSubCharacteristic
+from subcharacteristics.models import SupportedSubCharacteristic
 from tsqmi.models import TSQMI
 from utils.runtime_metrics import (
     RUNTIME_AVAILABLE_METRICS,
-    RUNTIME_MEASURE_KEYS,
 )
 
 # Local Imports
-from utils import exceptions, get_random_path, get_random_qualifier, get_random_value, staticfiles
+from utils import exceptions, staticfiles
 
 from .utils import create_balance_matrix, create_supported_characteristics, get_random_goal_data
 
@@ -93,6 +94,11 @@ class Command(BaseCommand):
     help = "Registra os dados iniciais no banco de dados"
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            "--reset-demo-analyses",
+            action="store_true",
+            help="Recria somente análises dos repositórios locais de demonstração; preserva organizações importadas.",
+        )
         # Create fake data
         parser.add_argument(
             "--fake-data",
@@ -117,7 +123,7 @@ class Command(BaseCommand):
     def _create_measures_with_metrics(self, supported_measures):
         for measure_data in supported_measures:
             measure_key = next(iter(measure_data))
-            with contextlib.suppress(IntegrityError):
+            with contextlib.suppress(IntegrityError), transaction.atomic():
                 measure_name = utils.namefy(measure_key)
 
                 # `key` é único e `name` não: buscar pelos dois falha em medida já cadastrada com outro nome.
@@ -167,7 +173,7 @@ class Command(BaseCommand):
             for metric in data
         ]
         for metric in sonar_metrics:
-            with contextlib.suppress(IntegrityError):
+            with contextlib.suppress(IntegrityError), transaction.atomic():
                 metric.save()
 
     def create_github_supported_metrics(self):
@@ -181,113 +187,18 @@ class Command(BaseCommand):
         ]
 
         for metric in github_metrics:
-            with contextlib.suppress(IntegrityError):
+            with contextlib.suppress(IntegrityError), transaction.atomic():
                 metric.save()
 
     def model_generator(self, model, metrics):
         for metric in metrics:
-            with contextlib.suppress(IntegrityError):
+            with contextlib.suppress(IntegrityError), transaction.atomic():
                 model.objects.create(
                     key=metric["key"],
                     name=metric["name"],
                     description=metric.get("description", ""),
                     metric_type=metric["type"],
                 )
-
-    def create_fake_calculated_entity(
-        self,
-        qs,
-        calculated_entity_factory,
-        bulk_create_klass,
-        get_entity_qty,
-    ):
-        if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
-            return
-
-        end_date = timezone.now()
-        start_date = end_date - dt.timedelta(days=90)
-        total_seconds = int((end_date - start_date).total_seconds())
-
-        MIN_NUMBER = 50
-        fake_calculated_entities = []
-
-        for entity in qs:
-            qty = get_entity_qty(entity)
-            needed = MIN_NUMBER - qty
-
-            if needed <= 0:
-                continue
-
-            step = total_seconds // needed
-            for i in range(needed):
-                jitter = random.randint(-(step // 4), step // 4)
-                offset = max(0, min(step * i + jitter, total_seconds))
-                created_at = timezone.make_aware(dt.datetime.fromtimestamp(int(start_date.timestamp()) + offset))
-                fake_calculated_entities.append(
-                    calculated_entity_factory(entity, created_at),
-                )
-
-        bulk_create_klass.objects.bulk_create(fake_calculated_entities)
-
-    def create_fake_collected_metrics(self, repository):
-        qs = SupportedMetric.objects.all()
-
-        def calculated_entity_factory(entity, created_at):
-            metric_type = entity.metric_type
-            value = get_random_value(metric_type)
-
-            return CollectedMetric(
-                metric=entity,
-                path=get_random_path(),
-                qualifier=get_random_qualifier(),
-                value=value,
-                created_at=created_at,
-                repository=repository,
-            )
-
-        def get_entity_qty(entity):
-            return entity.collected_metrics.filter(
-                repository=repository,
-            ).count()
-
-        self.create_fake_calculated_entity(
-            qs,
-            calculated_entity_factory,
-            CollectedMetric,
-            get_entity_qty,
-        )
-
-    def create_fake_calculated_measures(self, repository):
-        qs = SupportedMeasure.objects.exclude(
-            key__in=RUNTIME_MEASURE_KEYS
-        )
-        current_entity = [None]
-        state = [random.uniform(0.5, 0.85)]
-
-        def calculated_entity_factory(entity, created_at):
-            if entity != current_entity[0]:
-                current_entity[0] = entity
-                state[0] = random.uniform(0.5, 0.85)
-            val = state[0]
-            state[0] = max(0.05, min(0.95, state[0] + random.uniform(-0.04, 0.04)))
-            return CalculatedMeasure(
-                measure=entity,
-                value=val,
-                created_at=created_at,
-                repository=repository,
-            )
-
-        def get_entity_qty(entity):
-            return entity.calculated_measures.filter(
-                repository=repository,
-            ).count()
-
-        self.create_fake_calculated_entity(
-            qs,
-            calculated_entity_factory,
-            CalculatedMeasure,
-            get_entity_qty,
-        )
 
     def create_supported_subcharacteristics(self):
         supported_subcharacteristics = [
@@ -327,7 +238,7 @@ class Command(BaseCommand):
         ]
 
         for subcharacteristic in supported_subcharacteristics:
-            with contextlib.suppress(IntegrityError):
+            with contextlib.suppress(IntegrityError), transaction.atomic():
                 klass = SupportedSubCharacteristic
 
                 sub_char, _ = klass.objects.get_or_create(
@@ -376,70 +287,6 @@ class Command(BaseCommand):
     def create_balance_matrix(self):
         characteristics = SupportedCharacteristic.objects.all()
         create_balance_matrix(characteristics)
-
-    def create_fake_calculated_characteristics(self, repository):
-        qs = SupportedCharacteristic.objects.annotate(
-            qty=Count("calculated_characteristics"),
-        )
-        current_entity = [None]
-        state = [random.uniform(0.5, 0.85)]
-
-        def calculated_entity_factory(entity, created_at):
-            if entity != current_entity[0]:
-                current_entity[0] = entity
-                state[0] = random.uniform(0.5, 0.85)
-            val = state[0]
-            state[0] = max(0.05, min(0.95, state[0] + random.uniform(-0.04, 0.04)))
-            return CalculatedCharacteristic(
-                characteristic=entity,
-                value=val,
-                created_at=created_at,
-                repository=repository,
-            )
-
-        def get_entity_qty(entity):
-            return entity.calculated_characteristics.filter(
-                repository=repository,
-            ).count()
-
-        self.create_fake_calculated_entity(
-            qs,
-            calculated_entity_factory,
-            CalculatedCharacteristic,
-            get_entity_qty,
-        )
-
-    def create_fake_calculated_subcharacteristics(self, repository):
-        qs = SupportedSubCharacteristic.objects.annotate(
-            qty=Count("calculated_subcharacteristics"),
-        )
-        current_entity = [None]
-        state = [random.uniform(0.5, 0.85)]
-
-        def calculated_entity_factory(entity, created_at):
-            if entity != current_entity[0]:
-                current_entity[0] = entity
-                state[0] = random.uniform(0.5, 0.85)
-            val = state[0]
-            state[0] = max(0.05, min(0.95, state[0] + random.uniform(-0.04, 0.04)))
-            return CalculatedSubCharacteristic(
-                subcharacteristic=entity,
-                value=val,
-                created_at=created_at,
-                repository=repository,
-            )
-
-        def get_entity_qty(entity):
-            return entity.calculated_subcharacteristics.filter(
-                repository=repository,
-            ).count()
-
-        self.create_fake_calculated_entity(
-            qs,
-            calculated_entity_factory,
-            CalculatedSubCharacteristic,
-            get_entity_qty,
-        )
 
     def demo_organizations(self):
         """
@@ -542,32 +389,6 @@ class Command(BaseCommand):
                 product=product,
                 goal=goal,
             )
-
-    def create_fake_tsqmi_data(self, repository):
-        if self.fake_data is False and settings.CREATE_FAKE_DATA is False:
-            return
-
-        qs = TSQMI.objects.filter(repository=repository)
-
-        MIN_NUMBER = 50
-
-        if qs.count() >= MIN_NUMBER:
-            return
-
-        needed = MIN_NUMBER - qs.count()
-        end_date = timezone.now()
-        start_date = end_date - dt.timedelta(days=90)
-        total_seconds = int((end_date - start_date).total_seconds())
-        step = total_seconds // needed
-        val = random.uniform(0.5, 0.85)
-        tsqmi_list = []
-        for i in range(needed):
-            jitter = random.randint(-(step // 4), step // 4)
-            offset = max(0, min(step * i + jitter, total_seconds))
-            created_at = timezone.make_aware(dt.datetime.fromtimestamp(int(start_date.timestamp()) + offset))
-            tsqmi_list.append(TSQMI(value=val, repository=repository, created_at=created_at))
-            val = max(0.05, min(0.95, val + random.uniform(-0.04, 0.04)))
-        TSQMI.objects.bulk_create(tsqmi_list)
 
     def create_fake_organizations(self):
         organizations = [
@@ -770,13 +591,19 @@ class Command(BaseCommand):
         for repo_data in BADGE_DEMO_REPOSITORIES:
             repository = repositories[repo_data["grade"]]
 
-            repository.calculated_tsqmis.all().delete()
-            repository.calculated_characteristics.all().delete()
+            repository.quality_analyses.all().delete()
 
             if repo_data["value"] is None:
                 continue
 
+            analysis = QualityAnalysis.objects.create(
+                repository=repository,
+                created_at=created_at,
+                is_partial=True,
+                missing_inputs=["badge_demo:characteristics_only"],
+            )
             TSQMI.objects.create(
+                analysis=analysis,
                 value=repo_data["value"],
                 repository=repository,
                 created_at=created_at,
@@ -785,6 +612,7 @@ class Command(BaseCommand):
             CalculatedCharacteristic.objects.bulk_create(
                 [
                     CalculatedCharacteristic(
+                        analysis=analysis,
                         characteristic=characteristic,
                         value=repo_data["value"],
                         created_at=created_at,
@@ -794,11 +622,22 @@ class Command(BaseCommand):
                 ]
             )
 
+    @transaction.atomic
+    def create_fake_analyses(self, repository):
+        """Executa o mesmo cálculo da Action; nunca gera camadas independentes."""
+        if not (settings.CREATE_FAKE_DATA or getattr(self, "fake_data", False)):
+            return
+        if repository.quality_analyses.exists():
+            return
+        for day in range(89, -1, -3):
+            at = timezone.now() - dt.timedelta(days=day)
+            persist_demo_analysis(repository, at, demo_payload(day))
+
     def handle(self, *args, **kwargs):
-        self.fake_data = kwargs.get("fake_data")
+        self.fake_data = kwargs.get("fake_data") or kwargs.get("reset_demo_analyses")
 
         user_model = get_user_model()
-        with contextlib.suppress(IntegrityError):
+        with contextlib.suppress(IntegrityError), transaction.atomic():
             user_model.objects.create_superuser(
                 username=os.getenv("SUPERADMIN_USERNAME", "admin"),
                 email=os.getenv("SUPERADMIN_EMAIL", "admin@admin.com"),
@@ -824,15 +663,14 @@ class Command(BaseCommand):
         self.create_fake_repositories()
         badge_demo_repositories = self.create_badge_demo_repositories()
 
-        for repository in self.demo_repositories():
-            self.create_fake_collected_metrics(repository)
-            self.create_fake_calculated_measures(repository)
-            self.create_fake_calculated_subcharacteristics(repository)
-            self.create_fake_calculated_characteristics(repository)
-            self.create_fake_tsqmi_data(repository)
-
-        self.create_badge_demo_values(badge_demo_repositories)
+        if kwargs.get("reset_demo_analyses"):
+            QualityAnalysis.objects.filter(repository__in=self.demo_repositories()).delete()
 
         for product in self.demo_products():
             self.create_a_goal(product)
             self.create_a_release(product)
+
+        for repository in self.demo_repositories():
+            self.create_fake_analyses(repository)
+
+        self.create_badge_demo_values(badge_demo_repositories)

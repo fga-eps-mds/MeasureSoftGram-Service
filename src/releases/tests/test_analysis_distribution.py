@@ -1,3 +1,5 @@
+from utils.tests import create_test_analysis
+from math_model.models import QualityAnalysis
 from datetime import datetime
 
 from django.contrib.auth import get_user_model
@@ -160,19 +162,29 @@ class AnalysisDistributionEndpointTestCase(APITestCaseExpanded):
         return self.client.get(self.url, {**query, **params})
 
     def tsqmi(self, value, created_at, repository=None):
-        return TSQMI.objects.create(repository=repository or self.api, value=value, created_at=created_at)
+        return TSQMI.objects.create(
+            analysis=create_test_analysis(repository or self.api, created_at),
+            repository=repository or self.api,
+            value=value,
+            created_at=created_at,
+        )
 
     def characteristic(self, key, value, created_at, **fields):
         return CalculatedCharacteristic.objects.create(
+            analysis=(
+                QualityAnalysis.objects.create(repository=self.api, created_at=created_at)
+                if fields.get("release")
+                else create_test_analysis(self.api, created_at)
+            ),
             characteristic=SupportedCharacteristic.objects.get(key=key),
             repository=self.api,
             value=value,
             created_at=created_at,
-            **fields,
         )
 
     def subcharacteristic(self, key, value, created_at):
         return CalculatedSubCharacteristic.objects.create(
+            analysis=create_test_analysis(self.api, created_at),
             subcharacteristic=SupportedSubCharacteristic.objects.get(key=key),
             repository=self.api,
             value=value,
@@ -181,6 +193,7 @@ class AnalysisDistributionEndpointTestCase(APITestCaseExpanded):
 
     def measure(self, key, value, created_at):
         return CalculatedMeasure.objects.create(
+            analysis=create_test_analysis(self.api, created_at),
             measure=SupportedMeasure.objects.get(key=key),
             repository=self.api,
             value=value,
@@ -189,6 +202,7 @@ class AnalysisDistributionEndpointTestCase(APITestCaseExpanded):
 
     def metric(self, key, value, created_at, qualifier="TRK", path=None):
         return CollectedMetric.objects.create(
+            analysis=create_test_analysis(self.api, created_at),
             metric=SupportedMetric.objects.get(key=key),
             repository=self.api,
             value=value,
@@ -312,7 +326,7 @@ class AnalysisDistributionEndpointTestCase(APITestCaseExpanded):
 
         self.assertEqual(response.status_code, 400)
 
-    def test_release_closing_rows_are_not_analyses(self):
+    def test_detached_legacy_analyses_are_not_in_release(self):
         self.characteristic("reliability", 0.6, local_datetime(2026, 3, 5))
         # linha do fechamento da release, dentro da mesma janela
         self.characteristic("reliability", 0.1, local_datetime(2026, 3, 31, 12), release=self.release)
@@ -322,7 +336,7 @@ class AnalysisDistributionEndpointTestCase(APITestCaseExpanded):
         self.assertEqual(self.values(data["entity"]), [0.6])
         self.assertEqual(data["period"]["count"], 1)
 
-    def test_release_closing_rows_are_not_children_analyses(self):
+    def test_detached_legacy_analyses_are_not_children(self):
         self.tsqmi(0.6, local_datetime(2026, 3, 5))
         self.characteristic("reliability", 0.1, local_datetime(2026, 3, 31, 12), release=self.release)
 

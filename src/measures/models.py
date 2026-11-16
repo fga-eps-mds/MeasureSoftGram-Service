@@ -111,6 +111,4 @@ class CalculatedMeasure(models.Model):
         to="math_model.QualityAnalysis",
         related_name="calculated_measures",
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
     )

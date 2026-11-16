@@ -77,7 +77,6 @@ THIRD_PARTY_APPS = [
     "allauth.socialaccount",
     "allauth.socialaccount.providers.github",
     "allauth.socialaccount.providers.gitlab",
-    "django_apscheduler",
     "drf_yasg",
 ]
 
@@ -337,20 +336,6 @@ GITHUB_SUPPORTED_MEASURES = [
     },
     {"ci_feedback_time": {"metrics": ["sum_ci_feedback_times", "total_builds"]}},
 ]
-
-SCHEDULER_CONFIG = {
-    "apscheduler.jobstores.default": {
-        "class": "django_apscheduler.jobstores:DjangoJobStore",
-    },
-    "apscheduler.executors.default": {
-        "class": "apscheduler.executors.pool:ThreadPoolExecutor",
-        "max_workers": "1",
-    },
-    "apscheduler.job_defaults.coalesce": "false",
-    "apscheduler.job_defaults.max_instances": "1",
-    "apscheduler.timezone": "America/Sao_Paulo",
-}
-SCHEDULER_AUTOSTART = True
 
 LOGGING = {
     "version": 1,

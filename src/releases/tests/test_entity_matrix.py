@@ -1,3 +1,4 @@
+from utils.tests import create_test_analysis
 import copy
 from datetime import datetime
 
@@ -109,6 +110,7 @@ class EntityMatrixEndpointTestCase(APITestCaseExpanded):
         created_at = local_datetime(*when)
         for key, value in dict(measures).items():
             CalculatedMeasure.objects.create(
+                analysis=create_test_analysis(repository, created_at),
                 measure=SupportedMeasure.objects.get(key=key),
                 repository=repository,
                 value=value,
@@ -116,6 +118,7 @@ class EntityMatrixEndpointTestCase(APITestCaseExpanded):
             )
         for key, value in dict(subcharacteristics).items():
             CalculatedSubCharacteristic.objects.create(
+                analysis=create_test_analysis(repository, created_at),
                 subcharacteristic=SupportedSubCharacteristic.objects.get(key=key),
                 repository=repository,
                 value=value,
@@ -123,13 +126,19 @@ class EntityMatrixEndpointTestCase(APITestCaseExpanded):
             )
         for key, value in dict(characteristics).items():
             CalculatedCharacteristic.objects.create(
+                analysis=create_test_analysis(repository, created_at),
                 characteristic=SupportedCharacteristic.objects.get(key=key),
                 repository=repository,
                 value=value,
                 created_at=created_at,
             )
         if tsqmi is not None:
-            TSQMI.objects.create(repository=repository, value=tsqmi, created_at=created_at)
+            TSQMI.objects.create(
+                analysis=create_test_analysis(repository, created_at),
+                repository=repository,
+                value=tsqmi,
+                created_at=created_at,
+            )
 
     def save_api_release_values(self):
         self.march_measures = {"passed_tests": 0.9, "test_builds": 0.8, "test_coverage": 0.5}
