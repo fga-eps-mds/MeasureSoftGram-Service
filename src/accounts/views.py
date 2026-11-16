@@ -5,7 +5,9 @@ from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
+from dj_rest_auth.serializers import TokenSerializer
 from django.conf import settings
+from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
@@ -32,6 +34,11 @@ from accounts.serializers import (
 JSON_CONTENT_TYPE = "application/json"
 
 
+# o dj-rest-auth responde 200 com o token (sem JWT); o drf_yasg supõe 201 e descreveria o corpo do pedido
+SOCIAL_LOGIN_SCHEMA = method_decorator(name="post", decorator=swagger_auto_schema(responses={200: TokenSerializer}))
+
+
+@SOCIAL_LOGIN_SCHEMA
 class GithubLoginViewSet(SocialLoginView):
     """
     ViewSet para login via OAuth2 do Github
@@ -43,6 +50,7 @@ class GithubLoginViewSet(SocialLoginView):
     client_class = OAuth2Client
 
 
+@SOCIAL_LOGIN_SCHEMA
 class GitlabLoginViewSet(SocialLoginView):
     """
     ViewSet para login via OAuth2 do GitLab

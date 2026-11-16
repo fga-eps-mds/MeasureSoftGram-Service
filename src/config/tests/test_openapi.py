@@ -96,3 +96,18 @@ class OpenAPISchemaTests(SimpleTestCase):
     def test_nullable_nested_serializer_keeps_x_nullable_next_to_ref(self):
         previous_release = self.schema["definitions"]["EntityMatrix"]["properties"]["previous_release"]
         self.assertEqual(previous_release, {"$ref": "#/definitions/ReleaseRef", "x-nullable": True})
+
+    def test_social_login_documents_200_with_the_token(self):
+        # o dj-rest-auth responde 200 com {"key"}; o 201 padrão do drf_yasg descrevia o corpo do pedido
+        for path in ("/accounts/github/login/", "/accounts/gitlab/login/"):
+            with self.subTest(path=path):
+                responses = self.schema["paths"][path]["post"]["responses"]
+                self.assertEqual(list(responses), ["200"])
+                token = self.schema["definitions"][responses["200"]["schema"]["$ref"].split("/")[-1]]
+                self.assertEqual(token["required"], ["key"])
+
+    def test_organization_imports_document_201_with_the_organization(self):
+        for path in ("/organizations/import/", "/organizations/import-gitlab/", "/organizations/import-gitlab-user/"):
+            with self.subTest(path=path):
+                responses = self.schema["paths"][path]["post"]["responses"]
+                self.assertEqual(responses["201"]["schema"], {"$ref": "#/definitions/Organization"})
